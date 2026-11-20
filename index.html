@@ -343,8 +343,31 @@ const DOC = (()=>{
   function safeKey(s){ return String(s||'').replace(/[^A-Za-z0-9_\-]/g,'_'); }
   function logPath(key, kind, d){ return OUT_ROOT+'log/'+safeKey(key)+'/'+stamp(d)+'_'+safeKey(kind)+'.json'; }
 
+  /* ── P2 ACL — この TOOL の照合結果 (D-00/doc_tool/acl/{IV}_{UTC}.json) · 訂正依頼メール ── */
+  function utcStamp(d){ return (d||new Date()).toISOString().replace(/[-:]/g,'').replace('T','-').replace(/\.\d+Z$/,''); }   // acl_bench runId と同じ (UTC)
+  function aclResultPath(iv, d){ return OUT_ROOT+'acl/'+safeKey(up(iv))+'_'+utcStamp(d)+'.json'; }
+  function latestAcl(names){ const out={}; (names||[]).forEach(n=>{ const m=String(n).match(/^(.+)_(\d{8}-\d{6})\.json$/); if(!m) return; const k=up(m[1]); if(!out[k]||out[k].stamp<m[2]) out[k]={name:n, stamp:m[2]}; }); return out; }
+  const runStamp = runId => (String(runId||'').match(/(\d{8}-\d{6})/)||[])[1]||'';
+  const DIFF_ST=['DIFF','DROP','ADD'], NOTE_ST=['NOTATION','PRACTICE'];
+  function aclGroups(res){ const it=(res&&res.items)||[]; return {diff:it.filter(i=>DIFF_ST.indexOf(i.status)>=0), note:it.filter(i=>NOTE_ST.indexOf(i.status)>=0), match:it.filter(i=>i.status==='MATCH'),
+    disp:it.filter(i=>/表示欄/.test(i.group||'')), check:it.filter(i=>i.status==='READ_CHECK')}; }
+  /* 訂正依頼メール (日本語 · 担当者の実際の書き方 「…欄のご訂正をお願いいたします」 · 送るのは人) */
+  function mailDraft(res, ctx){
+    ctx=ctx||{}; const g=aclGroups(res), iv=up(res&&res.invoice), lines=[];
+    lines.push((ctx.company?ctx.company+' ':'')+'ご担当者 様','','いつもお世話になっております。株式会社リニアです。','許可書と ACL のご送付ありがとうございます。',
+      'Invoice '+iv+(ctx.booking?'（BKG '+ctx.booking+'）':'')+' の ACL について、下記欄のご訂正をお願いいたします。','');
+    const NL=String.fromCharCode(10), ind=s=>String(s).split(NL).join(NL+'        ');
+    g.diff.forEach((i,k)=>{ lines.push('■ '+(k+1)+'. '+i.label+' 欄'); lines.push('  ACL : '+ind(i.actual||'(空欄)')); lines.push('  → 正: '+ind(i.expected||'(空欄)')); lines.push(''); });
+    lines.push('何卒よろしくお願い申し上げます。','','✦ Powered by LEENAI Automation System');
+    return {subject:'[ACL訂正依頼] '+iv+(ctx.booking?' / BKG '+ctx.booking:''), body:lines.join(NL), to:ctx.to||'', cc:ctx.cc||'', n:g.diff.length};
+  }
+  function mailtoUrl(m, max){ const q=s=>encodeURIComponent(s); const to=String(m.to||'').split(/[;,\s]+/).filter(Boolean).join(','), cc=String(m.cc||'').split(/[;,\s]+/).filter(Boolean).join(',');
+    const head='mailto:'+to+'?subject='+q(m.subject)+(cc?'&cc='+q(cc):''); const full=head+'&body='+q(m.body);
+    return full.length<=(max||1800)?{url:full, cut:false}:{url:head+'&body='+q('（本文はクリップボードにコピーしました。ここに貼り付けてください）'), cut:true}; }
+
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
-    blKind, pickBl, aclFiles, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName};
+    blKind, pickBl, aclFiles, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
+    utcStamp, aclResultPath, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl};
 })();
 if(typeof module!=='undefined') module.exports=DOC;
 </script>
@@ -442,7 +465,7 @@ async function loadAll(){
     ids.forEach(id=>{ S.ctBk[id]=[]; S.sis[id]=[]; }); allBk.forEach(b=>{ (S.ctBk[b._cr49f_sale_contract_id_value]=S.ctBk[b._cr49f_sale_contract_id_value]||[]).push(b); });
     sis.forEach(s=>{ (S.sis[s._cr49f_sale_contract_id_value]=S.sis[s._cr49f_sale_contract_id_value]||[]).push(s); });
     render(); prog('SharePoint を読み込み中… (フォルダ · LC · ACL 照合結果)');
-    await Promise.all([loadLcFiles(), loadRoots(), loadAclRun(), loadMails()]);
+    await Promise.all([loadLcFiles(), loadRoots(), loadAclRun().then(loadAclLocal), loadMails()]);
     if(seq!==S.loadSeq) return;
     render();
     const list=S.bk.map(b=>DOC.up(b.cr49f_invoice_no)); let k=0;
@@ -498,7 +521,7 @@ async function loadMails(){
 /* ── 行データ ── */
 function ivRow(b){
   const iv=DOC.up(b.cr49f_invoice_no), c=S.ct[b._cr49f_sale_contract_id_value]||{}, reg=S.regions[b._cr49f_region_id_value]||{}, etd=DOC.etdOf(b), code=DOC.ivCode(iv), staff=S.docStaff[code]||'';
-  const x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), premium:b.crcf9_insurance_premiums, etdPast:etd<S.today, folder:S.folders[iv], acl:S.acl&&S.acl.by[iv]?{result:S.acl.by[iv], runId:S.acl.runId}:null, mailRules:S.mails[iv]||[]};
+  const x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), premium:b.crcf9_insurance_premiums, etdPast:etd<S.today, folder:S.folders[iv], acl:(S.aclLocal&&S.aclLocal[iv])||(S.acl&&S.acl.by[iv]?{result:S.acl.by[iv], runId:S.acl.runId}:null), mailRules:S.mails[iv]||[]};
   const cells=DOC.judgeIv(x);
   return {b, iv, ct:c.cr49f_sale_contract_no||'', ctId:b._cr49f_sale_contract_id_value, etd, country:x.country, pod:reg.pod, term:x.term, code, staff, cells, vchg:DOC.vesselChange(x), x};
 }
@@ -628,20 +651,28 @@ function ivTabHtml(r, tab){
   }
   return '';
 }
-/* ACL タブ (P1 = 保存済みの照合結果を表示 · P2 で 再照合 · 訂正依頼メール) */
-function aclItems(res){ const it=(res&&res.items)||[]; return {diff:it.filter(i=>['DIFF','DROP','ADD'].indexOf(i.status)>=0), note:it.filter(i=>['NOTATION','PRACTICE'].indexOf(i.status)>=0), match:it.filter(i=>i.status==='MATCH'), disp:it.filter(i=>i.group==='表示欄'), check:it.filter(i=>i.status==='READ_CHECK')}; }
+/* ACL タブ (画面案 v0.1) — 相違 · 表記差 · 一致 → 直してもらうところ (相違だけ) → 表示欄 → 表記差は折りたたみ → ACL を開く · 再照合 · 訂正依頼メール */
+const ST_JA = {MATCH:'一致', NOTATION:'表記差', PRACTICE:'表記(実績)', DIFF:'相違', DROP:'脱落', ADD:'追加', READ_CHECK:'読取確認', INFO:'参考'};
 function aclTabHtml(r){
-  const c=r.cells.acl, res=r.x.acl&&r.x.acl.result, g=aclItems(res);
-  const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">ACL 照合</div><div class="dt-note" style="font-size:13px">届いた ACL を COMPASS の S/I と照合した結果です。'+(res?' (保存済み '+esc(r.x.acl.runId)+')':'')+'</div></div>'+
-    (res?'<div class="dt-pills"><span class="p st-diff">相違 '+g.diff.length+'</span><span class="p st-wait">表記差 '+g.note.length+'</span><span class="p st-done">一致 '+g.match.length+'</span>'+(g.check.length?'<span class="p st-todo">読取確認 '+g.check.length+'</span>':'')+'</div>':'')+'</div>';
+  const c=r.cells.acl, res=r.x.acl&&r.x.acl.result, g=DOC.aclGroups(res), fresh=res&&/^照合/.test(c.why||'');
+  const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">ACL 照合</div><div class="dt-note" style="font-size:13px">届いた ACL を COMPASS の S/I と照合します（ファイルを選ぶ必要はありません）。'+
+    (res?' 表示中: '+esc(r.x.acl.runId)+(res.aclVersion?' · ACL '+esc(res.aclVersion):''):'')+'</div></div>'+
+    (res&&fresh?'<div class="dt-pills"><span class="p st-diff">相違 '+g.diff.length+'</span><span class="p st-wait">表記差 '+g.note.length+'</span><span class="p st-done">一致 '+g.match.length+'</span>'+(g.check.length?'<span class="p st-todo">読取確認 '+g.check.length+'</span>':'')+'</div>':'')+'</div>';
   let body=statusLine(c);
-  if(res&&c.s!=='todo'||res&&/^照合/.test(c.why)){
-    body+=g.diff.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#7A2416">直してもらうところ</div>'+g.diff.map(i=>'<div class="dt-grid3"><div><div class="dt-note">項目</div><div style="font-weight:500">'+esc(i.label)+'</div></div><div><div class="dt-note">ACL</div><div style="color:#7A2416;white-space:pre-wrap">'+esc(i.actual)+'</div></div><div><div class="dt-note">S/I（正）</div><div style="white-space:pre-wrap">'+esc(i.expected)+'</div></div></div>'+(i.detail?'<div class="dt-note">'+esc(i.detail)+'</div>':'')).join('<hr style="border:0;border-top:1px solid #EEF0EC;margin:4px 0">')+'</section>':'';
-    body+=g.disp.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#4A544D">表示欄</div><div class="dt-pills">'+g.disp.map(i=>'<span class="p st-'+(i.status==='MATCH'?'done':i.status==='INFO'||i.status==='READ_CHECK'?'wait':'diff')+'" title="'+esc(i.detail||'')+'">'+esc(i.label)+': '+esc(i.actual||'—')+'</span>').join('')+'</div></section>':'';
-    body+=g.note.length?'<details class="dt-card" style="padding:12px 18px"><summary class="dt-note" style="cursor:pointer">表記差 '+g.note.length+' 件（空白 · 大文字小文字など）は確認不要です。中身を見る</summary>'+g.note.map(i=>'<div class="dt-note" style="margin-top:6px"><b>'+esc(i.label)+'</b> '+esc(i.detail||'')+'</div>').join('')+'</details>':'';
+  if(res&&fresh){
+    if(res.why) body+='<div class="dt-note">'+esc(res.why)+'</div>';
+    body+=g.diff.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#7A2416">直してもらうところ</div>'+g.diff.map(i=>'<div class="dt-grid3"><div><div class="dt-note">項目</div><div style="font-weight:500">'+esc(i.label)+' <span class="dt-note">'+esc(ST_JA[i.status]||i.status)+'</span></div></div><div><div class="dt-note">ACL</div><div style="color:#7A2416;white-space:pre-wrap">'+esc(i.actual||'(空欄)')+'</div></div><div><div class="dt-note">S/I（正）</div><div style="white-space:pre-wrap">'+esc(i.expected||'(空欄)')+'</div></div></div>'+(i.detail?'<div class="dt-note">'+esc(i.detail)+'</div>':'')).join('<hr style="border:0;border-top:1px solid #EEF0EC;margin:4px 0">')+'</section>':'';
+    body+=g.check.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#6B4508">読み取りを確認するところ</div>'+g.check.map(i=>'<div class="dt-note"><b>'+esc(i.label)+'</b> ACL: '+esc(i.actual||'')+' · '+esc(i.detail||'')+'</div>').join('')+'</section>':'';
+    body+=g.disp.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#4A544D">表示欄</div><div class="dt-pills">'+g.disp.map(i=>'<span class="p st-'+(i.status==='MATCH'?'done':i.status==='INFO'?'wait':i.status==='READ_CHECK'?'todo':'diff')+'" title="'+esc(i.detail||'')+'">'+esc(i.label)+': '+esc(i.actual||'—')+'</span>').join('')+'</div></section>':'';
+    body+=g.note.length?'<details class="dt-card" style="padding:12px 18px"><summary class="dt-note" style="cursor:pointer">表記差 '+g.note.length+' 件（空白・大文字小文字など）は確認不要です。中身を見る</summary>'+g.note.map(i=>'<div class="dt-note" style="margin-top:6px"><b>'+esc(i.label)+'</b> '+esc(i.detail||'')+'</div>').join('')+'</details>':'';
+    const m=res.meta||{}; if(m.forwarderCompany||m.forwarder) body+='<div class="dt-note">乙仲: '+esc([m.forwarderCompany||m.forwarder,m.forwarderPort].filter(Boolean).join(' · '))+'</div>';
   }
-  const f=c.pick&&c.pick.f;
-  return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+'<div id="dtAclLive"></div><div class="dt-actions">'+(f&&f.webUrl?'<button class="dt-btn ghost" data-url="'+esc(f.webUrl)+'">ACL を開く</button>':'')+toolBtn('acl','acl_bench で照合')+'</div></section>';
+  const f=c.pick&&c.pick.f, can=!!(c.pick&&S.folders[r.iv]&&S.folders[r.iv].files);
+  return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+'<div id="dtAclSt" class="dt-note" style="font-size:13px"></div><div class="dt-actions">'+
+    (f&&f.webUrl?'<button class="dt-btn ghost" data-url="'+esc(f.webUrl)+'">ACL を開く</button>':'')+
+    (can?'<button class="dt-btn ghost" id="dtAclRun">'+(res&&fresh?'再照合':'照合する')+'</button>':'')+
+    (res&&fresh&&g.diff.length?'<button class="dt-btn ghost" id="dtAclCopy">本文をコピー</button><button class="dt-btn" id="dtAclMail">訂正依頼メールを作る</button>':'')+
+    '<button class="dt-btn ghost" data-open="acl">acl_bench を開く</button>'+'</div></section>';
 }
 /* 履歴 (SharePoint D-00/doc_tool/log/{key}/) */
 async function renderLog(key, elId){
@@ -740,6 +771,125 @@ async function runSearch(){
     if(ids.length>1) st.textContent='LC 番号が '+ids.length+' 件の契約に一致 — 最初の 1 件を開きました';
     return await openCt(ids[0]);
   }catch(e){ st.textContent='検索できません: '+e.message; }
+}
+
+/* ══════════ P2 — ACL タブ (acl_bench v0.4 のエンジンを共有) ══════════
+   エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
+   下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @243897d */
+const ACL_ENGINE = {commit:'243897d18878ca38329001e029a60b0101f79d59', sha256:'d4226dfc3581d261301a1dd290df9f10cef8b8720f4d1d115e89bea4fbb91ff6', ver:'0.4'};
+ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
+const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
+let ACLX = null;
+async function sha256hex(buf){ const h=await crypto.subtle.digest('SHA-256',buf); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+async function loadAclEngine(){
+  if(ACLX) return ACLX;
+  const r=await fetch(ACL_ENGINE.url); if(!r.ok) throw new Error('エンジンを読めません ('+r.status+')');
+  const buf=await r.arrayBuffer(), h=await sha256hex(buf);
+  if(h!==ACL_ENGINE.sha256) throw new Error('エンジンのファイルが一致しません (sha256) — 使いません');
+  const m=new TextDecoder('utf-8').decode(buf).match(/<script id="acl-core">([\s\S]*?)<\/script>/); if(!m) throw new Error('エンジンの部分が見つかりません');
+  ACLX=new Function('module', m[1]+';return ACL;')(undefined); return ACLX;
+}
+/* COMPASS: Invoice → ブッキング → 港 · コンテナ · S/I · S/I 明細 (acl_bench fetchCompass と同じ質問) */
+async function aclFetchCompass(inv){
+  if(!/^[A-Za-z0-9_\-]+$/.test(inv)) return {ok:false, reason:'Invoice 番号の形が違う'};
+  const bk=await dvAll(`cr49f_bookings?$filter=cr49f_invoice_no eq '${inv}'&$select=cr49f_bookingid,cr49f_booking_no,cr49f_bl_number,cr49f_main_ship_name,cr49f_invoice_no,crcf9_delivery_location,_cr49f_sale_contract_id_value,_cr49f_region_japan_id_value,_cr49f_region_id_value,_cr49f_carrier_id_value,_cr49f_fowarder_id_value,modifiedon`);
+  if(!bk.length) return {ok:false, reason:'COMPASS に Invoice '+inv+' のブッキングなし'};
+  const b=bk[0]; let pol='', pod='';
+  if(b._cr49f_region_japan_id_value){ try{ pol=(await dvGet(`crcf9_region_japans(${b._cr49f_region_japan_id_value})?$select=crcf9_pol`)).crcf9_pol||''; }catch(e){} }
+  if(b._cr49f_region_id_value){ try{ pod=(await dvGet(`cr49f_regions(${b._cr49f_region_id_value})?$select=cr49f_pod`)).cr49f_pod||''; }catch(e){} }
+  const containers=await dvAll(`crcf9_container_informations?$filter=_crcf9_booking_id_value eq ${b.cr49f_bookingid}&$select=crcf9_container_informationid,crcf9_container_no,crcf9_seal_no,crcf9_type,crcf9_quantity,crcf9_n_w,crcf9_g_w,crcf9_t_w,_crcf9_sale_detail_id_value`);
+  let sis=[]; const details={}; const cid=b._cr49f_sale_contract_id_value;
+  if(cid){
+    sis=await dvAll(`cr49f_s_is?$filter=_cr49f_sale_contract_id_value eq ${cid}&$select=cr49f_s_iid,crcf9_sino,cr49f_lc_no,crcf9_consignee,crcf9_notify_party,crcf9_address,crcf9_tel,crcf9_fax,crcf9_place_of_delivery_1,crcf9_place_of_delivery_2,crcf9_place_of_delivery_3,crcf9_pod_bl1,crcf9_pod_bl2,crcf9_pod_bl3,crcf9_bl_text1,crcf9_bl_text2,crcf9_shipper,crcf9_shipper_address,crcf9_shipper_tel,crcf9_shipper_fax,crcf9_shipping_mark,crcf9_local_agent_note,crcf9_payment_classification&$orderby=crcf9_sino asc`);
+    for(const s of sis) details[s.cr49f_s_iid]=await dvAll(`crcf9_s_i_details?$filter=_crcf9_s_i_id_value eq ${s.cr49f_s_iid}&$select=crcf9_productname,_crcf9_sale_detail_id_value,crcf9_hs_code,modifiedon`);
+  }
+  const meta={carrier:FV(b,'_cr49f_carrier_id_value'), forwarder:FV(b,'_cr49f_fowarder_id_value'), contract:'', buyer:'', buyerCode:'', country:'', pay:''};
+  if(cid){ try{ const sc=await dvGet(`cr49f_sale_contracts(${cid})?$select=cr49f_sale_contract_no,cr49f_pay_cls,_cr49f_buyer_id_value`); meta.contract=sc.cr49f_sale_contract_no||''; meta.pay=FV(sc,'cr49f_pay_cls')||sc.cr49f_pay_cls||'';
+      if(sc._cr49f_buyer_id_value){ const by=await dvGet(`cr49f_buyers(${sc._cr49f_buyer_id_value})?$select=cr49f_buyer,cr49f_buyer_code,crcf9_country`); meta.buyer=by.cr49f_buyer||FV(sc,'_cr49f_buyer_id_value'); meta.buyerCode=by.cr49f_buyer_code||''; meta.country=FV(by,'crcf9_country')||by.crcf9_country||''; } }catch(e){ meta.error=String(e.message||e); } }
+  const s1=ACLX.pickBlSi(sis); if(!meta.pay&&s1) meta.pay=FV(s1,'crcf9_payment_classification')||s1.crcf9_payment_classification||'';
+  const fid=b._cr49f_fowarder_id_value; if(fid){ try{ const f=await aclForwarder(fid); meta.forwarderCompany=f.company; meta.forwarderPort=f.port; meta.forwarderTo=f.to; meta.forwarderCc=f.cc; }catch(e){ meta.forwarderError=String(e.message||e); } }
+  return {ok:true, booking:b, bookings:bk.length, pol, pod, containers, sis, details, meta};
+}
+const FWD = {};
+function aclForwarder(id){   // + 宛先 (訂正依頼メールの To · Cc)
+  if(!FWD[id]) FWD[id]=dvGet(`crcf9_customses(${id})?$select=crcf9_forwarder_company,crcf9_pol,crcf9_forwarder_to_email,crcf9_forwarder_cc_email`).then(x=>{
+    const fv=k=>x[k+'@OData.Community.Display.V1.FormattedValue']||x[k]||''; return {company:fv('crcf9_forwarder_company'), port:fv('crcf9_pol'), to:x.crcf9_forwarder_to_email||'', cc:x.crcf9_forwarder_cc_email||''}; }).catch(e=>{ delete FWD[id]; throw e; });
+  return FWD[id];
+}
+async function aclRules(){
+  let items=null, err='';
+  try{ items=await LEENAI.master.get('si_rule'); if(!Array.isArray(items)) throw new Error('items が配列でない'); }catch(e){ items=null; err=String(e.message||e); }
+  const d=ACLX.dispRules(items||[]), pe=ACLX.podExcludeRules(items||[]);
+  return {loaded:!!items, rules:d.rules, warnings:d.warnings, podExclude:pe, error:err};
+}
+async function ensurePdfJs(){
+  if(window.pdfjsLib) return;
+  await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=PDFJS+'pdf.min.js'; s.onload=()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+'pdf.worker.min.js'; res(); }; s.onerror=rej; document.head.appendChild(s); });
+}
+async function readPdf(file){
+  const r=await graphFetch(drv()+'/items/'+file.id+'/content'); if(!r.ok) throw new Error('PDF 取得 '+r.status);
+  const buf=await r.arrayBuffer(); await ensurePdfJs();
+  let task=null, pdf=null;
+  try{
+    task=window.pdfjsLib.getDocument({data:new Uint8Array(buf), cMapUrl:PDFJS+'cmaps/', cMapPacked:true}); pdf=await task.promise; const pages=[];
+    for(let i=1;i<=pdf.numPages;i++){ const pg=await pdf.getPage(i), vp=pg.getViewport({scale:1}), tc=await pg.getTextContent();
+      pages.push({page:i, w:vp.width, items:tc.items.filter(it=>it.str&&it.str.trim()).map(it=>({s:it.str, x:Math.round(it.transform[4]*10)/10, y:Math.round(it.transform[5]*10)/10, w:Math.round((it.width||0)*10)/10}))}); }
+    return pages;
+  }finally{ const h=pdf||task; if(h) try{ await h.destroy(); }catch(e){} }   // 読み終えたら必ず閉じる (acl_bench v0.3.1)
+}
+/* この Invoice 1 件だけ照合 — acl_bench runCompare の 1 件分と同じ手順 · 結果の形も同じ */
+async function aclCompareOne(iv){
+  const E=await loadAclEngine(), f=S.folders[iv];
+  if(!f||!f.files) throw new Error('Invoice フォルダを読めていません');
+  const items=f.files.filter(x=>!x.sub&&/\.pdf$/i.test(x.name)).map(x=>({id:x.id, name:x.name, size:x.size, lastModifiedDateTime:x.lastModified, path:'/drives/'+LEENAI.SP.DRIVE_ID+'/root:/'+f.path}));
+  const t=E.groupTargets(items).targets.find(x=>DOC.up(x.invoice)===iv);
+  if(!t) throw new Error('{Invoice}_ACL.pdf がありません');
+  const r={invoice:t.invoice, file:t.file.path+'/'+t.file.name, fileModified:t.file.lastModifiedDateTime||'', aclVersion:t.aclVersion||'', others:(t.others||[]).map(o=>o.path+'/'+o.name), format:'', verdict:'', items:[], kinds:{}, xx:[]};
+  const pages=await readPdf(t.file), fm=E.classifyFormat(pages); r.format=fm.format;
+  if(fm.format!=='NACCS'){ r.verdict='読取対象外'; r.why=fm.why; r.kinds={['読取対象外:'+fm.format]:1}; return r; }
+  const cp=await aclFetchCompass(t.invoice);
+  if(!cp.ok){ r.verdict='COMPASS照会不可'; r.why=cp.reason; r.kinds={'COMPASS照会不可':1}; return r; }
+  const rules=await aclRules(), acl=E.readNaccs(pages), c=E.compareOne(acl,cp,{rules:rules.rules, meta:cp.meta, podExclude:rules.podExclude||[], fileModified:r.fileModified});
+  r.cp={booking_no:cp.booking.cr49f_booking_no||'', bl_number:cp.booking.cr49f_bl_number||''}; r.meta=cp.meta;
+  Object.assign(r,c,{sino:c.expected.sino, bookings:cp.bookings}); delete r.expected; r.read={fields:acl.fields, rows:acl.rows, totals:acl.totals};
+  if(cp.bookings>1) r.items.push({group:'ブッキング',key:'multi',label:'同じ Invoice のブッキング',status:'INFO',expected:'',actual:cp.bookings+' 件',detail:'最初の 1 件で照合',kind:''});
+  r.rules={loaded:rules.loaded, acl_rules:rules.rules.length, warnings:rules.warnings};
+  return r;
+}
+/* この TOOL の照合結果 — 保存済みの全体照合 (ACL_bench) より新しければこちらを使う */
+async function loadAclLocal(){
+  S.aclLocal={};
+  try{ const k=await spChildren(DOC.OUT_ROOT+'acl'); if(!k) return; const L=DOC.latestAcl(k.filter(x=>x.file).map(x=>x.name)), runSt=DOC.runStamp(S.acl&&S.acl.runId);
+    const want=Object.keys(L).filter(iv=>L[iv].stamp>runSt&&S.bk.some(b=>DOC.up(b.cr49f_invoice_no)===iv));
+    await mapLimit(want,4,async iv=>{ try{ const t=await spText(DOC.OUT_ROOT+'acl/'+L[iv].name); if(t) S.aclLocal[iv]={result:JSON.parse(t), runId:'書類ツール '+L[iv].stamp}; }catch(e){} });
+  }catch(e){ S.aclLocalErr=e.message; }
+}
+async function aclRerun(iv){
+  const st=$('dtAclSt'), btn=$('dtAclRun'); if(btn) btn.disabled=true; if(st) st.textContent='照合中… (エンジン · PDF · COMPASS を読み込み)';
+  try{
+    const r=await aclCompareOne(iv), d=new Date(), at=d.toISOString();
+    Object.assign(r,{by:'書類ツール v0.1', at, user:(LEENAI.user&&LEENAI.user.email)||'', engine:'acl_bench v'+ACL_ENGINE.ver+' @'+ACL_ENGINE.commit.slice(0,7)});
+    S.aclLocal=S.aclLocal||{}; S.aclLocal[iv]={result:r, runId:'書類ツール '+DOC.utcStamp(d)};
+    let saved='';
+    try{ await spPut(DOC.aclResultPath(iv,d), JSON.stringify(r)); const g=DOC.aclGroups(r);
+      await spPut(DOC.logPath(iv,'acl',d), JSON.stringify({kind:'ACL 照合', invoice:iv, at, user:r.user, file:r.file, aclVersion:r.aclVersion, verdict:r.verdict, counts:{diff:g.diff.length, notation:g.note.length, match:g.match.length}, engine:r.engine}));
+      saved='保存しました'; }catch(e){ saved='⚠ 保存できません ('+e.message+') — 結果は画面だけ'; }
+    if(S.cur&&S.cur.iv===iv){ renderIv(); const s2=$('dtAclSt'); if(s2) s2.textContent='照合しました ('+r.verdict+') · '+saved; }
+  }catch(e){ if(st) st.innerHTML='<span style="color:#7A2416">照合できません: '+esc(e.message)+'</span> — acl_bench で照合してください'; if(btn) btn.disabled=false; }
+}
+async function aclMail(iv, copyOnly){
+  const r=ivRow(S.cur.b), res=r.x.acl&&r.x.acl.result; if(!res) return;
+  const m=res.meta||{}, d=DOC.mailDraft(res,{booking:(res.cp&&res.cp.booking_no)||r.b.cr49f_booking_no, company:m.forwarderCompany||'', to:m.forwarderTo||'', cc:m.forwarderCc||''});
+  let copied=false; try{ await navigator.clipboard.writeText(d.body); copied=true; }catch(e){}
+  if(copyOnly){ toast(copied?'本文をコピーしました':'コピーできません','ok'); return; }
+  const u=DOC.mailtoUrl(d); window.open(u.url,'_self');
+  toast(u.cut?'本文が長いのでコピーしました — メールに貼り付けてください':'Outlook で開きました（送るのはご自身で）','ok');
+  try{ await spPut(DOC.logPath(iv,'mail'), JSON.stringify({kind:'訂正依頼メール作成', invoice:iv, at:new Date().toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', items:d.n, to:d.to?'(乙仲)':''})); }catch(e){}
+}
+function aclTabAfter(r){
+  const run=$('dtAclRun'); if(run) run.onclick=()=>aclRerun(r.iv);
+  const ml=$('dtAclMail'); if(ml) ml.onclick=()=>aclMail(r.iv,false);
+  const cp=$('dtAclCopy'); if(cp) cp.onclick=()=>aclMail(r.iv,true);
 }
 
 function startPage(){

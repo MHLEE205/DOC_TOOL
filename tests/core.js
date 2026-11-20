@@ -143,4 +143,16 @@ ok(DOC.guardOut('古紙/-. AI 활용/D-00/doc_tool/log/x.json'.replace('활용',
 ['古紙/-. AI 活用/MASTER/master_staff.json','古紙/-. AI 活用/D-00/doc_tool/../MASTER/x.json','古紙/-. 古紙書類/▲ 書類作成中/NAA2611-01/x.pdf',''].forEach(p=>{ let t=false; try{ DOC.guardOut(p); }catch(e){ t=true; } ok(t,'문지기: 막음 '+p); });
 ok(/^古紙\/-\. AI 活用\/D-00\/doc_tool\/log\/NAA2611-01\/\d{8}-\d{6}_acl\.json$/.test(DOC.logPath('NAA2611-01','acl',new Date(2026,10,20,9,8,7))),'履歴 경로');
 
+/* ── P2 ACL 도움 함수 ── */
+eq(DOC.utcStamp(new Date('2026-11-20T06:25:35.123Z')),'20261120-062535','UTC 시각표 = acl_bench runId 모양');
+eq(DOC.runStamp('ACL_20261120-062535'),'20261120-062535','run 시각');
+eq(DOC.latestAcl(['NAA2611-01_20261120-010000.json','NAA2611-01_20261121-010000.json','naa2611-02_20261119-000000.json','x.txt']),{'NAA2611-01':{name:'NAA2611-01_20261121-010000.json',stamp:'20261121-010000'},'NAA2611-02':{name:'naa2611-02_20261119-000000.json',stamp:'20261119-000000'}},'Invoice 별 가장 새 결과');
+ok(/^古紙\/-\. AI 活用\/D-00\/doc_tool\/acl\/NAA2611-01_\d{8}-\d{6}\.json$/.test(DOC.aclResultPath('naa2611-01')),'결과 경로');
+const RES={invoice:'NAA2611-01',items:[{status:'DIFF',label:'Seal',actual:'SL1',expected:'SL2'},{status:'DROP',label:'Notify',actual:'A',expected:'A\nB'},{status:'NOTATION',label:'C'},{status:'MATCH',label:'D'},{status:'READ_CHECK',label:'E'},{status:'INFO',group:'NACCS 表示欄',label:'Way Bill'}]};
+const G=DOC.aclGroups(RES); eq([G.diff.length,G.note.length,G.match.length,G.check.length,G.disp.length],[2,1,1,1,1],'ACL 묶음 (相違 · 表記差 · 一致 · 読取確認 · 表示欄)');
+const MD=DOC.mailDraft(RES,{booking:'TESTBK1',company:'SAMPLE FWD',to:'a@example.test',cc:'b@example.test;c@example.test'});
+ok(MD.subject==='[ACL訂正依頼] NAA2611-01 / BKG TESTBK1'&&/SAMPLE FWD ご担当者 様/.test(MD.body)&&/■ 1\. Seal 欄/.test(MD.body)&&/→ 正: SL2/.test(MD.body)&&/■ 2\. Notify 欄/.test(MD.body)&&!/■ 3/.test(MD.body)&&/✦ Powered by LEENAI Automation System$/.test(MD.body)&&MD.n===2,'訂正依頼メール (相違만 · 일본어 · 푸터)',MD);
+const MU=DOC.mailtoUrl(MD); ok(!MU.cut&&/^mailto:a@example\.test\?subject=/.test(MU.url)&&/&cc=b%40example\.test%2Cc%40example\.test/.test(MU.url)&&/&body=/.test(MU.url),'mailto (To · Cc · 본문)',MU.url.slice(0,120));
+const MU2=DOC.mailtoUrl(Object.assign({},MD,{body:'X'.repeat(5000)})); ok(MU2.cut&&MU2.url.length<600,'본문이 길면 잘라서 (복사 안내)');
+
 console.log((fail?'FAIL':'PASS')+' core — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
