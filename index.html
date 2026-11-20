@@ -365,9 +365,99 @@ const DOC = (()=>{
     const head='mailto:'+to+'?subject='+q(m.subject)+(cc?'&cc='+q(cc):''); const full=head+'&body='+q(m.body);
     return full.length<=(max||1800)?{url:full, cut:false}:{url:head+'&body='+q('（本文はクリップボードにコピーしました。ここに貼り付けてください）'), cut:true}; }
 
+  /* ── P3 S/I — 推薦 ↔ COMPASS · 書き込み計画 · COMPASS 書き込みの門番 ── */
+  const SI_HEAD_COLS = ['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','crcf9_fax','crcf9_all','crcf9_invoicetext','crcf9_bl_text1','crcf9_bl_text2','crcf9_bencert_text',
+    'crcf9_po_vo','crcf9_vo_no','crcf9_remark','cr49f_payment_terms','crcf9_payment_deadline','crcf9_payment_classification','crcf9_place_of_delivery_1','crcf9_place_of_delivery_2',
+    'crcf9_place_of_delivery_3','crcf9_port_of_discharge','crcf9_shipping_mark','cr49f_lc_no'];   // a1_bench v0.12 HEAD_FIELDS と同じ欄だけ書く
+  const SI_DET_COLS = ['crcf9_productname','crcf9_hs_code','crcf9_weight','crcf9_price'];   // 明細: 品名 · HS (推薦) · 重量 · 単価 (新しい明細だけ — 販売明細の数量 · 単価)
+  const SI_LABEL = {crcf9_consignee:'Consignee', crcf9_notify_party:'Notify', crcf9_address:'Notify 住所', crcf9_tel:'TEL', crcf9_fax:'FAX', crcf9_all:'ALL (書類共通)', crcf9_invoicetext:'Invoice 文言',
+    crcf9_bl_text1:'B/L 文言 1', crcf9_bl_text2:'B/L 文言 2', crcf9_bencert_text:'Bene Cert 文言', crcf9_po_vo:'PO / VO', crcf9_vo_no:'VO No', crcf9_remark:'備考', cr49f_payment_terms:'Trade Term',
+    crcf9_payment_deadline:'支払条件', crcf9_payment_classification:'支払区分', crcf9_place_of_delivery_1:'仕向地 1', crcf9_place_of_delivery_2:'仕向地 2', crcf9_place_of_delivery_3:'仕向地 3',
+    crcf9_port_of_discharge:'揚地 (自由)', crcf9_shipping_mark:'Shipping Mark', cr49f_lc_no:'LC No', crcf9_productname:'品名', crcf9_hs_code:'HS CODE', crcf9_weight:'重量', crcf9_price:'単価'};
+  const sv = v => v==null?'':String(v).replace(/\r\n/g,'\n');
+  const nv = v => sv(v).replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim();
+  /* 欄の状態 — COMPASS に S/I があれば 一致 / 要確認 (違う)、無ければ 根拠の検査 (a1_bench の出典 · 形 · マスター検査) */
+  function siFieldState(o){
+    const v=nv(o.value), b=o.basis||{};
+    if(/\bX{2,}\b/.test(v.toUpperCase())&&/po_vo|vo_no|lc_no/.test(o.col||'')) return {s:'todo', label:'未完成', why:'番号が未確定 (XX) — メール待ち'};
+    if(o.hasCur) return v===nv(o.cur)?{s:'match', label:'一致', why:'COMPASS と同じ'}:{s:'check', label:'要確認', why:'COMPASS と違う'+(nv(o.cur)?'':' (COMPASS は空欄)')};
+    const why=[]; if(b.rejected&&b.rejected.length) why.push('根拠のない番号を外した'); if(b.source_check==='出典不一致') why.push('出典不一致');
+    if(b.format_check==='FORMAT_CHANGED') why.push('直前 S/I と形が違う'); if(b.master_check==='MASTER_DIFF') why.push('マスターと違う'); if(b.placeholder_removed) why.push('XX を外した');
+    return why.length?{s:'check', label:'要確認', why:why.join(' · ')}:{s:'match', label:'根拠あり', why:'根拠: '+(b.source||'—')};
+  }
+  /* 書き込み計画 — cur = COMPASS の今 (S/I + _details) · fin = 担当者が確かめた最終値 {sinos:{n:{col:v}}, details:[{col:v}] (販売明細の順)} · sale = 販売明細
+     既存 S/I は 変わる欄だけ PATCH · 無い sino は POST (+ 明細 POST) · 消さない */
+  function siPlan(cur, fin, sale){
+    const ops=[], sis=(cur&&cur.sis)||[], val=v=>{ const s=sv(v); return s===''?null:s; };
+    Object.keys((fin&&fin.sinos)||{}).map(Number).filter(n=>n>=1&&n<=4).sort().forEach(sn=>{
+      const F=fin.sinos[sn]||{}, h=sis.find(x=>+x.crcf9_sino===sn), cols=Object.keys(F).filter(c=>SI_HEAD_COLS.indexOf(c)>=0);
+      const dets=(sale||[]).map((sd,i)=>({sd, f:(fin.details||[])[i]})).filter(x=>x.f);
+      if(h){
+        const ch=cols.filter(c=>sv(F[c])!==sv(h[c])).map(c=>({col:c, before:sv(h[c]), after:sv(F[c])}));
+        if(ch.length) ops.push({method:'PATCH', set:'cr49f_s_is', id:h.cr49f_s_iid, sino:sn, body:ch.reduce((o,x)=>(o[x.col]=val(x.after),o),{}), changes:ch});
+        dets.forEach(({sd,f},i)=>{ const ex=(h._details||[]).find(d=>d._crcf9_sale_detail_id_value===sd.cr49f_sale_detailid);
+          if(ex){ const c2=['crcf9_productname','crcf9_hs_code'].filter(c=>c in f&&sv(f[c])!==sv(ex[c])).map(c=>({col:c, before:sv(ex[c]), after:sv(f[c])}));
+            if(c2.length) ops.push({method:'PATCH', set:'crcf9_s_i_details', id:ex.crcf9_s_i_detailid, sino:sn, line:i+1, body:c2.reduce((o,x)=>(o[x.col]=val(x.after),o),{}), changes:c2}); }
+          else ops.push(detPost(sn, h.cr49f_s_iid, sd, f, i)); });
+      } else {
+        const body={crcf9_sino:sn}; cols.forEach(c=>{ if(sv(F[c])!=='') body[c]=sv(F[c]); });
+        ops.push({method:'POST', set:'cr49f_s_is', sino:sn, ref:'new:'+sn, body, changes:Object.keys(body).filter(c=>c!=='crcf9_sino').map(c=>({col:c, before:'', after:body[c]}))});
+        dets.forEach(({sd,f},i)=>ops.push(detPost(sn, 'new:'+sn, sd, f, i)));
+      }
+    });
+    return ops;
+  }
+  function detPost(sn, siRef, sd, f, i){
+    const body={}; ['crcf9_productname','crcf9_hs_code'].forEach(c=>{ if(sv(f[c])!=='') body[c]=sv(f[c]); });
+    if(sd.cr49f_quantity!=null) body.crcf9_weight=+sd.cr49f_quantity; if(sd.cr49f_price!=null) body.crcf9_price=+sd.cr49f_price;
+    return {method:'POST', set:'crcf9_s_i_details', sino:sn, line:i+1, siRef, saleDetail:sd.cr49f_sale_detailid, item:sd._cr49f_item_id_value||'', body, changes:Object.keys(body).map(c=>({col:c, before:'', after:sv(body[c])}))};
+  }
+  /* COMPASS 書き込みの門番 — S/I · S/I 明細だけ · この契約の行だけ · 決めた欄だけ · PATCH / POST だけ (消さない) */
+  const isGuid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s||''));
+  function guardDv(method, set, id, body, ctx){
+    const no=m=>{ throw new Error('COMPASS 書き込み禁止: '+m); };
+    if(!ctx||!isGuid(ctx.contractId)) no('契約が決まっていない');
+    if(['PATCH','POST'].indexOf(method)<0) no(method);
+    if(['cr49f_s_is','crcf9_s_i_details'].indexOf(set)<0) no(set);
+    const keys=Object.keys(body||{}), binds=keys.filter(k=>/@odata\.bind$/.test(k)), cols=keys.filter(k=>!/@odata\.bind$/.test(k));
+    const allowCols=set==='cr49f_s_is'?SI_HEAD_COLS.concat(method==='POST'?['crcf9_sino']:[]):SI_DET_COLS;
+    cols.forEach(c=>{ if(allowCols.indexOf(c)<0) no(set+'.'+c); });
+    const bindId=(k,setName)=>{ const v=String(body[k]||''), m=v.match(/^\/([a-z0-9_]+)\(([0-9a-f\-]{36})\)$/i); if(!m||m[1]!==setName) no('連結 '+k+' = '+v); return m[2]; };
+    const siOk=x=>ctx.siIds.has(x)||(ctx.created&&ctx.created.has(x));
+    if(method==='PATCH'){
+      if(binds.length) no('PATCH に連結');
+      if(set==='cr49f_s_is'&&!siOk(id)) no('この契約の S/I でない '+id);
+      if(set==='crcf9_s_i_details'&&!ctx.detailIds.has(id)) no('この契約の S/I 明細でない '+id);
+      if(!cols.length) no('欄なし');
+    } else {
+      if(id) no('POST に ID');
+      if(set==='cr49f_s_is'){ if(!(+body.crcf9_sino>=1&&+body.crcf9_sino<=4)) no('sino '+body.crcf9_sino);
+        if(binds.length!==1||!body[ctx.nav.contract+'@odata.bind']) no('契約への連結がない'); if(bindId(ctx.nav.contract+'@odata.bind',ctx.sets.contract)!==ctx.contractId) no('別の契約'); }
+      else { const need=[ctx.nav.si,ctx.nav.saleDetail,ctx.nav.item].map(n=>n+'@odata.bind'); binds.forEach(k=>{ if(need.indexOf(k)<0) no('連結 '+k); });
+        if(!siOk(bindId(ctx.nav.si+'@odata.bind',ctx.sets.si))) no('この契約の S/I でない');
+        if(!ctx.saleDetailIds.has(bindId(ctx.nav.saleDetail+'@odata.bind',ctx.sets.saleDetail))) no('この契約の販売明細でない');
+        if(body[ctx.nav.item+'@odata.bind']&&!ctx.itemIds.has(bindId(ctx.nav.item+'@odata.bind',ctx.sets.item))) no('販売明細の品目でない'); }
+    }
+    return true;
+  }
+  /* 書いた後の確認 — 計画の値と読み直した値 */
+  function siVerify(ops, now){
+    const rows=[];
+    ops.forEach(op=>{ const row=op.set==='cr49f_s_is'?(now.sis||[]).find(h=>h.cr49f_s_iid===op.id):(now.details||[]).find(d=>d.crcf9_s_i_detailid===op.id);
+      (op.changes||[]).forEach(c=>{ const got=row?sv(row[c.col]):'(行なし)'; const want=c.col==='crcf9_weight'||c.col==='crcf9_price'?String(+c.after):c.after;
+        rows.push({sino:op.sino, line:op.line||'', col:c.col, want, got, ok:row&&(c.col==='crcf9_weight'||c.col==='crcf9_price'?+got===+want:got===want)}); }); });
+    return {ok:rows.every(r=>r.ok), rows};
+  }
+  /* 推薦 ↔ 最終 (担当者が直した欄 — 精度を上げる資料, 형님 2026-11-15) */
+  function siEdits(rec, fin){ const out=[];
+    Object.keys((fin&&fin.sinos)||{}).forEach(sn=>Object.keys(fin.sinos[sn]).forEach(c=>{ const r=sv(((rec&&rec.sinos)||{})[sn]&&rec.sinos[sn][c]); if(nv(r)!==nv(fin.sinos[sn][c])) out.push({sino:+sn, col:c, rec:r, final:sv(fin.sinos[sn][c])}); }));
+    ((fin&&fin.details)||[]).forEach((d,i)=>Object.keys(d).forEach(c=>{ const r=sv(((rec&&rec.details)||[])[i]&&rec.details[i][c]); if(nv(r)!==nv(d[c])) out.push({sino:'明細'+(i+1), col:c, rec:r, final:sv(d[c])}); }));
+    return out; }
+
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     blKind, pickBl, aclFiles, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
-    utcStamp, aclResultPath, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl};
+    utcStamp, aclResultPath, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
+    SI_HEAD_COLS, SI_DET_COLS, SI_LABEL, nv, siFieldState, siPlan, isGuid, guardDv, siVerify, siEdits};
 })();
 if(typeof module!=='undefined') module.exports=DOC;
 </script>
@@ -891,6 +981,216 @@ function aclTabAfter(r){
   const ml=$('dtAclMail'); if(ml) ml.onclick=()=>aclMail(r.iv,false);
   const cp=$('dtAclCopy'); if(cp) cp.onclick=()=>aclMail(r.iv,true);
 }
+
+/* ══════════ P3 — S/I タブ (a1_bench v0.12 の R2 · マスター使用 を 契約 1 件に) ══════════
+   エンジン = CONTRACT_SEND/a1_bench.html @435799c の 4 つの script (a1-core · a1-d01 · a1-master · a1-app) をコミット固定 + sha256 で読み込み、
+   別の関数の中で動かす (a1_bench は変えない · コピーしない)。a1_bench の画面部分は呼ばない — 呼ぶのは 1 件分の準備 · R2 ① ② ③ だけ。
+   COMPASS 書き込み = compass_write_test v0.3 の手順 (書く前に控え → 変わる欄を見せて確認 → 書く → 読み直して確かめる → 履歴) · 門番 DOC.guardDv */
+const A1_ENGINE = {commit:'435799c54de2718d069c6a9fe1090eb0148ae70f', sha256:'4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd', ver:'0.12'};
+A1_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+A1_ENGINE.commit+'/a1_bench.html';
+let A1X = null;
+async function loadA1Engine(){
+  if(A1X) return A1X;
+  const r=await fetch(A1_ENGINE.url); if(!r.ok) throw new Error('S/I エンジンを読めません ('+r.status+')');
+  const buf=await r.arrayBuffer(), h=await sha256hex(buf);
+  if(h!==A1_ENGINE.sha256) throw new Error('S/I エンジンのファイルが一致しません (sha256) — 使いません');
+  const text=new TextDecoder('utf-8').decode(buf);
+  const blk=id=>{ const m=text.match(new RegExp('<script id="'+id+'">([\\s\\S]*?)<\\/script>')); if(!m) throw new Error('エンジンの部分がない: '+id); return m[1]; };
+  if(!$('a1Hidden')){ const d=document.createElement('div'); d.id='a1Hidden'; d.hidden=true;   // a1_bench の関数が見る欄 (画面には出さない)
+    d.innerHTML='<span id="a1RuleStatus"></span><span id="a1TargetStatus"></span><input id="a1PriorN" value="2"><input type="checkbox" id="a1R2Master" checked>'; document.body.appendChild(d); }
+  const shim={init:function(){}, auth:LEENAI.auth, master:LEENAI.master, SP:LEENAI.SP, get user(){ return LEENAI.user; }, toast:function(m,t){ toast(m,t); }, addHeaderButton:function(){}};
+  const code=['a1-core','a1-d01','a1-master','a1-app'].map(blk).join('\n;\n')+
+    '\n;return {S:S, A1C:A1C, A1M:A1M, checkSiFields:checkSiFields, loadCompass:loadCompass, spList:spList, loadSi:loadSi, loadSaleDetails:loadSaleDetails, parseContractLc:parseContractLc, ensureBuyerSis:ensureBuyerSis,'+
+    ' buildR1Input:buildR1Input, r2ExtraFor:r2ExtraFor, r2MasterFor:r2MasterFor, runR2Extract:runR2Extract, runR2Assemble:runR2Assemble, r2CompassFor:r2CompassFor, r2RawForCheck:r2RawForCheck,'+
+    ' lcNumberShape:lcNumberShape, sumUsage:sumUsage, costOf:costOf, LC_DIR:A1_SP_LC_DIR, MODEL:A1_DEFAULT_MODEL,'+
+    ' _testSetReadLc:function(f){ readLcFile=f; }};';   // 試験だけ: LC 原本の代わりに文字 (a1_bench 試験 harness と同じ差し替え) — 画面からは呼ばない
+  A1X=new Function('LEENAI', code)(shim); return A1X;
+}
+/* 契約 1 件の S/I 推薦 — a1_bench buildTargets の 1 件分 (同じバイヤーの前の LRS-26 契約 + この契約) → R2 ① ×2 · ② · ③ ×1 */
+async function siRecommend(id, say){
+  const A=await loadA1Engine(), X=A.S, c0=S.ct[id]||{}, no=DOC.up(c0.cr49f_sale_contract_no);
+  Object.assign(X,{contracts:[], byNo:{}, buyers:{}, lcFiles:{}, lcParsed:{}, siByContract:{}, targets:[], excluded:[], fileIssues:[], shapeBank:{}, stop:false});
+  say('COMPASS の S/I 欄を確認…'); X.fieldCheck=await A.checkSiFields();
+  say('S/I ルールマスター…'); let items=null; try{ items=await LEENAI.master.get('si_rule'); }catch(e){} A.A1M.setSiRules(Array.isArray(items)?items:null);
+  say('販売契約 · バイヤー…'); await A.loadCompass();
+  const c=X.byNo[no]; if(!c) throw new Error('LRS-25 · LRS-26 の契約にない: '+no);
+  say('LC 原本の一覧 ('+A.LC_DIR+')…');
+  (await A.spList(A.LC_DIR)).filter(f=>f.file).forEach(f=>{ const p=A.A1C.parseLcFileName(f.name); if(!p) return; const g=X.lcFiles[p.contract]=X.lcFiles[p.contract]||{base:[],amends:[]}; (p.amend?g.amends:g.base).push({name:f.name, amend:p.amend, size:f.size}); });
+  if(!X.lcFiles[no]||!X.lcFiles[no].base.length) throw new Error('LC 原本が '+A.LC_DIR+' にありません (D-01 で LC を置いてから)');
+  const prev=X.contracts.filter(x=>x.buyerId===c.buyerId&&x.no!==no&&/^LRS-26/.test(x.no)&&X.lcFiles[x.no]&&X.lcFiles[x.no].base.length&&A.A1C.isEarlier({no:x.no,date:x.date},{no:c.no,date:c.date}));
+  const list=prev.map(x=>x.no).concat([no]); let k=0;
+  for(const n of list){ const cc=X.byNo[n]; say('LC を読む '+(++k)+' / '+list.length+' ('+n+')…');
+    try{ const sis=(await A.loadSi(cc)).filter(h=>h.crcf9_sino===1||h.crcf9_sino===2); if(n!==no&&!sis.length) continue;
+      const lc=await A.parseContractLc(n);
+      X.targets.push({no:n, id:cc.id, date:cc.date, buyerId:cc.buyerId, buyer:cc.buyer, group:A.A1C.groupOf(n), payCls:cc.payCls, bankKey:lc.bank.key, bank:lc.bank, lcNo:lc.lcNo, image:lc.image,
+        amends:lc.amendFiles.length, sinos:sis.map(h=>h.crcf9_sino).join('+'), siLcNo:(sis[0]||{}).cr49f_lc_no||'', hasSi:!!sis.length, branch:lc.branch});
+    }catch(e){ if(n===no) throw e; } }
+  X.targets.sort((a,b)=>a.no.localeCompare(b.no));
+  X.targets.forEach(t=>{ const sh=A.lcNumberShape(t.lcNo||t.siLcNo); if(sh&&t.bankKey) (X.shapeBank[sh]=X.shapeBank[sh]||{})[t.bankKey]=1; });
+  say('同じバイヤーの S/I…'); await mapLimit(X.contracts.filter(x=>x.buyerId===c.buyerId&&!X.siByContract[x.no]),6,async x=>{ try{ await A.loadSi(x); }catch(e){ X.siByContract[x.no]=[]; } });
+  const t=X.targets.find(x=>x.no===no); await A.ensureBuyerSis(t);
+  const lcp=await A.parseContractLc(no), opts={r2Model:A.MODEL, effort:'high', maxTokens:32000, r2Master:true, priorN:2, useR2:true, models:[], reps:1, conc:1};
+  const input=await A.buildR1Input(t,lcp,opts); input.r2Extra=A.r2ExtraFor(t,lcp); input.r2Master=A.r2MasterFor(t);
+  say('AI: L/C を 2 回読む (R2 ①) — 1〜2 分…');
+  const [x1,x2]=await Promise.all([A.runR2Extract(t,lcp,opts,1),A.runR2Extract(t,lcp,opts,2)]);
+  const checks=A.A1C.r2Check(x1.json,x2.json,A.r2RawForCheck(lcp),lcp.image), recon=A.A1C.r2Reconcile(checks,A.r2CompassFor(t,input,lcp));
+  say('AI: S/I を組み立てる (R2 ③) — 1〜2 分…');
+  const rec=await A.runR2Assemble(t,{extract:[x1.json,x2.json],checks,recon,image:!!lcp.image},input,opts,1);
+  const calls=[].concat(x1.calls||[],x2.calls||[],rec.calls||[]), usage=A.sumUsage(calls);
+  return {no, id, at:new Date().toISOString(), engine:'a1_bench v'+A1_ENGINE.ver+' @'+A1_ENGINE.commit.slice(0,7)+' (R2 · マスター)', model:opts.r2Model, usage, cost:A.costOf(opts.r2Model,usage), ms:calls.reduce((a,x)=>a+(x.ms||0),0),
+    rec:{sinos:rec.sinos, basis:rec.basis, details:rec.details, notes:rec.aiNotes||'', rejected:rec.rejected||[], sourceIssues:rec.sourceIssues||[]},
+    priors:input.priors, lc:{lcNo:lcp.lcNo||'', files:(lcp.files||[]).map(f=>f.name), amends:(lcp.amendFiles||[]).length, image:!!lcp.image},
+    fieldHead:X.fieldCheck.head.filter(cname=>DOC.SI_HEAD_COLS.indexOf(cname)>=0), current:X.siByContract[no]||[],
+    sale:(await A.loadSaleDetails(c)).map(d=>({cr49f_sale_detailid:d.cr49f_sale_detailid, _cr49f_item_id_value:d._cr49f_item_id_value, cr49f_quantity:d.cr49f_quantity, cr49f_price:d.cr49f_price, item:FV(d,'_cr49f_item_id_value')}))};
+}
+/* 保存した推薦 (D-00/doc_tool/si_rec/{契約}_{UTC}.json) — 再読み込み · あとで でも残る */
+async function siLoadSaved(id){
+  const no=DOC.up((S.ct[id]||{}).cr49f_sale_contract_no); if(!no) return null;
+  try{ const k=await spChildren(DOC.OUT_ROOT+'si_rec'); const L=DOC.latestAcl((k||[]).filter(x=>x.file).map(x=>x.name))[DOC.up(DOC.safeKey(no))]; if(!L) return null;
+    const t=await spText(DOC.OUT_ROOT+'si_rec/'+L.name); return t?JSON.parse(t):null; }catch(e){ return null; }
+}
+S.siRec={}; S.siEdit={}; S.siBusy={};
+function siFinal(id){
+  const res=S.siRec[id], E=S.siEdit[id]||{sinos:{},details:[]}, fin={sinos:{},details:[]};
+  Object.keys(res.rec.sinos||{}).forEach(sn=>{ fin.sinos[sn]={}; Object.keys(res.rec.sinos[sn]).filter(cn=>res.fieldHead.indexOf(cn)>=0).forEach(cn=>{ const e=E.sinos[sn]&&E.sinos[sn][cn]; fin.sinos[sn][cn]=e!=null?e:String(res.rec.sinos[sn][cn]==null?'':res.rec.sinos[sn][cn]); }); });
+  (res.rec.details||[]).forEach((d,i)=>{ const o={}; ['crcf9_productname','crcf9_hs_code'].forEach(cn=>{ const e=E.details[i]&&E.details[i][cn]; o[cn]=e!=null?e:String(d[cn]==null?'':d[cn]); }); fin.details.push(o); });
+  return fin;
+}
+function siRows(id){
+  const res=S.siRec[id], fin=siFinal(id), rows=[];
+  Object.keys(fin.sinos).forEach(sn=>{ const cur=(res.current||[]).find(h=>+h.crcf9_sino===+sn);
+    Object.keys(fin.sinos[sn]).forEach(cn=>{ const b=((res.rec.basis||{})[sn]||{})[cn]||{};
+      rows.push(Object.assign({sino:+sn, col:cn, value:fin.sinos[sn][cn], cur:cur?cur[cn]:undefined, hasCur:!!cur, basis:b}, DOC.siFieldState({col:cn, value:fin.sinos[sn][cn], cur:cur?cur[cn]:'', hasCur:!!cur, basis:b}))); }); });
+  fin.details.forEach((d,i)=>{ const cur0=(res.current||[]).find(h=>+h.crcf9_sino===1)||(res.current||[])[0], sd=(res.sale||[])[i]||{}, ex=cur0&&(cur0._details||[]).find(x=>x._crcf9_sale_detail_id_value===sd.cr49f_sale_detailid);
+    Object.keys(d).forEach(cn=>{ const rd=(res.rec.details||[])[i]||{}, b={source:rd[cn+'__source']||'', source_check:rd[cn+'__sc']||''};
+      rows.push(Object.assign({sino:'明細'+(i+1), line:i, col:cn, value:d[cn], cur:ex?ex[cn]:undefined, hasCur:!!ex, basis:Object.assign(b,{basis:rd[cn+'__basis']||''})}, DOC.siFieldState({col:cn, value:d[cn], cur:ex?ex[cn]:'', hasCur:!!ex, basis:b}))); }); });
+  return rows;
+}
+function siTabHtml(r){
+  const id=r.id, res=S.siRec[id], busy=S.siBusy[id], key=!!lsGet(LS.apikey,'');
+  const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">S/I 推薦</div><div class="dt-note" style="font-size:13px">LC と過去の S/I から作成します。違うところだけ直して、COMPASS に書き込みます。</div></div><div class="dt-pills" id="dtSiPills"></div></div>';
+  let body='<div>'+statusLine(r.cells.si)+'</div>';
+  if(!res){
+    body+='<section class="dt-card dt-panel" style="padding:16px 18px"><div class="dt-p">「推薦を作る」で AI を 3 回呼びます（L/C 判読 ×2 · 組み立て ×1 · a1_bench v0.12 と同じ方法）。目安 3〜5 分 · 費用は終わったあと表示します。</div>'+
+      (key?'':'<div class="dt-note" style="color:#7A2416">Anthropic API キーが未保存です — 右上の「⚙ 設定」で保存してください。</div>')+
+      '<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions"><button class="dt-btn ghost" data-open="a1">a1_bench を開く</button><button class="dt-btn" id="dtSiRun"'+(key&&!busy?'':' disabled')+'>推薦を作る</button></div></section>';
+    return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+'</section>';
+  }
+  const rows=siRows(id), top=rows.filter(x=>x.s!=='match'), rest=rows.filter(x=>x.s==='match');
+  const pill=x=>'<span style="font-size:12px;padding:2px 10px;border-radius:999px;'+(x.s==='match'?'background:#E6F2EA;color:#1F4A36':x.s==='todo'?'background:#F1F2EF;color:#4A544D':'background:#FBEFD9;color:#6B4508')+'">'+esc(x.label)+'</span>';
+  const tr=x=>{ const multi=String(x.value||'').indexOf('\n')>=0||String(x.value||'').length>60, attrs=' data-sn="'+esc(x.sino)+'" data-col="'+esc(x.col)+'" aria-label="'+esc(DOC.SI_LABEL[x.col]||x.col)+'"';
+    const inp=multi?'<textarea'+attrs+' rows="'+Math.min(8,String(x.value||'').split('\n').length+1)+'" style="width:100%;box-sizing:border-box;padding:6px 10px;border:1px solid '+(x.s==='match'?'#C9CFC7':'#E0B866')+';border-radius:6px;font-family:inherit;font-size:13px">'+esc(x.value)+'</textarea>'
+      :'<input'+attrs+' value="'+esc(x.value)+'" style="width:100%;box-sizing:border-box;height:36px;padding:0 10px;border:1px '+(x.s==='todo'?'dashed':'solid')+' '+(x.s==='match'?'#C9CFC7':'#E0B866')+';border-radius:6px;font-family:inherit;font-size:14px">';
+    return '<tr style="border-top:1px solid #EEF0EC'+(x.s==='match'?'':';background:#FFFBF2')+'"><td style="padding:10px 14px;color:#4A544D;white-space:normal">'+esc(DOC.SI_LABEL[x.col]||x.col)+'<div class="dt-note">'+esc(typeof x.sino==='number'?'sino '+x.sino:x.sino)+'</div></td><td style="padding:8px 14px;white-space:normal">'+inp+
+      (x.hasCur&&x.s!=='match'?'<div class="dt-note" style="white-space:pre-wrap">COMPASS: '+esc(x.cur==null||x.cur===''?'(空欄)':x.cur)+'</div>':'')+'</td><td style="padding:10px 14px;font-size:13px;color:#5E6A62;white-space:normal">'+esc([x.basis.source,x.basis.basis&&x.basis.basis!==x.basis.source?x.basis.basis:''].filter(Boolean).join(' / ')||'—')+'</td><td style="padding:10px 14px" title="'+esc(x.why)+'">'+pill(x)+'</td></tr>'; };
+  const t='<div class="dt-card dt-tablewrap"><table class="dt-t" style="min-width:720px"><thead><tr><th style="width:160px">項目</th><th>推薦値</th><th style="width:200px">根拠</th><th style="width:110px">状態</th></tr></thead><tbody>'+
+    top.map(tr).join('')+'<tr style="border-top:1px solid #EEF0EC"><td colspan="4" style="padding:10px 14px;font-size:13px;color:#5E6A62">ほか '+rest.length+' 項目 一致 — <button class="dt-a" id="dtSiAll">'+(S.siShowAll?'閉じる':'すべて表示')+'</button></td></tr>'+(S.siShowAll?rest.map(tr).join(''):'')+'</tbody></table></div>';
+  const meta='<div class="dt-note">'+esc(res.engine)+' · '+esc(res.model)+' · 今回 US$ '+(+res.cost||0).toFixed(2)+' · '+Math.round((res.ms||0)/1000)+' 秒 · '+esc(String(res.at).slice(0,16).replace('T',' '))+(res.lc&&res.lc.lcNo?' · LC '+esc(res.lc.lcNo):'')+
+    (res.priors&&res.priors.same&&res.priors.same.length?' · 直前 S/I '+esc(res.priors.same.join(' · ')):' · 直前 S/I なし (初回)')+(res.rec.notes?'<br>AI メモ: '+esc(res.rec.notes):'')+'</div>';
+  return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+t+meta+'<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions"><button class="dt-btn ghost" id="dtSiRun"'+(key&&!busy?'':' disabled')+'>作り直す</button><button class="dt-btn ghost" id="dtSiLater">あとで</button><button class="dt-btn" id="dtSiWrite"'+(busy?' disabled':'')+'>COMPASS に書き込む</button></div></section>';
+}
+function siPills(id){ const el=$('dtSiPills'); if(!el||!S.siRec[id]) return; const rows=siRows(id), n=s=>rows.filter(x=>x.s===s).length, hasCur=rows.some(x=>x.hasCur);
+  el.innerHTML='<span class="p st-done">'+(hasCur?'一致 ':'根拠あり ')+n('match')+'</span><span class="p st-todo">要確認 '+n('check')+'</span>'+(n('todo')?'<span class="p st-wait">未完成 '+n('todo')+'</span>':''); }
+async function siTabAfter(r){
+  const id=r.id;
+  if(!S.siRec[id]&&S.siRec[id]!==null&&!S.siBusy[id]){ S.siRec[id]=null; const saved=await siLoadSaved(id); if(saved){ S.siRec[id]=saved; if(S.cur&&S.cur.id===id&&S.curTab==='si') renderCt(); return; } }
+  siPills(id);
+  const run=$('dtSiRun'); if(run) run.onclick=()=>siRun(id);
+  const all=$('dtSiAll'); if(all) all.onclick=()=>{ S.siShowAll=!S.siShowAll; renderCt(); };
+  const later=$('dtSiLater'); if(later) later.onclick=()=>{ S.board='ct'; show('list'); };
+  const wr=$('dtSiWrite'); if(wr) wr.onclick=()=>siWrite(id);
+  document.querySelectorAll('#dtCtBody [data-col]').forEach(el=>{ el.addEventListener('input',()=>{ const E=S.siEdit[id]=S.siEdit[id]||{sinos:{},details:[]}, sn=el.dataset.sn, cn=el.dataset.col;
+    if(/^明細/.test(sn)){ const i=+sn.replace('明細','')-1; (E.details[i]=E.details[i]||{})[cn]=el.value; } else (E.sinos[sn]=E.sinos[sn]||{})[cn]=el.value; siPills(id); }); });
+}
+async function siRun(id){
+  if(S.siBusy[id]) return; if(!lsGet(LS.apikey,'')){ toast('API キーを ⚙ 設定で保存してください','warn'); return; }
+  const say=m=>{ S.siBusy[id]=m; const st=$('dtSiSt'); if(st&&S.cur&&S.cur.id===id) st.textContent=m; };
+  say('準備中…'); const b=$('dtSiRun'); if(b) b.disabled=true;
+  try{ const res=await siRecommend(id,say); S.siRec[id]=res; S.siEdit[id]={sinos:{},details:[]}; S.siBusy[id]='';
+    try{ await spPut(DOC.OUT_ROOT+'si_rec/'+DOC.safeKey(res.no)+'_'+DOC.utcStamp()+'.json', JSON.stringify(res)); }catch(e){ toast('推薦の保存に失敗 (画面にはあります): '+e.message,'warn'); }
+    if(S.cur&&S.cur.id===id) renderCt(); toast('S/I 推薦ができました (US$ '+(+res.cost||0).toFixed(2)+')','ok');
+  }catch(e){ S.siBusy[id]=''; if(S.cur&&S.cur.id===id){ renderCt(); const st=$('dtSiSt'); if(st) st.innerHTML='<span style="color:#7A2416">推薦できません: '+esc(e.message)+'</span> — a1_bench で確認してください'; } }
+}
+/* ── COMPASS 書き込み ── */
+async function dvWrite(method, set, id, body, ctx){   // COMPASS に書くのはここだけ (門番 → fetch)
+  DOC.guardDv(method, set, id, body, ctx);
+  const tok=await LEENAI.auth.token('dataverse'), hd={'Authorization':'Bearer '+tok,'OData-MaxVersion':'4.0','OData-Version':'4.0','Accept':'application/json','Content-Type':'application/json; charset=utf-8'};
+  if(method==='PATCH') hd['If-Match']='*'; else hd.Prefer='return=representation';   // PATCH は行が無ければ作らずに失敗
+  const res=await fetch(DV_API+'/'+set+(method==='PATCH'?'('+id+')':''),{method, headers:hd, body:JSON.stringify(body)});
+  let msg='', nid=method==='PATCH'?id:null;
+  if(res.ok&&method==='POST'){ const rep=await res.json().catch(()=>null); nid=rep&&rep[set==='cr49f_s_is'?'cr49f_s_iid':'crcf9_s_i_detailid']||null;
+    if(!nid){ const loc=(res.headers&&res.headers.get('OData-EntityId'))||''; nid=(loc.match(/\(([0-9a-f-]{36})\)\s*$/i)||[])[1]||null; } }
+  else if(!res.ok){ const e=await res.json().catch(()=>({})); msg=(e.error&&e.error.message)||res.statusText||''; }
+  return {ok:res.ok&&DOC.isGuid(nid), status:res.status, message:msg, id:DOC.isGuid(nid)?nid:null};
+}
+async function siMeta(){   // エンティティセット · 連結の名前は実行時にメタデータから (推測しない — compass_write_test と同じ)
+  if(S.siMeta) return S.siMeta;
+  const L={si:'cr49f_s_i', detail:'crcf9_s_i_detail', contract:'cr49f_sale_contract', saleDetail:'cr49f_sale_detail', item:'cr49f_item'}, sets={}, nav={}, problems=[];
+  for(const k of Object.keys(L)) sets[k]=(await dvGet("EntityDefinitions(LogicalName='"+L[k]+"')?$select=EntitySetName")).EntitySetName;
+  const m2o={}; for(const ent of ['cr49f_s_i','crcf9_s_i_detail']) m2o[ent]=(await dvGet("EntityDefinitions(LogicalName='"+ent+"')/ManyToOneRelationships?$select=ReferencingAttribute,ReferencedEntity,ReferencingEntityNavigationPropertyName")).value||[];
+  [['contract','cr49f_s_i','cr49f_sale_contract_id','cr49f_sale_contract'],['si','crcf9_s_i_detail','crcf9_s_i_id','cr49f_s_i'],['saleDetail','crcf9_s_i_detail','crcf9_sale_detail_id','cr49f_sale_detail'],['item','crcf9_s_i_detail','crcf9_item_id','cr49f_item']].forEach(([k,ent,att,ref])=>{
+    const r=(m2o[ent]||[]).filter(x=>x.ReferencingAttribute===att&&x.ReferencedEntity===ref); if(r.length===1&&r[0].ReferencingEntityNavigationPropertyName) nav[k]=r[0].ReferencingEntityNavigationPropertyName; else problems.push(ent+'.'+att+' の連結 '+r.length+' 個'); });
+  if(sets.si!=='cr49f_s_is'||sets.detail!=='crcf9_s_i_details') problems.push('S/I のセット名が違う');
+  if(problems.length) throw new Error('メタデータ — 書かない: '+problems.join(' / '));
+  S.siMeta={sets, nav}; return S.siMeta;
+}
+async function siReadNow(id, head){
+  const sel=head.concat(['cr49f_s_iid','crcf9_sino','modifiedon']).join(',');
+  const sis=await dvAll(`cr49f_s_is?$filter=_cr49f_sale_contract_id_value eq ${id}&$select=${sel}&$orderby=crcf9_sino asc`), details=[];
+  for(const h of sis){ h._details=await dvAll(`crcf9_s_i_details?$filter=_crcf9_s_i_id_value eq ${h.cr49f_s_iid}&$select=crcf9_s_i_detailid,crcf9_productname,crcf9_hs_code,crcf9_weight,crcf9_price,_crcf9_sale_detail_id_value,_crcf9_item_id_value,_crcf9_s_i_id_value`); details.push(...h._details); }
+  return {sis, details};
+}
+const opLine = op => (op.method==='POST'?'新規 ':'変更 ')+(op.set==='cr49f_s_is'?'S/I sino '+op.sino:'明細 '+op.line+' (sino '+op.sino+')');
+async function siWrite(id){
+  const res=S.siRec[id]; if(!res) return; const no=res.no, st=$('dtSiSt');
+  try{
+    if(st) st.textContent='COMPASS の今の S/I を読み直しています…';
+    const fin=siFinal(id), cur=await siReadNow(id,res.fieldHead), ops=DOC.siPlan(cur,fin,res.sale);
+    if(!ops.length){ if(st) st.textContent='COMPASS と同じです — 書き込むものはありません'; return; }
+    const meta=await siMeta(), n=ops.reduce((a,o)=>a+o.changes.length,0);
+    if(st) st.textContent='';
+    modal('<div class="dt-h">COMPASS に書き込む — '+esc(no)+'</div><div class="dt-note">書く前に今の S/I を SharePoint に控えます。消す操作はありません。</div>'+
+      ops.map(op=>'<div style="font-weight:500;font-size:14px;margin-top:6px">'+esc(opLine(op))+'</div><div class="dt-kv">'+op.changes.map(cg=>'<div>'+esc(DOC.SI_LABEL[cg.col]||cg.col)+'</div><div><span style="color:#7A2416;text-decoration:line-through">'+esc(cg.before||'(空欄)')+'</span> → '+(cg.after===''&&cg.before!==''?'<b style="color:#7A2416">(空欄にします — 今の値が消えます)</b>':'<b>'+esc(cg.after||'(空欄)')+'</b>')+'</div>').join('')+'</div>').join('')+
+      '<label class="dt-row" style="font-size:13px"><input type="checkbox" id="dtSiOk"> '+ops.length+' 件 · '+n+' 欄の内容を確認しました</label><div class="dt-actions"><button class="dt-btn ghost" data-close="1">やめる</button><button class="dt-btn" id="dtSiGo" disabled>書き込む</button></div>');
+    $('dtSiOk').onchange=()=>{ $('dtSiGo').disabled=!$('dtSiOk').checked; };
+    $('dtSiGo').onclick=()=>{ closeModal(); siExecute(id, ops, cur, fin, meta); };
+  }catch(e){ if(st) st.innerHTML='<span style="color:#7A2416">書き込めません: '+esc(e.message)+'</span>'; }
+}
+async function siExecute(id, ops, cur, fin, meta){
+  const res=S.siRec[id], no=res.no, st=()=>$('dtSiSt'), say=m=>{ const e=st(); if(e) e.textContent=m; }, d=new Date(), at=d.toISOString();
+  S.siBusy[id]='書き込み中…'; renderCt();
+  const log={kind:'S/I 書き込み', contract:no, contract_id:id, at, user:(LEENAI.user&&LEENAI.user.email)||'', engine:res.engine, rec_at:res.at, cost:res.cost, edits:DOC.siEdits(res.rec,fin), ops:[], verify:null, backup:''};
+  try{
+    say('控えを保存しています…');
+    const bp=DOC.OUT_ROOT+'si_backup/'+DOC.safeKey(no)+'_'+DOC.utcStamp(d)+'.json';
+    await spPut(bp, JSON.stringify({contract:no, contract_id:id, at, user:log.user, current:cur, plan:ops}));   // 控えに失敗したら書かない
+    log.backup=bp;
+    const ctx={contractId:id, siIds:new Set(cur.sis.map(h=>h.cr49f_s_iid)), detailIds:new Set(cur.details.map(x=>x.crcf9_s_i_detailid)), created:new Set(),
+      saleDetailIds:new Set(res.sale.map(s=>s.cr49f_sale_detailid)), itemIds:new Set(res.sale.map(s=>s._cr49f_item_id_value).filter(Boolean)), sets:meta.sets, nav:meta.nav};
+    const newSi={}, bind=(set,x)=>'/'+set+'('+x+')'; let k=0, failed=null;
+    for(const op of ops){
+      say('書き込み '+(++k)+' / '+ops.length+' — '+opLine(op));
+      const body=Object.assign({},op.body);
+      if(op.method==='POST'&&op.set==='cr49f_s_is') body[meta.nav.contract+'@odata.bind']=bind(meta.sets.contract,id);
+      if(op.method==='POST'&&op.set==='crcf9_s_i_details'){ const sid=/^new:/.test(op.siRef)?newSi[op.siRef]:op.siRef; if(!sid){ failed={op, message:'S/I が作れていない'}; break; }
+        body[meta.nav.si+'@odata.bind']=bind(meta.sets.si,sid); body[meta.nav.saleDetail+'@odata.bind']=bind(meta.sets.saleDetail,op.saleDetail); if(op.item) body[meta.nav.item+'@odata.bind']=bind(meta.sets.item,op.item); }
+      const r=await dvWrite(op.method, op.set, op.method==='PATCH'?op.id:null, body, ctx);
+      log.ops.push({what:opLine(op), method:op.method, set:op.set, id:r.id||op.id||null, status:r.status, ok:r.ok, message:r.message, changes:op.changes});
+      if(!r.ok){ failed={op, message:r.status+' '+r.message}; break; }
+      if(op.method==='POST'){ op.id=r.id; if(op.set==='cr49f_s_is'){ newSi[op.ref]=r.id; ctx.created.add(r.id); } else ctx.detailIds.add(r.id); }
+    }
+    say('読み直して確かめています…');
+    const now=await siReadNow(id,res.fieldHead), ver=DOC.siVerify(ops.filter(o=>o.id), now); log.verify=ver; log.failed=failed?{what:opLine(failed.op), message:failed.message}:null;
+    S.sis[id]=now.sis; res.current=now.sis; S.siEdit[id]={sinos:{},details:[]};
+    try{ await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(e){ toast('履歴の保存に失敗: '+e.message,'warn'); }
+    S.siBusy[id]=''; renderCt();
+    const e=st(); if(e) e.innerHTML=failed?'<span style="color:#7A2416">途中で止めました ('+esc(log.failed.what)+': '+esc(failed.message)+') — 書いた分は確認表どおり · 控え '+esc(log.backup)+'</span>'
+      :(ver.ok?'<span style="color:#1F4A36">書き込みました ('+ops.length+' 件) · 読み直して一致 ✓ · 控え '+esc(log.backup)+'</span>':'<span style="color:#7A2416">書き込みましたが読み直すと '+ver.rows.filter(x=>!x.ok).length+' 欄が違います — COMPASS 画面で確認してください · 控え '+esc(log.backup)+'</span>');
+    toast(failed?'途中で止めました':ver.ok?'COMPASS に書き込みました':'書き込み後の確認で違いあり', failed||!ver.ok?'warn':'ok');
+  }catch(e){ S.siBusy[id]=''; renderCt(); const el=st(); if(el) el.innerHTML='<span style="color:#7A2416">書き込めません: '+esc(e.message)+(log.backup?' · 控え '+esc(log.backup):' (何も書いていません)')+'</span>';
+    try{ log.error=e.message; if(log.backup) await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(x){} }
+}
+
 
 function startPage(){
   $('dtMain').style.display='';

@@ -15,5 +15,7 @@ cd tests && npm install && node run_all.js
 | `core.js` | 상태 규칙 표 (칸마다 済 · 確認 · 相違 · 待ち · — · ?) · 대상 외 · 담당 기호 · 정렬 · 범위 · B/L 파일 고르기 |
 | `app.js` | jsdom 화면 흐름 — 현황판 → 상세 → 탭 → 돌아가기 · 검색 → 상세 · 담당 기억 · 관리자 · 설정 · P1 쓰기 0 |
 | `acl.js` | #6 ACL 탭 — acl_bench v0.4 엔진을 커밋 고정 + sha256 으로 공유 · 한 건 대조 = 엔진 직접 (판정 · 항목 하나하나) · 쓰기 doc_tool/ 아래 PUT 2건 · 메일 열기만 · sha256 다르면 멈춤 · acl_bench 그대로. 엔진 원문은 `CONTRACT_SEND` 클론 (`ACL_REPO=` · 기본 `../../CONTRACT_SEND`) 의 git show, 없으면 raw 주소 |
+| `si.js` | #7 S/I 탭 — a1_bench v0.12 엔진 (커밋 고정 + sha256) 으로 계약 1건 추천 (가짜 Anthropic · LC 는 글자) → 고침 → 취소하면 0 → 쓰기 전 控え → POST/PATCH (문지기) → 다시 읽기 일치 · 履歴 (推薦 ↔ 最終) · sha256 다르면 AI 0 |
+| `si_fx.js` | a1_bench 시험 harness 의 가짜 LC · S/I · Anthropic 응답 (CONTRACT_SEND/tests/a1_bench/harness.js @435799c 에서 줄 그대로 복사 · 가짜 데이터) |
 | `acl_fx/` | acl_bench 시험의 가짜 NACCS · 가짜 COMPASS (CONTRACT_SEND/tests/acl_bench @243897d 에서 복사 · 가짜 데이터) |
 | `fake.js` | 가짜 세계 (COMPASS · SharePoint · LEENAI) |

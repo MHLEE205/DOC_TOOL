@@ -155,4 +155,38 @@ ok(MD.subject==='[ACL訂正依頼] NAA2611-01 / BKG TESTBK1'&&/SAMPLE FWD ご担
 const MU=DOC.mailtoUrl(MD); ok(!MU.cut&&/^mailto:a@example\.test\?subject=/.test(MU.url)&&/&cc=b%40example\.test%2Cc%40example\.test/.test(MU.url)&&/&body=/.test(MU.url),'mailto (To · Cc · 본문)',MU.url.slice(0,120));
 const MU2=DOC.mailtoUrl(Object.assign({},MD,{body:'X'.repeat(5000)})); ok(MU2.cut&&MU2.url.length<600,'본문이 길면 잘라서 (복사 안내)');
 
+/* ── P3 S/I 쓰기 계획 · 문지기 · 확인 (#7) ── */
+const GU=(p,n)=>(p+'00000000').slice(0,8)+'-0000-4000-8000-'+String(n).padStart(12,'0');
+const CID=GU('c',1), SI1=GU('a',1), D1=GU('d',1), SD1=GU('e',1), IT=GU('f',1), OTHER=GU('c',2);
+const curS={sis:[{cr49f_s_iid:SI1,crcf9_sino:1,crcf9_consignee:'A',crcf9_notify_party:'N',crcf9_po_vo:'PO1',_details:[{crcf9_s_i_detailid:D1,_crcf9_sale_detail_id_value:SD1,crcf9_productname:'OCC',crcf9_hs_code:'4707'}]}],details:[]};
+curS.details=curS.sis[0]._details;
+const sale=[{cr49f_sale_detailid:SD1,_cr49f_item_id_value:IT,cr49f_quantity:500,cr49f_price:200}];
+const ops=DOC.siPlan(curS,{sinos:{1:{crcf9_consignee:'A',crcf9_notify_party:'N2',crcf9_po_vo:'',crcf9_unknown:'x'},2:{crcf9_consignee:'B',crcf9_notify_party:''}},details:[{crcf9_productname:'OCC',crcf9_hs_code:'4707.10'}]},sale);
+eq(ops.map(o=>o.method+' '+o.set+' '+o.sino),['PATCH cr49f_s_is 1','PATCH crcf9_s_i_details 1','POST cr49f_s_is 2','POST crcf9_s_i_details 2'],'계획: 있는 sino = 바뀐 칸 PATCH · 없는 sino = POST · 명세');
+eq(ops[0].body,{crcf9_notify_party:'N2',crcf9_po_vo:null},'PATCH 본문 = 바뀐 칸만 · 빈칸은 null · 모르는 칸 제외');
+eq(ops[1].body,{crcf9_hs_code:'4707.10'},'명세 PATCH = 바뀐 칸만');
+eq(ops[2].body,{crcf9_sino:2,crcf9_consignee:'B'},'새 S/I = sino + 값 있는 칸');
+eq([ops[3].siRef,ops[3].saleDetail,ops[3].item,ops[3].body.crcf9_weight,ops[3].body.crcf9_price],['new:2',SD1,IT,500,200],'새 명세 = 새 S/I · 판매 명세 · 품목 · 수량 · 단가');
+eq(DOC.siPlan(curS,{sinos:{1:{crcf9_consignee:'A',crcf9_notify_party:'N',crcf9_po_vo:'PO1'}},details:[{crcf9_productname:'OCC',crcf9_hs_code:'4707'}]},sale),[],'같으면 계획 없음');
+eq(DOC.siPlan(curS,{sinos:{1:{crcf9_consignee:'A\r\nB'}}},sale)[0].body,{crcf9_consignee:'A\nB'},'줄바꿈 CRLF → LF');
+const ctx={contractId:CID, siIds:new Set([SI1]), detailIds:new Set([D1]), created:new Set(), saleDetailIds:new Set([SD1]), itemIds:new Set([IT]),
+  sets:{contract:'cr49f_sale_contracts',si:'cr49f_s_is',detail:'crcf9_s_i_details',saleDetail:'cr49f_sale_details',item:'cr49f_items'}, nav:{contract:'cr49f_sale_contract_id',si:'crcf9_s_i_id',saleDetail:'crcf9_sale_detail_id',item:'crcf9_item_id'}};
+const pass_=(m,s,i,b)=>{ let e=null; try{ DOC.guardDv(m,s,i,b,ctx); }catch(x){ e=x.message; } return e; };
+ok(pass_('PATCH','cr49f_s_is',SI1,{crcf9_notify_party:'X'})===null,'문지기 통과: 이 계약 S/I PATCH');
+ok(pass_('POST','cr49f_s_is',null,{crcf9_sino:2,crcf9_consignee:'B','cr49f_sale_contract_id@odata.bind':'/cr49f_sale_contracts('+CID+')'})===null,'문지기 통과: 이 계약에 S/I POST');
+ok(pass_('POST','crcf9_s_i_details',null,{crcf9_productname:'OCC',crcf9_weight:500,'crcf9_s_i_id@odata.bind':'/cr49f_s_is('+SI1+')','crcf9_sale_detail_id@odata.bind':'/cr49f_sale_details('+SD1+')','crcf9_item_id@odata.bind':'/cr49f_items('+IT+')'})===null,'문지기 통과: 명세 POST');
+[['DELETE','cr49f_s_is',SI1,{},'DELETE'],['PATCH','cr49f_sale_contracts',CID,{cr49f_pay_cls:1},'다른 표'],['PATCH','cr49f_s_is',GU('a',9),{crcf9_consignee:'X'},'다른 계약 S/I'],['PATCH','cr49f_s_is',SI1,{crcf9_sino:3},'sino 바꾸기'],
+ ['PATCH','cr49f_s_is',SI1,{ownerid:'x'},'정하지 않은 칸'],['PATCH','crcf9_s_i_details',GU('d',9),{crcf9_hs_code:'1'},'다른 명세'],
+ ['POST','cr49f_s_is',null,{crcf9_sino:2,'cr49f_sale_contract_id@odata.bind':'/cr49f_sale_contracts('+OTHER+')'},'다른 계약에 POST'],['POST','cr49f_s_is',null,{crcf9_sino:5,'cr49f_sale_contract_id@odata.bind':'/cr49f_sale_contracts('+CID+')'},'sino 5'],
+ ['POST','cr49f_s_is',null,{crcf9_sino:2},'연결 없음'],['POST','crcf9_s_i_details',null,{'crcf9_s_i_id@odata.bind':'/cr49f_s_is('+GU('a',9)+')','crcf9_sale_detail_id@odata.bind':'/cr49f_sale_details('+SD1+')'},'남의 S/I 에 명세'],
+ ['POST','crcf9_s_i_details',null,{'crcf9_s_i_id@odata.bind':'/cr49f_s_is('+SI1+')','crcf9_sale_detail_id@odata.bind':'/cr49f_sale_details('+GU('e',9)+')'},'다른 판매 명세'],
+ ['PATCH','cr49f_s_is',SI1,{'cr49f_sale_contract_id@odata.bind':'/cr49f_sale_contracts('+OTHER+')'},'PATCH 로 연결 바꾸기']].forEach(([m,s,i,b,why])=>ok(pass_(m,s,i,b)!==null,'문지기 막음: '+why));
+let bad=null; try{ DOC.guardDv('PATCH','cr49f_s_is',SI1,{crcf9_consignee:'x'},Object.assign({},ctx,{contractId:'x'})); }catch(e){ bad=e; } ok(!!bad,'문지기 막음: 계약 ID 모양 다름');
+const ver=DOC.siVerify([ops[0]],{sis:[Object.assign({},curS.sis[0],{crcf9_notify_party:'N2',crcf9_po_vo:null})],details:[]}); ok(ver.ok&&ver.rows.length===2,'다시 읽기 일치',ver);
+ok(!DOC.siVerify([ops[0]],{sis:[curS.sis[0]],details:[]}).ok,'다시 읽기 다름 → 확인 실패');
+eq(DOC.siFieldState({col:'crcf9_po_vo',value:'VO NUMBER: XX',hasCur:false}).label,'未完成','상태: 번호 XX → 未完成');
+eq([DOC.siFieldState({col:'crcf9_consignee',value:'A ',cur:'A',hasCur:true}).label,DOC.siFieldState({col:'crcf9_consignee',value:'B',cur:'A',hasCur:true}).label],['一致','要確認'],'상태: COMPASS 와 같음 / 다름');
+eq([DOC.siFieldState({col:'crcf9_consignee',value:'A',hasCur:false,basis:{source:'LC(46A)',format_check:'CONTENT_UPDATED'}}).label,DOC.siFieldState({col:'crcf9_consignee',value:'A',hasCur:false,basis:{source_check:'出典不一致'}}).label],['根拠あり','要確認'],'상태: S/I 없음 → 근거 검사');
+eq(DOC.siEdits({sinos:{1:{crcf9_consignee:'A',crcf9_notify_party:'N'}},details:[{crcf9_hs_code:'1'}]},{sinos:{1:{crcf9_consignee:'A ',crcf9_notify_party:'M'}},details:[{crcf9_hs_code:'2'}]}).map(e=>e.col),['crcf9_notify_party','crcf9_hs_code'],'고친 칸 (推薦 ↔ 最終)');
+
 console.log((fail?'FAIL':'PASS')+' core — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
