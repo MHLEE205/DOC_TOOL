@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.2</title>
+<title>LEENAI D-00 書類ツール v0.3</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -98,6 +98,23 @@ button.st:hover{border-color:currentColor}
 .dt-kv{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;font-size:13px}
 .dt-kv div:nth-child(odd){color:var(--text3)}
 .dt-kv div:nth-child(even){white-space:pre-wrap;word-break:break-word}
+.av{display:flex;flex-direction:column;gap:10px}
+.av-concl{font-size:16px;font-weight:500;padding:10px 14px;border-radius:10px;background:var(--surface2)}
+.av-ok{color:var(--st-done-fg)}.av-ng{color:var(--st-diff-fg)}.av-read,.av-note{color:var(--st-todo-fg)}.av-na{color:var(--st-na-fg)}
+.av-hon{font-size:13px;font-weight:400;color:var(--text2);margin-left:8px}
+.av-h{font-size:14px;font-weight:500;margin-top:4px}
+.av-sub{font-size:12px;color:var(--text3);font-weight:400}
+.av-list{border-collapse:collapse;font-size:13px;width:100%}
+.av-list td{padding:5px 10px;border-top:1px solid var(--surface3);color:var(--text2)}
+.av-list tr.av-g td{background:var(--surface2);font-weight:500;font-size:12px;color:var(--text2)}
+.av-m{width:22px;text-align:center;font-weight:700}
+.av-diff{border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:var(--surface)}
+.av-dn{font-weight:500;font-size:13px;margin-bottom:6px}
+.av-cols{border-collapse:collapse;width:100%;font-family:'Consolas','Menlo',monospace;font-size:12.5px}
+.av-cols th{text-align:left;font-family:inherit;font-size:12px;color:var(--text3);font-weight:400;padding:2px 8px;width:50%}
+.av-cols td{padding:3px 8px;border-top:1px solid var(--surface3);vertical-align:top;white-space:pre-wrap;word-break:break-all;color:var(--text)}
+.av-hl{background:var(--st-diff-bg);color:var(--st-diff-fg);border-radius:2px}
+.av-more summary{cursor:pointer;font-size:13px;color:var(--text3)}
 .ln-footer{text-align:center;font-size:12px;color:var(--text3);padding:0 0 24px}
 @media (max-width:720px){.dt-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.dt-grid3{grid-template-columns:1fr}.dt-main{padding:16px}}
 </style>
@@ -122,8 +139,9 @@ button.st:hover{border-color:currentColor}
         <div id="dtBoardNote" class="dt-note" style="font-size:13px"></div>
       </div>
       <div class="dt-row">
-        <span class="dt-range">ETD <input type="date" id="dtFrom"> 〜 <input type="date" id="dtTo"> <button id="dtReload" class="dt-btn ghost sm">読み込む</button></span>
-        <label class="dt-check" title="FD（FINAL DOCUMENT）は最後に保存するので、FD がある船積は終わったものとして隠します。外すと全部見えます。"><input type="checkbox" id="dtHideFd" checked> FD済みは表示しない</label>
+        <span id="dtIvCtl" class="dt-row"><span class="dt-range">ETD <input type="date" id="dtFrom"> 〜 <input type="date" id="dtTo"> <button id="dtReload" class="dt-btn ghost sm">読み込む</button></span>
+        <label class="dt-check" title="FD（FINAL DOCUMENT）は最後に保存するので、FD がある船積は終わったものとして隠します。外すと全部見えます。"><input type="checkbox" id="dtHideFd" checked> FD済みは表示しない</label></span>
+        <span id="dtCtCtl" class="dt-row" style="display:none"><span style="font-size:13px;color:var(--text2)">契約日</span><span id="dtCtPeriod" class="dt-row"></span></span>
         <button id="dtTodo" class="dt-pillbtn">要対応のみ</button><button id="dtAll" class="dt-pillbtn on">すべて</button>
       </div>
     </div>
@@ -164,7 +182,8 @@ button.st:hover{border-color:currentColor}
    書類ツール — 純粋ロジック (DOM · 通信なし · node 試験対象)
    指示書: (2026-11-20)THOR_指示書_D00_書類ツール_v0.1_시험판_v1_1 (P1 · P2 · P3)
    状態 = 済 · 確認 · 相違 · 待ち · —(対象外) · ?(根拠なし)。推測で 済 を作らない。
-   規則は下の表 (NAME · NA · REQ_SI) にまとめる — 直すときは表だけ。
+   規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
+   v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
 ============================================================ */
 const DOC = (()=>{
   const ST = {done:'済', todo:'確認', diff:'相違', wait:'待ち', na:'—', unk:'?', load:'…'};
@@ -180,13 +199,10 @@ const DOC = (()=>{
     ED_NOT:   /再輸入|取止/,
     CUSTOMS:  /_(?:IV_PL_SI|IV_PL|IV,PL|SI|IV|PL)(?:\s*REV\s*\d*)?\.pdf$/i,         // 乙仲へ送る通関書類 ({IV}_IV_PL_SI.pdf など)
     CUSTOMS_DIR: /^(?:通関|つうかん)$/,
-    ACL:      /^(.+?)_ACL(?:[ _\-]*\(?\s*REV\s*(\d*)\s*\)?)?\.pdf$/i,              // acl_bench v0.4 ACL_NAME と同じ
-    ACL_TEMP: /仮ACL|ACL仮登録/i,
     BL_FINAL: /_(?:SWB|OBL|SURRENDER|BL)(?:[ _\-]*REV\s*\d*)?\.pdf$/i,             // 発行済み B/L (Sea Waybill · 原本 · Surrender)
     LG:       /(?:^|_)LG\s*\(.*\.xlsx?$/i,                                          // LG (B/L 訂正の保証状) — LG({B/L番号}).xlsx · {船社}_LG(…).xls
     RR:       /_RR(?:[ _\-]*REV)?\s*\d*\.pdf$/i,                                    // 放射線測定報告書
     RR_DIR:   /^_?RR/i,
-    FD:       /_FD(?:\s*\d*|[ _\-]*REV\s*\d*)\.pdf$/i,                              // FINAL DOCUMENT
     VCHG:     /船名変更|本船変更/,
     IV:       /[A-Z]{2,4}\d{4}-\d{2}/gi
   };
@@ -247,39 +263,42 @@ const DOC = (()=>{
     return p?{file:p.f, name:p.f.name, kind:p.k.k, rev:p.k.rev, lg:p.k.lg, edition:edition(p.k), excluded:c.filter(x=>x.k.k==='X'&&/DRAFT|MEMO|旧/i.test(x.f.name)).map(x=>x.f.name+' ('+x.k.why+')')}:
       {file:null, excluded:c.filter(x=>x.k.k==='X'&&/DRAFT|MEMO|旧/i.test(x.f.name)).map(x=>x.f.name+' ('+x.k.why+')')};
   }
-  /* ACL — DR = ACL (会社の言い方)。実際の名前 (現況板 211 フォルダ · 2026-11-20 리나이 집계): {IV}_ACL 85 · DR 25 · ほかの ACL 38 · なし 63
-     v0.2: {IV}_ACL · {IV}_DR · DR_… · DR 番号 · DR #… · 再送DR · …DR(…) · ACL-番号 · ACL 番号 · ACL01_… · ACL本登録 = 正式 / 仮ACL · ACL仮登録 = 仮
-     フォルダ直下の PDF だけ (v0.1 と同じ範囲)。ほかの Invoice 番号 · ほかのブッキング番号が名前にあれば外す。
-     選ぶ順: 本登録 > REV 番号 > 再送 > 更新時刻の新しいもの */
-  const ACL_SHAPES = [   // [形, 判定 (n = .pdf を外して大文字)]
-    ['{IV}_ACL', (n,IV)=>n.indexOf(IV)===0&&/^[ _\-]*ACL/.test(n.slice(IV.length))],
-    ['{IV}_DR',  (n,IV)=>n.indexOf(IV)===0&&/^[ _\-]*DR(?![A-Z])/.test(n.slice(IV.length))],
-    ['再送DR',   n=>/^再送\s*DR(?![A-Z])/.test(n)],
-    ['DR_ · DR 番号', n=>/^DR(?:[_\s#]|$)/.test(n)],
-    ['…DR(番号)', n=>/(?:^|[^A-Z])DR\s*\([^)]*\)$/.test(n)],
-    ['ACL本登録', n=>/^ACL\s*本登録/.test(n)],
-    ['ACL-番号 · ACL 番号', n=>/^ACL\d*(?:-|\s+|_)/.test(n)]
-  ];
-  const ACL_TEMP_RE = /仮\s*ACL|ACL\s*仮登録|仮\s*DR(?![A-Z])/;
+  /* ── ACL の名前 (v0.3) — 規則は acl_bench v0.5 エンジンの aclScan · aclPick (DR · ACL-番号 · 本登録 · 再送 · 仮 …) を使う。
+     画面が始まるときにエンジンを読み useAclEngine で受け取る — 読めなければ ACL の欄は ?(根拠なし) (推測しない) */
+  let AE=null;
+  function useAclEngine(E){ AE=E&&typeof E.aclScan==='function'&&typeof E.aclPick==='function'?E:null; return !!AE; }
+  const aclReady = () => !!AE;
+  function aclScan(files, iv, ctx){ if(!AE) throw new Error('ACL エンジン未読込'); return AE.aclScan(files, iv, ctx); }
+  function aclPick(files, iv, ctx){ if(!AE) throw new Error('ACL エンジン未読込'); return AE.aclPick(files, iv, ctx); }
   const alnum = s => up(s).replace(/[^A-Z0-9]/g,'');
-  /* ctx = {booking:'このブッキング番号', others:['ほかのブッキング番号', …]} (無くてもよい) */
-  function aclScan(files, iv, ctx){
-    const IV=up(iv), own=alnum(ctx&&ctx.booking), others=((ctx&&ctx.others)||[]).map(alnum).filter(o=>o.length>=6&&o!==own), out={formal:[], temp:[], excluded:[]};
-    (files||[]).filter(f=>!f.sub).forEach(f=>{
-      const name=String(f.name||'').trim(); if(!/\.pdf$/i.test(name)) return;
-      const n=up(name.replace(/\.pdf$/i,'')), lead=((n.match(NAME.IV)||[]).map(up).find(v=>n.indexOf(v)===0))||IV, temp=ACL_TEMP_RE.test(n), sh=temp?null:ACL_SHAPES.find(s=>s[1](n,lead));   // lead = 名前の先頭の Invoice 番号 (ほかの Invoice の {IV}_DR も見つけて外す)
-      if(!temp&&!sh) return;
-      const ivs=(n.match(NAME.IV)||[]).map(up); if(ivs.length&&ivs.indexOf(IV)<0){ out.excluded.push({name, why:'ほかの Invoice 番号'}); return; }
-      const key=alnum(n); if(others.some(o=>key.indexOf(o)>=0)&&!(own&&key.indexOf(own)>=0)){ out.excluded.push({name, why:'ほかのブッキング番号'}); return; }
-      if(temp){ out.temp.push({f, temp:true, shape:'仮', version:'仮'}); return; }
-      const rv=n.match(/REV(?:ISED)?\s*\(?\s*(\d*)/), rev=rv?(rv[1]?+rv[1]:1):0, hon=/本登録/.test(n), resend=/再送/.test(n);
-      out.formal.push({f, rev, hon, resend, shape:sh[0], version:hon?'本登録':rev?'REV'+(rev>1?rev:''):resend?'再送':'初版'});
-    });
-    out.formal.sort((a,b)=>(+b.hon-+a.hon)||(b.rev-a.rev)||(+b.resend-+a.resend)||String(b.f.lastModified||'').localeCompare(String(a.f.lastModified||''))||String(a.f.name).localeCompare(b.f.name));
+  /* ── FD (v0.3 · 형님 지시서 #7) — 名前のゆれ {IV}_FD · {IV} FD · {IV}-FD · FD-1 · FD2 · FD REV …  (Invoice 番号 + 区切り + FD) · 仮のもの (DRAFT · 仮 · EST · TENTATIVE · 임시 · FORM · コピー) は FD にしない
+     実際の名前 (Invoice フォルダ 1,211 · 2026-11-20): {IV}_FD 968 · {IV}_FD9 79 · {IV}_FD-9 63 · {IV}_FD REV 24 · {IV}_FD DRAFT 8 · {IV} FD 2 … */
+  const FD_TENT = /DRAFT|仮|\bEST\b|TENTATIVE|임시|FORM|コピー/;
+  function fdFiles(files, iv){ const IV=up(iv);
+    return (files||[]).filter(f=>!f.sub&&/\.pdf$/i.test(f.name||'')).filter(f=>{ const n=up(String(f.name).replace(/\.pdf$/i,'')), ivs=(n.match(NAME.IV)||[]).map(up);
+      if(ivs.length&&ivs.indexOf(IV)<0) return false; if(n.indexOf(IV)!==0) return false; const rest=n.slice(IV.length);
+      return /^[\s_\-]*\(?FD(?![A-Z])/.test(rest)&&!FD_TENT.test(rest); }); }
+  /* 台湾向けの FD (형님 D4) — Invoice フォルダの中の Invoice 番号のフォルダに IV ({IV}_IV*) · PL ({IV}_PL*) · B/L (名前に BL · B/L · WAYBILL · SWB · またはブッキング番号 · B/L 番号) が全部ある = まとめ済
+     国は問わない (実データ: NCL 57 · NCV 15 · NSG 1 — 2026-11-20) */
+  function fdBundle(files, iv, ctx){
+    const IV=up(iv), sub=(files||[]).filter(f=>f.sub&&up(f.sub)===IV), nm=f=>up(String(f.name||'').replace(/\.[A-Z0-9]+$/i,''));
+    const kind=(f,k)=>{ const n=nm(f); return n.indexOf(IV)===0&&new RegExp('^[\\s_\\-]*'+k+'(?![A-Z])').test(n.slice(IV.length)); };
+    const ivf=sub.filter(f=>kind(f,'IV')), pl=sub.filter(f=>kind(f,'PL')), keys=[ctx&&ctx.booking, ctx&&ctx.blNo].map(alnum).filter(k=>k.length>=6);
+    const bl=sub.filter(f=>/\.pdf$/i.test(f.name||'')&&ivf.indexOf(f)<0&&pl.indexOf(f)<0&&(/WAYBILL|WAY BILL|(?:^|[^A-Z])(?:BL|B\/L|SWB)(?:[^A-Z]|$)/.test(nm(f))||keys.some(k=>alnum(f.name).indexOf(k)>=0)));
+    const miss=[ivf.length?'':'IV', pl.length?'':'PL', bl.length?'':'B/L'].filter(Boolean);
+    return {n:sub.length, ok:sub.length>0&&!miss.length, miss, files:ivf.concat(pl,bl).map(f=>f.sub+'/'+f.name)};
+  }
+  /* ── 本登録 (v0.3 · 형님 D3) — 「本登録お願いします」 のメール (rcp@ に CC) = ACL の仕上げ。メールの判断の語は acl_bench MAIL_RULE (エンジン) と同じ
+     mails = [{at, name, text, invoices:[…], bkgs:[…], src}] (本登録 のメールだけ) · ships = [{iv, bk, bl}] → {IV:[mail…]}
+     メールに Invoice 番号があれば Invoice で · なければ ブッキング番号 · B/L 番号 (6 文字以上) で結ぶ */
+  function honIndex(mails, ships){
+    const out={}, S=(ships||[]).map(x=>({iv:up(x.iv), keys:[x.bk, x.bl].map(alnum).filter(k=>k.length>=6)}));
+    (mails||[]).forEach(m=>{ const ivs=((m.invoices&&m.invoices.length?m.invoices:String(m.text||'').match(NAME.IV))||[]).map(up), key=alnum(m.text)+'|'+(m.bkgs||[]).map(alnum).join('|');
+      S.forEach(x=>{ if(ivs.indexOf(x.iv)>=0||(!ivs.length&&x.keys.some(k=>key.indexOf(k)>=0))){ const L=out[x.iv]=out[x.iv]||[]; if(L.indexOf(m)<0) L.push(m); } }); });
     return out;
   }
-  function aclFiles(files, iv, ctx){ return aclScan(files, iv, ctx).formal; }
-  const ACL_VERDICT = {'相違あり':'diff', '表記差のみ':'done', '完全一致':'done', '読取対象外':'todo', '読取確認要':'todo', 'COMPASS照会不可':'todo'};
+  const jstDay = at => { const t=Date.parse(at||''); return isNaN(t)?'':new Date(t+9*3600e3).toISOString().slice(0,10); };
+    const ACL_VERDICT = {'相違あり':'diff', '表記差のみ':'ok', '完全一致':'ok', '読取対象外':'check', '読取確認要':'check', 'COMPASS照会不可':'check'};   // v0.3: 済 は 本登録 メールだけ (형님 D3)
   const baseName = p => String(p||'').split('/').pop();
 
   /* ── Invoice 行の判定 ──
@@ -298,23 +317,32 @@ const DOC = (()=>{
         :made.length?cell('todo','通関書類は作成済 · 送付は未確認 (通関/ に無い)',made.map(f=>f.name)):cell('wait','通関書類 · 輸出許可なし');
       out.customs.sent=sent.length>0; out.customs.permit=ed.length>0;
     }
-    /* ACL */
-    if(!F) out.acl=noF(); else {
-      const SC=aclScan(F, x.iv, {booking:x.bookingNo, others:x.otherBookings}), A=SC.formal;
-      if(!A.length){ const t=SC.temp; out.acl=t.length?cell('todo','仮 ACL のみ (本 ACL 未着)',t.map(a=>a.f.name)):cell('wait','ACL (DR) 未着',SC.excluded.map(e=>e.name+' ('+e.why+')')); out.acl.scan=SC; }
+    /* ACL (v0.3) — 待ち = ACL なし (仮 も なし) · 確認 = ACL あり (仮 を含む · 형님 D3) で 本登録 メールなし · 相違 = 照合 相違 で 本登録 なし · 済 = 本登録 メールあり */
+    const H=(x.hon||[]).slice().sort((a,b)=>String(a.at).localeCompare(String(b.at))), hon=H[H.length-1]||null;
+    const honTxt=hon?'本登録 済 ('+fmtMD(jstDay(hon.at))+(hon.name?' '+hon.name:'')+')':'';
+    if(!F) out.acl=noF();
+    else if(!AE) out.acl=x.engineErr?cell('unk','ACL の判定ルール (エンジン) を読めない'):cell('load','ACL の判定ルールを読み込み中');
+    else {
+      const P=aclPick(F, x.iv, {booking:x.bookingNo, others:x.otherBookings}), SC=P.scan, p=P.pick;
+      if(!p) out.acl=hon?cell('todo',honTxt+' · ACL ファイルがフォルダにない',SC.excluded.map(e=>e.name+' ('+e.why+')')):cell('wait','ACL (DR) 未着',SC.excluded.map(e=>e.name+' ('+e.why+')'));
       else {
-        const p=A[0], r=x.acl&&x.acl.result, files=[p.f.name+' ('+p.version+' · '+p.shape+')'].concat(A.slice(1).map(a=>a.f.name));
-        if(!r) out.acl=cell('todo','照合結果なし ('+p.version+' — 「ACL」タブで照合)',files);
-        else if(up(baseName(r.file))!==up(p.f.name)) out.acl=cell('todo','新しい ACL ('+p.version+') — 保存済みの照合は '+(r.aclVersion||baseName(r.file)),files);
-        else if(p.f.lastModified&&r.fileModified&&String(p.f.lastModified)>String(r.fileModified)) out.acl=cell('todo','ACL 更新後 未照合',files);
-        else { const s=ACL_VERDICT[r.verdict]||'unk'; out.acl=cell(s,'照合 '+r.verdict+(x.acl.runId?' ('+x.acl.runId+')':'')+(r.why?' · '+r.why:''),files); }
-        out.acl.pick=p; out.acl.scan=SC;
+        const r=x.acl&&x.acl.result, files=[p.f.name+' ('+P.label+')'].concat(SC.formal.concat(SC.temp).filter(a=>a!==p).map(a=>a.f.name));
+        let st, why, fresh=false;
+        if(!r){ st='todo'; why='照合結果なし ('+P.label+' — 「ACL」タブで照合)'; }
+        else if(up(baseName(r.file))!==up(p.f.name)){ st='todo'; why='新しい ACL ('+P.label+') — 保存済みの照合は '+(r.aclVersion||baseName(r.file)); }
+        else if(p.f.lastModified&&r.fileModified&&String(p.f.lastModified)>String(r.fileModified)){ st='todo'; why='ACL 更新後 未照合'; }
+        else { const v=ACL_VERDICT[r.verdict]||'unk'; fresh=true; st=v==='diff'?'diff':v==='unk'?'unk':'todo'; why='照合 '+r.verdict+(x.acl.runId?' ('+x.acl.runId+')':'')+(r.why?' · '+r.why:''); }
+        if(hon) out.acl=cell('done',honTxt+(st==='diff'?' · 相違のまま本登録':'')+' · '+why,files);
+        else out.acl=cell(st,why+(st==='diff'?'':' · 本登録 まだ'),files);
+        out.acl.pick=p; out.acl.label=P.label; out.acl.fresh=fresh; out.acl.diffHon=!!hon&&st==='diff';
       }
+      out.acl.scan=SC;
     }
+    out.acl.hon=hon;
     /* B/L Draft · DEPO */
     const bl=F?pickBl(F, x.iv):null;
     if(!F) out.bl=noF(); else {
-      const fin=top.filter(f=>NAME.BL_FINAL.test(f.name)), fd=top.filter(f=>NAME.FD.test(f.name));
+      const fin=top.filter(f=>NAME.BL_FINAL.test(f.name)), fd=fdFiles(F, x.iv);
       out.bl=fin.length?cell('done','B/L 発行済',fin.map(f=>f.name)):fd.length&&bl.file?cell('done','FD 作成済 (B/L 確定後) — 最後の B/L: '+bl.edition,[bl.name].concat(fd.map(f=>f.name))):bl.file?cell('todo',bl.edition+(bl.kind==='M'?' (FRT MEMO の中の B/L ページは未確認)':''),[bl.name]):cell('wait','B/L Draft 未着',bl.excluded);
       out.bl.pick=bl;
     }
@@ -335,7 +363,9 @@ const DOC = (()=>{
       return cell('wait','RR 未作成');
     })());
     /* FD */
-    if(!F) out.fd=noF(); else { const fd=top.filter(f=>NAME.FD.test(f.name)); out.fd=fd.length?cell('done','FINAL DOCUMENT あり',fd.map(f=>f.name)):cell('wait','FD 未作成'); }
+    if(!F) out.fd=noF(); else { const fd=fdFiles(F, x.iv), bd=fd.length?null:fdBundle(F, x.iv, {booking:x.bookingNo, blNo:x.blNo});
+      out.fd=fd.length?cell('done','FINAL DOCUMENT あり',fd.map(f=>f.name)):bd.ok?cell('done','IV · PL · B/L まとめ済 (フォルダ '+up(x.iv)+'/)',bd.files):bd.n?cell('wait','FD 未作成 · フォルダ '+up(x.iv)+'/ に '+bd.miss.join(' · ')+' がない',bd.files):cell('wait','FD 未作成');
+      out.fd.bundle=!!(bd&&bd.ok); }
     return out;
   }
   /* 本船変更 ラベル — ACL 照合の 「本船変更の可能性」 · メール件名規則 本船変更 · ファイル名 船名変更/本船変更 */
@@ -361,13 +391,13 @@ const DOC = (()=>{
     return out;
   }
   const needs = cells => Object.values(cells||{}).some(c=>c&&(c.s==='todo'||c.s==='diff'));
-  /* v0.2 「FD済みは表示しない」 (형님 D2 — FD は最後に保存する) — Invoice: FD 済 の行 · 契約: 範囲の船積が 全部 FD 済 で LC · S/I にやること (確認 · 相違) がない契約 · 船積 0 件の契約は隠さない */
+  /* v0.2 「FD済みは表示しない」 (형님 D2 — FD は最後に保存する) — Invoice 別だけ (v0.3: 契約別は 契約日 で見る) */
   const fdDone = cells => !!(cells&&cells.fd&&cells.fd.s==='done');
-  function fdHiddenCt(ctCells, ivCellsList){
-    if(!ivCellsList||!ivCellsList.length) return false;
-    if(['lc','si'].some(k=>ctCells&&ctCells[k]&&(ctCells[k].s==='todo'||ctCells[k].s==='diff'))) return false;
-    return ivCellsList.every(fdDone);
-  }
+  /* ── v0.3 契約別 (형님 D5 · PORTAL 「販売契約」 と同じ) — 期間 = 契約日 直近 n ヶ月 · 契約日の新しい順 · 試験の契約 (TEST01 …) は外す ── */
+  const CT_REAL = /^[A-Z]+-\d{4,5}[A-Z]+\d+$/;   // 実際の契約番号の形 (LRS- · UCS- · LS- …  · ctCode · queryKind と同じ形) — これ以外 (TEST01 …) は 現況板に出さない
+  const CT_PERIODS = [[1,'直近1ヶ月'],[2,'直近2ヶ月'],[3,'直近3ヶ月'],[6,'直近6ヶ月']];
+  function monthsAgo(today, n){ const d=new Date(today+'T00:00:00Z'), day=d.getUTCDate(); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth()-n); const last=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)).getUTCDate(); d.setUTCDate(Math.min(day,last)); return d.toISOString().slice(0,10); }
+  function sortCtDate(rows){ return rows.slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||''))||String(b.ct).localeCompare(String(a.ct))); }
   /* v0.2 「いまここ」 (형님 D1) — 流れの順で 済 でない最初のタブ (対象外は飛ばす) · 全部 済 なら '' */
   function nowTab(cells, steps){ const s=(steps||[]).find(([k])=>cells&&cells[k]&&cells[k].s!=='na'&&cells[k].s!=='done'); return s?s[0]:''; }
   /* v0.2 「出港済 n / 全 m 件」 — 出港 = ETD (B/L ETD 優先) が今日より前 */
@@ -564,7 +594,8 @@ const DOC = (()=>{
   }
 
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
-    blKind, pickBl, ACL_SHAPES, aclScan, aclFiles, fdDone, fdHiddenCt, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
+    /* v0.3 */ useAclEngine, aclReady, aclPick, FD_TENT, fdFiles, fdBundle, honIndex, jstDay, CT_REAL, CT_PERIODS, monthsAgo, sortCtDate,
+    blKind, pickBl, aclScan, fdDone, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
     utcStamp, aclResultPath, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
     SI_HEAD_COLS, SI_DET_COLS, SI_LABEL, nv, siFieldState, siPlan, isGuid, guardDv, siVerify, siEdits};
 })();
@@ -589,9 +620,10 @@ const TOOLS = {   // 既存 TOOL — ?iv= などの引数は受け取らない (
   acl:{name:'ACL 照合試験 (acl_bench)', url:'https://mhlee205.github.io/CONTRACT_SEND/acl_bench.html'},
   a1: {name:'S/I 推薦試験 (a1_bench)', url:'https://mhlee205.github.io/CONTRACT_SEND/a1_bench.html'}
 };
-const LS = {who:'doc_tool_who', board:'doc_tool_board', range:'doc_tool_range', hidefd:'doc_tool_hide_fd', apikey:'leenai_apikey_v1'};   // apikey = a1_bench · D-01 と同じ保存場所
+const LS = {who:'doc_tool_who', board:'doc_tool_board', range:'doc_tool_range', hidefd:'doc_tool_hide_fd', ctmonths:'doc_tool_ct_months', apikey:'leenai_apikey_v1'};   // apikey = a1_bench · D-01 と同じ保存場所
 const S = {today:'', range:null, staff:[], docStaff:{}, me:{code:'',name:'',admin:false}, regions:{}, pols:{}, bk:[], ct:{}, buyers:{}, ctBk:{}, sis:{}, lcFiles:null,
-  wip:{}, old:{}, folders:{}, acl:null, mails:{}, who:'me', board:'iv', todoOnly:false, hideFd:true, doneMsg:'', view:'list', cur:null, curTab:'', loadSeq:0};
+  wip:{}, old:{}, folders:{}, acl:null, mails:{}, who:'me', board:'iv', todoOnly:false, hideFd:true, doneMsg:'', view:'list', cur:null, curTab:'', loadSeq:0,
+  ctMonths:1, engine:'', engineErr:null, honRaw:[], hon:[], honErr:'', honCsvN:0, mailCsv:''};   // v0.3: 契約別の期間 · ACL エンジン · 本登録メール
 const $ = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
@@ -610,7 +642,7 @@ async function dvGet(path, _r){
 async function dvAll(path){ let d=await dvGet(path), out=(d.value||[]).slice(); while(d['@odata.nextLink']){ d=await dvGet(d['@odata.nextLink'].replace(DV_API+'/','')); out=out.concat(d.value||[]); } return out; }
 async function dvIn(entity, key, ids, select, extra){ const out=[]; const u=[...new Set(ids.filter(Boolean))]; for(let i=0;i<u.length;i+=40){ out.push(...await dvAll(entity+'?$filter='+u.slice(i,i+40).map(x=>key+' eq '+x).join(' or ')+(extra||'')+'&$select='+select)); } return out; }
 const BK_SEL='cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,cr49f_bl_number,cr49f_etd,crcf9_bl_etd,cr49f_main_ship_name,_cr49f_sale_contract_id_value,_cr49f_region_id_value,_cr49f_region_japan_id_value,_cr49f_carrier_id_value,crcf9_insurance_premiums,modifiedon';
-const CT_SEL='cr49f_sale_contractid,cr49f_sale_contract_no,cr49f_pay_cls,cr49f_terms_conditions,_cr49f_buyer_id_value,cr49f_sale_contract_date,cr49f_latest_shipment';
+const CT_SEL='cr49f_sale_contractid,cr49f_sale_contract_no,cr49f_pay_cls,cr49f_terms_conditions,_cr49f_buyer_id_value,cr49f_sale_contract_date,cr49f_latest_shipment,_cr49f_pod1_value,_cr49f_pod2_value,_cr49f_country_id_value';   // v0.3: POD · 国 (契約別)
 const SI_SEL='cr49f_s_iid,_cr49f_sale_contract_id_value,crcf9_sino,cr49f_lc_no,crcf9_consignee,crcf9_notify_party,crcf9_po_vo,crcf9_vo_no,crcf9_place_of_delivery_1,crcf9_pod_bl1,modifiedon';
 
 /* ── SharePoint (Graph · 読むだけ — 書き込みは spPut だけ) ── */
@@ -638,6 +670,8 @@ async function spPut(p, content, type){   // 新規のみ (上書きしない)
 function prog(t){ $('dtProg').textContent=t||''; }
 async function loadAll(){
   const seq=++S.loadSeq, t0=Date.now(); S.doneMsg=''; S.folders={}; S.bk=[]; S.ct={}; S.ctBk={}; S.sis={}; S.lcFiles=null; render();
+  /* v0.3: ACL の名前の規則 · 照合 · 結果の見せ方 = acl_bench v0.5 エンジン — 最初に読み始める (読めなければ ACL の欄は ?) */
+  const engP=S.engine==='ok'?Promise.resolve():loadAclEngine().then(E=>{ DOC.useAclEngine(E); S.aclE=E; S.engine='ok'; S.engineErr=null; }).catch(e=>{ S.engine='error'; S.engineErr=e; });
   try{
     prog('マスター · COMPASS を読み込み中…');
     if(!S.staff.length){ const [st,ds]=await Promise.all([LEENAI.master.get('staff').catch(()=>[]), LEENAI.master.get('doc_staff').catch(()=>[])]);
@@ -651,7 +685,7 @@ async function loadAll(){
     if(regs) regs.forEach(r=>{ S.regions[r.cr49f_regionid]={country:DOC.up(r.cr49f_region), pod:r.cr49f_pod||''}; });
     if(pols) pols.forEach(r=>{ S.pols[r.crcf9_region_japanid]=r.crcf9_pol||''; });
     S.bk=bk.filter(b=>b.cr49f_invoice_no&&DOC.inRange(DOC.etdOf(b),f,t));
-    const recent=await dvAll(`cr49f_sale_contracts?$filter=cr49f_sale_contract_date ge ${DOC.addDays(S.today,-60)}&$select=${CT_SEL}`);
+    const recent=await dvAll(`cr49f_sale_contracts?$filter=cr49f_sale_contract_date ge ${DOC.monthsAgo(S.today,6)}&$select=${CT_SEL}`);   // v0.3: 契約別 = 契約日 直近 6 ヶ月まで
     const cts=await dvIn('cr49f_sale_contracts','cr49f_sale_contractid',S.bk.map(b=>b._cr49f_sale_contract_id_value),CT_SEL);
     cts.concat(recent).forEach(c=>{ S.ct[c.cr49f_sale_contractid]=c; });
     const ids=Object.keys(S.ct);
@@ -664,13 +698,13 @@ async function loadAll(){
     ids.forEach(id=>{ S.ctBk[id]=[]; S.sis[id]=[]; }); allBk.forEach(b=>{ (S.ctBk[b._cr49f_sale_contract_id_value]=S.ctBk[b._cr49f_sale_contract_id_value]||[]).push(b); });
     sis.forEach(s=>{ (S.sis[s._cr49f_sale_contract_id_value]=S.sis[s._cr49f_sale_contract_id_value]||[]).push(s); });
     render(); prog('SharePoint を読み込み中… (フォルダ · LC · ACL 照合結果)');
-    await Promise.all([loadLcFiles(), loadRoots(), loadAclRun().then(loadAclLocal), loadMails()]);
+    await Promise.all([loadLcFiles(), loadRoots(), loadAclRun().then(loadAclLocal), loadMails(), loadHon(), engP]);
     if(seq!==S.loadSeq) return;
-    render();
+    buildHon(); render();
     const list=S.bk.map(b=>DOC.up(b.cr49f_invoice_no)); let k=0;
     await mapLimit(list,4,async iv=>{ if(seq!==S.loadSeq) return; await loadFolder(iv); k++; if(k%8===0||k===list.length){ prog('読み込み中 '+k+' / '+list.length+' (Invoice フォルダ)'); render(); } });
     if(seq!==S.loadSeq) return;
-    S.loadedMs=Date.now()-t0; S.doneMsg='読み込み完了 — 船積 '+S.bk.length+' 件 · 契約 '+ids.length+' 件 · '+(S.loadedMs/1000).toFixed(0)+' 秒'+(S.acl?' · ACL 照合結果 '+S.acl.runId:''); prog(S.doneMsg);
+    S.loadedMs=Date.now()-t0; S.doneMsg='読み込み完了 — 船積 '+S.bk.length+' 件 · 契約 '+ids.length+' 件 · '+(S.loadedMs/1000).toFixed(0)+' 秒'+(S.acl?' · ACL 照合結果 '+S.acl.runId:'')+' · '+honNote()+(S.engine==='error'?' · ⚠ ACL エンジンを読めない':''); prog(S.doneMsg);
     render();
   }catch(e){ prog('読み込み失敗: '+e.message); toast('読み込み失敗: '+e.message,'danger'); }
 }
@@ -691,7 +725,8 @@ async function loadFolder(iv, bk){
     const subs=k.filter(x=>x.folder);
     /* 下のフォルダは必要なものだけ — 通関 (輸出許可がないとき) · RR (韓国向けで報告書がないとき) */
     const country=b?((S.regions[b._cr49f_region_id_value]||{}).country||''):'';
-    const want=subs.filter(s=>(DOC.NAME.CUSTOMS_DIR.test(s.name)&&!files.some(f=>DOC.NAME.ED.test(f.name)))||(country==='KOREA'&&DOC.NAME.RR_DIR.test(s.name)&&!files.some(f=>DOC.NAME.RR.test(f.name))));
+    const fdTop=DOC.fdFiles(files, iv).length;   // v0.3: 台湾向け — Invoice 番号のフォルダ (IV · PL · B/L まとめ) は FD がないときだけ見る
+    const want=subs.filter(s=>(DOC.NAME.CUSTOMS_DIR.test(s.name)&&!files.some(f=>DOC.NAME.ED.test(f.name)))||(country==='KOREA'&&DOC.NAME.RR_DIR.test(s.name)&&!files.some(f=>DOC.NAME.RR.test(f.name)))||(!fdTop&&DOC.up(s.name)===iv));
     for(const s of want){ const c=await spChildren(loc.path+'/'+s.name); (c||[]).filter(x=>x.file).forEach(x=>files.push({name:x.name, sub:s.name, lastModified:x.lastModifiedDateTime, webUrl:x.webUrl, id:x.id})); }
     S.folders[iv]={path:loc.path, webUrl:loc.webUrl, live:!!S.wip[iv], files, subs:subs.map(s=>s.name)};
   }catch(e){ S.folders[iv]={error:e.message}; }
@@ -713,9 +748,35 @@ async function loadMails(){
     cs.sort((a,b)=>(inInput(b)-inInput(a))||String(b.lastModifiedDateTime||'').localeCompare(String(a.lastModifiedDateTime||'')));
     if(!cs[0]){ S.mails={}; S.mailFile=''; return; }
     const r=await graphFetch(drv()+'/items/'+cs[0].id+'/content'); if(!r.ok) throw new Error('CSV '+r.status);
-    S.mails=DOC.mailRulesByIv(await r.text()); S.mailFile=cs[0].name;
+    const txt=await r.text(); S.mails=DOC.mailRulesByIv(txt); S.mailFile=cs[0].name; S.mailCsv=txt;
   }catch(e){ S.mails={}; S.mailErr=e.message; }
 }
+
+/* ── v0.3 本登録 (형님 D3) — 「本登録お願いします」 のメール = ACL の仕上げ。rcp@ (共有アドレス) に CC されるので、ログインした人のメールボックス (受信 · 送信済み) を 「本登録」 で探す。
+   読むだけ (送る · 移す · 既読にする はしない) · 判断の語 = acl_bench MAIL_RULE (エンジン mailKind) · 会社の人 (ログインした人と同じドメイン) が送ったものだけ
+   メールを読めないとき · 古い分 = メール一覧 CSV (mail_docstaff · 件名規則 本登録依頼) で補う ── */
+async function loadHon(){
+  S.honRaw=[]; S.honErr='';
+  try{ const since=DOC.addDays(S.range.from,-60), dom=String((LEENAI.user&&LEENAI.user.email)||'').toLowerCase().split('@')[1]||'';
+    let url=GRAPH+'me/messages?$search='+encodeURIComponent('"本登録"')+'&$select=subject,from,sentDateTime,uniqueBody,bodyPreview&$top=100', n=0;
+    while(url&&n<10){ const r=await graphFetch(url,{headers:{Accept:'application/json',Prefer:'outlook.body-content-type="text"'}}); if(!r.ok) throw new Error('メールを読めない ('+r.status+')'); const j=await r.json(); n++;
+      (j.value||[]).forEach(m=>{ const from=String(m.from&&m.from.emailAddress&&m.from.emailAddress.address||'').toLowerCase(); if(!dom||from.split('@')[1]!==dom) return; if(String(m.sentDateTime||'').slice(0,10)<since) return;
+        S.honRaw.push({at:m.sentDateTime, from, subject:m.subject||'', body:(m.uniqueBody&&m.uniqueBody.content)||m.bodyPreview||''}); });
+      url=j['@odata.nextLink']||null; }
+  }catch(e){ S.honErr=e.message||String(e); }
+}
+function buildHon(){
+  S.hon=[]; S.honCsvN=0; if(S.engine!=='ok') return;
+  const nameOf=em=>{ const st=S.staff.find(x=>String(x.email||'').trim().toLowerCase()===String(em||'').toLowerCase()); return st?DOC.shortName(st.name_ja)||st.code:String(em||'').split('@')[0]; };
+  S.honRaw.forEach(m=>{ if(S.aclE.mailKind(m.body)!=='本登録') return; S.hon.push({at:m.at, name:nameOf(m.from), text:m.subject+'\n'+m.body, src:'mail'}); });
+  if(S.mailCsv){ try{ const M=S.aclE.mailsFromCsv(S.mailCsv), rows=DOC.parseCsv(S.mailCsv), H=(rows[0]||[]).map(x=>String(x).trim()), fc=H.indexOf('発信者');
+      M.mails.filter(m=>m.kind==='本登録').forEach(m=>{ const fr=fc>=0&&rows[m.row-1]?String(rows[m.row-1][fc]||'').trim():''; S.hon.push({at:m.at, name:/@/.test(fr)?nameOf(fr):fr, invoices:m.invoices, bkgs:m.bkgs, text:m.subject, src:'csv'}); S.honCsvN++; }); }catch(e){} }
+  _honMap.key='';
+}
+const honNote = () => '本登録メール '+S.hon.filter(m=>m.src==='mail').length+' 通'+(S.honErr?' (⚠ '+S.honErr+')':'')+(S.honCsvN?' + CSV '+S.honCsvN+' 通':'');
+let _honMap={key:'', map:{}};
+function honMap(){ const all=S.bk.concat(S.extraBk||[]), key=S.hon.length+'|'+all.length+'|'+S.loadSeq;
+  if(_honMap.key!==key) _honMap={key, map:DOC.honIndex(S.hon, all.map(b=>({iv:b.cr49f_invoice_no, bk:b.cr49f_booking_no, bl:b.cr49f_bl_number})))}; return _honMap.map; }
 
 /* ── 行データ ── */
 let _bkNos={key:'', list:[]};
@@ -723,23 +784,23 @@ function bkNos(){ const all=S.bk.concat(S.extraBk||[]), key=all.length+'|'+S.loa
 function ivRow(b){
   const iv=DOC.up(b.cr49f_invoice_no), c=S.ct[b._cr49f_sale_contract_id_value]||{}, reg=S.regions[b._cr49f_region_id_value]||{}, etd=DOC.etdOf(b), code=DOC.ivCode(iv), staff=S.docStaff[code]||'';
   const x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), premium:b.crcf9_insurance_premiums, etdPast:etd<S.today, folder:S.folders[iv], acl:(S.aclLocal&&S.aclLocal[iv])||(S.acl&&S.acl.by[iv]?{result:S.acl.by[iv], runId:S.acl.runId}:null), mailRules:S.mails[iv]||[],
-    bookingNo:b.cr49f_booking_no||'', otherBookings:bkNos().filter(n=>n!==b.cr49f_booking_no)};
+    bookingNo:b.cr49f_booking_no||'', otherBookings:bkNos().filter(n=>n!==b.cr49f_booking_no), blNo:b.cr49f_bl_number||'', hon:honMap()[iv]||[], engineErr:S.engine==='error'};
   const cells=DOC.judgeIv(x);
   return {b, iv, ct:c.cr49f_sale_contract_no||'', ctId:b._cr49f_sale_contract_id_value, etd, country:x.country, pod:reg.pod, term:x.term, code, staff, cells, vchg:DOC.vesselChange(x), x};
 }
 function ctRow(id){
   const c=S.ct[id]||{}, by=S.buyers[c._cr49f_buyer_id_value]||{}, no=c.cr49f_sale_contract_no||'', code=DOC.ctCode(no), staff=S.docStaff[code]||'', pay=DOC.up(FV(c,'cr49f_pay_cls')||c.cr49f_pay_cls);
+  const pod=[FV(c,'_cr49f_pod1_value'),FV(c,'_cr49f_pod2_value')].filter(Boolean).join(' / '), date=DOC.isoDay(c.cr49f_sale_contract_date);
   const bks=(S.ctBk[id]||[]).map(b=>({iv:b.cr49f_invoice_no, etd:DOC.etdOf(b)})).sort((a,b)=>a.etd.localeCompare(b.etd));
   const shipped=bks.filter(b=>b.etd&&b.etd<S.today).length, next=(bks.find(b=>b.etd>=S.today)||{}).etd||'';
   const cells=DOC.judgeCt({pay, lcFiles:S.lcFiles?(S.lcFiles[DOC.up(no)]||[]).map(f=>f.name):undefined, sis:S.sis[id]});
-  return {id, ct:no, buyer:by.cr49f_buyer||FV(c,'_cr49f_buyer_id_value')||'', buyerName:by.cr49f_buyer_name||'', country:DOC.up(FV(by,'crcf9_country')||by.crcf9_country), pay, term:DOC.up(c.cr49f_terms_conditions), code, staff, cells, bks, shipped, next};
+  return {id, ct:no, date, pod, buyer:by.cr49f_buyer||FV(c,'_cr49f_buyer_id_value')||'', buyerName:by.cr49f_buyer_name||'', country:DOC.up(FV(c,'_cr49f_country_id_value')||FV(by,'crcf9_country')||by.crcf9_country), pay, term:DOC.up(c.cr49f_terms_conditions), code, staff, cells, bks, shipped, next};
 }
-function ctIdsForBoard(){
-  /* 範囲の船積がある契約 + LC/S/I がまだの契約 (契約日 60 日以内) */
-  const a=new Set(S.bk.map(b=>b._cr49f_sale_contract_id_value).filter(Boolean));
-  Object.keys(S.ct).forEach(id=>{ if(a.has(id)) return; const r=ctRow(id); if(['wait','todo'].indexOf(r.cells.lc.s)>=0||['wait','todo'].indexOf(r.cells.si.s)>=0) a.add(id); });
-  return [...a].filter(id=>S.ct[id]);
-}
+/* v0.3 契約別 (형님 D5) — 契約日 直近 n ヶ月 · 実際の形の契約番号だけ (TEST01 などは外して数だけ出す) */
+function ctIdsForBoard(){ const since=DOC.monthsAgo(S.today,S.ctMonths), ids=[], ex=[];
+  Object.keys(S.ct).forEach(id=>{ const c=S.ct[id], d=DOC.isoDay(c.cr49f_sale_contract_date); if(!d||d<since) return;
+    if(!DOC.CT_REAL.test(DOC.up(c.cr49f_sale_contract_no))){ ex.push(c.cr49f_sale_contract_no||'(番号なし)'); return; } ids.push(id); });
+  return {ids, ex}; }
 const staffName = code => { if(!code) return '担当未登録'; const s=S.staff.find(r=>r.code===code); return s?DOC.shortName(s.name_ja)||code:code; };
 
 /* ── 画面 ── */
@@ -764,10 +825,13 @@ function render(){
   if(S.view!=='list') return;
   $('dtBIv').classList.toggle('on',S.board==='iv'); $('dtBCt').classList.toggle('on',S.board==='ct');
   $('dtTodo').classList.toggle('on',S.todoOnly); $('dtAll').classList.toggle('on',!S.todoOnly); $('dtHideFd').checked=!!S.hideFd;
+  $('dtIvCtl').style.display=S.board==='iv'?'':'none'; $('dtCtCtl').style.display=S.board==='ct'?'':'none';   // v0.3: ETD · FD済み = Invoice 別だけ · 期間 = 契約別だけ
+  $('dtCtPeriod').innerHTML=DOC.CT_PERIODS.map(([n,l])=>'<button class="dt-chip'+(n===S.ctMonths?' on':'')+'" data-months="'+n+'">'+esc(l)+'</button>').join('');
+  $('dtCtPeriod').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.ctMonths=+b.dataset.months; lsSet(LS.ctmonths,String(S.ctMonths)); render(); }; });
   const meNote=S.who==='me'&&!S.me.code?' ※ ログイン中のメールがマスター「担当者」にありません — 「全員」か担当者を選んでください。':'';
   let hidden=0;
   if(S.board==='iv'){
-    $('dtBoardNote').textContent='船積ごと。ETD の近い順 (B/L ETD 優先)。Invoice か状態を押すと開きます。'+meNote;
+    $('dtBoardNote').textContent='船積ごと。ETD の近い順 (B/L ETD 優先)。Invoice か状態を押すと開きます。ACL は 本登録メールで 済。'+meNote;
     const mine=DOC.sortIv(S.bk.map(ivRow)).filter(r=>DOC.visible(r.staff,S.who,S.me)), rows=S.hideFd?mine.filter(r=>!DOC.fdDone(r.cells)):mine;
     hidden=mine.length-rows.length;
     const todo=rows.filter(r=>DOC.needs(r.cells)), shown=S.todoOnly?todo:rows;
@@ -777,14 +841,14 @@ function render(){
         DOC.STEPS.map(s=>'<td class="c">'+pill(r.cells[s[0]],r.iv,s[0])+'</td>').join('')+'</tr>').join('')+'</tbody></table>':'<div class="dt-empty">'+(S.bk.length?'表示する船積はありません（担当 · 要対応 · FD済み の選択を確認）':'船積がありません（ETD の範囲を確認）')+'</div>';
     $('dtTable').querySelectorAll('button[data-iv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.iv, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
   } else {
-    $('dtBoardNote').textContent='契約ごと。LC と S/I は契約に付くものです。契約番号か状態を押すと開きます。'+meNote;
-    const ivBy={}; if(S.hideFd) S.bk.forEach(b=>{ const k=b._cr49f_sale_contract_id_value; if(k) (ivBy[k]=ivBy[k]||[]).push(ivRow(b).cells); });
-    const mine=DOC.sortCt(ctIdsForBoard().map(ctRow)).filter(r=>DOC.visible(r.staff,S.who,S.me)), rows=S.hideFd?mine.filter(r=>!DOC.fdHiddenCt(r.cells,ivBy[r.id])):mine;
-    hidden=mine.length-rows.length;
-    const todo=rows.filter(r=>DOC.needs(r.cells)), shown=S.todoOnly?todo:rows;
+    $('dtBoardNote').textContent='契約ごと · 契約日の新しい順 (PORTAL 「販売契約」 と同じ)。LC と S/I を確かめる場所です。契約番号か状態を押すと開きます。'+meNote;
+    const B=ctIdsForBoard(), rows=DOC.sortCtDate(B.ids.map(ctRow)).filter(r=>DOC.visible(r.staff,S.who,S.me));
+    const todo=rows.filter(r=>DOC.needs({lc:r.cells.lc, si:r.cells.si})), shown=S.todoOnly?todo:rows;
     $('dtTodo').textContent='要対応のみ '+todo.length; $('dtAll').textContent='すべて '+rows.length;
-    $('dtTable').innerHTML=shown.length?'<table class="dt-t" style="min-width:900px"><thead><tr><th>契約</th><th>バイヤー</th><th>国</th><th>決済</th><th>担当</th><th class="c">LC</th><th class="c">S/I</th><th>船積</th><th>次の ETD</th></tr></thead><tbody>'+
-      shown.map(r=>'<tr><td style="padding:6px 10px"><button class="dt-link" data-ct="'+esc(r.id)+'">'+esc(r.ct)+'</button></td><td>'+esc(r.buyer)+'</td><td>'+esc(r.country)+'</td><td>'+esc(r.pay)+'</td><td>'+esc(staffName(r.staff))+'</td><td class="c">'+pill(r.cells.lc,r.id,'lc','ct')+'</td><td class="c">'+pill(r.cells.si,r.id,'si','ct')+'</td><td title="'+esc(shipTip(r))+'">'+esc(DOC.shipLabel(r.shipped,r.bks.length))+'</td><td>'+esc(r.next?DOC.fmtMD(r.next):'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="dt-empty">表示する契約はありません（担当 · 要対応 · FD済み の選択を確認）</div>';
+    $('dtTable').innerHTML=(shown.length?'<table class="dt-t" style="min-width:980px"><thead><tr><th>契約番号</th><th>契約日</th><th>国</th><th>バイヤー</th><th>POD</th><th>決済</th><th>担当</th><th class="c">LC</th><th class="c">S/I</th></tr></thead><tbody>'+
+      shown.map(r=>'<tr><td style="padding:6px 10px"><button class="dt-link" data-ct="'+esc(r.id)+'">'+esc(r.ct)+'</button></td><td class="e">'+esc(r.date||'—')+'</td><td>'+esc(r.country)+'</td><td>'+esc(r.buyer)+'</td><td>'+esc(r.pod||'—')+'</td><td>'+esc(r.pay)+'</td><td>'+esc(staffName(r.staff))+'</td><td class="c">'+pill(r.cells.lc,r.id,'lc','ct')+'</td><td class="c">'+pill(r.cells.si,r.id,'si','ct')+'</td></tr>').join('')+'</tbody></table>'
+      :'<div class="dt-empty">表示する契約はありません（担当 · 要対応 · 期間 の選択を確認）</div>')+
+      (B.ex.length?'<div class="dt-note" style="padding:8px 14px" title="'+esc(B.ex.join('\n'))+'">試験などの契約 '+B.ex.length+' 件は出していません（契約番号の形が LRS-… · UCS-… などでない）</div>':'');
     $('dtTable').querySelectorAll('button[data-ct]').forEach(b=>{ b.onclick=()=>openCt(b.dataset.ct, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
   }
   if(S.doneMsg) prog(S.doneMsg+(S.hideFd&&hidden?' · FD済み '+hidden+' 件を非表示':''));
@@ -873,29 +937,29 @@ function ivTabHtml(r, tab){
   }
   return '';
 }
-/* ACL タブ (画面案 v0.1) — 相違 · 表記差 · 一致 → 直してもらうところ (相違だけ) → 表示欄 → 表記差は折りたたみ → ACL を開く · 再照合 · 訂正依頼メール */
-const ST_JA = {MATCH:'一致', NOTATION:'表記差', PRACTICE:'表記(実績)', DIFF:'相違', DROP:'脱落', ADD:'追加', READ_CHECK:'読取確認', INFO:'参考'};
+/* ACL タブ (v0.3 · 형님 D2) — 上から 1 本の流れ: ① 結論 1 行 (+ 本登録) ② 確認した項目の全部 ③ 相違だけ開く ④ 表記差は 「中身を見る」
+   見せ方は acl_bench v0.5 エンジンの viewHtml (acl_bench の結果画面と同じもの) · 中の名前 (crcf9_… · 根拠の文) は 管理者だけ (マウスを乗せると) */
+function honLine(c){
+  const h=c&&c.hon, src=S.honErr?' — メールを読めない ('+S.honErr+') · メール一覧 CSV だけで判断':'';
+  return h?'本登録: 済 ('+DOC.fmtMD(DOC.jstDay(h.at))+(h.name?' '+h.name:'')+(h.src==='csv'?' · CSV':'')+')'+(c.diffHon?' — 相違のまま本登録':'')+src:'本登録: まだ'+src;
+}
 function aclTabHtml(r){
-  const c=r.cells.acl, res=r.x.acl&&r.x.acl.result, g=DOC.aclGroups(res), fresh=res&&/^照合/.test(c.why||'');
-  const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">ACL 照合</div><div class="dt-note" style="font-size:13px">届いた ACL を COMPASS の S/I と照合します（ファイルを選ぶ必要はありません）。'+
-    (res?' 表示中: '+esc(r.x.acl.runId)+(res.aclVersion?' · ACL '+esc(res.aclVersion):''):'')+'</div></div>'+
-    (res&&fresh?'<div class="dt-pills"><span class="p st-diff">相違 '+g.diff.length+'</span><span class="p st-wait">表記差 '+g.note.length+'</span><span class="p st-done">一致 '+g.match.length+'</span>'+(g.check.length?'<span class="p st-todo">読取確認 '+g.check.length+'</span>':'')+'</div>':'')+'</div>';
-  let body=statusLine(c);
-  const sc=c.scan; if(sc){ const ex=sc.excluded.map(e=>e.name+' ('+e.why+')').concat(c.pick?sc.temp.map(a=>a.f.name+' (仮 — 正式があるので使わない)'):[]);
-    body+=(c.pick?'<div class="dt-note">照合に使うファイル: '+esc(c.pick.f.name)+' — '+esc(c.pick.version)+' · 名前の形 '+esc(c.pick.shape)+'（DR = ACL）</div>':'')+(ex.length?'<div class="dt-note">選ばなかったファイル: '+esc(ex.join(' · '))+'</div>':''); }
-  if(res&&fresh){
-    if(res.why) body+='<div class="dt-note">'+esc(res.why)+'</div>';
-    body+=g.diff.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:var(--st-diff-fg)">直してもらうところ</div>'+g.diff.map(i=>'<div class="dt-grid3"><div><div class="dt-note">項目</div><div style="font-weight:500">'+esc(i.label)+' <span class="dt-note">'+esc(ST_JA[i.status]||i.status)+'</span></div></div><div><div class="dt-note">ACL</div><div style="color:var(--st-diff-fg);white-space:pre-wrap">'+esc(i.actual||'(空欄)')+'</div></div><div><div class="dt-note">S/I（正）</div><div style="white-space:pre-wrap">'+esc(i.expected||'(空欄)')+'</div></div></div>'+(i.detail?'<div class="dt-note">'+esc(i.detail)+'</div>':'')).join('<hr style="border:0;border-top:1px solid var(--surface3);margin:4px 0">')+'</section>':'';
-    body+=g.check.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:var(--st-todo-fg)">読み取りを確認するところ</div>'+g.check.map(i=>'<div class="dt-note"><b>'+esc(i.label)+'</b> ACL: '+esc(i.actual||'')+' · '+esc(i.detail||'')+'</div>').join('')+'</section>':'';
-    body+=g.disp.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:var(--text2)">表示欄</div><div class="dt-pills">'+g.disp.map(i=>'<span class="p st-'+(i.status==='MATCH'?'done':i.status==='INFO'?'wait':i.status==='READ_CHECK'?'todo':'diff')+'" title="'+esc(i.detail||'')+'">'+esc(i.label)+': '+esc(i.actual||'—')+'</span>').join('')+'</div></section>':'';
-    body+=g.note.length?'<details class="dt-card" style="padding:12px 18px"><summary class="dt-note" style="cursor:pointer">表記差 '+g.note.length+' 件（空白・大文字小文字など）は確認不要です。中身を見る</summary>'+g.note.map(i=>'<div class="dt-note" style="margin-top:6px"><b>'+esc(i.label)+'</b> '+esc(i.detail||'')+'</div>').join('')+'</details>':'';
-    const m=res.meta||{}; if(m.forwarderCompany||m.forwarder) body+='<div class="dt-note">乙仲: '+esc([m.forwarderCompany||m.forwarder,m.forwarderPort].filter(Boolean).join(' · '))+'</div>';
-  }
-  const f=c.pick&&c.pick.f, can=!!(c.pick&&S.folders[r.iv]&&S.folders[r.iv].files);
-  return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+'<div id="dtAclSt" class="dt-note" style="font-size:13px"></div><div class="dt-actions">'+
+  const c=r.cells.acl, res=r.x.acl&&r.x.acl.result, fresh=!!(res&&c.fresh);
+  const head='<div><div class="dt-h">ACL 照合</div><div class="dt-note" style="font-size:13px">届いた ACL (DR · 仮ACL も) を COMPASS の S/I と照合します（ファイルを選ぶ必要はありません）。'+
+    (fresh?' 表示中: '+esc(r.x.acl.runId)+(res.aclVersion?' · ACL '+esc(res.aclVersion):''):'')+'</div></div>';
+  let body='';
+  if(S.engine==='error'||!DOC.aclReady()||!S.aclE) body+='<div class="dt-p">'+(S.engine==='error'?errHtml(S.engineErr,'ACL の判定ルールを読めません','acl_bench'):'読み込み中…')+'</div>';
+  else if(fresh) body+='<div class="av">'+S.aclE.viewHtml(res,{admin:S.me.admin, hon:esc(honLine(c))})+'</div>';
+  else body+='<div class="av-concl av-'+(c.s==='done'?'ok':c.s==='wait'?'na':'read')+'">'+esc(c.s==='wait'?'ACL はまだ届いていません':c.s==='done'?'本登録が済んでいます':'まだ照合していません — 「照合する」 を押してください')+' <span class="av-hon">'+esc(honLine(c))+'</span></div>'+statusLine(c);
+  const sc=c.scan; if(sc){ const ex=sc.excluded.map(e=>e.name+' ('+e.why+')').concat(c.pick?sc.formal.concat(sc.temp).filter(a=>a!==c.pick).map(a=>a.f.name+(a.temp?' (仮)':'')):[]);
+    body+=(c.pick?'<div class="dt-note">照合に使うファイル: '+esc(c.pick.f.name)+' — '+esc(c.label||c.pick.version)+(c.pick.temp?'（仮ACL も ACL として照合 · 形님 D3）':'（DR = ACL）')+'</div>':'')+(ex.length?'<div class="dt-note">ほかのファイル: '+esc(ex.join(' · '))+'</div>':''); }
+  if(fresh&&res.why) body+='<div class="dt-note">'+esc(res.why)+'</div>';
+  const m=fresh&&res.meta||{}; if(m.forwarderCompany||m.forwarder) body+='<div class="dt-note">乙仲: '+esc([m.forwarderCompany||m.forwarder,m.forwarderPort].filter(Boolean).join(' · '))+'</div>';
+  const g=fresh?DOC.aclGroups(res):{diff:[]}, f=c.pick&&c.pick.f, can=!!(c.pick&&DOC.aclReady()&&S.folders[r.iv]&&S.folders[r.iv].files);
+  return '<section class="dt-card dt-panel" style="gap:12px">'+head+body+'<div id="dtAclSt" class="dt-note" style="font-size:13px"></div><div class="dt-actions">'+
     (f&&f.webUrl?'<button class="dt-btn ghost" data-url="'+esc(f.webUrl)+'">ACL を開く</button>':'')+
-    (can?'<button class="dt-btn ghost" id="dtAclRun">'+(res&&fresh?'再照合':'照合する')+'</button>':'')+
-    (res&&fresh&&g.diff.length?'<button class="dt-btn ghost" id="dtAclCopy">本文をコピー</button><button class="dt-btn" id="dtAclMail">訂正依頼メールを作る</button>':'')+
+    (can?'<button class="dt-btn ghost" id="dtAclRun">'+(fresh?'再照合':'照合する')+'</button>':'')+
+    (fresh&&g.diff.length?'<button class="dt-btn ghost" id="dtAclCopy">本文をコピー</button><button class="dt-btn" id="dtAclMail">訂正依頼メールを作る</button>':'')+
     benchBtn('acl')+'</div></section>';
 }
 /* 履歴 (SharePoint D-00/doc_tool/log/{key}/) */
@@ -997,10 +1061,11 @@ async function runSearch(){
   }catch(e){ st.textContent='検索できません: '+e.message; }
 }
 
-/* ══════════ P2 — ACL タブ (acl_bench v0.4 のエンジンを共有) ══════════
+/* ══════════ P2 — ACL タブ (acl_bench v0.5 のエンジンを共有) ══════════
    エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
-   下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @243897d */
-const ACL_ENGINE = {commit:'243897d18878ca38329001e029a60b0101f79d59', sha256:'d4226dfc3581d261301a1dd290df9f10cef8b8720f4d1d115e89bea4fbb91ff6', ver:'0.4'};
+   v0.3: ACL の名前の規則 (aclScan · aclPick) · 本登録の語 (mailKind) · 結果の見せ方 (viewHtml) もエンジンから — 現況板が始まるときに読む (loadAll)
+   下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @903d923 (v0.4 から変わっていない) */
+const ACL_ENGINE = {commit:'903d9231883d394a23563bd9003828ca2dbf1147', sha256:'a62487baa36b3213f91308c4cb158f26248bcedfffd3592bb26cda811e3aaafc', ver:'0.5'};
 ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 let ACLX = null;
@@ -1069,12 +1134,12 @@ async function readPdf(file){
 async function aclCompareOne(iv){
   const E=await loadAclEngine(), f=S.folders[iv];
   if(!f||!f.files) throw new Error('Invoice フォルダを読めていません');
-  /* v0.2: ファイルは この TOOL の規則 (DOC.aclScan — DR · ACL-番号 · 本登録 …) で選ぶ。エンジンの groupTargets は {IV}_ACL.pdf の名前しか見ないので通さない —
-     エンジンが見るのは PDF の中身だけ (readNaccs · compareOne — 名前は使わない · 2026-11-20 コード確認) */
-  const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv)||{}, A=DOC.aclFiles(f.files, iv, {booking:b.cr49f_booking_no||'', others:bkNos().filter(n=>n!==b.cr49f_booking_no)});
-  if(!A.length) throw new Error('ACL (DR) のファイルがありません');
+  /* v0.3: ファイルは エンジン v0.5 の aclPick (DR · ACL-番号 · 本登録 … · 正式がなければ 仮 — 형님 D3) で選ぶ — 現況板と同じ規則 */
+  const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv)||{}, P=DOC.aclPick(f.files, iv, {booking:b.cr49f_booking_no||'', others:bkNos().filter(n=>n!==b.cr49f_booking_no)});
+  if(!P.pick) throw new Error('ACL (DR) のファイルがありません');
+  const A=[P.pick].concat(P.scan.formal.concat(P.scan.temp).filter(a=>a!==P.pick));
   const rel=E.relPath('/drives/'+LEENAI.SP.DRIVE_ID+'/root:/'+f.path), fo=a=>({id:a.f.id, name:a.f.name, size:a.f.size, lastModifiedDateTime:a.f.lastModified, path:rel});
-  const t={invoice:iv, file:fo(A[0]), aclVersion:A[0].version+(A[0].shape!=='{IV}_ACL'?' · '+A[0].shape:''), others:A.slice(1).map(fo)};
+  const t={invoice:iv, file:fo(A[0]), aclVersion:P.label, others:A.slice(1).map(fo)};
   const r={invoice:t.invoice, file:t.file.path+'/'+t.file.name, fileModified:t.file.lastModifiedDateTime||'', aclVersion:t.aclVersion||'', others:(t.others||[]).map(o=>o.path+'/'+o.name), format:'', verdict:'', items:[], kinds:{}, xx:[]};
   const pages=await readPdf(t.file), fm=E.classifyFormat(pages); r.format=fm.format;
   if(fm.format!=='NACCS'){ r.verdict='読取対象外'; r.why=fm.why; r.kinds={['読取対象外:'+fm.format]:1}; return r; }
@@ -1395,6 +1460,7 @@ function startPage(){
   S.range=DOC.defaultRange(S.today,+rg.before,+rg.after); $('dtFrom').value=S.range.from; $('dtTo').value=S.range.to;
   S.who=lsGet(LS.who,'me'); S.board=lsGet(LS.board,'iv')==='ct'?'ct':'iv';
   S.hideFd=lsGet(LS.hidefd,'1')!=='0';   // 既定 ON (형님 D2)
+  S.ctMonths=+lsGet(LS.ctmonths,'1'); if(!DOC.CT_PERIODS.some(p=>p[0]===S.ctMonths)) S.ctMonths=1;   // v0.3 既定 直近1ヶ月
   $('dtHideFd').onchange=()=>{ S.hideFd=$('dtHideFd').checked; lsSet(LS.hidefd,S.hideFd?'1':'0'); render(); };
   $('dtBIv').onclick=()=>{ S.board='iv'; lsSet(LS.board,'iv'); render(); }; $('dtBCt').onclick=()=>{ S.board='ct'; lsSet(LS.board,'ct'); render(); };
   $('dtTodo').onclick=()=>{ S.todoOnly=true; render(); }; $('dtAll').onclick=()=>{ S.todoOnly=false; render(); };
@@ -1405,9 +1471,14 @@ function startPage(){
   renderMe(); renderWho(); loadAll();
 }
 
+/* v0.3 (#9): 色モードを一度も選んでいないブラウザは 「LEENAI」 モードで始める — 共通ファイルの記憶キー leenai_theme が無いときだけ。
+   キーは書かない (同じアドレスのほかの TOOL の既定を変えないため) — 共通ファイルが読むときだけ 'leenai' と答え、テーマボタンで選べば共通ファイルが記憶する。
+   localStorage に関数を置くと 「項目の保存」 になる (Storage の決まり) ので、このページの Storage.prototype.getItem をこのキーのときだけ包む (ほかのページ · TOOL には届かない) */
+(function(){ try{ const P=window.Storage&&window.Storage.prototype, orig=P&&P.getItem; if(!orig||orig.call(window.localStorage,'leenai_theme')!=null) return;
+  P.getItem=function(k){ const v=orig.call(this,k); return this===window.localStorage&&k==='leenai_theme'&&v==null?'leenai':v; }; }catch(e){} })();
 LEENAI.addHeaderButton({label:'⚙ 設定', title:'設定 (API キー · 範囲 · マスター)', onClick:()=>openSettings()});
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.2', date:'2026-11-20',
+  sys:'D-00', name:'書類ツール', version:'0.3', date:'2026-11-20',
   desc:'書類担当の進み具合 (Invoice 別 · 契約別) · ACL 照合 · S/I 推薦 — D-01 · D-03 · D-04 をまとめる試験運用版',
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下だけ (履歴 · S/I 控え — DOC.guardOut)
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

@@ -2,6 +2,7 @@
 const fs=require('fs'),path=require('path');
 const HTML=fs.readFileSync(process.argv[2]||path.join(__dirname,'../index.html'),'utf8');
 const DOC=new Function('module',HTML.match(/<script id="doc-core">([\s\S]*?)<\/script>/)[1]+';return DOC;')(undefined);
+DOC.useAclEngine(require('./engine').engine(HTML));   // v0.3: ACL の名前の規則 = 고정한 acl_bench v0.5 엔진
 let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.log('FAIL',m,info===undefined?'':JSON.stringify(info).slice(0,500));} };
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const F=(...names)=>({files:names.map(n=>typeof n==='string'?{name:n,lastModified:'2026-11-10T00:00:00Z'}:n)});
@@ -25,15 +26,24 @@ eq(S({folder:{error:'Graph 500'}},'fd'),'unk','폴더 읽기 실패 → ?');
 // ACL
 const R=(verdict,file,mod)=>({result:{invoice:IV,verdict,file:'/x/'+(file||IV+'_ACL.pdf'),fileModified:mod||'2026-11-10T00:00:00Z',aclVersion:'初版',items:[]},runId:'ACL_20261120-000000'});
 eq(S({folder:F(IV+'_DRAFT.pdf')},'acl'),'wait','ACL 없음 → 待ち');
-ok(/仮 ACL/.test(J({folder:F('仮ACL.pdf')}).acl.why),'仮ACL 만 → 待ち (仮 ACL のみ)');
+/* v0.3 (형님 D3): 仮ACL = ACL · 済 = 本登録 메일 (rcp@ CC) 이 있을 때만 — 표 (待ち · 確認 · 相違 · 済) */
+const HON=[{at:'2026-11-18T01:00:00Z', name:'山田', src:'mail'}];
+eq([S({folder:F('仮ACL.pdf')},'acl'),J({folder:F('仮ACL.pdf')}).acl.label],['todo','仮'],'v0.3 仮ACL 만 → ACL 있음 (판 仮) · 本登録 없음 → 確認');
 eq(S({folder:F(IV+'_ACL.pdf')},'acl'),'todo','ACL 있음 · 照合結果 없음 → 確認');
-eq(S({folder:F(IV+'_ACL.pdf'),acl:R('相違あり')},'acl'),'diff','ACL 相違あり → 相違');
-eq(S({folder:F(IV+'_ACL.pdf'),acl:R('表記差のみ')},'acl'),'done','ACL 表記差のみ → 済');
-eq(S({folder:F(IV+'_ACL.pdf'),acl:R('完全一致')},'acl'),'done','ACL 完全一致 → 済');
+eq(S({folder:F(IV+'_ACL.pdf'),acl:R('相違あり')},'acl'),'diff','ACL 相違あり · 本登録 없음 → 相違');
+eq(S({folder:F(IV+'_ACL.pdf'),acl:R('表記差のみ')},'acl'),'todo','v0.3 ACL 表記差のみ · 本登録 없음 → 確認 (v0.2 는 済)');
+eq([S({folder:F(IV+'_ACL.pdf'),acl:R('完全一致')},'acl'),/本登録 まだ/.test(J({folder:F(IV+'_ACL.pdf'),acl:R('完全一致')}).acl.why)],['todo',true],'v0.3 ACL 完全一致 · 本登録 없음 → 確認 「本登録 まだ」');
 eq(S({folder:F(IV+'_ACL.pdf'),acl:R('読取対象外')},'acl'),'todo','ACL 読取対象外 (스캔) → 確認');
 eq(S({folder:F(IV+'_ACL.pdf',IV+'_ACL REV.pdf'),acl:R('相違あり')},'acl'),'todo','照合 뒤 REV 가 들어옴 → 確認');
 eq(S({folder:F({name:IV+'_ACL.pdf',lastModified:'2026-11-15T00:00:00Z'}),acl:R('完全一致')},'acl'),'todo','照合 뒤 같은 이름 갱신 → 確認');
-eq(S({folder:F(IV+'_ACL.pdf',IV+'_ACL REV.pdf'),acl:R('完全一致',IV+'_ACL REV.pdf')},'acl'),'done','REV 를 照合 → 済');
+eq(S({folder:F(IV+'_ACL.pdf',IV+'_ACL REV.pdf'),acl:R('完全一致',IV+'_ACL REV.pdf'),hon:HON},'acl'),'done','REV 를 照合 + 本登録 → 済');
+{ const a=J({folder:F(IV+'_ACL.pdf'),acl:R('完全一致'),hon:HON}).acl, b=J({folder:F(IV+'_ACL.pdf'),acl:R('相違あり'),hon:HON}).acl, c=J({folder:F(IV+'_ACL.pdf'),hon:HON}).acl, d=J({folder:F(IV+'_DRAFT.pdf'),hon:HON}).acl;
+  eq([a.s,/^本登録 済 \(11\/18 山田\)/.test(a.why)],['done',true],'v0.3 本登록 메일 있음 → 済 「本登録 済 (11/18 山田)」 (UTC → 일본 날짜)');
+  eq([b.s,/相違のまま本登録/.test(b.why),b.diffHon],['done',true,true],'v0.3 相違 + 本登録 → 済 + 「相違のまま本登録」');
+  eq(c.s,'done','v0.3 照合 전이라도 本登録 메일 있음 → 済');
+  eq([d.s,/ACL ファイルがフォルダにない/.test(d.why)],['todo',true],'v0.3 本登録 메일은 있는데 ACL 파일 없음 → 確認 (⚠️ 토르 판단)'); }
+{ const D2=new Function('module',HTML.match(/<script id="doc-core">([\s\S]*?)<\/script>/)[1]+';return DOC;')(undefined), q=o=>D2.judgeIv(base(o)).acl;
+  eq([q({folder:F(IV+'_ACL.pdf')}).s,q({folder:F(IV+'_ACL.pdf'),engineErr:true}).s],['load','unk'],'v0.3 엔진 읽는 중 → … · 엔진 못 읽음 → ? (추측 안 함)'); }
 eq(S({folder:F('NBB2611-09_ACL.pdf')},'acl'),'wait','다른 Invoice 의 ACL 은 안 셈');
 // B/L Draft
 eq(S({folder:F(IV+'_ED.pdf')},'bl'),'wait','B/L 없음 → 待ち');

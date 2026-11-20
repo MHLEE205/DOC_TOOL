@@ -1,6 +1,6 @@
 /* 가짜 세계 — 가짜 COMPASS (Dataverse GET) · 가짜 SharePoint (Graph) · 가짜 LEENAI. 가짜 데이터만 (example.test · TEST 번호) */
 const fs=require('fs'),path=require('path');
-const {JSDOM}=require('jsdom');
+const {JSDOM}=require('jsdom'), ENG=require('./engine'), nodeCrypto=require('crypto');
 const DV='https://orgde512c6f.crm7.dynamics.com/api/data/v9.2/', GR='https://graph.microsoft.com/v1.0/drives/DRV';
 const clone=o=>JSON.parse(JSON.stringify(o));
 const pad=n=>String(n).padStart(2,'0');
@@ -43,6 +43,8 @@ function world(){
     {invoice:'NBB2611-01',file:WIP+'/NBB2611-01/NBB2611-01_ACL REV.pdf',fileModified:'2026-11-10T00:00:00Z',aclVersion:'REV',verdict:'完全一致',items:[item('MATCH','Shipper','S','S')]}]});
   W.content['古紙/-. AI 活用/D-00/ACL_bench/ACL_20261101-000000/results.json']=JSON.stringify({run_id:'old',results:[]});
   W.mailCsv='﻿件名,件名規則,Invoice番号\r\nTEST,本船変更,NAA2611-02\r\n';
+  /* v0.3 本登録 — ログインした人のメールボックス (Graph me/messages · 読むだけ) · 会社のドメイン (example.test) が送った 「本登録お願いします」 */
+  W.messages=[{subject:'[本登録依頼] Re: NBB2611-01 BKG TESTBK3',from:{emailAddress:{address:'b@example.test'}},sentDateTime:D(-3),uniqueBody:{content:'D/Rを確認致しました。本登録お願いします。'},bodyPreview:''}];
   return W;
 }
 
@@ -69,6 +71,9 @@ function fakeFetch(W){
   return async(url,init)=>{
     init=init||{}; const method=(init.method||'GET').toUpperCase(); W.req.push(method+' '+url);
     if(method!=='GET'){ W.writes.push({method,url,body:init.body}); if(url.indexOf(GR)===0){ return res(201,{size:1}); } return res(204,{}); }
+    /* v0.3: acl_bench エンジン (raw · 커밋 고정) · 메일함 (me/messages — 읽기만) */
+    if(url.indexOf('https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/')===0&&/acl_bench\.html$/.test(url)){ const b=W.aclEngine; if(!b) return res(404,{}); return {ok:true,status:200,headers:{get:()=>null},arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.length)}; }
+    if(url.indexOf('https://graph.microsoft.com/v1.0/me/messages')===0){ W.mailReads=(W.mailReads||0)+1; if(W.mailErr) return res(W.mailErr,{error:{code:'ErrorAccessDenied'}}); return res(200,{value:clone(W.messages||[])}); }
     if(url.indexOf(DV)===0){ const [st,b]=dvHandle(W,url); return res(st,b); }
     if(url.indexOf(GR)===0){
       const p=decodeURIComponent(url.slice(GR.length));
@@ -90,8 +95,9 @@ async function page(W, opt){
     'addHeaderButton:function(o){ window.__btns.push(o); },_openMasterPanel:function(){ window.__master=1; },'+
     'init:function(o){ window.__cfg=o; document.title="LEENAI "+o.sys+" "+o.name+" v"+o.version; setTimeout(function(){ var h=document.createElement("div"); h.id="ln-hdr-right"; document.getElementById("app").prepend(h); document.getElementById("app").style.display=""; o.onReady(); },0); }};</script>';
   const h=HTML.replace(/<script src="https:\/\/mhlee205\.github\.io\/LEENAI_COMMON\/v1\/leenai-common\.js"><\/script>/,FAKE).replace(/<link rel="stylesheet"[^>]*>/,'');
+  if(W.aclEngine===undefined) W.aclEngine=ENG.bytes(HTML);   // v0.3: 고정한 엔진 원문 (sha256 확인됨) — null 이면 읽기 실패 시험
   const dom=new JSDOM(h,{url:'https://mhlee205.github.io/DOC_TOOL/',runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){
-    w.__W=W; w.fetch=fakeFetch(W); w.confirm=w.alert=w.prompt=()=>{ throw new Error('confirm/alert 호출됨'); };
+    w.__W=W; w.fetch=fakeFetch(W); if(!w.crypto||!w.crypto.subtle) Object.defineProperty(w,'crypto',{value:nodeCrypto.webcrypto}); w.confirm=w.alert=w.prompt=()=>{ throw new Error('confirm/alert 호출됨'); };
     w.open=(u)=>{ W.opened.push(u); return null; }; Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{ W.copied=t; }}});
     Object.entries(opt.ls||{}).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; }});
   const w=dom.window; await until(()=>/読み込み完了|読み込み失敗/.test(w.document.getElementById('dtProg').textContent));

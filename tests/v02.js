@@ -4,6 +4,8 @@ const fs=require('fs'),path=require('path');
 const X=require('./fake');
 const HTML=fs.readFileSync(process.argv[2]||path.join(__dirname,'../index.html'),'utf8');
 const DOC=new Function('module',HTML.match(/<script id="doc-core">([\s\S]*?)<\/script>/)[1]+';return DOC;')(undefined);
+DOC.useAclEngine(require('./engine').engine(HTML));   // v0.3: ACL 이름 규칙 = 엔진 v0.5 (v0.2 의 이 TOOL 규칙을 옮긴 것 — 아래 시험은 그대로 통과해야 함)
+DOC.aclFiles=(fs,iv,ctx)=>DOC.aclScan(fs,iv,ctx).formal;   // v0.2 시험용 이름 (v0.3 에서 aclPick 으로 바뀜)
 let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.log('FAIL',m,info===undefined?'':JSON.stringify(info).slice(0,600));} };
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const clone=o=>JSON.parse(JSON.stringify(o)), FVK='@OData.Community.Display.V1.FormattedValue';
@@ -44,7 +46,7 @@ eq(pick([['DR_A.pdf','2026-11-12T00:00:00Z'],['ACL-T1.pdf','2026-11-11T00:00:00Z
 eq(DOC.aclFiles([f(IV+'_ACL REV2.pdf')],IV)[0].version,'REV2','판 이름 REV2');
 /* 상태 — 仮 만 → 確認 · 없음 → 待ち · 정식 → 照合結果なし 確認 */
 const J=files=>DOC.judgeIv({iv:IV,country:'VIETNAM',term:'CIF',premium:1,etdPast:false,folder:{files:files.map(n=>f(n))},acl:null,mailRules:[],bookingNo:'TESTBK0001',otherBookings:['TESTBK0002']}).acl;
-eq([J(['仮ACL.pdf']).s,J(['仮ACL.pdf']).why],['todo','仮 ACL のみ (本 ACL 未着)'],'仮 만 → 確認 「仮 ACL のみ」');
+eq([J(['仮ACL.pdf']).s,J(['仮ACL.pdf']).pick.f.name,J(['仮ACL.pdf']).label],['todo','仮ACL.pdf','仮'],'仮 만 → 確認 (v0.3: 仮 = ACL 로 照合 대상 · 판 「仮」 — 형님 D3)');
 eq(J([]).s,'wait','ACL 없음 → 待ち');
 eq(J(['DR_TESTBK0002.pdf']).s,'wait','다른 부킹의 DR 만 → 待ち (제외)');
 ok(J(['DR TEST001.pdf','仮ACL.pdf']).s==='todo'&&J(['DR TEST001.pdf','仮ACL.pdf']).pick.f.name==='DR TEST001.pdf','정식이 있으면 仮 는 안 씀');
@@ -53,12 +55,7 @@ ok(/照合結果なし/.test(J(['DR TEST001.pdf']).why)&&/DR TEST001\.pdf \(初�
 /* #1 FD 숨김 규칙 */
 const C=(s)=>({s}), cells=(fd)=>({fd:C(fd)});
 ok(DOC.fdDone(cells('done'))&&!DOC.fdDone(cells('wait')),'Invoice: FD 済 → 숨김');
-eq(DOC.fdHiddenCt({lc:C('done'),si:C('done')},[cells('done'),cells('done')]),true,'契約: 전부 FD 済 + LC/S/I 済 → 숨김');
-eq(DOC.fdHiddenCt({lc:C('na'),si:C('done')},[cells('done')]),true,'契約: LC 대상 외 + S/I 済 + FD 済 → 숨김');
-eq(DOC.fdHiddenCt({lc:C('done'),si:C('done')},[cells('done'),cells('wait')]),false,'契約: 하나라도 FD 아님 → 보임');
-eq(DOC.fdHiddenCt({lc:C('done'),si:C('todo')},[cells('done')]),false,'契約: S/I 確認 → 보임');
-eq(DOC.fdHiddenCt({lc:C('diff'),si:C('done')},[cells('done')]),false,'契約: LC 相違 → 보임');
-eq(DOC.fdHiddenCt({lc:C('done'),si:C('done')},[]),false,'契約: 범위 안 선적 0건 → 보임');
+ok(DOC.fdHiddenCt===undefined,'v0.3: 契約別 의 FD済み 숨김은 없앰 (FD済み · ETD 는 Invoice 別에서만 — 형님 D5)');
 /* #2 いまここ */
 eq(DOC.nowTab({customs:C('done'),acl:C('diff'),depo:C('na'),bl:C('todo')},DOC.STEPS),'acl','いまここ = 済 아닌 첫 탭');
 eq(DOC.nowTab({customs:C('done'),acl:C('done'),depo:C('na'),bl:C('done'),ins:C('na'),rr:C('na'),fd:C('done')},DOC.STEPS),'','모두 済 (대상 외 제외) → 없음');
@@ -114,11 +111,11 @@ const hf=w.document.getElementById('dtHideFd'); hf.checked=false; hf.dispatchEve
 eq(ivs(w),['NBB2611-01','NAA2611-01','NAA2611-02'],'끄면 전부 보임');
 ok(!/非表示/.test(txt(w,'dtProg'))&&/すべて 3/.test(txt(w,'dtAll')),'끄면 건수 3 · 숨김 문구 없음');
 ok(w.localStorage.getItem('doc_tool_hide_fd')==='0','기억 (localStorage)');
-/* 契約別 — BB1 (선적 1건 FD 済 · S/I 済 · LC 대상 외) */
+/* 契約別 — v0.3: FD済み · ETD 조작은 Invoice 別에서만 · 契約別 = 계약일 기간 */
 hf.checked=true; hf.dispatchEvent(new w.Event('change')); w.document.getElementById('dtBCt').click();
 const cts=()=>$$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent);
-eq(cts(),['LRS-2611AA1','LRS-2611CC1'],'契約別: 전부 FD 済 + LC/S/I 済 계약 숨김 · 선적 0건 계약 (CC1) 보임');
-hf.checked=false; hf.dispatchEvent(new w.Event('change')); eq(cts(),['LRS-2611AA1','LRS-2611CC1','LRS-2611BB1'],'契約別: 끄면 보임');
+eq([w.document.getElementById('dtIvCtl').style.display,w.document.getElementById('dtCtCtl').style.display],['none',''],'v0.3 契約別: ETD · FD済み 조작 숨김 · 期間 보임');
+eq(cts(),['LRS-2611CC1'],'v0.3 契約別: 直近1ヶ月 (FD 숨김과 무관)');
 ok(w.localStorage.getItem('doc_tool_board')==='ct','현황판 선택 기억');
 /* 검색은 숨김과 무관 */
 hf.checked=true; hf.dispatchEvent(new w.Event('change')); w.document.getElementById('dtBIv').click();

@@ -1,10 +1,10 @@
-/* #6 ACL 탭 — acl_bench v0.4 엔진을 같은 파일로 공유 (커밋 고정 + sha256) · 한 건 대조 결과가 엔진을 직접 부른 것과 같음 · 쓰기는 doc_tool/ 아래만 · 메일은 열기만
+/* #6 ACL 탭 — acl_bench 엔진 (v0.3: v0.5) 을 같은 파일로 공유 (커밋 고정 + sha256) · 한 건 대조 결과가 엔진을 직접 부른 것과 같음 · 쓰기는 doc_tool/ 아래만 · 메일은 열기만
    엔진 원문: CONTRACT_SEND 클론에서 git show (ACL_REPO=경로 · 기본 ../../CONTRACT_SEND) → 없으면 raw 주소에서 받음. node acl.js [html] */
 const fs=require('fs'),path=require('path'),cp=require('child_process'),nodeCrypto=require('crypto');
 const {JSDOM}=require('jsdom');
 const FX=require('./acl_fx/fixtures'), N=require('./acl_fx/fake_naccs'), R=require('./acl_fx/pdfread'), X=require('./fake');
 const HTML=fs.readFileSync(process.argv[2]||path.join(__dirname,'../index.html'),'utf8');
-const COMMIT=HTML.match(/commit:'([0-9a-f]{40})'/)[1], SHA=HTML.match(/sha256:'([0-9a-f]{64})'/)[1];
+const COMMIT=HTML.match(/commit:'([0-9a-f]{40})'/)[1], SHA=HTML.match(/sha256:'([0-9a-f]{64})'/)[1], EVER=HTML.match(/const ACL_ENGINE = \{[^}]*ver:'([\d.]+)'/)[1], TVER=HTML.match(/version:'([\d.]+)'/)[1];
 let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.log('FAIL',m,info===undefined?'':JSON.stringify(info).slice(0,700));} };
 const clone=o=>JSON.parse(JSON.stringify(o));
 const FVK='@OData.Community.Display.V1.FormattedValue';
@@ -80,7 +80,7 @@ async function engineText(){
     ok(JSON.stringify(res.items)===JSON.stringify(direct.items),iv+' 항목 하나하나 같음 ('+direct.items.length+')');
     ok(JSON.stringify(res.kinds)===JSON.stringify(direct.kinds)&&JSON.stringify(res.sets)===JSON.stringify(direct.sets)&&JSON.stringify(res.xx)===JSON.stringify(direct.xx),iv+' 종류 · 세트 · XX 같음');
     ok(res.meta&&res.meta.contract==='LRS-2699TS'+iv.slice(-1)&&res.meta.country==='VIETNAM'&&res.meta.forwarderCompany==='SAMPLE FORWARDER',iv+' 범위 정보 (계약 · 나라 · 乙仲)',res.meta);
-    ok(res.engine===('acl_bench v0.4 @'+COMMIT.slice(0,7))&&res.by==='書類ツール v0.2','결과에 엔진 출처 · 도구');
+    ok(res.engine===('acl_bench v'+EVER+' @'+COMMIT.slice(0,7))&&res.by==='書類ツール v'+TVER,'결과에 엔진 출처 · 도구',[res.engine,res.by]);
     ok(W.req.filter(r=>/raw\.githubusercontent/.test(r)).length===1,'엔진은 한 번만 읽음');
   }
   /* 02 = 相違 → 화면 · 메일 */
@@ -98,7 +98,7 @@ async function engineText(){
   const row=[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>/NFK2601-02/.test(t.textContent));
   ok(row&&row.querySelectorAll('td.c .st')[1].textContent==='相違','현황판 ACL 칸 = 새 결과 (相違)');
   const row1=[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>/NFK2601-01/.test(t.textContent));
-  ok(row1&&row1.querySelectorAll('td.c .st')[1].textContent==='済','현황판 ACL 칸 = 새 결과 (完全一致 → 済)');
+  ok(row1&&row1.querySelectorAll('td.c .st')[1].textContent==='確認'&&/本登録 まだ/.test(row1.querySelectorAll('td.c .st')[1].getAttribute('title')),'현황판 ACL 칸 = 새 결과 (完全一致 · v0.3: 本登録 메일 없음 → 確認 「本登録 まだ」)');
 
   /* ── v0.2 #3 DR 이름 파일도 같은 엔진으로 — 엔진은 이름을 보지 않음 (같은 PDF → 같은 판정 · 항목) ── */
   { const iv='NFK2601-01', before=W.writes.length;
