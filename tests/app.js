@@ -1,5 +1,7 @@
 /* 화면 흐름 시험 (#3 기억 · #4 · #9) — jsdom + 가짜 COMPASS · SharePoint. 현황판 → 상세 → 탭 → 돌아가기 · 검색 → 상세 · 설정. node app.js [html] */
 const X=require('./fake');
+/* v0.1 의 회귀 시험 — 「FD済みは表示しない」 를 끈 상태로 (v0.2 기본 ON 은 v02.js 에서) */
+const P=(W,o)=>X.page(W,Object.assign({},o,{ls:Object.assign({doc_tool_hide_fd:'0'},(o||{}).ls)}));
 let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.log('FAIL',m,info===undefined?'':JSON.stringify(info).slice(0,600));} };
 const html=process.argv[2];
 const rowsOf=w=>[...w.document.querySelectorAll('#dtTable tbody tr')];
@@ -10,10 +12,10 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
 
 (async()=>{
   /* ── 일반 담당자 (STAFF_A) ── */
-  let W=X.world(), w=await X.page(W,{html});
+  let W=X.world(), w=await P(W,{html});
   ok(/読み込み完了/.test(txt(w,'dtProg')),'읽기 완료',txt(w,'dtProg'));
-  ok(w.document.title==='LEENAI D-00 書類ツール v0.1','title · version 0.1');
-  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.1','LEENAI.init 설정 (redirectUri · sys · version)');
+  ok(w.document.title==='LEENAI D-00 書類ツール v0.2','title · version 0.2');
+  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.2','LEENAI.init 설정 (redirectUri · sys · version)');
   ok(/試験運用/.test(txt(w,'ln-hdr-right'))&&/山田/.test(txt(w,'ln-hdr-right')),'오른쪽 위 試験運用 · 내 이름',txt(w,'ln-hdr-right'));
   ok(!w.document.querySelector('#dtMain input[type=password]'),'평소 화면에 API 키 칸 없음');
   ok(JSON.stringify(ivs(w))===JSON.stringify(['NAA2611-01','NAA2611-02']),'自分の担当 = 내 Invoice 만 (ETD 순)',ivs(w));
@@ -38,7 +40,9 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   await X.until(()=>/40HC/.test(txt(w,'dtIvSum')));
   const sum=txt(w,'dtIvSum'); ok(/LRS-2611AA1/.test(sum)&&/VIETNAM/.test(sum)&&/SAMPLE POL → SAMPLE PORT VN/.test(sum)&&/CIF/.test(sum)&&/SAMPLE VESSEL 001/.test(sum)&&/2 本/.test(sum)&&/TESTLC001/.test(sum)&&/LC 原本を開く/.test(sum),'Invoice 요약 (契約 · 国 · POL→POD · 条件 · 本船 · コンテナ · LC)',sum);
   const tabs=[...w.document.querySelectorAll('#dtIvTabs button')].map(b=>b.textContent);
-  ok(JSON.stringify(tabs)===JSON.stringify(['通関','ACL相違','DEPO','B/L Draft確認','保険','FD','履歴']),'탭 — 대상 외 (RR) 숨김 · 確認/相違 표시',tabs);
+  ok(JSON.stringify(tabs)===JSON.stringify(['通関','ACLいまここ','DEPO','B/L Draft','保険','FD','履歴']),'탭 — 대상 외 (RR) 숨김 · 「いまここ」 (v0.2)',tabs);
+  const dots=[...w.document.querySelectorAll('#dtIvTabs button')].map(b=>{ const d=b.querySelector('.dot'); return d?d.dataset.st:''; });
+  ok(JSON.stringify(dots)===JSON.stringify(['done','diff','wait','todo','done','wait','']),'탭 상태 점 (v0.2)',dots);
   ok(w.document.querySelector('#dtIvTabs button.on').dataset.tab==='acl','처음 탭 = 첫 相違/確認');
   ok(/直してもらうところ/.test(txt(w,'dtIvBody'))&&/SAMPLE VESSEL 009/.test(txt(w,'dtIvBody'))&&/相違 1/.test(txt(w,'dtIvBody'))&&/表記差 1/.test(txt(w,'dtIvBody'))&&/一致 2/.test(txt(w,'dtIvBody')),'ACL 탭 (저장된 照合 — 相違 · 表記差 · 一致)',txt(w,'dtIvBody').slice(0,300));
   click(w,'#dtIvTabs button[data-tab="customs"]'); ok(/輸出許可 済/.test(txt(w,'dtIvBody'))&&/NAA2611-01_ED\.pdf/.test(txt(w,'dtIvBody')),'通関 탭 (근거 파일)');
@@ -58,21 +62,21 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   /* 상세 — 계약 */
   click(w,'#dtTable button[data-iv="NAA2611-01"]'); await X.until(()=>w.document.getElementById('dtIv').style.display==='flex');
   click(w,'#dtIvSum button[data-goct]'); await X.until(()=>w.document.getElementById('dtCt').style.display==='flex');
-  const cs=txt(w,'dtCtSum'); ok(/LRS-2611AA1/.test(cs)&&/BUYER-A/.test(cs)&&/LC · CIF/.test(cs)&&/0 \/ 2 船積/.test(cs),'계약 요약',cs);
+  const cs=txt(w,'dtCtSum'); ok(/LRS-2611AA1/.test(cs)&&/BUYER-A/.test(cs)&&/LC · CIF/.test(cs)&&/出港済 0 \/ 全 2 件/.test(cs),'계약 요약',cs);
   ok(JSON.stringify([...w.document.querySelectorAll('#dtCtTabs button')].map(b=>b.dataset.tab))===JSON.stringify(['lc','si','log']),'계약 탭 LC · S/I · 履歴');
   ok(/NAA2611-01/.test(txt(w,'dtCtShips'))&&/NAA2611-02/.test(txt(w,'dtCtShips')),'この契約の船積');
   click(w,'#dtCtShips button[data-iv="NAA2611-02"]'); await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&/NAA2611-02/.test(txt(w,'dtIvSum'))); ok(true,'계약 → 다른 Invoice');
   click(w,'#dtIvSum button[data-goct]'); await X.until(()=>w.document.getElementById('dtCt').style.display==='flex');
   click(w,'#dtCt [data-back]'); ok(w.document.getElementById('dtBCt').classList.contains('on'),'계약에서 ← 一覧へ = 계약별');
-  const cts=[...w.document.querySelectorAll('#dtTable button[data-ct]')].map(b=>b.textContent);
+  const cts=[...w.document.querySelectorAll('#dtTable button.dt-link[data-ct]')].map(b=>b.textContent);
   ok(JSON.stringify(cts)===JSON.stringify(['LRS-2611AA1','LRS-2611CC1','LRS-2611BB1']),'계약별 — 범위 계약 + LC/S/I 아직 계약 (다음 ETD 순 · 없으면 끝)',cts);
   const ctCell=no=>[...[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>t.textContent.indexOf(no)>=0).querySelectorAll('td.c .st')].map(s=>s.textContent);
   ok(JSON.stringify(ctCell('LRS-2611AA1'))===JSON.stringify(['済','済'])&&JSON.stringify(ctCell('LRS-2611BB1'))===JSON.stringify(['—','済'])&&JSON.stringify(ctCell('LRS-2611CC1'))===JSON.stringify(['待ち','待ち']),'계약 LC · S/I 칸',[ctCell('LRS-2611AA1'),ctCell('LRS-2611BB1'),ctCell('LRS-2611CC1')]);
-  ok(/0 \/ 2 船積/.test(w.document.querySelector('#dtTable tbody tr').textContent)&&/1 \/ 1 船積/.test([...w.document.querySelectorAll('#dtTable tbody tr')].pop().textContent),'船積 n / m');
+  ok(/出港済 0 \/ 全 2 件/.test(w.document.querySelector('#dtTable tbody tr').textContent)&&/出港済 1 \/ 全 1 件/.test([...w.document.querySelectorAll('#dtTable tbody tr')].pop().textContent),'出港済 n / 全 m 件 (v0.2)');
 
   /* 검색 → 상세 */
   const search=async q=>{ w.document.getElementById('dtQ').value=q; click(w,'#dtGo'); await X.sleep(30); };
-  await search('lrs-2611cc1'); await X.until(()=>w.document.getElementById('dtCt').style.display==='flex'&&/LRS-2611CC1/.test(txt(w,'dtCtSum'))); ok(w.document.querySelector('#dtCtTabs button.on').dataset.tab==='si','검색 계약 → 계약 상세 (S/I 탭)');
+  await search('lrs-2611cc1'); await X.until(()=>w.document.getElementById('dtCt').style.display==='flex'&&/LRS-2611CC1/.test(txt(w,'dtCtSum'))); ok(w.document.querySelector('#dtCtTabs button.on').dataset.tab==='lc','검색 계약 → 계약 상세 (いまここ = LC 待ち)');
   await search('NCC2611-01'); await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&/NCC2611-01/.test(txt(w,'dtIvSum'))); ok(/INDONESIA/.test(txt(w,'dtIvSum')),'검색 Invoice (범위 밖 → COMPASS 에서)');
   await search('TESTLC001'); await X.until(()=>w.document.getElementById('dtCt').style.display==='flex'&&/LRS-2611AA1/.test(txt(w,'dtCtSum'))); ok(true,'검색 LC 번호 → 계약');
   await search('NZZ2611-99'); ok(/ありません/.test(txt(w,'dtQSt')),'검색 없음 → 안내',txt(w,'dtQSt'));
@@ -87,16 +91,16 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   ok(W.writes.length===0,'P1 은 아무것도 쓰지 않음 (PUT · PATCH · POST · DELETE 0)',W.writes);
 
   /* ── 기억: 다시 열면 고른 담당 그대로 ── */
-  W=X.world(); w=await X.page(W,{html,ls:{doc_tool_who:'STAFF_B',doc_tool_board:'ct'}});
+  W=X.world(); w=await P(W,{html,ls:{doc_tool_who:'STAFF_B',doc_tool_board:'ct'}});
   ok(w.document.querySelector('#dtWho button.on').dataset.who==='STAFF_B'&&w.document.getElementById('dtBCt').classList.contains('on'),'다시 열면 담당 · 현황판 기억');
   /* ── 관리자: 自分の担当 = 전원 ── */
-  W=X.world(); w=await X.page(W,{html,email:'boss@example.test'});
+  W=X.world(); w=await P(W,{html,email:'boss@example.test'});
   ok(ivs(w).length===3&&/管理者 = 全員/.test(txt(w,'dtWho')),'관리자 自分の担当 = 전원',ivs(w));
   /* ── 등록 안 된 사람 ── */
-  W=X.world(); w=await X.page(W,{html,email:'nobody@example.test'});
+  W=X.world(); w=await P(W,{html,email:'nobody@example.test'});
   ok(ivs(w).length===0&&/マスター「担当者」にありません/.test(txt(w,'dtBoardNote')),'미등록 사용자 → 안내');
   /* ── 범위 바꾸기 ── */
-  W=X.world(); w=await X.page(W,{html,ls:{doc_tool_who:'all'}});
+  W=X.world(); w=await P(W,{html,ls:{doc_tool_who:'all'}});
   w.document.getElementById('dtFrom').value=X.addDays(W.T,0); w.document.getElementById('dtTo').value=X.addDays(W.T,5); click(w,'#dtReload');
   await X.until(()=>/読み込み完了/.test(txt(w,'dtProg'))&&ivs(w).length===1); ok(JSON.stringify(ivs(w))===JSON.stringify(['NAA2611-01']),'ETD 범위 바꿈');
   w.document.getElementById('dtFrom').value=X.addDays(W.T,9); w.document.getElementById('dtTo').value=X.addDays(W.T,1); click(w,'#dtReload'); ok(/正しくありません/.test(txt(w,'dtProg')),'범위 거꾸로 → 안내');

@@ -107,9 +107,12 @@ const HEAD=['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','
   ok(!ctr||ctr.querySelectorAll('td.c .st')[1].textContent!=='待ち','현황판 S/I 칸이 바뀜 (待ち 아님)');
 
   /* ── B. S/I 있는 계약 — 바뀐 칸만 PATCH (If-Match) ── */
-  await openCt('LRS-2604SG1'); await recommend();
+  await openCt('LRS-2604SG1'); await X.until(()=>/今の S\/I（COMPASS/.test(txt('dtCtBody')),8000);
+  ok(/今の S\/I（COMPASS · 読むだけ）/.test(txt('dtCtBody'))&&/S\/I sino 1/.test(txt('dtCtBody'))&&/明細 \(sino 1\)/.test(txt('dtCtBody'))&&/推薦を作る/.test(txt('dtSiRun')),'S/I 済 → 지금 S/I 표 먼저 (머리 칸 · 명세) · 그 아래 推薦を作る (v0.2 #4)');
+  ok(!w.document.querySelector('#dtCtBody [data-col]'),'지금 S/I 표 = 읽기 전용 (입력칸 없음)');
+  await recommend();
   ok(/一致 \d+/.test(txt('dtSiPills'))&&/要確認 \d+/.test(txt('dtSiPills')),'S/I 있음 → 一致 · 要確認 (COMPASS 와 비교)',txt('dtSiPills'));
-  ok(/COMPASS: /.test(txt('dtCtBody')),'다른 칸은 COMPASS 값을 함께 보여 줌');
+  ok(/今の値 \(COMPASS\)/.test(txt('dtCtBody'))&&/推薦/.test(txt('dtCtBody')),'추천 후 = 今の値 · 推薦 · 状態 열 (v0.2 #4)');
   const wr2=W.writes.length; $('dtSiWrite').click(); await X.until(()=>!$('dtModal').hidden||/書き込むものはありません/.test(txt('dtCtBody')),8000);
   if(!$('dtModal').hidden){ ok(/変更 S\/I sino 1/.test(txt('dtModalBox')),'변경 확인 화면'); $('dtSiOk').checked=true; $('dtSiOk').dispatchEvent(new w.Event('change')); $('dtSiGo').click();
     await X.until(()=>/書き込みました|途中で止めました|書き込めません/.test(txt('dtCtBody')),20000);
@@ -123,8 +126,11 @@ const HEAD=['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','
 
   /* ── C. 엔진 파일이 다르면 멈춤 ── */
   engBody=Buffer.concat([ENG,Buffer.from(' ')]); w.eval('A1X=null'); const ai1=W.req.filter(r=>r==='AI').length;
-  await openCt('LRS-2605CA1'); $('dtSiRun').click(); await X.until(()=>/推薦できません/.test(txt('dtCtBody')),10000);
-  ok(/sha256/.test(txt('dtCtBody'))&&W.req.filter(r=>r==='AI').length===ai1,'엔진 sha256 다름 → AI 호출 0 · 멈춤');
+  await openCt('LRS-2605CA1'); await X.until(()=>$('dtSiRun')&&!$('dtSiRun').disabled&&/推薦を作る/.test(txt('dtSiRun')),8000); $('dtSiRun').click(); await X.until(()=>/推薦できません|今は使えません/.test(txt('dtCtBody')),10000);
+  ok(/今は使えません。社長に連絡してください/.test(txt('dtCtBody'))&&!/sha256/.test(txt('dtCtBody'))&&W.req.filter(r=>r==='AI').length===ai1,'엔진 sha256 다름 → AI 호출 0 · 직원은 정해진 문구만 (v0.2 #7)');
+  ok(!w.document.querySelector('#dtCtBody [data-open="a1"]'),'직원 — a1_bench を開く 없음');
+  w.eval('S.me.admin=true'); w.eval('renderCt()'); await X.sleep(30); $('dtSiRun').click(); await X.until(()=>/推薦できません/.test(txt('dtCtBody')),10000);
+  ok(/sha256/.test(txt('dtCtBody'))&&!!w.document.querySelector('#dtCtBody [data-open="a1"]'),'관리자 — 이유 (sha256) · a1_bench を開く'); w.eval('S.me.admin=false');
   try{ const cur=fs.readFileSync(path.join(process.env.ACL_REPO||path.join(__dirname,'../../CONTRACT_SEND'),'a1_bench.html')); ok(nodeCrypto.createHash('sha256').update(cur).digest('hex')===SHA,'CONTRACT_SEND/a1_bench.html 그대로 (sha256)'); }catch(e){ console.log('(참고) CONTRACT_SEND 클론 없음 — a1_bench 그대로 확인 생략'); }
   ok(!W.writes.some(x=>x.method==='DELETE'),'DELETE 0');
   if(process.env.SI_DEBUG) W.writes.forEach(x=>console.log('  DEBUG',x.method,decodeURIComponent(x.url).replace(/^https:\/\/[^/]+/,'').slice(0,90),x.method==='PUT'?'':String(x.body).slice(0,160)));

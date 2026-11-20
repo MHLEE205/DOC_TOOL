@@ -1,84 +1,104 @@
 <!DOCTYPE html>
-<html lang="ja" data-theme="light">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.1</title>
+<title>LEENAI D-00 書類ツール v0.2</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
 <script>if(!window.LEENAI){document.addEventListener('DOMContentLoaded',function(){document.body.innerHTML='<div style="padding:40px;font-family:sans-serif">共通ファイルの読み込みに失敗しました。ページを再読み込みしてください。</div>';});}</script>
 <style>
-/* 色 = 白地 + 濃い緑 1 色 + 状態 5 色 (画面案 v0.1 どおり · 형님 D7 「シンプル」) — 共通テーマ切替でも変えない */
-html[data-theme]{--bg:#F6F7F5;--surface:#FFFFFF;--surface2:#F6F7F5;--surface3:#EEF0EC;--border:#E3E6E1;--text:#1E2420;--text2:#4A544D;--text3:#5E6A62;
-  --accent:#2F6B4F;--accent2:#2F6B4F;--accent-btn:#2F6B4F;--read:#FFFFFF;--frame:#F6F7F5;--ok:#1F4A36;--warn:#6B4508;--danger:#7A2416;--info:#2F6B4F;
-  --font:'Noto Sans JP',system-ui,'Segoe UI',sans-serif}
-[data-ln="themeBtn"],.ln-hdr-right button[title="マスター設定"]{display:none!important}
-body{background:#F6F7F5;color:#1E2420}
+/* 色 = LEENAI 共通テーマ (4 モード: ダーク · ライト · LEENAI · FOCUS) の変数 + この TOOL の状態 5 色 (モードごと) — v0.2 형님 D4 「모드 4개」
+   背景 --bg · 面 --surface · 文字 --text/--text2/--text3 · 線 --border · ボタン --accent-btn · リンク --accent (共通ファイル)。
+   この TOOL の色は下の 2 つの表 (明るい 3 モード · ダーク) だけ — 直すときは表だけ (tests/theme.js が 4 モードの読みやすさを計算) */
+html{--dt-on-accent:#FFFFFF;
+  --st-done-bg:#E6F2EA;--st-done-fg:#1F4A36;--st-todo-bg:#FBEFD9;--st-todo-fg:#6B4508;--st-diff-bg:#FBE3DE;--st-diff-fg:#7A2416;
+  --st-wait-bg:#ECEDEA;--st-wait-fg:#454D48;--st-unk-bg:#E4E5E2;--st-unk-fg:#454D48;--st-na-fg:#4F5751;--dt-dot-wait:#6F7871;--dt-hl:#FFF6E0;--dt-now:#E3F0E8}
+html:not([data-theme]),html[data-theme="dark"]{--dt-on-accent:#FFFFFF;
+  --st-done-bg:#143A27;--st-done-fg:#8EE8AE;--st-todo-bg:#3D2C0C;--st-todo-fg:#F7CF6B;--st-diff-bg:#441A1A;--st-diff-fg:#FDA4A4;
+  --st-wait-bg:#272C3B;--st-wait-fg:#C2CAD8;--st-unk-bg:#2C3148;--st-unk-fg:#C2CAD8;--st-na-fg:#9AA3B5;--dt-dot-wait:#8F98AB;--dt-hl:#2B2512;--dt-now:#1D3328}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui,'Segoe UI',sans-serif}
+.ln-hdr-right button[title="マスター設定"]{display:none!important}
 .dt-main{max-width:1240px;margin:0 auto;padding:20px 24px 48px;display:flex;flex-direction:column;gap:16px}
-.dt-card{background:#FFFFFF;border:1px solid #E3E6E1;border-radius:12px}
+.dt-card{background:var(--surface);border:1px solid var(--border);border-radius:12px}
+.dt-main input,.dt-main textarea,.dt-modal input,.dt-modal textarea{background:var(--surface);color:var(--text)}
 .dt-search{padding:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-.dt-search label{font-size:13px;color:#4A544D;white-space:nowrap}
-.dt-search input{flex:1 1 320px;min-width:0;height:44px;padding:0 14px;border:1px solid #C9CFC7;border-radius:8px;font-size:15px;font-family:inherit}
-.dt-btn{height:44px;padding:0 22px;border:none;border-radius:8px;background:#2F6B4F;color:#FFFFFF;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.dt-search label{font-size:13px;color:var(--text2);white-space:nowrap}
+.dt-search input{flex:1 1 320px;min-width:0;height:44px;padding:0 14px;border:1px solid var(--border);border-radius:8px;font-size:15px;font-family:inherit}
+.dt-btn{height:44px;padding:0 22px;border:none;border-radius:8px;background:var(--accent-btn);color:var(--dt-on-accent);font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 .dt-btn:disabled{opacity:.45;cursor:not-allowed}
-.dt-btn.ghost{background:#FFFFFF;color:#1E2420;border:1px solid #C9CFC7;font-weight:400;padding:0 18px}
+.dt-btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--border);font-weight:400;padding:0 18px}
 .dt-btn.sm{height:34px;padding:0 14px;font-size:13px}
-.dt-note{font-size:12px;color:#5E6A62}
+.dt-note{font-size:12px;color:var(--text3)}
 .dt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dt-between{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
-.dt-chip{height:34px;padding:0 14px;border-radius:999px;font-family:inherit;font-size:13px;cursor:pointer;border:1px solid #C9CFC7;background:#FFFFFF;color:#1E2420}
-.dt-chip.on{border-color:#1E2420;background:#1E2420;color:#FFFFFF}
-.dt-seg{display:flex;gap:4px;border:1px solid #C9CFC7;border-radius:10px;padding:3px;background:#FFFFFF;width:max-content}
-.dt-seg button{height:34px;padding:0 14px;border:none;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;background:transparent;color:#4A544D}
-.dt-seg button.on{background:#2F6B4F;color:#FFFFFF}
-.dt-pillbtn{height:36px;padding:0 14px;border-radius:999px;font-family:inherit;font-size:13px;cursor:pointer;border:1px solid #C9CFC7;background:#FFFFFF;color:#1E2420}
-.dt-pillbtn.on{border-color:#2F6B4F;background:#2F6B4F;color:#FFFFFF}
-.dt-range{display:flex;gap:6px;align-items:center;font-size:12px;color:#4A544D}
-.dt-range input{height:34px;border:1px solid #C9CFC7;border-radius:8px;padding:0 8px;font-family:inherit;font-size:13px}
+.dt-chip{height:34px;padding:0 14px;border-radius:999px;font-family:inherit;font-size:13px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+.dt-chip.on{border-color:var(--text);background:var(--text);color:var(--surface)}
+.dt-seg{display:flex;gap:4px;border:1px solid var(--border);border-radius:10px;padding:3px;background:var(--surface);width:max-content}
+.dt-seg button{height:34px;padding:0 14px;border:none;border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;background:transparent;color:var(--text2)}
+.dt-seg button.on{background:var(--accent-btn);color:var(--dt-on-accent)}
+.dt-pillbtn{height:36px;padding:0 14px;border-radius:999px;font-family:inherit;font-size:13px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text)}
+.dt-pillbtn.on{border-color:var(--accent-btn);background:var(--accent-btn);color:var(--dt-on-accent)}
+.dt-check{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--text2);cursor:pointer;white-space:nowrap}
+.dt-check input{width:16px;height:16px;margin:0;accent-color:var(--accent-btn)}
+.dt-range{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--text2)}
+.dt-range input{height:34px;border:1px solid var(--border);border-radius:8px;padding:0 8px;font-family:inherit;font-size:13px;color-scheme:light dark}
 .dt-tablewrap{overflow-x:auto}
 .dt-t{width:100%;border-collapse:collapse;font-size:14px}
-.dt-t thead tr{background:#F6F7F5;color:#4A544D;font-size:12px;text-align:left}
+.dt-t thead tr{background:var(--surface2);color:var(--text2);font-size:12px;text-align:left}
 .dt-t th{padding:10px 14px;font-weight:500;white-space:nowrap}
 .dt-t th.c{padding:10px 8px;text-align:center}
-.dt-t td{padding:10px 14px;color:#4A544D;white-space:nowrap}
+.dt-t td{padding:10px 14px;color:var(--text2);white-space:nowrap}
 .dt-t td.c{padding:8px;text-align:center}
-.dt-t td.e{font-weight:500;color:#1E2420}
-.dt-t tbody tr{border-top:1px solid #EEF0EC}
-.dt-link{border:none;background:transparent;padding:6px 4px;font-family:inherit;font-size:14px;color:#2F6B4F;text-decoration:underline;cursor:pointer}
-.dt-tag{margin-left:6px;font-size:11px;padding:1px 6px;border-radius:999px;background:#FBE3DE;color:#7A2416}
-.st{display:inline-block;min-width:40px;padding:2px 8px;border-radius:999px;font-size:12px;cursor:default}
-.st-done{background:#E6F2EA;color:#1F4A36}.st-todo{background:#FBEFD9;color:#6B4508}.st-diff{background:#FBE3DE;color:#7A2416}
-.st-wait{background:#F1F2EF;color:#5E6A62}.st-na{background:transparent;color:#8A948D}.st-unk{background:#E9EAE7;color:#5E6A62}.st-load{background:transparent;color:#8A948D}
-.dt-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:#4A544D}
-.dt-back{border:none;background:transparent;padding:6px 0;font-family:inherit;font-size:14px;color:#2F6B4F;cursor:pointer}
+.dt-t td.e{font-weight:500;color:var(--text)}
+.dt-t tbody tr{border-top:1px solid var(--surface3)}
+.dt-t tr.hl{background:var(--dt-hl)}
+.dt-link{border:none;background:transparent;padding:6px 4px;font-family:inherit;font-size:14px;color:var(--accent);text-decoration:underline;cursor:pointer}
+.dt-tag{margin-left:6px;font-size:11px;padding:1px 6px;border-radius:999px;background:var(--st-diff-bg);color:var(--st-diff-fg)}
+.st{display:inline-block;min-width:40px;padding:2px 8px;border-radius:999px;font-size:12px;cursor:default;border:1px solid transparent}
+button.st{font-family:inherit;cursor:pointer;line-height:inherit}
+button.st:hover{border-color:currentColor}
+.st-done{background:var(--st-done-bg);color:var(--st-done-fg)}.st-todo{background:var(--st-todo-bg);color:var(--st-todo-fg)}.st-diff{background:var(--st-diff-bg);color:var(--st-diff-fg)}
+.st-wait{background:var(--st-wait-bg);color:var(--st-wait-fg)}.st-na{background:transparent;color:var(--st-na-fg)}.st-unk{background:var(--st-unk-bg);color:var(--st-unk-fg);border-color:var(--st-unk-fg)}.st-load{background:transparent;color:var(--st-na-fg)}
+.dt-c-diff{color:var(--st-diff-fg)}.dt-c-todo{color:var(--st-todo-fg)}.dt-c-done{color:var(--st-done-fg)}.dt-c-na{color:var(--st-na-fg)}
+.dt-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--text2)}
+.dt-back{border:none;background:transparent;padding:6px 0;font-family:inherit;font-size:14px;color:var(--accent);cursor:pointer}
 .dt-sum{padding:14px 18px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px 16px}
-.dt-sum .k{font-size:12px;color:#5E6A62}.dt-sum .v{font-weight:500;word-break:break-word}
-.dt-sum a,.dt-a{font-size:13px;color:#2F6B4F;cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;font-family:inherit}
-.dt-tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid #E3E6E1}
-.dt-tabs button{height:44px;padding:0 16px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:14px;margin-bottom:-1px;color:#5E6A62;border-bottom:2px solid transparent}
-.dt-tabs button.on{color:#1E2420;font-weight:500;border-bottom:2px solid #2F6B4F}
-.dt-tabs .b{margin-left:6px;font-size:11px;padding:1px 6px;border-radius:999px}
+.dt-sum .k{font-size:12px;color:var(--text3)}.dt-sum .v{font-weight:500;word-break:break-word}
+.dt-sum a,.dt-a{font-size:13px;color:var(--accent);cursor:pointer;text-decoration:underline;background:none;border:none;padding:0;font-family:inherit}
+.dt-tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.dt-tabs button{height:44px;padding:0 16px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:14px;margin-bottom:-1px;color:var(--text3);border-bottom:2px solid transparent;border-radius:8px 8px 0 0;display:flex;align-items:center;gap:6px}
+.dt-tabs button.on{color:var(--text);font-weight:500;border-bottom:2px solid var(--accent-btn)}
+.dt-tabs button.now{background:var(--dt-now);color:var(--text)}
+.dt-tabs .now-tag{font-size:10px;font-weight:500;color:var(--st-done-fg);letter-spacing:.5px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;border:1.5px solid transparent}
+.dot.st-done{background:var(--st-done-fg)}.dot.st-todo{background:var(--st-todo-fg)}.dot.st-diff{background:var(--st-diff-fg)}.dot.st-wait{background:var(--dt-dot-wait)}.dot.st-unk{background:transparent;border-color:var(--dt-dot-wait)}.dot.st-load,.dot.st-na{display:none}
 .dt-panel{padding:24px;display:flex;flex-direction:column;gap:10px}
 .dt-h{font-size:18px;font-weight:500}
-.dt-p{font-size:14px;color:#4A544D}
+.dt-p{font-size:14px;color:var(--text2)}
 .dt-pills{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;align-items:center}
 .dt-pills span.p{padding:4px 12px;border-radius:999px}
-.dt-files{font-size:13px;color:#4A544D;font-family:'Consolas','Menlo',monospace;word-break:break-all}
+.dt-files{font-size:13px;color:var(--text2);font-family:'Consolas','Menlo',monospace;word-break:break-all}
 .dt-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;font-size:14px}
 .dt-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-.dt-prog{font-size:13px;color:#5E6A62;min-height:18px}
-.dt-empty{padding:24px;text-align:center;color:#5E6A62;font-size:13px}
-.dt-badge{font-size:12px;padding:2px 10px;border-radius:999px;background:#FBEFD9;color:#6B4508;font-weight:500}
-.dt-me{font-size:13px;color:#4A544D}
-.dt-modal{position:fixed;inset:0;background:rgba(30,36,32,.35);display:flex;align-items:center;justify-content:center;z-index:400;padding:16px}
+.dt-prog{font-size:13px;color:var(--text3);min-height:18px}
+.dt-empty{padding:24px;text-align:center;color:var(--text3);font-size:13px}
+.dt-badge{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--st-todo-bg);color:var(--st-todo-fg);font-weight:500}
+.dt-me{font-size:13px;color:var(--text2)}
+.dt-hr{border:0;border-top:1px solid var(--surface3);margin:4px 0}
+.dt-in{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:6px;font-family:inherit;padding:0 10px}
+.dt-in.warn{border-color:var(--st-todo-fg)}.dt-in.dash{border-style:dashed}
+.dt-empty-v{color:var(--st-na-fg)}
+.dt-xx{background:var(--st-todo-bg);color:var(--st-todo-fg);padding:0 4px;border-radius:4px}
+.dt-modal{position:fixed;inset:0;background:rgba(15,17,23,.45);display:flex;align-items:center;justify-content:center;z-index:400;padding:16px}
 .dt-modal[hidden]{display:none}
-.dt-modal .box{background:#FFFFFF;border-radius:12px;border:1px solid #E3E6E1;max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:20px 22px;display:flex;flex-direction:column;gap:12px}
-.dt-modal input[type=password],.dt-modal input[type=number]{height:36px;border:1px solid #C9CFC7;border-radius:8px;padding:0 10px;font-family:inherit;font-size:14px}
+.dt-modal .box{background:var(--surface);color:var(--text);border-radius:12px;border:1px solid var(--border);max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:20px 22px;display:flex;flex-direction:column;gap:12px}
+.dt-modal input[type=password],.dt-modal input[type=number]{height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-family:inherit;font-size:14px}
 .dt-kv{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;font-size:13px}
-.dt-kv div:nth-child(odd){color:#5E6A62}
+.dt-kv div:nth-child(odd){color:var(--text3)}
 .dt-kv div:nth-child(even){white-space:pre-wrap;word-break:break-word}
-.ln-footer{text-align:center;font-size:12px;color:#5E6A62;padding:0 0 24px}
+.ln-footer{text-align:center;font-size:12px;color:var(--text3);padding:0 0 24px}
 @media (max-width:720px){.dt-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.dt-grid3{grid-template-columns:1fr}.dt-main{padding:16px}}
 </style>
 </head>
@@ -94,15 +114,16 @@ body{background:#F6F7F5;color:#1E2420}
   </section>
 
   <section id="dtList" style="display:flex;flex-direction:column;gap:12px">
-    <div class="dt-row"><span style="font-size:13px;color:#4A544D">担当</span><span id="dtWho" class="dt-row"></span>
+    <div class="dt-row"><span style="font-size:13px;color:var(--text2)">担当</span><span id="dtWho" class="dt-row"></span>
       <span class="dt-note">担当はマスター「書類担当」（Invoice の記号 → 担当者）から。選んだものは記憶します。</span></div>
     <div class="dt-between">
       <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="dt-seg"><button id="dtBIv" class="on">Invoice 別（船積）</button><button id="dtBCt">契約別（LC · S/I）</button></div>
+        <div class="dt-seg"><button id="dtBCt">契約別（LC · S/I）</button><button id="dtBIv" class="on">Invoice 別（船積）</button></div>
         <div id="dtBoardNote" class="dt-note" style="font-size:13px"></div>
       </div>
       <div class="dt-row">
         <span class="dt-range">ETD <input type="date" id="dtFrom"> 〜 <input type="date" id="dtTo"> <button id="dtReload" class="dt-btn ghost sm">読み込む</button></span>
+        <label class="dt-check" title="FD（FINAL DOCUMENT）は最後に保存するので、FD がある船積は終わったものとして隠します。外すと全部見えます。"><input type="checkbox" id="dtHideFd" checked> FD済みは表示しない</label>
         <button id="dtTodo" class="dt-pillbtn">要対応のみ</button><button id="dtAll" class="dt-pillbtn on">すべて</button>
       </div>
     </div>
@@ -114,7 +135,7 @@ body{background:#F6F7F5;color:#1E2420}
       <span><span class="st st-diff">相違</span> 直してもらう</span>
       <span><span class="st st-wait">待ち</span> まだ届いていない</span>
       <span><span class="st st-unk">?</span> 判断の根拠が見つからない（マウスを乗せると理由）</span>
-      <span style="color:#5E6A62">— 対象外（DEPO はベトナム向けのみ · RR は韓国向けのみ · 保険は CIF のみ · LC は LC 取引のみ）</span>
+      <span style="color:var(--text3)">— 対象外（DEPO はベトナム向けのみ · RR は韓国向けのみ · 保険は CIF のみ · LC は LC 取引のみ）</span>
     </div>
   </section>
 
@@ -130,7 +151,7 @@ body{background:#F6F7F5;color:#1E2420}
     <section class="dt-card dt-sum" id="dtCtSum"></section>
     <nav class="dt-tabs" id="dtCtTabs" aria-label="契約の流れ"></nav>
     <div id="dtCtBody"></div>
-    <div class="dt-card" style="padding:14px 18px;display:flex;flex-direction:column;gap:6px"><div style="font-size:13px;font-weight:500;color:#4A544D">この契約の船積</div><div id="dtCtShips"></div></div>
+    <div class="dt-card" style="padding:14px 18px;display:flex;flex-direction:column;gap:6px"><div style="font-size:13px;font-weight:500;color:var(--text2)">この契約の船積</div><div id="dtCtShips"></div></div>
   </section>
 
 </main>
@@ -226,12 +247,38 @@ const DOC = (()=>{
     return p?{file:p.f, name:p.f.name, kind:p.k.k, rev:p.k.rev, lg:p.k.lg, edition:edition(p.k), excluded:c.filter(x=>x.k.k==='X'&&/DRAFT|MEMO|旧/i.test(x.f.name)).map(x=>x.f.name+' ('+x.k.why+')')}:
       {file:null, excluded:c.filter(x=>x.k.k==='X'&&/DRAFT|MEMO|旧/i.test(x.f.name)).map(x=>x.f.name+' ('+x.k.why+')')};
   }
-  /* ACL — {IV}_ACL.pdf · {IV}_ACL REV2.pdf … 同じ Invoice の最大 REV */
-  function aclFiles(files, iv){
-    const IV=up(iv);
-    return (files||[]).filter(f=>!f.sub).map(f=>{ const m=String(f.name).trim().match(NAME.ACL); if(!m||up(m[1])!==IV) return null; const rev=m[0].match(/REV/i)?(m[2]?+m[2]:1):0; return {f, rev, version:rev?'REV'+(rev>1?rev:''):'初版'}; })
-      .filter(Boolean).sort((a,b)=>(b.rev-a.rev)||String(b.f.lastModified||'').localeCompare(String(a.f.lastModified||'')));
+  /* ACL — DR = ACL (会社の言い方)。実際の名前 (現況板 211 フォルダ · 2026-11-20 리나이 집계): {IV}_ACL 85 · DR 25 · ほかの ACL 38 · なし 63
+     v0.2: {IV}_ACL · {IV}_DR · DR_… · DR 番号 · DR #… · 再送DR · …DR(…) · ACL-番号 · ACL 番号 · ACL01_… · ACL本登録 = 正式 / 仮ACL · ACL仮登録 = 仮
+     フォルダ直下の PDF だけ (v0.1 と同じ範囲)。ほかの Invoice 番号 · ほかのブッキング番号が名前にあれば外す。
+     選ぶ順: 本登録 > REV 番号 > 再送 > 更新時刻の新しいもの */
+  const ACL_SHAPES = [   // [形, 判定 (n = .pdf を外して大文字)]
+    ['{IV}_ACL', (n,IV)=>n.indexOf(IV)===0&&/^[ _\-]*ACL/.test(n.slice(IV.length))],
+    ['{IV}_DR',  (n,IV)=>n.indexOf(IV)===0&&/^[ _\-]*DR(?![A-Z])/.test(n.slice(IV.length))],
+    ['再送DR',   n=>/^再送\s*DR(?![A-Z])/.test(n)],
+    ['DR_ · DR 番号', n=>/^DR(?:[_\s#]|$)/.test(n)],
+    ['…DR(番号)', n=>/(?:^|[^A-Z])DR\s*\([^)]*\)$/.test(n)],
+    ['ACL本登録', n=>/^ACL\s*本登録/.test(n)],
+    ['ACL-番号 · ACL 番号', n=>/^ACL\d*(?:-|\s+|_)/.test(n)]
+  ];
+  const ACL_TEMP_RE = /仮\s*ACL|ACL\s*仮登録|仮\s*DR(?![A-Z])/;
+  const alnum = s => up(s).replace(/[^A-Z0-9]/g,'');
+  /* ctx = {booking:'このブッキング番号', others:['ほかのブッキング番号', …]} (無くてもよい) */
+  function aclScan(files, iv, ctx){
+    const IV=up(iv), own=alnum(ctx&&ctx.booking), others=((ctx&&ctx.others)||[]).map(alnum).filter(o=>o.length>=6&&o!==own), out={formal:[], temp:[], excluded:[]};
+    (files||[]).filter(f=>!f.sub).forEach(f=>{
+      const name=String(f.name||'').trim(); if(!/\.pdf$/i.test(name)) return;
+      const n=up(name.replace(/\.pdf$/i,'')), lead=((n.match(NAME.IV)||[]).map(up).find(v=>n.indexOf(v)===0))||IV, temp=ACL_TEMP_RE.test(n), sh=temp?null:ACL_SHAPES.find(s=>s[1](n,lead));   // lead = 名前の先頭の Invoice 番号 (ほかの Invoice の {IV}_DR も見つけて外す)
+      if(!temp&&!sh) return;
+      const ivs=(n.match(NAME.IV)||[]).map(up); if(ivs.length&&ivs.indexOf(IV)<0){ out.excluded.push({name, why:'ほかの Invoice 番号'}); return; }
+      const key=alnum(n); if(others.some(o=>key.indexOf(o)>=0)&&!(own&&key.indexOf(own)>=0)){ out.excluded.push({name, why:'ほかのブッキング番号'}); return; }
+      if(temp){ out.temp.push({f, temp:true, shape:'仮', version:'仮'}); return; }
+      const rv=n.match(/REV(?:ISED)?\s*\(?\s*(\d*)/), rev=rv?(rv[1]?+rv[1]:1):0, hon=/本登録/.test(n), resend=/再送/.test(n);
+      out.formal.push({f, rev, hon, resend, shape:sh[0], version:hon?'本登録':rev?'REV'+(rev>1?rev:''):resend?'再送':'初版'});
+    });
+    out.formal.sort((a,b)=>(+b.hon-+a.hon)||(b.rev-a.rev)||(+b.resend-+a.resend)||String(b.f.lastModified||'').localeCompare(String(a.f.lastModified||''))||String(a.f.name).localeCompare(b.f.name));
+    return out;
   }
+  function aclFiles(files, iv, ctx){ return aclScan(files, iv, ctx).formal; }
   const ACL_VERDICT = {'相違あり':'diff', '表記差のみ':'done', '完全一致':'done', '読取対象外':'todo', '読取確認要':'todo', 'COMPASS照会不可':'todo'};
   const baseName = p => String(p||'').split('/').pop();
 
@@ -253,15 +300,15 @@ const DOC = (()=>{
     }
     /* ACL */
     if(!F) out.acl=noF(); else {
-      const A=aclFiles(F, x.iv);
-      if(!A.length){ const t=top.filter(f=>NAME.ACL_TEMP.test(f.name)); out.acl=cell('wait',t.length?'仮 ACL のみ (本 ACL 未着)':'ACL 未着',t.map(f=>f.name)); }
+      const SC=aclScan(F, x.iv, {booking:x.bookingNo, others:x.otherBookings}), A=SC.formal;
+      if(!A.length){ const t=SC.temp; out.acl=t.length?cell('todo','仮 ACL のみ (本 ACL 未着)',t.map(a=>a.f.name)):cell('wait','ACL (DR) 未着',SC.excluded.map(e=>e.name+' ('+e.why+')')); out.acl.scan=SC; }
       else {
-        const p=A[0], r=x.acl&&x.acl.result, files=[p.f.name].concat(A.slice(1).map(a=>a.f.name));
+        const p=A[0], r=x.acl&&x.acl.result, files=[p.f.name+' ('+p.version+' · '+p.shape+')'].concat(A.slice(1).map(a=>a.f.name));
         if(!r) out.acl=cell('todo','照合結果なし ('+p.version+' — 「ACL」タブで照合)',files);
         else if(up(baseName(r.file))!==up(p.f.name)) out.acl=cell('todo','新しい ACL ('+p.version+') — 保存済みの照合は '+(r.aclVersion||baseName(r.file)),files);
         else if(p.f.lastModified&&r.fileModified&&String(p.f.lastModified)>String(r.fileModified)) out.acl=cell('todo','ACL 更新後 未照合',files);
         else { const s=ACL_VERDICT[r.verdict]||'unk'; out.acl=cell(s,'照合 '+r.verdict+(x.acl.runId?' ('+x.acl.runId+')':'')+(r.why?' · '+r.why:''),files); }
-        out.acl.pick=p;
+        out.acl.pick=p; out.acl.scan=SC;
       }
     }
     /* B/L Draft · DEPO */
@@ -314,6 +361,17 @@ const DOC = (()=>{
     return out;
   }
   const needs = cells => Object.values(cells||{}).some(c=>c&&(c.s==='todo'||c.s==='diff'));
+  /* v0.2 「FD済みは表示しない」 (형님 D2 — FD は最後に保存する) — Invoice: FD 済 の行 · 契約: 範囲の船積が 全部 FD 済 で LC · S/I にやること (確認 · 相違) がない契約 · 船積 0 件の契約は隠さない */
+  const fdDone = cells => !!(cells&&cells.fd&&cells.fd.s==='done');
+  function fdHiddenCt(ctCells, ivCellsList){
+    if(!ivCellsList||!ivCellsList.length) return false;
+    if(['lc','si'].some(k=>ctCells&&ctCells[k]&&(ctCells[k].s==='todo'||ctCells[k].s==='diff'))) return false;
+    return ivCellsList.every(fdDone);
+  }
+  /* v0.2 「いまここ」 (형님 D1) — 流れの順で 済 でない最初のタブ (対象外は飛ばす) · 全部 済 なら '' */
+  function nowTab(cells, steps){ const s=(steps||[]).find(([k])=>cells&&cells[k]&&cells[k].s!=='na'&&cells[k].s!=='done'); return s?s[0]:''; }
+  /* v0.2 「出港済 n / 全 m 件」 — 出港 = ETD (B/L ETD 優先) が今日より前 */
+  const shipLabel = (n, m) => '出港済 '+n+' / 全 '+m+' 件';
 
   /* ── 並び · 範囲 ── */
   function sortIv(rows){ return rows.slice().sort((a,b)=>String(a.etd||'9999').localeCompare(String(b.etd||'9999'))||String(a.iv).localeCompare(String(b.iv))); }
@@ -382,7 +440,9 @@ const DOC = (()=>{
   function siFieldState(o){
     const v=nv(o.value), b=o.basis||{};
     if(/\bX{2,}\b/.test(v.toUpperCase())&&/po_vo|vo_no|lc_no/.test(o.col||'')) return {s:'todo', label:'未完成', why:'番号が未確定 (XX) — メール待ち'};
-    if(o.hasCur) return v===nv(o.cur)?{s:'match', label:'一致', why:'COMPASS と同じ'}:{s:'check', label:'要確認', why:'COMPASS と違う'+(nv(o.cur)?'':' (COMPASS は空欄)')};
+    if(o.hasCur) return v===nv(o.cur)?{s:'match', label:'一致', why:'COMPASS と同じ'}:{s:'check', label:'要確認', why:'COMPASS と違う'+(nv(o.cur)?'':' (COMPASS は空欄)')+(b.flag?' · '+b.flag:'')};
+    if(b.flag) return {s:'check', label:'要確認', why:b.flag};          // T/T (v0.2) — 毎回変わる PO · 前回 1 件のみ · 今回と違う
+    if(b.ok) return {s:'match', label:b.ok, why:'根拠: '+(b.source||'—')};
     const why=[]; if(b.rejected&&b.rejected.length) why.push('根拠のない番号を外した'); if(b.source_check==='出典不一致') why.push('出典不一致');
     if(b.format_check==='FORMAT_CHANGED') why.push('直前 S/I と形が違う'); if(b.master_check==='MASTER_DIFF') why.push('マスターと違う'); if(b.placeholder_removed) why.push('XX を外した');
     return why.length?{s:'check', label:'要確認', why:why.join(' · ')}:{s:'match', label:'根拠あり', why:'根拠: '+(b.source||'—')};
@@ -459,8 +519,52 @@ const DOC = (()=>{
     ((fin&&fin.details)||[]).forEach((d,i)=>Object.keys(d).forEach(c=>{ const r=sv(((rec&&rec.details)||[])[i]&&rec.details[i][c]); if(nv(r)!==nv(d[c])) out.push({sino:'明細'+(i+1), col:c, rec:r, final:sv(d[c])}); }));
     return out; }
 
+  /* ── v0.2 T/T 契約の S/I 推薦 (AI なし · 형님 D3) — 同じバイヤーの前の契約の S/I をそのまま · 今回変わるのは 明細 と PO ──
+     prev = 同じバイヤーで この契約より前 · S/I がある契約 (新しい順) [{no, date, sis:[S/I 行], details:[前回 S/I 明細]}] · sale = この契約の販売明細 · term · pod (今回のブッキング · 参考) */
+  const TT_PO = ['crcf9_po_vo','crcf9_vo_no'], TT_LC = ['cr49f_lc_no'];
+  function ttEarlier(c, t){   // 契約日 → 契約番号 の順で前か (a1_bench isEarlier と同じ考え — 同じ番号は前でない)
+    const cn=up(c&&c.no), tn=up(t&&t.no); if(!cn||!tn||cn===tn) return false;
+    const cd=isoDay(c.date), td=isoDay(t.date);
+    if(cd&&td&&cd!==td) return cd<td;
+    return cn<tn;
+  }
+  const ttCmp = (a,b) => (isoDay(b.date)||'').localeCompare(isoDay(a.date)||'')||up(b.no).localeCompare(up(a.no));   // 新しい順
+  const head1 = (p, sn) => ((p&&p.sis)||[]).find(h=>+h.crcf9_sino===sn);
+  const short = (v, n) => { const s=nv(v).replace(/\n/g,' '); return s.length>(n||12)?s.slice(0,n||12)+'…':s; };
+  function ttRecommend(x){
+    const prev=(x.prev||[]).slice().sort(ttCmp); if(!prev.length) throw new Error('同じバイヤーの前の契約に S/I がありません — 前回の S/I から作れません');
+    const P=prev[0], recent=prev.slice(0,3), src='前回 S/I: '+P.no, sinos={}, basis={}, po={}, term=up(x.term), pod=up(x.pod), me=up(x.no);
+    (P.sis||[]).filter(h=>+h.crcf9_sino>=1&&+h.crcf9_sino<=4).sort((a,b)=>a.crcf9_sino-b.crcf9_sino).forEach(h=>{
+      const sn=+h.crcf9_sino; sinos[sn]={}; basis[sn]={};
+      SI_HEAD_COLS.forEach(c=>{ sinos[sn][c]=sv(h[c]); basis[sn][c]={source:src}; });
+      /* PO · VO — 同じバイヤーの最近の S/I 3 件 (同じ sino) */
+      TT_PO.forEach(c=>{ const vals=recent.map(p=>head1(p,sn)).filter(Boolean).map(r=>nv(r[c])), b=basis[sn][c];
+        const rs=recent.filter(p=>head1(p,sn)), own=me&&rs.length>1&&rs.every((p,i)=>vals[i]&&up(vals[i]).indexOf(up(p.no))>=0);   // PO = その契約の番号 (実データ T/T 15 バイヤー中 5 — 2026-11-20)
+        let kind; if(vals.length<=1) kind='one'; else if(vals.every(v=>v==='')) kind='blank'; else if(vals.every(v=>v===vals[0])) kind='same'; else kind=own?'ctno':'changes';
+        if(kind==='ctno'){ sinos[sn][c]=sv(head1(P,sn)[c]).replace(new RegExp(up(P.no).replace(/[-]/g,'\-'),'gi'),me); b.flag='要確認 · PO = 契約番号 (前回 '+short(vals[0],20)+' → 今回の番号)'; }
+        else if(kind==='changes'){ sinos[sn][c]=''; b.flag='要確認 · 毎回変わる (前回: '+(short(vals[0])||'空欄')+')'; }
+        else if(kind==='one') b.flag='要確認 · 前回 1 件のみ';
+        else b.ok='一致';
+        b.basis=b.flag||'最近 '+vals.length+' 件 '+(kind==='blank'?'いつも空欄':'いつも同じ');
+        if(sn===1) po[c]={kind, n:vals.length, head:vals.map(v=>short(v,4))}; });
+      /* L/C の欄 — T/T なので空欄 */
+      TT_LC.forEach(c=>{ const was=nv(h[c]); sinos[sn][c]=''; const b=basis[sn][c]={source:'T/T (L/C なし)'}; if(was){ b.flag='要確認 · T/T なので空欄 (前回: '+short(was)+')'; b.basis=b.flag; } else b.ok='一致'; });
+      /* 今回と違う欄 — Trade Term (契約) · 仕向地 · 揚地 (今回のブッキング POD は参考) */
+      const tt=sinos[sn].cr49f_payment_terms; if(term&&nv(tt)&&up(tt).indexOf(term)<0){ basis[sn].cr49f_payment_terms.flag='要確認 · 今回の契約は '+term; basis[sn].cr49f_payment_terms.basis=basis[sn].cr49f_payment_terms.flag; }
+      if(pod) ['crcf9_place_of_delivery_1','crcf9_port_of_discharge'].forEach(c=>{ const v=nv(sinos[sn][c]); if(v&&up(v).indexOf(pod)<0&&pod.indexOf(up(v))<0){ basis[sn][c].flag='要確認 · 今回のブッキング POD: '+pod+' (参考)'; basis[sn][c].basis=basis[sn][c].flag; } });
+    });
+    /* 明細 — 今回の販売明細 (品目 · 数量 · 単価)。品名 · HS は前回 S/I の同じ品目から、無ければ品目名 */
+    const pd=P.details||[];
+    const details=(x.sale||[]).map(sd=>{ const d=pd.find(q=>q._crcf9_item_id_value&&q._crcf9_item_id_value===sd._cr49f_item_id_value), o={};
+      if(d){ o.crcf9_productname=sv(d.crcf9_productname); o.crcf9_hs_code=sv(d.crcf9_hs_code); o.crcf9_productname__source=o.crcf9_hs_code__source='前回 S/I 明細 ('+P.no+')'; }
+      else { o.crcf9_productname=sv(sd.item); o.crcf9_hs_code=''; o.crcf9_productname__source='販売明細の品目名'; o.crcf9_hs_code__source='—';
+        o.crcf9_productname__flag='要確認 · 前回 S/I にない品目'; o.crcf9_hs_code__flag='要確認 · HS CODE を入れてください'; }
+      return o; });
+    return {rec:{sinos, basis, details, notes:'', rejected:[], sourceIssues:[]}, tt:{prev:P.no, recent:recent.map(p=>p.no), po}};
+  }
+
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
-    blKind, pickBl, aclFiles, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
+    blKind, pickBl, ACL_SHAPES, aclScan, aclFiles, fdDone, fdHiddenCt, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
     utcStamp, aclResultPath, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
     SI_HEAD_COLS, SI_DET_COLS, SI_LABEL, nv, siFieldState, siPlan, isGuid, guardDv, siVerify, siEdits};
 })();
@@ -485,9 +589,9 @@ const TOOLS = {   // 既存 TOOL — ?iv= などの引数は受け取らない (
   acl:{name:'ACL 照合試験 (acl_bench)', url:'https://mhlee205.github.io/CONTRACT_SEND/acl_bench.html'},
   a1: {name:'S/I 推薦試験 (a1_bench)', url:'https://mhlee205.github.io/CONTRACT_SEND/a1_bench.html'}
 };
-const LS = {who:'doc_tool_who', board:'doc_tool_board', range:'doc_tool_range', apikey:'leenai_apikey_v1'};   // apikey = a1_bench · D-01 と同じ保存場所
+const LS = {who:'doc_tool_who', board:'doc_tool_board', range:'doc_tool_range', hidefd:'doc_tool_hide_fd', apikey:'leenai_apikey_v1'};   // apikey = a1_bench · D-01 と同じ保存場所
 const S = {today:'', range:null, staff:[], docStaff:{}, me:{code:'',name:'',admin:false}, regions:{}, pols:{}, bk:[], ct:{}, buyers:{}, ctBk:{}, sis:{}, lcFiles:null,
-  wip:{}, old:{}, folders:{}, acl:null, mails:{}, who:'me', board:'iv', todoOnly:false, view:'list', cur:null, curTab:'', loadSeq:0};
+  wip:{}, old:{}, folders:{}, acl:null, mails:{}, who:'me', board:'iv', todoOnly:false, hideFd:true, doneMsg:'', view:'list', cur:null, curTab:'', loadSeq:0};
 const $ = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
@@ -533,7 +637,7 @@ async function spPut(p, content, type){   // 新規のみ (上書きしない)
 /* ── 読み込み ── */
 function prog(t){ $('dtProg').textContent=t||''; }
 async function loadAll(){
-  const seq=++S.loadSeq, t0=Date.now(); S.folders={}; S.bk=[]; S.ct={}; S.ctBk={}; S.sis={}; S.lcFiles=null; render();
+  const seq=++S.loadSeq, t0=Date.now(); S.doneMsg=''; S.folders={}; S.bk=[]; S.ct={}; S.ctBk={}; S.sis={}; S.lcFiles=null; render();
   try{
     prog('マスター · COMPASS を読み込み中…');
     if(!S.staff.length){ const [st,ds]=await Promise.all([LEENAI.master.get('staff').catch(()=>[]), LEENAI.master.get('doc_staff').catch(()=>[])]);
@@ -566,7 +670,7 @@ async function loadAll(){
     const list=S.bk.map(b=>DOC.up(b.cr49f_invoice_no)); let k=0;
     await mapLimit(list,4,async iv=>{ if(seq!==S.loadSeq) return; await loadFolder(iv); k++; if(k%8===0||k===list.length){ prog('読み込み中 '+k+' / '+list.length+' (Invoice フォルダ)'); render(); } });
     if(seq!==S.loadSeq) return;
-    S.loadedMs=Date.now()-t0; prog('読み込み完了 — 船積 '+S.bk.length+' 件 · 契約 '+ids.length+' 件 · '+(S.loadedMs/1000).toFixed(0)+' 秒'+(S.acl?' · ACL 照合結果 '+S.acl.runId:''));
+    S.loadedMs=Date.now()-t0; S.doneMsg='読み込み完了 — 船積 '+S.bk.length+' 件 · 契約 '+ids.length+' 件 · '+(S.loadedMs/1000).toFixed(0)+' 秒'+(S.acl?' · ACL 照合結果 '+S.acl.runId:''); prog(S.doneMsg);
     render();
   }catch(e){ prog('読み込み失敗: '+e.message); toast('読み込み失敗: '+e.message,'danger'); }
 }
@@ -614,9 +718,12 @@ async function loadMails(){
 }
 
 /* ── 行データ ── */
+let _bkNos={key:'', list:[]};
+function bkNos(){ const all=S.bk.concat(S.extraBk||[]), key=all.length+'|'+S.loadSeq; if(_bkNos.key!==key) _bkNos={key, list:[...new Set(all.map(b=>b.cr49f_booking_no).filter(Boolean))]}; return _bkNos.list; }   // ACL 名前のブッキング番号確認
 function ivRow(b){
   const iv=DOC.up(b.cr49f_invoice_no), c=S.ct[b._cr49f_sale_contract_id_value]||{}, reg=S.regions[b._cr49f_region_id_value]||{}, etd=DOC.etdOf(b), code=DOC.ivCode(iv), staff=S.docStaff[code]||'';
-  const x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), premium:b.crcf9_insurance_premiums, etdPast:etd<S.today, folder:S.folders[iv], acl:(S.aclLocal&&S.aclLocal[iv])||(S.acl&&S.acl.by[iv]?{result:S.acl.by[iv], runId:S.acl.runId}:null), mailRules:S.mails[iv]||[]};
+  const x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), premium:b.crcf9_insurance_premiums, etdPast:etd<S.today, folder:S.folders[iv], acl:(S.aclLocal&&S.aclLocal[iv])||(S.acl&&S.acl.by[iv]?{result:S.acl.by[iv], runId:S.acl.runId}:null), mailRules:S.mails[iv]||[],
+    bookingNo:b.cr49f_booking_no||'', otherBookings:bkNos().filter(n=>n!==b.cr49f_booking_no)};
   const cells=DOC.judgeIv(x);
   return {b, iv, ct:c.cr49f_sale_contract_no||'', ctId:b._cr49f_sale_contract_id_value, etd, country:x.country, pod:reg.pod, term:x.term, code, staff, cells, vchg:DOC.vesselChange(x), x};
 }
@@ -636,7 +743,10 @@ function ctIdsForBoard(){
 const staffName = code => { if(!code) return '担当未登録'; const s=S.staff.find(r=>r.code===code); return s?DOC.shortName(s.name_ja)||code:code; };
 
 /* ── 画面 ── */
-const pill = (c, extra) => '<span class="st st-'+c.s+'" title="'+esc((c.why||'')+(c.files&&c.files.length?'\n'+c.files.join('\n'):''))+'"'+(extra||'')+'>'+esc(DOC.ST[c.s]||c.s)+'</span>';
+/* 状態の札 — 現況板では押すとそのタブから開く (v0.2 · 相違 を押したら ACL タブ) */
+const pill = (c, key, tab, kind) => { const t=' title="'+esc((c.why||'')+(c.files&&c.files.length?'\n'+c.files.join('\n'):''))+'"';
+  return key&&c.s!=='na'&&c.s!=='load'?'<button class="st st-'+c.s+'"'+t+' data-'+(kind==='ct'?'ct':'iv')+'="'+esc(key)+'" data-tab="'+esc(tab)+'">'+esc(DOC.ST[c.s]||c.s)+'</button>'
+    :'<span class="st st-'+c.s+'"'+t+'>'+esc(DOC.ST[c.s]||c.s)+'</span>'; };
 function renderMe(){
   const r=document.getElementById('ln-hdr-right'); if(!r) return;
   if(!$('dtTrial')){ const sp=document.createElement('span'); sp.id='dtTrial'; sp.className='dt-row'; sp.style.gap='8px';
@@ -653,25 +763,33 @@ function renderWho(){
 function render(){
   if(S.view!=='list') return;
   $('dtBIv').classList.toggle('on',S.board==='iv'); $('dtBCt').classList.toggle('on',S.board==='ct');
-  $('dtTodo').classList.toggle('on',S.todoOnly); $('dtAll').classList.toggle('on',!S.todoOnly);
+  $('dtTodo').classList.toggle('on',S.todoOnly); $('dtAll').classList.toggle('on',!S.todoOnly); $('dtHideFd').checked=!!S.hideFd;
   const meNote=S.who==='me'&&!S.me.code?' ※ ログイン中のメールがマスター「担当者」にありません — 「全員」か担当者を選んでください。':'';
+  let hidden=0;
   if(S.board==='iv'){
-    $('dtBoardNote').textContent='船積ごと。ETD の近い順 (B/L ETD 優先)。Invoice を押すと開きます。'+meNote;
-    const rows=DOC.sortIv(S.bk.map(ivRow)).filter(r=>DOC.visible(r.staff,S.who,S.me)), todo=rows.filter(r=>DOC.needs(r.cells)), shown=S.todoOnly?todo:rows;
+    $('dtBoardNote').textContent='船積ごと。ETD の近い順 (B/L ETD 優先)。Invoice か状態を押すと開きます。'+meNote;
+    const mine=DOC.sortIv(S.bk.map(ivRow)).filter(r=>DOC.visible(r.staff,S.who,S.me)), rows=S.hideFd?mine.filter(r=>!DOC.fdDone(r.cells)):mine;
+    hidden=mine.length-rows.length;
+    const todo=rows.filter(r=>DOC.needs(r.cells)), shown=S.todoOnly?todo:rows;
     $('dtTodo').textContent='要対応のみ '+todo.length; $('dtAll').textContent='すべて '+rows.length;
     $('dtTable').innerHTML=shown.length?'<table class="dt-t" style="min-width:1060px"><thead><tr><th>ETD</th><th>Invoice</th><th>契約</th><th>国</th><th>担当</th>'+DOC.STEPS.map(s=>'<th class="c">'+esc(s[1])+'</th>').join('')+'</tr></thead><tbody>'+
       shown.map(r=>'<tr><td class="e">'+esc(DOC.fmtMD(r.etd))+'</td><td style="padding:6px 10px"><button class="dt-link" data-iv="'+esc(r.iv)+'">'+esc(r.iv)+'</button>'+(r.vchg.length?'<span class="dt-tag" title="'+esc(r.vchg.join('\n'))+'">本船変更</span>':'')+'</td><td>'+esc(r.ct)+'</td><td>'+esc(r.country)+'</td><td>'+esc(staffName(r.staff))+'</td>'+
-        DOC.STEPS.map(s=>'<td class="c">'+pill(r.cells[s[0]])+'</td>').join('')+'</tr>').join('')+'</tbody></table>':'<div class="dt-empty">'+(S.bk.length?'表示する船積はありません（担当 · 要対応 の選択を確認）':'船積がありません（ETD の範囲を確認）')+'</div>';
-    $('dtTable').querySelectorAll('button[data-iv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.iv).catch(e=>toast('開けません: '+e.message,'danger')); });
+        DOC.STEPS.map(s=>'<td class="c">'+pill(r.cells[s[0]],r.iv,s[0])+'</td>').join('')+'</tr>').join('')+'</tbody></table>':'<div class="dt-empty">'+(S.bk.length?'表示する船積はありません（担当 · 要対応 · FD済み の選択を確認）':'船積がありません（ETD の範囲を確認）')+'</div>';
+    $('dtTable').querySelectorAll('button[data-iv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.iv, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
   } else {
-    $('dtBoardNote').textContent='契約ごと。LC と S/I は契約に付くものです。契約番号を押すと開きます。'+meNote;
-    const rows=DOC.sortCt(ctIdsForBoard().map(ctRow)).filter(r=>DOC.visible(r.staff,S.who,S.me)), todo=rows.filter(r=>DOC.needs(r.cells)), shown=S.todoOnly?todo:rows;
+    $('dtBoardNote').textContent='契約ごと。LC と S/I は契約に付くものです。契約番号か状態を押すと開きます。'+meNote;
+    const ivBy={}; if(S.hideFd) S.bk.forEach(b=>{ const k=b._cr49f_sale_contract_id_value; if(k) (ivBy[k]=ivBy[k]||[]).push(ivRow(b).cells); });
+    const mine=DOC.sortCt(ctIdsForBoard().map(ctRow)).filter(r=>DOC.visible(r.staff,S.who,S.me)), rows=S.hideFd?mine.filter(r=>!DOC.fdHiddenCt(r.cells,ivBy[r.id])):mine;
+    hidden=mine.length-rows.length;
+    const todo=rows.filter(r=>DOC.needs(r.cells)), shown=S.todoOnly?todo:rows;
     $('dtTodo').textContent='要対応のみ '+todo.length; $('dtAll').textContent='すべて '+rows.length;
     $('dtTable').innerHTML=shown.length?'<table class="dt-t" style="min-width:900px"><thead><tr><th>契約</th><th>バイヤー</th><th>国</th><th>決済</th><th>担当</th><th class="c">LC</th><th class="c">S/I</th><th>船積</th><th>次の ETD</th></tr></thead><tbody>'+
-      shown.map(r=>'<tr><td style="padding:6px 10px"><button class="dt-link" data-ct="'+esc(r.id)+'">'+esc(r.ct)+'</button></td><td>'+esc(r.buyer)+'</td><td>'+esc(r.country)+'</td><td>'+esc(r.pay)+'</td><td>'+esc(staffName(r.staff))+'</td><td class="c">'+pill(r.cells.lc)+'</td><td class="c">'+pill(r.cells.si)+'</td><td>'+r.shipped+' / '+r.bks.length+' 船積</td><td>'+esc(r.next?DOC.fmtMD(r.next):'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="dt-empty">表示する契約はありません</div>';
-    $('dtTable').querySelectorAll('button[data-ct]').forEach(b=>{ b.onclick=()=>openCt(b.dataset.ct); });
+      shown.map(r=>'<tr><td style="padding:6px 10px"><button class="dt-link" data-ct="'+esc(r.id)+'">'+esc(r.ct)+'</button></td><td>'+esc(r.buyer)+'</td><td>'+esc(r.country)+'</td><td>'+esc(r.pay)+'</td><td>'+esc(staffName(r.staff))+'</td><td class="c">'+pill(r.cells.lc,r.id,'lc','ct')+'</td><td class="c">'+pill(r.cells.si,r.id,'si','ct')+'</td><td title="'+esc(shipTip(r))+'">'+esc(DOC.shipLabel(r.shipped,r.bks.length))+'</td><td>'+esc(r.next?DOC.fmtMD(r.next):'—')+'</td></tr>').join('')+'</tbody></table>':'<div class="dt-empty">表示する契約はありません（担当 · 要対応 · FD済み の選択を確認）</div>';
+    $('dtTable').querySelectorAll('button[data-ct]').forEach(b=>{ b.onclick=()=>openCt(b.dataset.ct, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
   }
+  if(S.doneMsg) prog(S.doneMsg+(S.hideFd&&hidden?' · FD済み '+hidden+' 件を非表示':''));
 }
+const shipTip = r => 'この契約のブッキング '+r.bks.length+' 件のうち、ETD (B/L ETD 優先) が過ぎたもの '+r.shipped+' 件';
 function show(view){ S.view=view; $('dtList').style.display=view==='list'?'flex':'none'; $('dtIv').style.display=view==='iv'?'flex':'none'; $('dtCt').style.display=view==='ct'?'flex':'none'; if(view==='list') render(); window.scrollTo(0,0); }
 
 /* ── Invoice 詳細 ── */
@@ -680,7 +798,7 @@ async function openIv(iv, tab){
   if(!b){ const r=await dvAll(`cr49f_bookings?$filter=cr49f_invoice_no eq '${iv.replace(/'/g,"''")}'&$select=${BK_SEL}`); if(!r.length){ $('dtQSt').textContent='COMPASS に Invoice '+iv+' がありません'; return; } b=r[0]; await ensureCt(b._cr49f_sale_contract_id_value); S.extraBk=(S.extraBk||[]).concat([b]); }
   if(S.folders[iv]===undefined){ if(!Object.keys(S.wip).length) await loadRoots(); await loadFolder(iv, b); }
   S.cur={type:'iv', iv, b}; const r=ivRow(b);
-  S.curTab=tab||(DOC.STEPS.map(s=>s[0]).find(k=>['diff','todo'].indexOf(r.cells[k].s)>=0)||'customs');
+  S.curTab=tab||DOC.nowTab(r.cells,DOC.STEPS)||'customs';   // v0.2 「いまここ」 のタブから (現況板の状態を押したらそのタブ)
   show('iv'); renderIv();
   loadIvDetail(b).then(()=>{ if(S.cur&&S.cur.iv===iv) renderIvSum(); });
 }
@@ -712,11 +830,16 @@ function renderIvSum(){
     (r.vchg.length?'<div style="grid-column:span 5"><span class="dt-tag" style="margin:0">本船変更</span> <span class="dt-note">'+esc(r.vchg.join(' · '))+'</span></div>':'');
   bindCommon($('dtIvSum'));
 }
+/* タブ — 状態の点 (現況板と同じ色) · 「いまここ」 = 済 でない最初のタブ (v0.2 형님 D1) */
+function tabsHtml(tabs, cells, now){
+  return tabs.map(t=>{ const c=cells[t[0]], st=c?DOC.ST[c.s]||c.s:'';
+    return '<button class="'+(t[0]===S.curTab?'on':'')+(t[0]===now?' now':'')+'" data-tab="'+t[0]+'"'+(c?' title="'+esc(st+(c.why?' — '+c.why:''))+'"':'')+'>'+esc(t[1])+
+      (c&&c.s!=='load'?'<span class="dot st-'+c.s+'" data-st="'+c.s+'" aria-label="'+esc(st)+'"></span>':'')+(t[0]===now?'<span class="now-tag">いまここ</span>':'')+'</button>'; }).join(''); }
 function renderIv(){
   renderIvSum(); const r=ivRow(S.cur.b);
   const tabs=DOC.STEPS.filter(s=>r.cells[s[0]].s!=='na').concat([['log','履歴']]);
   if(!tabs.some(t=>t[0]===S.curTab)) S.curTab=tabs[0][0];
-  $('dtIvTabs').innerHTML=tabs.map(t=>{ const c=r.cells[t[0]], fl=c&&(c.s==='todo'||c.s==='diff'); return '<button class="'+(t[0]===S.curTab?'on':'')+'" data-tab="'+t[0]+'">'+esc(t[1])+(fl?'<span class="b st-'+c.s+'">'+esc(DOC.ST[c.s])+'</span>':'')+'</button>'; }).join('');
+  $('dtIvTabs').innerHTML=tabsHtml(tabs, r.cells, DOC.nowTab(r.cells,DOC.STEPS));
   $('dtIvTabs').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.curTab=b.dataset.tab; renderIv(); }; });
   $('dtIvBody').innerHTML=ivTabHtml(r, S.curTab); bindCommon($('dtIvBody'));
   if(S.curTab==='log') renderLog(r.iv,'dtLogBody');
@@ -724,6 +847,10 @@ function renderIv(){
 }
 const statusLine = c => '<div class="dt-pills">'+pill(c)+' <span class="dt-p">'+esc(c.why||'')+'</span></div>'+(c.files&&c.files.length?'<div class="dt-files">'+c.files.map(esc).join('<br>')+'</div>':'');
 const toolBtn = (k, label) => '<button class="dt-btn'+(label?'':' ghost')+'" data-open="'+k+'">'+esc(label||TOOLS[k].name+' を開く')+'</button>';
+const benchBtn = k => S.me.admin?'<button class="dt-btn ghost" data-open="'+k+'">'+(k==='a1'?'a1_bench':'acl_bench')+' を開く</button>':'';   // 試験ページは管理者だけ (v0.2 형님 D4)
+const STOP_MSG = '今は使えません。社長に連絡してください';   // 형님 D4 원문 그대로
+/* エンジンを読めないとき (raw が届かない · sha256 違い …) — 職員には決まった文だけ · 理由は管理者だけ */
+const errHtml = (e, verb, bench) => e&&e.engine&&!S.me.admin?'<span class="dt-c-diff">'+STOP_MSG+'</span>':'<span class="dt-c-diff">'+esc(verb)+': '+esc(e&&e.message)+'</span>'+(S.me.admin?' — '+bench+' で確認してください':'');
 const copyBtn = v => '<button class="dt-btn ghost" data-copy="'+esc(v)+'">'+esc(v)+' をコピー</button>';
 function folderLine(iv){ const f=S.folders[iv]; return f&&f.webUrl?'<button class="dt-a" data-url="'+esc(f.webUrl)+'">Invoice フォルダを開く</button> <span class="dt-note">'+esc(f.live?'書類作成中':'_OLD_DOC')+'</span>':'<span class="dt-note">Invoice フォルダなし</span>'; }
 function ivTabHtml(r, tab){
@@ -735,7 +862,7 @@ function ivTabHtml(r, tab){
       '<div>'+folderLine(r.iv)+'</div>'+foot(copyBtn(r.iv)+toolBtn('d03')+toolBtn('c01')));
     case 'acl': return aclTabHtml(r);
     case 'depo': return box('<div class="dt-h">Deposit Number（ベトナム向け）</div>'+
-      '<div class="dt-pills"><span class="p st-'+(r.cells.bl.pick&&r.cells.bl.pick.file?'done':'wait')+'">① B/L Draft 受領</span><span style="color:#8A948D">→</span><span class="p st-'+(c.s==='done'||/LG/.test(c.why)?'done':'wait')+'">② 番号の受け取り · LG</span><span style="color:#8A948D">→</span><span class="p st-'+(c.s==='done'?'done':'wait')+'">③ 訂正版 (REV) 受領</span></div>'+
+      '<div class="dt-pills"><span class="p st-'+(r.cells.bl.pick&&r.cells.bl.pick.file?'done':'wait')+'">① B/L Draft 受領</span><span style="color:var(--st-na-fg)">→</span><span class="p st-'+(c.s==='done'||/LG/.test(c.why)?'done':'wait')+'">② 番号の受け取り · LG</span><span style="color:var(--st-na-fg)">→</span><span class="p st-'+(c.s==='done'?'done':'wait')+'">③ 訂正版 (REV) 受領</span></div>'+
       statusLine(c)+'<div class="dt-note">番号がメールで届いたら、LG と訂正依頼を作ります（自動化は次の更新）。</div><div>'+folderLine(r.iv)+'</div>'+foot(copyBtn(r.iv)));
     case 'bl': return box('<div class="dt-h">B/L Draft</div><div class="dt-p">確認は今の方式（D-01）。照合（S/I · ACL と比べ、無料訂正と有料訂正を分ける）は次の更新です。</div>'+statusLine(c)+
       (c.pick&&c.pick.excluded&&c.pick.excluded.length?'<div class="dt-note">選ばなかったファイル: '+esc(c.pick.excluded.join(' · '))+'</div>':'')+'<div>'+folderLine(r.iv)+'</div>'+foot(copyBtn(r.iv)+toolBtn('d01')));
@@ -754,11 +881,13 @@ function aclTabHtml(r){
     (res?' 表示中: '+esc(r.x.acl.runId)+(res.aclVersion?' · ACL '+esc(res.aclVersion):''):'')+'</div></div>'+
     (res&&fresh?'<div class="dt-pills"><span class="p st-diff">相違 '+g.diff.length+'</span><span class="p st-wait">表記差 '+g.note.length+'</span><span class="p st-done">一致 '+g.match.length+'</span>'+(g.check.length?'<span class="p st-todo">読取確認 '+g.check.length+'</span>':'')+'</div>':'')+'</div>';
   let body=statusLine(c);
+  const sc=c.scan; if(sc){ const ex=sc.excluded.map(e=>e.name+' ('+e.why+')').concat(c.pick?sc.temp.map(a=>a.f.name+' (仮 — 正式があるので使わない)'):[]);
+    body+=(c.pick?'<div class="dt-note">照合に使うファイル: '+esc(c.pick.f.name)+' — '+esc(c.pick.version)+' · 名前の形 '+esc(c.pick.shape)+'（DR = ACL）</div>':'')+(ex.length?'<div class="dt-note">選ばなかったファイル: '+esc(ex.join(' · '))+'</div>':''); }
   if(res&&fresh){
     if(res.why) body+='<div class="dt-note">'+esc(res.why)+'</div>';
-    body+=g.diff.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#7A2416">直してもらうところ</div>'+g.diff.map(i=>'<div class="dt-grid3"><div><div class="dt-note">項目</div><div style="font-weight:500">'+esc(i.label)+' <span class="dt-note">'+esc(ST_JA[i.status]||i.status)+'</span></div></div><div><div class="dt-note">ACL</div><div style="color:#7A2416;white-space:pre-wrap">'+esc(i.actual||'(空欄)')+'</div></div><div><div class="dt-note">S/I（正）</div><div style="white-space:pre-wrap">'+esc(i.expected||'(空欄)')+'</div></div></div>'+(i.detail?'<div class="dt-note">'+esc(i.detail)+'</div>':'')).join('<hr style="border:0;border-top:1px solid #EEF0EC;margin:4px 0">')+'</section>':'';
-    body+=g.check.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#6B4508">読み取りを確認するところ</div>'+g.check.map(i=>'<div class="dt-note"><b>'+esc(i.label)+'</b> ACL: '+esc(i.actual||'')+' · '+esc(i.detail||'')+'</div>').join('')+'</section>':'';
-    body+=g.disp.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:#4A544D">表示欄</div><div class="dt-pills">'+g.disp.map(i=>'<span class="p st-'+(i.status==='MATCH'?'done':i.status==='INFO'?'wait':i.status==='READ_CHECK'?'todo':'diff')+'" title="'+esc(i.detail||'')+'">'+esc(i.label)+': '+esc(i.actual||'—')+'</span>').join('')+'</div></section>':'';
+    body+=g.diff.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:var(--st-diff-fg)">直してもらうところ</div>'+g.diff.map(i=>'<div class="dt-grid3"><div><div class="dt-note">項目</div><div style="font-weight:500">'+esc(i.label)+' <span class="dt-note">'+esc(ST_JA[i.status]||i.status)+'</span></div></div><div><div class="dt-note">ACL</div><div style="color:var(--st-diff-fg);white-space:pre-wrap">'+esc(i.actual||'(空欄)')+'</div></div><div><div class="dt-note">S/I（正）</div><div style="white-space:pre-wrap">'+esc(i.expected||'(空欄)')+'</div></div></div>'+(i.detail?'<div class="dt-note">'+esc(i.detail)+'</div>':'')).join('<hr style="border:0;border-top:1px solid var(--surface3);margin:4px 0">')+'</section>':'';
+    body+=g.check.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:var(--st-todo-fg)">読み取りを確認するところ</div>'+g.check.map(i=>'<div class="dt-note"><b>'+esc(i.label)+'</b> ACL: '+esc(i.actual||'')+' · '+esc(i.detail||'')+'</div>').join('')+'</section>':'';
+    body+=g.disp.length?'<section class="dt-card dt-panel" style="padding:16px 18px"><div style="font-size:13px;font-weight:500;color:var(--text2)">表示欄</div><div class="dt-pills">'+g.disp.map(i=>'<span class="p st-'+(i.status==='MATCH'?'done':i.status==='INFO'?'wait':i.status==='READ_CHECK'?'todo':'diff')+'" title="'+esc(i.detail||'')+'">'+esc(i.label)+': '+esc(i.actual||'—')+'</span>').join('')+'</div></section>':'';
     body+=g.note.length?'<details class="dt-card" style="padding:12px 18px"><summary class="dt-note" style="cursor:pointer">表記差 '+g.note.length+' 件（空白・大文字小文字など）は確認不要です。中身を見る</summary>'+g.note.map(i=>'<div class="dt-note" style="margin-top:6px"><b>'+esc(i.label)+'</b> '+esc(i.detail||'')+'</div>').join('')+'</details>':'';
     const m=res.meta||{}; if(m.forwarderCompany||m.forwarder) body+='<div class="dt-note">乙仲: '+esc([m.forwarderCompany||m.forwarder,m.forwarderPort].filter(Boolean).join(' · '))+'</div>';
   }
@@ -767,7 +896,7 @@ function aclTabHtml(r){
     (f&&f.webUrl?'<button class="dt-btn ghost" data-url="'+esc(f.webUrl)+'">ACL を開く</button>':'')+
     (can?'<button class="dt-btn ghost" id="dtAclRun">'+(res&&fresh?'再照合':'照合する')+'</button>':'')+
     (res&&fresh&&g.diff.length?'<button class="dt-btn ghost" id="dtAclCopy">本文をコピー</button><button class="dt-btn" id="dtAclMail">訂正依頼メールを作る</button>':'')+
-    '<button class="dt-btn ghost" data-open="acl">acl_bench を開く</button>'+'</div></section>';
+    benchBtn('acl')+'</div></section>';
 }
 /* 履歴 (SharePoint D-00/doc_tool/log/{key}/) */
 async function renderLog(key, elId){
@@ -784,17 +913,17 @@ async function openCt(id, tab){
   if(!S.ct[id]){ try{ await ensureCt(id); }catch(e){ $('dtQSt').textContent='契約を読めません: '+e.message; return; } }
   if(!S.lcFiles) await loadLcFiles();
   S.cur={type:'ct', id}; const r=ctRow(id);
-  S.curTab=tab||(r.cells.si.s==='todo'||r.cells.si.s==='wait'?'si':r.cells.lc.s!=='na'?'lc':'si');
+  S.curTab=tab||DOC.nowTab(r.cells,DOC.CT_STEPS)||'si';
   show('ct'); renderCt();
 }
 function renderCt(){
   const r=ctRow(S.cur.id);
   const kv=(k,v,raw)=>'<div><div class="k">'+esc(k)+'</div><div class="v">'+(raw?v:esc(v||'—'))+'</div></div>';
-  $('dtCtSum').innerHTML=kv('契約',r.ct)+kv('バイヤー',r.buyer+(r.buyerName&&r.buyerName!==r.buyer?' ('+r.buyerName+')':''))+kv('国',r.country)+kv('決済',r.pay+(r.term?' · '+r.term:''))+kv('船積',r.shipped+' / '+r.bks.length+' 船積')+
+  $('dtCtSum').innerHTML=kv('契約',r.ct)+kv('バイヤー',r.buyer+(r.buyerName&&r.buyerName!==r.buyer?' ('+r.buyerName+')':''))+kv('国',r.country)+kv('決済',r.pay+(r.term?' · '+r.term:''))+'<div title="'+esc(shipTip(r))+'"><div class="k">船積</div><div class="v">'+esc(DOC.shipLabel(r.shipped,r.bks.length))+'</div></div>'+
     '<div style="grid-column:span 5"><div class="k">LC</div><div class="dt-row" style="gap:10px">'+lcLinks(r.id)+'</div></div>';
   const tabs=DOC.CT_STEPS.filter(s=>r.cells[s[0]].s!=='na').concat([['log','履歴']]);
   if(!tabs.some(t=>t[0]===S.curTab)) S.curTab=tabs[0][0];
-  $('dtCtTabs').innerHTML=tabs.map(t=>{ const c=r.cells[t[0]], fl=c&&(c.s==='todo'||c.s==='diff'); return '<button class="'+(t[0]===S.curTab?'on':'')+'" data-tab="'+t[0]+'">'+esc(t[1])+(fl?'<span class="b st-'+c.s+'">'+esc(DOC.ST[c.s])+'</span>':'')+'</button>'; }).join('');
+  $('dtCtTabs').innerHTML=tabsHtml(tabs, r.cells, DOC.nowTab(r.cells,DOC.CT_STEPS));
   $('dtCtTabs').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.curTab=b.dataset.tab; renderCt(); }; });
   const box=inner=>'<section class="dt-card dt-panel">'+inner+'</section>';
   let h='';
@@ -876,13 +1005,17 @@ ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_E
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 let ACLX = null;
 async function sha256hex(buf){ const h=await crypto.subtle.digest('SHA-256',buf); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+const engineErr = m => Object.assign(new Error(m),{engine:true});
 async function loadAclEngine(){
   if(ACLX) return ACLX;
-  const r=await fetch(ACL_ENGINE.url); if(!r.ok) throw new Error('エンジンを読めません ('+r.status+')');
+  try{ ACLX=await loadAclEngine0(); return ACLX; }catch(e){ throw e.engine?e:engineErr(e.message||String(e)); }
+}
+async function loadAclEngine0(){
+  const r=await fetch(ACL_ENGINE.url); if(!r.ok) throw engineErr('エンジンを読めません ('+r.status+')');
   const buf=await r.arrayBuffer(), h=await sha256hex(buf);
-  if(h!==ACL_ENGINE.sha256) throw new Error('エンジンのファイルが一致しません (sha256) — 使いません');
+  if(h!==ACL_ENGINE.sha256) throw engineErr('エンジンのファイルが一致しません (sha256) — 使いません');
   const m=new TextDecoder('utf-8').decode(buf).match(/<script id="acl-core">([\s\S]*?)<\/script>/); if(!m) throw new Error('エンジンの部分が見つかりません');
-  ACLX=new Function('module', m[1]+';return ACL;')(undefined); return ACLX;
+  return new Function('module', m[1]+';return ACL;')(undefined);
 }
 /* COMPASS: Invoice → ブッキング → 港 · コンテナ · S/I · S/I 明細 (acl_bench fetchCompass と同じ質問) */
 async function aclFetchCompass(inv){
@@ -936,9 +1069,12 @@ async function readPdf(file){
 async function aclCompareOne(iv){
   const E=await loadAclEngine(), f=S.folders[iv];
   if(!f||!f.files) throw new Error('Invoice フォルダを読めていません');
-  const items=f.files.filter(x=>!x.sub&&/\.pdf$/i.test(x.name)).map(x=>({id:x.id, name:x.name, size:x.size, lastModifiedDateTime:x.lastModified, path:'/drives/'+LEENAI.SP.DRIVE_ID+'/root:/'+f.path}));
-  const t=E.groupTargets(items).targets.find(x=>DOC.up(x.invoice)===iv);
-  if(!t) throw new Error('{Invoice}_ACL.pdf がありません');
+  /* v0.2: ファイルは この TOOL の規則 (DOC.aclScan — DR · ACL-番号 · 本登録 …) で選ぶ。エンジンの groupTargets は {IV}_ACL.pdf の名前しか見ないので通さない —
+     エンジンが見るのは PDF の中身だけ (readNaccs · compareOne — 名前は使わない · 2026-11-20 コード確認) */
+  const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv)||{}, A=DOC.aclFiles(f.files, iv, {booking:b.cr49f_booking_no||'', others:bkNos().filter(n=>n!==b.cr49f_booking_no)});
+  if(!A.length) throw new Error('ACL (DR) のファイルがありません');
+  const rel=E.relPath('/drives/'+LEENAI.SP.DRIVE_ID+'/root:/'+f.path), fo=a=>({id:a.f.id, name:a.f.name, size:a.f.size, lastModifiedDateTime:a.f.lastModified, path:rel});
+  const t={invoice:iv, file:fo(A[0]), aclVersion:A[0].version+(A[0].shape!=='{IV}_ACL'?' · '+A[0].shape:''), others:A.slice(1).map(fo)};
   const r={invoice:t.invoice, file:t.file.path+'/'+t.file.name, fileModified:t.file.lastModifiedDateTime||'', aclVersion:t.aclVersion||'', others:(t.others||[]).map(o=>o.path+'/'+o.name), format:'', verdict:'', items:[], kinds:{}, xx:[]};
   const pages=await readPdf(t.file), fm=E.classifyFormat(pages); r.format=fm.format;
   if(fm.format!=='NACCS'){ r.verdict='読取対象外'; r.why=fm.why; r.kinds={['読取対象外:'+fm.format]:1}; return r; }
@@ -963,14 +1099,14 @@ async function aclRerun(iv){
   const st=$('dtAclSt'), btn=$('dtAclRun'); if(btn) btn.disabled=true; if(st) st.textContent='照合中… (エンジン · PDF · COMPASS を読み込み)';
   try{
     const r=await aclCompareOne(iv), d=new Date(), at=d.toISOString();
-    Object.assign(r,{by:'書類ツール v0.1', at, user:(LEENAI.user&&LEENAI.user.email)||'', engine:'acl_bench v'+ACL_ENGINE.ver+' @'+ACL_ENGINE.commit.slice(0,7)});
+    Object.assign(r,{by:'書類ツール v'+CFG.version, at, user:(LEENAI.user&&LEENAI.user.email)||'', engine:'acl_bench v'+ACL_ENGINE.ver+' @'+ACL_ENGINE.commit.slice(0,7)});
     S.aclLocal=S.aclLocal||{}; S.aclLocal[iv]={result:r, runId:'書類ツール '+DOC.utcStamp(d)};
     let saved='';
     try{ await spPut(DOC.aclResultPath(iv,d), JSON.stringify(r)); const g=DOC.aclGroups(r);
       await spPut(DOC.logPath(iv,'acl',d), JSON.stringify({kind:'ACL 照合', invoice:iv, at, user:r.user, file:r.file, aclVersion:r.aclVersion, verdict:r.verdict, counts:{diff:g.diff.length, notation:g.note.length, match:g.match.length}, engine:r.engine}));
       saved='保存しました'; }catch(e){ saved='⚠ 保存できません ('+e.message+') — 結果は画面だけ'; }
     if(S.cur&&S.cur.iv===iv){ renderIv(); const s2=$('dtAclSt'); if(s2) s2.textContent='照合しました ('+r.verdict+') · '+saved; }
-  }catch(e){ if(st) st.innerHTML='<span style="color:#7A2416">照合できません: '+esc(e.message)+'</span> — acl_bench で照合してください'; if(btn) btn.disabled=false; }
+  }catch(e){ if(st) st.innerHTML=errHtml(e,'照合できません','acl_bench'); if(btn) btn.disabled=false; }
 }
 async function aclMail(iv, copyOnly){
   const r=ivRow(S.cur.b), res=r.x.acl&&r.x.acl.result; if(!res) return;
@@ -996,6 +1132,9 @@ A1_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+A1_ENG
 let A1X = null;
 async function loadA1Engine(){
   if(A1X) return A1X;
+  try{ A1X=await loadA1Engine0(); return A1X; }catch(e){ throw e.engine?e:engineErr(e.message||String(e)); }
+}
+async function loadA1Engine0(){
   const r=await fetch(A1_ENGINE.url); if(!r.ok) throw new Error('S/I エンジンを読めません ('+r.status+')');
   const buf=await r.arrayBuffer(), h=await sha256hex(buf);
   if(h!==A1_ENGINE.sha256) throw new Error('S/I エンジンのファイルが一致しません (sha256) — 使いません');
@@ -1009,7 +1148,7 @@ async function loadA1Engine(){
     ' buildR1Input:buildR1Input, r2ExtraFor:r2ExtraFor, r2MasterFor:r2MasterFor, runR2Extract:runR2Extract, runR2Assemble:runR2Assemble, r2CompassFor:r2CompassFor, r2RawForCheck:r2RawForCheck,'+
     ' lcNumberShape:lcNumberShape, sumUsage:sumUsage, costOf:costOf, LC_DIR:A1_SP_LC_DIR, MODEL:A1_DEFAULT_MODEL,'+
     ' _testSetReadLc:function(f){ readLcFile=f; }};';   // 試験だけ: LC 原本の代わりに文字 (a1_bench 試験 harness と同じ差し替え) — 画面からは呼ばない
-  A1X=new Function('LEENAI', code)(shim); return A1X;
+  return new Function('LEENAI', code)(shim);
 }
 /* 契約 1 件の S/I 推薦 — a1_bench buildTargets の 1 件分 (同じバイヤーの前の LRS-26 契約 + この契約) → R2 ① ×2 · ② · ③ ×1 */
 async function siRecommend(id, say){
@@ -1067,39 +1206,86 @@ function siRows(id){
     Object.keys(fin.sinos[sn]).forEach(cn=>{ const b=((res.rec.basis||{})[sn]||{})[cn]||{};
       rows.push(Object.assign({sino:+sn, col:cn, value:fin.sinos[sn][cn], cur:cur?cur[cn]:undefined, hasCur:!!cur, basis:b}, DOC.siFieldState({col:cn, value:fin.sinos[sn][cn], cur:cur?cur[cn]:'', hasCur:!!cur, basis:b}))); }); });
   fin.details.forEach((d,i)=>{ const cur0=(res.current||[]).find(h=>+h.crcf9_sino===1)||(res.current||[])[0], sd=(res.sale||[])[i]||{}, ex=cur0&&(cur0._details||[]).find(x=>x._crcf9_sale_detail_id_value===sd.cr49f_sale_detailid);
-    Object.keys(d).forEach(cn=>{ const rd=(res.rec.details||[])[i]||{}, b={source:rd[cn+'__source']||'', source_check:rd[cn+'__sc']||''};
-      rows.push(Object.assign({sino:'明細'+(i+1), line:i, col:cn, value:d[cn], cur:ex?ex[cn]:undefined, hasCur:!!ex, basis:Object.assign(b,{basis:rd[cn+'__basis']||''})}, DOC.siFieldState({col:cn, value:d[cn], cur:ex?ex[cn]:'', hasCur:!!ex, basis:b}))); }); });
+    Object.keys(d).forEach(cn=>{ const rd=(res.rec.details||[])[i]||{}, b={source:rd[cn+'__source']||'', source_check:rd[cn+'__sc']||'', flag:rd[cn+'__flag']||''};
+      rows.push(Object.assign({sino:'明細'+(i+1), line:i, col:cn, value:d[cn], cur:ex?ex[cn]:undefined, hasCur:!!ex, basis:Object.assign(b,{basis:rd[cn+'__basis']||rd[cn+'__flag']||''})}, DOC.siFieldState({col:cn, value:d[cn], cur:ex?ex[cn]:'', hasCur:!!ex, basis:b}))); }); });
   return rows;
 }
+/* v0.2 T/T 契約 (L/C でない決済) の S/I 推薦 — AI なし (형님 D3): 同じバイヤーの前の契約の S/I をそのまま + 今回の販売明細 + PO はバイヤーごとの最近 3 件で判断 (DOC.ttRecommend) */
+const isLcCt = id => DOC.up(FV(S.ct[id]||{},'cr49f_pay_cls')||(S.ct[id]||{}).cr49f_pay_cls)==='LC';
+const SI_HEAD_SEL = () => DOC.SI_HEAD_COLS.concat(['cr49f_s_iid','crcf9_sino','_cr49f_sale_contract_id_value','modifiedon']).join(',');
+async function siTtRecommend(id, say){
+  const t0=Date.now(), c=S.ct[id]||{}, no=DOC.up(c.cr49f_sale_contract_no), buyer=c._cr49f_buyer_id_value;
+  if(!buyer) throw new Error('契約にバイヤーがありません');
+  say('同じバイヤーの契約…');
+  const cs=await dvAll(`cr49f_sale_contracts?$filter=_cr49f_buyer_id_value eq ${buyer}&$select=${CT_SEL}`);
+  const me={no, date:c.cr49f_sale_contract_date}, earlier=cs.filter(x=>DOC.ttEarlier({no:x.cr49f_sale_contract_no, date:x.cr49f_sale_contract_date}, me));
+  say('前の契約の S/I ('+earlier.length+' 件)…');
+  const sis=earlier.length?await dvIn('cr49f_s_is','_cr49f_sale_contract_id_value',earlier.map(x=>x.cr49f_sale_contractid),SI_HEAD_SEL()):[];
+  const prev=earlier.map(x=>({no:x.cr49f_sale_contract_no, date:x.cr49f_sale_contract_date, id:x.cr49f_sale_contractid, sis:sis.filter(h=>h._cr49f_sale_contract_id_value===x.cr49f_sale_contractid)})).filter(p=>p.sis.length);
+  if(prev.length){ prev.sort((a,b)=>DOC.ttEarlier(a,b)?1:DOC.ttEarlier(b,a)?-1:0); const P=prev[0], h1=P.sis.find(h=>+h.crcf9_sino===1)||P.sis[0];
+    say('前回 S/I の明細 ('+P.no+')…'); P.details=await dvAll(`crcf9_s_i_details?$filter=_crcf9_s_i_id_value eq ${h1.cr49f_s_iid}&$select=crcf9_productname,crcf9_hs_code,_crcf9_item_id_value,_crcf9_sale_detail_id_value`); }
+  say('今回の販売明細 · ブッキング…');
+  const sale=(await dvAll(`cr49f_sale_details?$filter=_cr49f_sale_contract_id_value eq ${id}&$select=cr49f_price,cr49f_quantity,_cr49f_item_id_value,cr49f_sale_detailid`))
+    .map(d=>({cr49f_sale_detailid:d.cr49f_sale_detailid, _cr49f_item_id_value:d._cr49f_item_id_value, cr49f_quantity:d.cr49f_quantity, cr49f_price:d.cr49f_price, item:FV(d,'_cr49f_item_id_value')}));
+  const bks=await dvAll(`cr49f_bookings?$filter=_cr49f_sale_contract_id_value eq ${id}&$select=cr49f_bookingid,_cr49f_region_id_value,cr49f_etd,crcf9_bl_etd`);
+  if(!Object.keys(S.regions).length) (await dvAll('cr49f_regions?$select=cr49f_regionid,cr49f_region,cr49f_pod')).forEach(r=>{ S.regions[r.cr49f_regionid]={country:DOC.up(r.cr49f_region), pod:r.cr49f_pod||''}; });
+  const pods=[...new Set(bks.map(b=>(S.regions[b._cr49f_region_id_value]||{}).pod).filter(Boolean))], cur=await siReadNow(id, DOC.SI_HEAD_COLS);
+  const out=DOC.ttRecommend({no, prev, sale, term:c.cr49f_terms_conditions, pod:pods.length===1?pods[0]:''});
+  return {no, id, at:new Date().toISOString(), kind:'tt', engine:'T/T 前回 S/I コピー (書類ツール v'+CFG.version+' · AI なし)', model:'AI なし', usage:null, cost:0, ms:Date.now()-t0,
+    rec:out.rec, tt:Object.assign(out.tt,{pods}), priors:{same:[out.tt.prev]}, lc:null, fieldHead:DOC.SI_HEAD_COLS.slice(), current:cur.sis, sale};
+}
+/* 今の S/I (COMPASS · 読むだけ) — S/I 済 の契約は まずこれを見せる (v0.2 #4) */
+S.siCur={};
+const cellV = v => { const s=String(v==null?'':v); return s.trim()===''?'<span class="dt-empty-v">(空欄)</span>':esc(s).replace(/\bX{2,}\b/gi,m=>'<span class="dt-xx">'+m+'</span>'); };
+function siCurHtml(cur){
+  const sis=(cur.sis||[]).slice().sort((a,b)=>a.crcf9_sino-b.crcf9_sino), td='<td style="padding:8px 14px;white-space:pre-wrap;word-break:break-word;vertical-align:top">';
+  const head='<div class="dt-card dt-tablewrap"><table class="dt-t" style="min-width:640px"><thead><tr><th style="width:170px">項目</th>'+sis.map(h=>'<th>S/I sino '+esc(h.crcf9_sino)+'</th>').join('')+'</tr></thead><tbody>'+
+    DOC.SI_HEAD_COLS.map(c=>'<tr'+(sis.some(h=>/\bX{2,}\b/i.test(String(h[c]||'')))?' class="hl"':'')+'><td style="padding:8px 14px;white-space:normal">'+esc(DOC.SI_LABEL[c]||c)+'</td>'+sis.map(h=>td+cellV(h[c])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  const det=sis.map(h=>(h._details||[]).length?'<div class="dt-card dt-tablewrap"><table class="dt-t"><thead><tr><th>明細 (sino '+esc(h.crcf9_sino)+')</th><th>'+esc(DOC.SI_LABEL.crcf9_productname)+'</th><th>'+esc(DOC.SI_LABEL.crcf9_hs_code)+'</th><th>'+esc(DOC.SI_LABEL.crcf9_weight)+'</th><th>'+esc(DOC.SI_LABEL.crcf9_price)+'</th></tr></thead><tbody>'+
+    h._details.map((d,i)=>'<tr><td>'+(i+1)+'</td>'+['crcf9_productname','crcf9_hs_code','crcf9_weight','crcf9_price'].map(c=>td+cellV(d[c])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'<div class="dt-note">sino '+esc(h.crcf9_sino)+' の明細なし</div>').join('');
+  return '<div class="dt-p" style="font-weight:500">今の S/I（COMPASS · 読むだけ）</div>'+head+det;
+}
 function siTabHtml(r){
-  const id=r.id, res=S.siRec[id], busy=S.siBusy[id], key=!!lsGet(LS.apikey,'');
-  const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">S/I 推薦</div><div class="dt-note" style="font-size:13px">LC と過去の S/I から作成します。違うところだけ直して、COMPASS に書き込みます。</div></div><div class="dt-pills" id="dtSiPills"></div></div>';
+  const id=r.id, res=S.siRec[id], busy=S.siBusy[id], lc=isLcCt(id), key=!!lsGet(LS.apikey,''), can=!busy&&(!lc||key), cur=S.siCur[id];
+  const runLabel=lc?'推薦を作る':'前回の S/I から作る';
+  const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">S/I '+(lc?'推薦 (L/C)':'推薦 (T/T · AI なし)')+'</div><div class="dt-note" style="font-size:13px">'+
+    (lc?'LC と過去の S/I から作成します。':'同じバイヤーの前回の S/I をそのまま使い、明細は今回の販売契約から作ります。PO はバイヤーの最近 3 件で判断します。')+'違うところだけ直して、COMPASS に書き込みます。</div></div><div class="dt-pills" id="dtSiPills"></div></div>';
   let body='<div>'+statusLine(r.cells.si)+'</div>';
   if(!res){
-    body+='<section class="dt-card dt-panel" style="padding:16px 18px"><div class="dt-p">「推薦を作る」で AI を 3 回呼びます（L/C 判読 ×2 · 組み立て ×1 · a1_bench v0.12 と同じ方法）。目安 3〜5 分 · 費用は終わったあと表示します。</div>'+
-      (key?'':'<div class="dt-note" style="color:#7A2416">Anthropic API キーが未保存です — 右上の「⚙ 設定」で保存してください。</div>')+
-      '<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions"><button class="dt-btn ghost" data-open="a1">a1_bench を開く</button><button class="dt-btn" id="dtSiRun"'+(key&&!busy?'':' disabled')+'>推薦を作る</button></div></section>';
+    if(cur&&cur.sis&&cur.sis.length) body+=siCurHtml(cur);
+    else if((S.sis[id]||[]).length) body+='<div class="dt-note">'+(cur===null?'今の S/I を読み込み中…':cur&&cur.error?'今の S/I を読めません: '+esc(cur.error):'')+'</div>';
+    body+='<section class="dt-card dt-panel" style="padding:16px 18px"><div class="dt-p">'+(lc?'「推薦を作る」で AI を 3 回呼びます（L/C 判読 ×2 · 組み立て ×1 · a1_bench v0.12 と同じ方法）。目安 3〜5 分 · 費用は終わったあと表示します。':
+      '「前回の S/I から作る」は AI を使いません（費用 0 · 数秒）。前回の S/I · 販売明細 · PO の傾向から作ります。')+'</div>'+
+      (lc&&!key?'<div class="dt-note dt-c-diff">Anthropic API キーが未保存です — 右上の「⚙ 設定」で保存してください。</div>':'')+
+      '<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions">'+(lc?benchBtn('a1'):'')+'<button class="dt-btn" id="dtSiRun"'+(can?'':' disabled')+'>'+runLabel+'</button></div></section>';
     return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+'</section>';
   }
-  const rows=siRows(id), top=rows.filter(x=>x.s!=='match'), rest=rows.filter(x=>x.s==='match');
-  const pill=x=>'<span style="font-size:12px;padding:2px 10px;border-radius:999px;'+(x.s==='match'?'background:#E6F2EA;color:#1F4A36':x.s==='todo'?'background:#F1F2EF;color:#4A544D':'background:#FBEFD9;color:#6B4508')+'">'+esc(x.label)+'</span>';
-  const tr=x=>{ const multi=String(x.value||'').indexOf('\n')>=0||String(x.value||'').length>60, attrs=' data-sn="'+esc(x.sino)+'" data-col="'+esc(x.col)+'" aria-label="'+esc(DOC.SI_LABEL[x.col]||x.col)+'"';
-    const inp=multi?'<textarea'+attrs+' rows="'+Math.min(8,String(x.value||'').split('\n').length+1)+'" style="width:100%;box-sizing:border-box;padding:6px 10px;border:1px solid '+(x.s==='match'?'#C9CFC7':'#E0B866')+';border-radius:6px;font-family:inherit;font-size:13px">'+esc(x.value)+'</textarea>'
-      :'<input'+attrs+' value="'+esc(x.value)+'" style="width:100%;box-sizing:border-box;height:36px;padding:0 10px;border:1px '+(x.s==='todo'?'dashed':'solid')+' '+(x.s==='match'?'#C9CFC7':'#E0B866')+';border-radius:6px;font-family:inherit;font-size:14px">';
-    return '<tr style="border-top:1px solid #EEF0EC'+(x.s==='match'?'':';background:#FFFBF2')+'"><td style="padding:10px 14px;color:#4A544D;white-space:normal">'+esc(DOC.SI_LABEL[x.col]||x.col)+'<div class="dt-note">'+esc(typeof x.sino==='number'?'sino '+x.sino:x.sino)+'</div></td><td style="padding:8px 14px;white-space:normal">'+inp+
-      (x.hasCur&&x.s!=='match'?'<div class="dt-note" style="white-space:pre-wrap">COMPASS: '+esc(x.cur==null||x.cur===''?'(空欄)':x.cur)+'</div>':'')+'</td><td style="padding:10px 14px;font-size:13px;color:#5E6A62;white-space:normal">'+esc([x.basis.source,x.basis.basis&&x.basis.basis!==x.basis.source?x.basis.basis:''].filter(Boolean).join(' / ')||'—')+'</td><td style="padding:10px 14px" title="'+esc(x.why)+'">'+pill(x)+'</td></tr>'; };
-  const t='<div class="dt-card dt-tablewrap"><table class="dt-t" style="min-width:720px"><thead><tr><th style="width:160px">項目</th><th>推薦値</th><th style="width:200px">根拠</th><th style="width:110px">状態</th></tr></thead><tbody>'+
-    top.map(tr).join('')+'<tr style="border-top:1px solid #EEF0EC"><td colspan="4" style="padding:10px 14px;font-size:13px;color:#5E6A62">ほか '+rest.length+' 項目 一致 — <button class="dt-a" id="dtSiAll">'+(S.siShowAll?'閉じる':'すべて表示')+'</button></td></tr>'+(S.siShowAll?rest.map(tr).join(''):'')+'</tbody></table></div>';
-  const meta='<div class="dt-note">'+esc(res.engine)+' · '+esc(res.model)+' · 今回 US$ '+(+res.cost||0).toFixed(2)+' · '+Math.round((res.ms||0)/1000)+' 秒 · '+esc(String(res.at).slice(0,16).replace('T',' '))+(res.lc&&res.lc.lcNo?' · LC '+esc(res.lc.lcNo):'')+
+  /* 推薦のあと — 今の値 · 推薦 · 状態 (違う欄が上) */
+  const rows=siRows(id), top=rows.filter(x=>x.s!=='match'), rest=rows.filter(x=>x.s==='match'), hasCur=rows.some(x=>x.hasCur), nc=hasCur?5:4;
+  const tag=x=>'<span class="st st-'+(x.s==='match'?'done':x.s==='todo'?'wait':'todo')+'">'+esc(x.label)+'</span>';
+  const tr=x=>{ const multi=String(x.value||'').indexOf('\n')>=0||String(x.value||'').length>60, attrs=' data-sn="'+esc(x.sino)+'" data-col="'+esc(x.col)+'" aria-label="'+esc(DOC.SI_LABEL[x.col]||x.col)+'"', cls='dt-in'+(x.s==='match'?'':' warn')+(x.s==='todo'?' dash':'');
+    const inp=multi?'<textarea'+attrs+' class="'+cls+'" rows="'+Math.min(8,String(x.value||'').split('\n').length+1)+'" style="padding:6px 10px;font-size:13px">'+esc(x.value)+'</textarea>'
+      :'<input'+attrs+' class="'+cls+'" value="'+esc(x.value)+'" style="height:36px;font-size:14px">';
+    return '<tr'+(x.s==='match'?'':' class="hl"')+'><td style="padding:10px 14px;white-space:normal">'+esc(DOC.SI_LABEL[x.col]||x.col)+'<div class="dt-note">'+esc(typeof x.sino==='number'?'sino '+x.sino:x.sino)+'</div></td>'+
+      (hasCur?'<td style="padding:10px 14px;white-space:pre-wrap;word-break:break-word;font-size:13px">'+(x.hasCur?cellV(x.cur):'<span class="dt-empty-v">(なし)</span>')+'</td>':'')+
+      '<td style="padding:8px 14px;white-space:normal">'+inp+'</td><td style="padding:10px 14px;font-size:13px;color:var(--text3);white-space:normal">'+esc([x.basis.source,x.basis.basis&&x.basis.basis!==x.basis.source?x.basis.basis:''].filter(Boolean).join(' / ')||'—')+'</td><td style="padding:10px 14px" title="'+esc(x.why)+'">'+tag(x)+'</td></tr>'; };
+  const t='<div class="dt-card dt-tablewrap"><table class="dt-t" style="min-width:'+(hasCur?900:720)+'px"><thead><tr><th style="width:150px">項目</th>'+(hasCur?'<th style="width:24%">今の値 (COMPASS)</th>':'')+'<th>推薦</th><th style="width:190px">根拠</th><th style="width:110px">状態</th></tr></thead><tbody>'+
+    top.map(tr).join('')+'<tr><td colspan="'+nc+'" style="padding:10px 14px;font-size:13px;color:var(--text3)">ほか '+rest.length+' 項目 一致 — <button class="dt-a" id="dtSiAll">'+(S.siShowAll?'閉じる':'すべて表示')+'</button></td></tr>'+(S.siShowAll?rest.map(tr).join(''):'')+'</tbody></table></div>';
+  const meta=res.kind==='tt'?'<div class="dt-note">'+esc(res.engine)+' · 費用 0 · '+Math.max(1,Math.round((res.ms||0)/1000))+' 秒 · '+esc(String(res.at).slice(0,16).replace('T',' '))+' · 前回 S/I '+esc(res.tt.prev)+' · PO を比べた S/I '+esc((res.tt.recent||[]).join(' · '))+'</div>'
+    :'<div class="dt-note">'+esc(res.engine)+' · '+esc(res.model)+' · 今回 US$ '+(+res.cost||0).toFixed(2)+' · '+Math.round((res.ms||0)/1000)+' 秒 · '+esc(String(res.at).slice(0,16).replace('T',' '))+(res.lc&&res.lc.lcNo?' · LC '+esc(res.lc.lcNo):'')+
     (res.priors&&res.priors.same&&res.priors.same.length?' · 直前 S/I '+esc(res.priors.same.join(' · ')):' · 直前 S/I なし (初回)')+(res.rec.notes?'<br>AI メモ: '+esc(res.rec.notes):'')+'</div>';
-  return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+t+meta+'<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions"><button class="dt-btn ghost" id="dtSiRun"'+(key&&!busy?'':' disabled')+'>作り直す</button><button class="dt-btn ghost" id="dtSiLater">あとで</button><button class="dt-btn" id="dtSiWrite"'+(busy?' disabled':'')+'>COMPASS に書き込む</button></div></section>';
+  return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+t+meta+'<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions"><button class="dt-btn ghost" id="dtSiRun"'+(can?'':' disabled')+'>作り直す</button><button class="dt-btn ghost" id="dtSiLater">あとで</button><button class="dt-btn" id="dtSiWrite"'+(busy?' disabled':'')+'>COMPASS に書き込む</button></div></section>';
 }
 function siPills(id){ const el=$('dtSiPills'); if(!el||!S.siRec[id]) return; const rows=siRows(id), n=s=>rows.filter(x=>x.s===s).length, hasCur=rows.some(x=>x.hasCur);
   el.innerHTML='<span class="p st-done">'+(hasCur?'一致 ':'根拠あり ')+n('match')+'</span><span class="p st-todo">要確認 '+n('check')+'</span>'+(n('todo')?'<span class="p st-wait">未完成 '+n('todo')+'</span>':''); }
 async function siTabAfter(r){
-  const id=r.id;
-  if(!S.siRec[id]&&S.siRec[id]!==null&&!S.siBusy[id]){ S.siRec[id]=null; const saved=await siLoadSaved(id); if(saved){ S.siRec[id]=saved; if(S.cur&&S.cur.id===id&&S.curTab==='si') renderCt(); return; }
-    if(!(S.cur&&S.cur.id===id&&S.curTab==='si')) return; }   // 待っている間に別の画面へ移った → この契約のボタンを付けない
+  const id=r.id, here=()=>!!(S.cur&&S.cur.id===id&&S.curTab==='si');
+  if(!S.siRec[id]&&S.siRec[id]!==null&&!S.siBusy[id]){ S.siRec[id]=null; const saved=await siLoadSaved(id); if(saved){ S.siRec[id]=saved; if(here()) renderCt(); return; }
+    if(!here()) return; }   // 待っている間に別の画面へ移った → この契約のボタンを付けない
+  if(!S.siRec[id]&&(S.sis[id]||[]).length&&S.siCur[id]===undefined){   // S/I 済 → 今の S/I を読んで先に見せる
+    S.siCur[id]=null; if(here()) renderCt();
+    try{ S.siCur[id]=await siReadNow(id, DOC.SI_HEAD_COLS); }catch(e){ S.siCur[id]={error:e.message}; }
+    if(here()) renderCt(); return; }
   siPills(id);
   const run=$('dtSiRun'); if(run) run.onclick=()=>siRun(id);
   const all=$('dtSiAll'); if(all) all.onclick=()=>{ S.siShowAll=!S.siShowAll; renderCt(); };
@@ -1109,13 +1295,14 @@ async function siTabAfter(r){
     if(/^明細/.test(sn)){ const i=+sn.replace('明細','')-1; (E.details[i]=E.details[i]||{})[cn]=el.value; } else (E.sinos[sn]=E.sinos[sn]||{})[cn]=el.value; siPills(id); }); });
 }
 async function siRun(id){
-  if(S.siBusy[id]) return; if(!lsGet(LS.apikey,'')){ toast('API キーを ⚙ 設定で保存してください','warn'); return; }
+  const lc=isLcCt(id);
+  if(S.siBusy[id]) return; if(lc&&!lsGet(LS.apikey,'')){ toast('API キーを ⚙ 設定で保存してください','warn'); return; }
   const say=m=>{ S.siBusy[id]=m; const st=$('dtSiSt'); if(st&&S.cur&&S.cur.id===id) st.textContent=m; };
   say('準備中…'); const b=$('dtSiRun'); if(b) b.disabled=true;
-  try{ const res=await siRecommend(id,say); S.siRec[id]=res; S.siEdit[id]={sinos:{},details:[]}; S.siBusy[id]='';
+  try{ const res=lc?await siRecommend(id,say):await siTtRecommend(id,say); S.siRec[id]=res; S.siEdit[id]={sinos:{},details:[]}; S.siBusy[id]='';
     try{ await spPut(DOC.OUT_ROOT+'si_rec/'+DOC.safeKey(res.no)+'_'+DOC.utcStamp()+'.json', JSON.stringify(res)); }catch(e){ toast('推薦の保存に失敗 (画面にはあります): '+e.message,'warn'); }
-    if(S.cur&&S.cur.id===id) renderCt(); toast('S/I 推薦ができました (US$ '+(+res.cost||0).toFixed(2)+')','ok');
-  }catch(e){ S.siBusy[id]=''; if(S.cur&&S.cur.id===id){ renderCt(); const st=$('dtSiSt'); if(st) st.innerHTML='<span style="color:#7A2416">推薦できません: '+esc(e.message)+'</span> — a1_bench で確認してください'; } }
+    if(S.cur&&S.cur.id===id) renderCt(); toast(lc?'S/I 推薦ができました (US$ '+(+res.cost||0).toFixed(2)+')':'前回の S/I から作りました (AI なし · 費用 0)','ok');
+  }catch(e){ S.siBusy[id]=''; if(S.cur&&S.cur.id===id){ renderCt(); const st=$('dtSiSt'); if(st) st.innerHTML=errHtml(e,'推薦できません','a1_bench'); } }
 }
 /* ── COMPASS 書き込み ── */
 async function dvWrite(method, set, id, body, ctx){   // COMPASS に書くのはここだけ (門番 → fetch)
@@ -1156,11 +1343,11 @@ async function siWrite(id){
     const meta=await siMeta(), n=ops.reduce((a,o)=>a+o.changes.length,0);
     if(st) st.textContent='';
     modal('<div class="dt-h">COMPASS に書き込む — '+esc(no)+'</div><div class="dt-note">書く前に今の S/I を SharePoint に控えます。消す操作はありません。</div>'+
-      ops.map(op=>'<div style="font-weight:500;font-size:14px;margin-top:6px">'+esc(opLine(op))+'</div><div class="dt-kv">'+op.changes.map(cg=>'<div>'+esc(DOC.SI_LABEL[cg.col]||cg.col)+'</div><div><span style="color:#7A2416;text-decoration:line-through">'+esc(cg.before||'(空欄)')+'</span> → '+(cg.after===''&&cg.before!==''?'<b style="color:#7A2416">(空欄にします — 今の値が消えます)</b>':'<b>'+esc(cg.after||'(空欄)')+'</b>')+'</div>').join('')+'</div>').join('')+
+      ops.map(op=>'<div style="font-weight:500;font-size:14px;margin-top:6px">'+esc(opLine(op))+'</div><div class="dt-kv">'+op.changes.map(cg=>'<div>'+esc(DOC.SI_LABEL[cg.col]||cg.col)+'</div><div><span style="color:var(--st-diff-fg);text-decoration:line-through">'+esc(cg.before||'(空欄)')+'</span> → '+(cg.after===''&&cg.before!==''?'<b style="color:var(--st-diff-fg)">(空欄にします — 今の値が消えます)</b>':'<b>'+esc(cg.after||'(空欄)')+'</b>')+'</div>').join('')+'</div>').join('')+
       '<label class="dt-row" style="font-size:13px"><input type="checkbox" id="dtSiOk"> '+ops.length+' 件 · '+n+' 欄の内容を確認しました</label><div class="dt-actions"><button class="dt-btn ghost" data-close="1">やめる</button><button class="dt-btn" id="dtSiGo" disabled>書き込む</button></div>');
     $('dtSiOk').onchange=()=>{ $('dtSiGo').disabled=!$('dtSiOk').checked; };
     $('dtSiGo').onclick=()=>{ closeModal(); siExecute(id, ops, cur, fin, meta); };
-  }catch(e){ if(st) st.innerHTML='<span style="color:#7A2416">書き込めません: '+esc(e.message)+'</span>'; }
+  }catch(e){ if(st) st.innerHTML='<span style="color:var(--st-diff-fg)">書き込めません: '+esc(e.message)+'</span>'; }
 }
 async function siExecute(id, ops, cur, fin, meta){
   const res=S.siRec[id], no=res.no, here=()=>!!(S.cur&&S.cur.type==='ct'&&S.cur.id===id), rc=()=>{ if(here()) renderCt(); }, st=()=>here()?$('dtSiSt'):null, say=m=>{ const e=st(); if(e) e.textContent=m; }, d=new Date(), at=d.toISOString();
@@ -1190,13 +1377,13 @@ async function siExecute(id, ops, cur, fin, meta){
     }
     say('読み直して確かめています…');
     const now=await siReadNow(id,res.fieldHead), ver=DOC.siVerify(ops.filter(o=>o.id), now); log.verify=ver; log.failed=failed?{what:opLine(failed.op), message:failed.message}:null;
-    S.sis[id]=now.sis; res.current=now.sis; S.siEdit[id]={sinos:{},details:[]};
+    S.sis[id]=now.sis; res.current=now.sis; S.siEdit[id]={sinos:{},details:[]}; S.siCur[id]=undefined;   // 今の S/I 表は次に開いたとき読み直す
     try{ await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(e){ toast('履歴の保存に失敗: '+e.message,'warn'); }
     S.siBusy[id]=''; rc();
-    const e=st(); if(e) e.innerHTML=failed?'<span style="color:#7A2416">途中で止めました ('+esc(log.failed.what)+': '+esc(failed.message)+') — 書いた分は確認表どおり · 控え '+esc(log.backup)+'</span>'
-      :(ver.ok?'<span style="color:#1F4A36">書き込みました ('+ops.length+' 件) · 読み直して一致 ✓ · 控え '+esc(log.backup)+'</span>':'<span style="color:#7A2416">書き込みましたが読み直すと '+ver.rows.filter(x=>!x.ok).length+' 欄が違います — COMPASS 画面で確認してください · 控え '+esc(log.backup)+'</span>');
+    const e=st(); if(e) e.innerHTML=failed?'<span style="color:var(--st-diff-fg)">途中で止めました ('+esc(log.failed.what)+': '+esc(failed.message)+') — 書いた分は確認表どおり · 控え '+esc(log.backup)+'</span>'
+      :(ver.ok?'<span style="color:var(--st-done-fg)">書き込みました ('+ops.length+' 件) · 読み直して一致 ✓ · 控え '+esc(log.backup)+'</span>':'<span style="color:var(--st-diff-fg)">書き込みましたが読み直すと '+ver.rows.filter(x=>!x.ok).length+' 欄が違います — COMPASS 画面で確認してください · 控え '+esc(log.backup)+'</span>');
     toast(failed?'途中で止めました':ver.ok?'COMPASS に書き込みました':'書き込み後の確認で違いあり', failed||!ver.ok?'warn':'ok');
-  }catch(e){ S.siBusy[id]=''; rc(); const el=st(); if(el) el.innerHTML='<span style="color:#7A2416">書き込めません: '+esc(e.message)+(log.backup?' · 控え '+esc(log.backup):' (何も書いていません)')+'</span>';
+  }catch(e){ S.siBusy[id]=''; rc(); const el=st(); if(el) el.innerHTML='<span style="color:var(--st-diff-fg)">書き込めません: '+esc(e.message)+(log.backup?' · 控え '+esc(log.backup):' (何も書いていません)')+'</span>';
     try{ log.error=e.message; if(log.backup) await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(x){} }
 }
 
@@ -1207,6 +1394,8 @@ function startPage(){
   let rg={before:30,after:45}; try{ rg=Object.assign(rg,JSON.parse(lsGet(LS.range,'{}'))); }catch(e){}
   S.range=DOC.defaultRange(S.today,+rg.before,+rg.after); $('dtFrom').value=S.range.from; $('dtTo').value=S.range.to;
   S.who=lsGet(LS.who,'me'); S.board=lsGet(LS.board,'iv')==='ct'?'ct':'iv';
+  S.hideFd=lsGet(LS.hidefd,'1')!=='0';   // 既定 ON (형님 D2)
+  $('dtHideFd').onchange=()=>{ S.hideFd=$('dtHideFd').checked; lsSet(LS.hidefd,S.hideFd?'1':'0'); render(); };
   $('dtBIv').onclick=()=>{ S.board='iv'; lsSet(LS.board,'iv'); render(); }; $('dtBCt').onclick=()=>{ S.board='ct'; lsSet(LS.board,'ct'); render(); };
   $('dtTodo').onclick=()=>{ S.todoOnly=true; render(); }; $('dtAll').onclick=()=>{ S.todoOnly=false; render(); };
   $('dtReload').onclick=()=>{ const f=$('dtFrom').value, t=$('dtTo').value; if(!f||!t||f>t){ prog('ETD の範囲が正しくありません'); return; } S.range={from:f,to:t}; loadAll(); };
@@ -1217,13 +1406,14 @@ function startPage(){
 }
 
 LEENAI.addHeaderButton({label:'⚙ 設定', title:'設定 (API キー · 範囲 · マスター)', onClick:()=>openSettings()});
-LEENAI.init({
-  sys:'D-00', name:'書類ツール', version:'0.1', date:'2026-11-20',
+const CFG = {
+  sys:'D-00', name:'書類ツール', version:'0.2', date:'2026-11-20',
   desc:'書類担当の進み具合 (Invoice 別 · 契約別) · ACL 照合 · S/I 推薦 — D-01 · D-03 · D-04 をまとめる試験運用版',
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下だけ (履歴 · S/I 控え — DOC.guardOut)
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',
   onReady:startPage
-});
+};
+LEENAI.init(CFG);
 </script>
 </body>
 </html>

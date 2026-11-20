@@ -53,9 +53,9 @@ function parseFilter(f){   // 「A eq x or A eq y」 · 「A eq 'x'」 · 날짜
 function dvHandle(W,url){
   const u=decodeURIComponent(url.slice(DV.length)); const m=u.match(/^(\w+)(?:\(([^)]+)\))?(?:\?(.*))?$/); if(!m) return [404,{}];
   const ent=m[1], id=m[2], qs=m[3]||'', filt=(qs.match(/\$filter=(.*?)(?:&\$|$)/)||[])[1]||'';
-  const T={cr49f_bookings:W.bookings,cr49f_regions:W.regions,crcf9_region_japans:W.pols,cr49f_sale_contracts:W.contracts,cr49f_buyers:W.buyers,cr49f_s_is:W.sis,crcf9_container_informations:W.containers}[ent];
+  const T={cr49f_bookings:W.bookings,cr49f_regions:W.regions,crcf9_region_japans:W.pols,cr49f_sale_contracts:W.contracts,cr49f_buyers:W.buyers,cr49f_s_is:W.sis,crcf9_container_informations:W.containers,cr49f_sale_details:W.sale||[],crcf9_s_i_details:W.dets||[]}[ent];
   if(!T) return [404,{error:{message:'no table '+ent}}];
-  const pk={cr49f_bookings:'cr49f_bookingid',cr49f_regions:'cr49f_regionid',crcf9_region_japans:'crcf9_region_japanid',cr49f_sale_contracts:'cr49f_sale_contractid',cr49f_buyers:'cr49f_buyerid',cr49f_s_is:'cr49f_s_iid'}[ent];
+  const pk={cr49f_bookings:'cr49f_bookingid',cr49f_regions:'cr49f_regionid',crcf9_region_japans:'crcf9_region_japanid',cr49f_sale_contracts:'cr49f_sale_contractid',cr49f_buyers:'cr49f_buyerid',cr49f_s_is:'cr49f_s_iid',crcf9_s_i_details:'crcf9_s_i_detailid'}[ent];
   if(id){ const r=T.find(x=>x[pk]===id); return r?[200,clone(r)]:[404,{}]; }
   let rows=T;
   if(/cr49f_etd ge/.test(filt)){ const d=filt.match(/\d{4}-\d{2}-\d{2}/g); rows=T.filter(r=>[r.cr49f_etd,r.crcf9_bl_etd].some(v=>v&&v.slice(0,10)>=d[0]&&v.slice(0,10)<=d[1])); }

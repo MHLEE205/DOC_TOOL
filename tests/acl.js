@@ -80,7 +80,7 @@ async function engineText(){
     ok(JSON.stringify(res.items)===JSON.stringify(direct.items),iv+' 항목 하나하나 같음 ('+direct.items.length+')');
     ok(JSON.stringify(res.kinds)===JSON.stringify(direct.kinds)&&JSON.stringify(res.sets)===JSON.stringify(direct.sets)&&JSON.stringify(res.xx)===JSON.stringify(direct.xx),iv+' 종류 · 세트 · XX 같음');
     ok(res.meta&&res.meta.contract==='LRS-2699TS'+iv.slice(-1)&&res.meta.country==='VIETNAM'&&res.meta.forwarderCompany==='SAMPLE FORWARDER',iv+' 범위 정보 (계약 · 나라 · 乙仲)',res.meta);
-    ok(res.engine===('acl_bench v0.4 @'+COMMIT.slice(0,7))&&res.by==='書類ツール v0.1','결과에 엔진 출처 · 도구');
+    ok(res.engine===('acl_bench v0.4 @'+COMMIT.slice(0,7))&&res.by==='書類ツール v0.2','결과에 엔진 출처 · 도구');
     ok(W.req.filter(r=>/raw\.githubusercontent/.test(r)).length===1,'엔진은 한 번만 읽음');
   }
   /* 02 = 相違 → 화면 · 메일 */
@@ -100,11 +100,24 @@ async function engineText(){
   const row1=[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>/NFK2601-01/.test(t.textContent));
   ok(row1&&row1.querySelectorAll('td.c .st')[1].textContent==='済','현황판 ACL 칸 = 새 결과 (完全一致 → 済)');
 
+  /* ── v0.2 #3 DR 이름 파일도 같은 엔진으로 — 엔진은 이름을 보지 않음 (같은 PDF → 같은 판정 · 항목) ── */
+  { const iv='NFK2601-01', before=W.writes.length;
+    W.sp[WIP+'/'+iv]=[{id:'acl1',name:'DR #TEST0000001.pdf',file:{},size:bytes.acl1.length,lastModifiedDateTime:'2026-11-12T00:00:00Z',webUrl:'https://example.test/sp/dr1'}];
+    w.eval("S.folders['"+iv+"']=undefined; delete S.aclLocal['"+iv+"']");
+    await openIv(iv); ok(/照合結果なし/.test(txt('dtIvBody'))&&/DR #TEST0000001\.pdf/.test(txt('dtIvBody'))&&/DR_ · DR 番号/.test(txt('dtIvBody')),'DR 이름 → 照合する · 고른 파일 · 모양 표시',txt('dtIvBody').slice(0,300));
+    $('dtAclRun').click(); await X.until(()=>/照合しました|照合できません/.test(txt('dtIvBody')),20000);
+    const res=JSON.parse(await (async b=>b&&b.text?await b.text():String(b))(W.writes[before].body));
+    ok(res.verdict==='完全一致'&&/DR #TEST0000001\.pdf$/.test(res.file)&&/DR_ · DR 番号/.test(res.aclVersion),'DR 이름 파일 → 같은 판정 (完全一致) · 결과에 파일 이름',[res.verdict,res.file,res.aclVersion]); }
+
   /* ── 엔진 파일이 바뀌면 쓰지 않음 (sha256) ── */
   const W2n=W.writes.length; engineBody=Buffer.concat([ENG,Buffer.from(' ')]);
   w.eval('ACLX=null');
-  await openIv('NFK2601-01'); $('dtAclRun').click(); await X.until(()=>/照合できません|照合しました/.test(txt('dtIvBody')),20000);
-  ok(/sha256/.test(txt('dtIvBody'))&&W.writes.length===W2n,'엔진 sha256 다름 → 쓰지 않고 멈춤 · 쓰기 0',txt('dtIvBody').slice(0,200));
+  await openIv('NFK2601-01'); $('dtAclRun').click(); await X.until(()=>/照合できません|照合しました|今は使えません/.test(txt('dtIvBody')),20000);
+  ok(/今は使えません。社長に連絡してください/.test(txt('dtIvBody'))&&!/sha256/.test(txt('dtIvBody'))&&W.writes.length===W2n,'엔진 sha256 다름 → 직원: 「今は使えません。社長に連絡してください」 만 · 쓰기 0 (v0.2 #7)',txt('dtIvBody').slice(0,200));
+  ok(!w.document.querySelector('#dtIvBody [data-open="acl"]'),'직원 화면 — acl_bench を開く 없음 (v0.2 #7)');
+  w.eval('S.me.admin=true'); await openIv('NFK2601-01'); ok(!!w.document.querySelector('#dtIvBody [data-open="acl"]'),'관리자 — acl_bench を開く 있음');
+  $('dtAclRun').click(); await X.until(()=>/照合できません|照合しました/.test(txt('dtIvBody')),20000);
+  ok(/sha256/.test(txt('dtIvBody'))&&W.writes.length===W2n,'관리자 — 이유 (sha256) 표시 · 쓰기 0',txt('dtIvBody').slice(0,200)); w.eval('S.me.admin=false');
 
   /* ── acl_bench 는 바뀌지 않음 — 지금 CONTRACT_SEND/acl_bench.html = 고정 커밋 ── */
   try{ const cur=fs.readFileSync(path.join(process.env.ACL_REPO||path.join(__dirname,'../../CONTRACT_SEND'),'acl_bench.html')); ok(nodeCrypto.createHash('sha256').update(cur).digest('hex')===SHA,'CONTRACT_SEND/acl_bench.html 그대로 (sha256)'); }catch(e){ console.log('(참고) CONTRACT_SEND 클론 없음 — acl_bench 그대로 확인 생략'); }
