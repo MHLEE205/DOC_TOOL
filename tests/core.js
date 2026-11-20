@@ -45,6 +45,10 @@ eq(S({folder:F(IV+'_DRAFT DOC.pdf')},'bl'),'wait','DRAFT DOC 만 → 待ち');
 // DEPO
 eq(S({folder:F(IV+'_DRAFT.pdf')},'depo'),'wait','DEPO 初版만 → 待ち');
 eq(S({folder:F(IV+'_DRAFT.pdf',IV+'_DRAFT REV.pdf')},'depo'),'done','DEPO REV → 済');
+eq(S({folder:F(IV+'_DRAFT (1).pdf')},'depo'),'wait','DEPO 브라우저 복제 「(1)」 은 REV 아님');
+eq(S({folder:F(IV+'_FRT MEMO REV.pdf')},'depo'),'wait','DEPO FRT MEMO REV 만 → 済 아님');
+eq(S({folder:F(IV+'_IV_PL.pdf')},'customs'),'todo','通関 폴더 바로 아래 IV·PL 만 → 確認 (送付 미확인)');
+eq(DOC.judgeCt({pay:'TT',lcFiles:[],sis:[{crcf9_sino:1,crcf9_consignee:'A',crcf9_notify_party:'N',crcf9_po_vo:'PO NO: XXXX',crcf9_place_of_delivery_1:'P'}]}).si.s,'todo','S/I PO NO: XXXX → 確認');
 eq(S({folder:F(IV+'_DRAFT LG.pdf')},'depo'),'done','DEPO DRAFT LG → 済');
 ok(/LG 作成済/.test(J({folder:F(IV+'_DRAFT.pdf','LG(TEST0000001).xlsx')}).depo.why),'DEPO LG xlsx 만 → 待ち (LG 作成済)');
 eq(S({folder:F()},'depo'),'wait','DEPO B/L 없음 → 待ち');
@@ -161,9 +165,12 @@ const CID=GU('c',1), SI1=GU('a',1), D1=GU('d',1), SD1=GU('e',1), IT=GU('f',1), O
 const curS={sis:[{cr49f_s_iid:SI1,crcf9_sino:1,crcf9_consignee:'A',crcf9_notify_party:'N',crcf9_po_vo:'PO1',_details:[{crcf9_s_i_detailid:D1,_crcf9_sale_detail_id_value:SD1,crcf9_productname:'OCC',crcf9_hs_code:'4707'}]}],details:[]};
 curS.details=curS.sis[0]._details;
 const sale=[{cr49f_sale_detailid:SD1,_cr49f_item_id_value:IT,cr49f_quantity:500,cr49f_price:200}];
-const ops=DOC.siPlan(curS,{sinos:{1:{crcf9_consignee:'A',crcf9_notify_party:'N2',crcf9_po_vo:'',crcf9_unknown:'x'},2:{crcf9_consignee:'B',crcf9_notify_party:''}},details:[{crcf9_productname:'OCC',crcf9_hs_code:'4707.10'}]},sale);
+eq(DOC.siPlan(curS,{sinos:{1:{crcf9_consignee:'A',crcf9_notify_party:'N',crcf9_po_vo:''}},details:[]},sale),[],'추천이 빈칸이어도 고치지 않은 칸은 COMPASS 값을 남김');
+eq(DOC.siPlan(curS,{sinos:{1:{crcf9_consignee:'A ',crcf9_notify_party:' N'}},details:[]},sale),[],'공백만 다르면 쓰지 않음');
+eq(DOC.siPlan({sis:[Object.assign({},curS.sis[0],{_details:[{crcf9_s_i_detailid:D1,crcf9_productname:'OCC'}]})]},{sinos:{1:{}},details:[{crcf9_productname:'OCC'}]},sale),[],'판매 명세에 안 이어진 옛 명세가 있으면 새 명세를 만들지 않음 (중복 방지)');
+const ops=DOC.siPlan(curS,{sinos:{1:{crcf9_consignee:'A',crcf9_notify_party:'N2',crcf9_po_vo:'',crcf9_unknown:'x'},2:{crcf9_consignee:'B',crcf9_notify_party:''}},details:[{crcf9_productname:'OCC',crcf9_hs_code:'4707.10'}],edited:{'1|crcf9_po_vo':1}},sale);
 eq(ops.map(o=>o.method+' '+o.set+' '+o.sino),['PATCH cr49f_s_is 1','PATCH crcf9_s_i_details 1','POST cr49f_s_is 2','POST crcf9_s_i_details 2'],'계획: 있는 sino = 바뀐 칸 PATCH · 없는 sino = POST · 명세');
-eq(ops[0].body,{crcf9_notify_party:'N2',crcf9_po_vo:null},'PATCH 본문 = 바뀐 칸만 · 빈칸은 null · 모르는 칸 제외');
+eq(ops[0].body,{crcf9_notify_party:'N2',crcf9_po_vo:null},'PATCH 본문 = 바뀐 칸만 · 담당자가 지운 칸은 null · 모르는 칸 제외');
 eq(ops[1].body,{crcf9_hs_code:'4707.10'},'명세 PATCH = 바뀐 칸만');
 eq(ops[2].body,{crcf9_sino:2,crcf9_consignee:'B'},'새 S/I = sino + 값 있는 칸');
 eq([ops[3].siRef,ops[3].saleDetail,ops[3].item,ops[3].body.crcf9_weight,ops[3].body.crcf9_price],['new:2',SD1,IT,500,200],'새 명세 = 새 S/I · 판매 명세 · 품목 · 수량 · 단가');
