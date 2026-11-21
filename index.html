@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.3</title>
+<title>LEENAI D-00 書類ツール v0.4</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -115,6 +115,11 @@ button.st:hover{border-color:currentColor}
 .av-cols td{padding:3px 8px;border-top:1px solid var(--surface3);vertical-align:top;white-space:pre-wrap;word-break:break-all;color:var(--text)}
 .av-hl{background:var(--st-diff-bg);color:var(--st-diff-fg);border-radius:2px}
 .av-more summary{cursor:pointer;font-size:13px;color:var(--text3)}
+.av-final{display:flex;flex-direction:column;gap:6px;padding:12px 16px;border:2px solid var(--border);border-radius:12px;background:var(--surface)}
+.av-fh{font-size:12px;font-weight:500;color:var(--text3)}
+.av-fl{font-size:18px;font-weight:700}
+.av-fl.av-hon{font-size:13px;font-weight:400;margin-left:0}
+.av-fu{margin:0 0 4px 20px;padding:0;font-size:13px;color:var(--text2)}
 .ln-footer{text-align:center;font-size:12px;color:var(--text3);padding:0 0 24px}
 @media (max-width:720px){.dt-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.dt-grid3{grid-template-columns:1fr}.dt-main{padding:16px}}
 </style>
@@ -184,6 +189,7 @@ button.st:hover{border-color:currentColor}
    状態 = 済 · 確認 · 相違 · 待ち · —(対象外) · ?(根拠なし)。推測で 済 を作らない。
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
+   v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
 ============================================================ */
 const DOC = (()=>{
   const ST = {done:'済', todo:'確認', diff:'相違', wait:'待ち', na:'—', unk:'?', load:'…'};
@@ -298,7 +304,24 @@ const DOC = (()=>{
     return out;
   }
   const jstDay = at => { const t=Date.parse(at||''); return isNaN(t)?'':new Date(t+9*3600e3).toISOString().slice(0,10); };
-    const ACL_VERDICT = {'相違あり':'diff', '表記差のみ':'ok', '完全一致':'ok', '読取対象外':'check', '読取確認要':'check', 'COMPASS照会不可':'check'};   // v0.3: 済 は 本登録 メールだけ (형님 D3)
+    const ACL_VERDICT = {'相違あり':'diff', '表記差のみ':'ok', '完全一致':'ok', '読取対象外':'check', '読取確認要':'check', 'COMPASS照会不可':'check'};   // v0.3: 済 は 本登録 メールだけ (형님 D3) · v0.4: 最終確認 のない結果 (v0.5 まで · 読取対象外) だけ
+  /* v0.4 (指示書 ACL 最終分析 Step 5): ACL 欄の状態 — v0.3 の規則に 最終確認 (エンジン v0.6 の res.final) を入れた表 */
+  const ACL_RULE = [
+    ['wait','待ち','ACL ファイルなし'],
+    ['diff','相違','本登録メールなし + (最終確認「足りない内容」あり · コンテナ セット違う · 欄別の相違 [Description を除く — 内容は最終確認で見る])'],
+    ['todo','確認','本登録メールなし + 上でない (内容は全部ある · セット一致 · 表記差だけ)'],
+    ['done','済','本登録メールあり (相違だったら 「相違のまま本登録」)']];
+  /* 照合結果 → {v:'diff'|'ok'|'check'|'unk', why (相違の理由), short (最終確認 ✓ / ✗ n)} — 最終確認 のない結果は v0.3 の判定 (ACL_VERDICT) */
+  function aclJudge(r){
+    if(!r) return {v:'unk', why:'', short:''};
+    const f=r.final, base=ACL_VERDICT[r.verdict]||'unk';
+    if(!f) return {v:base, why:'', short:'', legacy:true};
+    const miss=(f.missing||[]).length, st=f.sets||{}, setBad=(st.diff||[]).length+(st.aclOnly||[]).length+(st.cpOnly||[]).length;
+    const field=(r.items||[]).filter(i=>DIFF_ST.indexOf(i.status)>=0&&i.key!=='description'), why=[];
+    if(miss) why.push('足りない内容 '+miss); if(setBad) why.push('コンテナ セット違う '+setBad); if(field.length) why.push('欄の相違 '+field.length+' ('+[...new Set(field.map(i=>i.label))].slice(0,3).join(' · ')+(field.length>3?' …':'')+')');
+    const short=miss+setBad?'最終確認 ✗ '+(miss+setBad):st.allOk?'最終確認 ✓':'最終確認 ー (コンテナを読めない)';
+    return {v:why.length?'diff':base==='diff'?'ok':base, why:why.join(' · '), short};
+  }
   const baseName = p => String(p||'').split('/').pop();
 
   /* ── Invoice 行の判定 ──
@@ -327,14 +350,14 @@ const DOC = (()=>{
       if(!p) out.acl=hon?cell('todo',honTxt+' · ACL ファイルがフォルダにない',SC.excluded.map(e=>e.name+' ('+e.why+')')):cell('wait','ACL (DR) 未着',SC.excluded.map(e=>e.name+' ('+e.why+')'));
       else {
         const r=x.acl&&x.acl.result, files=[p.f.name+' ('+P.label+')'].concat(SC.formal.concat(SC.temp).filter(a=>a!==p).map(a=>a.f.name));
-        let st, why, fresh=false;
+        let st, why, fresh=false, out_final=null;
         if(!r){ st='todo'; why='照合結果なし ('+P.label+' — 「ACL」タブで照合)'; }
         else if(up(baseName(r.file))!==up(p.f.name)){ st='todo'; why='新しい ACL ('+P.label+') — 保存済みの照合は '+(r.aclVersion||baseName(r.file)); }
         else if(p.f.lastModified&&r.fileModified&&String(p.f.lastModified)>String(r.fileModified)){ st='todo'; why='ACL 更新後 未照合'; }
-        else { const v=ACL_VERDICT[r.verdict]||'unk'; fresh=true; st=v==='diff'?'diff':v==='unk'?'unk':'todo'; why='照合 '+r.verdict+(x.acl.runId?' ('+x.acl.runId+')':'')+(r.why?' · '+r.why:''); }
+        else { const J=aclJudge(r), v=J.v; fresh=true; st=v==='diff'?'diff':v==='unk'?'unk':'todo'; why=(J.short?J.short+(J.why?' ('+J.why+')':'')+' · ':'')+'照合 '+r.verdict+(x.acl.runId?' ('+x.acl.runId+')':'')+(r.why?' · '+r.why:''); out_final=J; }
         if(hon) out.acl=cell('done',honTxt+(st==='diff'?' · 相違のまま本登録':'')+' · '+why,files);
         else out.acl=cell(st,why+(st==='diff'?'':' · 本登録 まだ'),files);
-        out.acl.pick=p; out.acl.label=P.label; out.acl.fresh=fresh; out.acl.diffHon=!!hon&&st==='diff';
+        out.acl.pick=p; out.acl.label=P.label; out.acl.fresh=fresh; out.acl.diffHon=!!hon&&st==='diff'; out.acl.final=out_final;
       }
       out.acl.scan=SC;
     }
@@ -593,7 +616,7 @@ const DOC = (()=>{
     return {rec:{sinos, basis, details, notes:'', rejected:[], sourceIssues:[]}, tt:{prev:P.no, recent:recent.map(p=>p.no), po}};
   }
 
-  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     /* v0.3 */ useAclEngine, aclReady, aclPick, FD_TENT, fdFiles, fdBundle, honIndex, jstDay, CT_REAL, CT_PERIODS, monthsAgo, sortCtDate,
     blKind, pickBl, aclScan, fdDone, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
     utcStamp, aclResultPath, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
@@ -670,7 +693,7 @@ async function spPut(p, content, type){   // 新規のみ (上書きしない)
 function prog(t){ $('dtProg').textContent=t||''; }
 async function loadAll(){
   const seq=++S.loadSeq, t0=Date.now(); S.doneMsg=''; S.folders={}; S.bk=[]; S.ct={}; S.ctBk={}; S.sis={}; S.lcFiles=null; render();
-  /* v0.3: ACL の名前の規則 · 照合 · 結果の見せ方 = acl_bench v0.5 エンジン — 最初に読み始める (読めなければ ACL の欄は ?) */
+  /* v0.3: ACL の名前の規則 · 照合 · 結果の見せ方 = acl_bench エンジン (v0.4: v0.6) — 最初に読み始める (読めなければ ACL の欄は ?) */
   const engP=S.engine==='ok'?Promise.resolve():loadAclEngine().then(E=>{ DOC.useAclEngine(E); S.aclE=E; S.engine='ok'; S.engineErr=null; }).catch(e=>{ S.engine='error'; S.engineErr=e; });
   try{
     prog('マスター · COMPASS を読み込み中…');
@@ -938,7 +961,8 @@ function ivTabHtml(r, tab){
   return '';
 }
 /* ACL タブ (v0.3 · 형님 D2) — 上から 1 本の流れ: ① 結論 1 行 (+ 本登録) ② 確認した項目の全部 ③ 相違だけ開く ④ 表記差は 「中身を見る」
-   見せ方は acl_bench v0.5 エンジンの viewHtml (acl_bench の結果画面と同じもの) · 中の名前 (crcf9_… · 根拠の文) は 管理者だけ (マウスを乗せると) */
+   見せ方は acl_bench エンジンの viewHtml (acl_bench の結果画面と同じもの) · 中の名前 (crcf9_… · 根拠の文) は 管理者だけ (マウスを乗せると)
+   v0.4: エンジン v0.6 — 一番上に 最終確認 (S/I の内容が ACL にあるか · コンテナのセット · 本登録) → 項目ごとの確認 */
 function honLine(c){
   const h=c&&c.hon, src=S.honErr?' — メールを読めない ('+S.honErr+') · メール一覧 CSV だけで判断':'';
   return h?'本登録: 済 ('+DOC.fmtMD(DOC.jstDay(h.at))+(h.name?' '+h.name:'')+(h.src==='csv'?' · CSV':'')+')'+(c.diffHon?' — 相違のまま本登録':'')+src:'本登録: まだ'+src;
@@ -946,7 +970,7 @@ function honLine(c){
 function aclTabHtml(r){
   const c=r.cells.acl, res=r.x.acl&&r.x.acl.result, fresh=!!(res&&c.fresh);
   const head='<div><div class="dt-h">ACL 照合</div><div class="dt-note" style="font-size:13px">届いた ACL (DR · 仮ACL も) を COMPASS の S/I と照合します（ファイルを選ぶ必要はありません）。'+
-    (fresh?' 表示中: '+esc(r.x.acl.runId)+(res.aclVersion?' · ACL '+esc(res.aclVersion):''):'')+'</div></div>';
+    (fresh?' 表示中: '+esc(r.x.acl.runId)+(res.aclVersion?' · ACL '+esc(res.aclVersion):'')+(c.final&&c.final.short?' · '+esc(c.final.short):''):'')+'</div></div>';
   let body='';
   if(S.engine==='error'||!DOC.aclReady()||!S.aclE) body+='<div class="dt-p">'+(S.engine==='error'?errHtml(S.engineErr,'ACL の判定ルールを読めません','acl_bench'):'読み込み中…')+'</div>';
   else if(fresh) body+='<div class="av">'+S.aclE.viewHtml(res,{admin:S.me.admin, hon:esc(honLine(c))})+'</div>';
@@ -1061,11 +1085,11 @@ async function runSearch(){
   }catch(e){ st.textContent='検索できません: '+e.message; }
 }
 
-/* ══════════ P2 — ACL タブ (acl_bench v0.5 のエンジンを共有) ══════════
+/* ══════════ P2 — ACL タブ (acl_bench のエンジンを共有 — v0.4: v0.6) ══════════
    エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
    v0.3: ACL の名前の規則 (aclScan · aclPick) · 本登録の語 (mailKind) · 結果の見せ方 (viewHtml) もエンジンから — 現況板が始まるときに読む (loadAll)
    下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @903d923 (v0.4 から変わっていない) */
-const ACL_ENGINE = {commit:'903d9231883d394a23563bd9003828ca2dbf1147', sha256:'a62487baa36b3213f91308c4cb158f26248bcedfffd3592bb26cda811e3aaafc', ver:'0.5'};
+const ACL_ENGINE = {commit:'7df63d17288cba2d2e96553b5ea4f8c1a19174f9', sha256:'8425c88030dc369efbfc5c8a9bb6afa51f1f516722ccc9ee266f2aed2bd92345', ver:'0.6'};   // v0.4: エンジン v0.6 (最終確認)
 ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 let ACLX = null;
@@ -1134,7 +1158,7 @@ async function readPdf(file){
 async function aclCompareOne(iv){
   const E=await loadAclEngine(), f=S.folders[iv];
   if(!f||!f.files) throw new Error('Invoice フォルダを読めていません');
-  /* v0.3: ファイルは エンジン v0.5 の aclPick (DR · ACL-番号 · 本登録 … · 正式がなければ 仮 — 형님 D3) で選ぶ — 現況板と同じ規則 */
+  /* v0.3: ファイルは エンジン (v0.4: v0.6) の aclPick (DR · ACL-番号 · 本登録 … · 正式がなければ 仮 — 형님 D3) で選ぶ — 現況板と同じ規則 */
   const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv)||{}, P=DOC.aclPick(f.files, iv, {booking:b.cr49f_booking_no||'', others:bkNos().filter(n=>n!==b.cr49f_booking_no)});
   if(!P.pick) throw new Error('ACL (DR) のファイルがありません');
   const A=[P.pick].concat(P.scan.formal.concat(P.scan.temp).filter(a=>a!==P.pick));
@@ -1478,7 +1502,7 @@ function startPage(){
   P.getItem=function(k){ const v=orig.call(this,k); return this===window.localStorage&&k==='leenai_theme'&&v==null?'leenai':v; }; }catch(e){} })();
 LEENAI.addHeaderButton({label:'⚙ 設定', title:'設定 (API キー · 範囲 · マスター)', onClick:()=>openSettings()});
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.3', date:'2026-11-20',
+  sys:'D-00', name:'書類ツール', version:'0.4', date:'2026-11-21',
   desc:'書類担当の進み具合 (Invoice 別 · 契約別) · ACL 照合 · S/I 推薦 — D-01 · D-03 · D-04 をまとめる試験運用版',
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下だけ (履歴 · S/I 控え — DOC.guardOut)
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

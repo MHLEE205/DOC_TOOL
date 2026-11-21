@@ -37,7 +37,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -56,12 +56,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.5) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `903d9231883d394a23563bd9003828ca2dbf1147` | `a62487baa36b3213f91308c4cb158f26248bcedfffd3592bb26cda811e3aaafc` |
+| ACL 대조 (acl_bench v0.6) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `7df63d17288cba2d2e96553b5ea4f8c1a19174f9` | `8425c88030dc369efbfc5c8a9bb6afa51f1f516722ccc9ee266f2aed2bd92345` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
 - v0.3: ACL 파일 고르기 (`aclPick` — DR · ACL-번호 · 本登録 · 仮 …) · 本登録 메일 판단 (`mailKind`) · 결과 화면 (`viewHtml` — acl_bench 결과 화면과 같은 것) 도 엔진에서. 엔진은 **현황판을 열 때** 읽는다 (못 읽으면 ACL 칸 = ?).
 - 엔진을 바꾸면 `tests/engine.js` 가 새 커밋 원문을 읽는다 (CONTRACT_SEND 클론 or raw) — `acl.js` 의 「CONTRACT_SEND/acl_bench.html 그대로」 시험은 클론이 고정 커밋일 때 통과.
+- v0.4: 엔진 v0.6 의 **最終確認** (`res.final` — S/I 내용 항목이 ACL 어딘가에 다 있는가 + 컨테이너 세트) 를 ACL 탭 맨 위에 · 현황판 ACL 상태는 doc-core 표 `ACL_RULE` · `aclJudge` (相違 = 本登録 메일 없음 + 足りない · 세트 違う · Description 외 칸별 相違 / final 없는 옛 결과는 v0.3 규칙).
 - T/T 계약 S/I 추천은 AI 없이 이 TOOL 안에서 (`DOC.ttRecommend`).
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
