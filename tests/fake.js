@@ -16,16 +16,20 @@ function world(){
   W.docStaff=[{iv_code:'AA',importer:'BUYER-A',staff:'STAFF_A'},{iv_code:'BB',importer:'BUYER-B',staff:'STAFF_B'}];
   W.regions=[{cr49f_regionid:g('a',1),cr49f_region:'VIETNAM',cr49f_pod:'SAMPLE PORT VN'},{cr49f_regionid:g('a',2),cr49f_region:'KOREA',cr49f_pod:'SAMPLE PORT KR'},{cr49f_regionid:g('a',3),cr49f_region:'INDONESIA',cr49f_pod:'SAMPLE PORT ID'}];
   W.pols=[{crcf9_region_japanid:g('b',1),crcf9_pol:'SAMPLE POL'}];
-  W.buyers=[{cr49f_buyerid:g('c',1),cr49f_buyer:'BUYER-A',cr49f_buyer_name:'BUYER A CO., LTD.',crcf9_country:1,['crcf9_country'+FVK]:'VIETNAM'},
-    {cr49f_buyerid:g('c',2),cr49f_buyer:'BUYER-B',cr49f_buyer_name:'BUYER B CO., LTD.',crcf9_country:2,['crcf9_country'+FVK]:'KOREA'},
-    {cr49f_buyerid:g('c',3),cr49f_buyer:'BUYER-C',cr49f_buyer_name:'BUYER C CO., LTD.',crcf9_country:3,['crcf9_country'+FVK]:'INDONESIA'}];
-  const ct=(n,no,pay,term,buyer,date)=>({cr49f_sale_contractid:g('d',n),cr49f_sale_contract_no:no,cr49f_pay_cls:pay==='LC'?1:2,['cr49f_pay_cls'+FVK]:pay,cr49f_terms_conditions:term,_cr49f_buyer_id_value:g('c',buyer),['_cr49f_buyer_id_value'+FVK]:'BUYER-'+'ABC'[buyer-1],cr49f_sale_contract_date:date,cr49f_latest_shipment:null});
+  W.buyers=[{cr49f_buyerid:g('c',1),cr49f_buyer:'BUYER-A',cr49f_buyer_name:'BUYER A CO., LTD.',crcf9_country:'VIETNAM'},
+    {cr49f_buyerid:g('c',2),cr49f_buyer:'BUYER-B',cr49f_buyer_name:'BUYER B CO., LTD.',crcf9_country:'KOREA'},
+    {cr49f_buyerid:g('c',3),cr49f_buyer:'BUYER-C',cr49f_buyer_name:'BUYER C CO., LTD.',crcf9_country:'INDONESIA'}];   // v0.6: 実際の形 (文字 · 表示値なし)
+  const ct=(n,no,pay,term,buyer,date)=>({cr49f_sale_contractid:g('d',n),cr49f_sale_contract_no:no,cr49f_pay_cls:pay==='LC'?1:2,['cr49f_pay_cls'+FVK]:pay,cr49f_terms_conditions:term,_cr49f_buyer_id_value:g('c',buyer),['_cr49f_buyer_id_value'+FVK]:String(40+buyer),_cr49f_country_id_value:g('9',buyer),['_cr49f_country_id_value'+FVK]:String(buyer+2),cr49f_sale_contract_date:date,cr49f_latest_shipment:addDays(date,60)+'T00:00:00Z'});   // v0.6: 調べる欄の表示値 = 番号 (実際の COMPASS と同じ · 相手の表の名前の欄が cr49f_id)
   W.contracts=[ct(1,'LRS-2611AA1','LC','CIF',1,addDays(T,-120)),ct(2,'LRS-2611BB1','TT','CFR',2,addDays(T,-120)),ct(3,'LRS-2611CC1','LC','CIF',3,addDays(T,-10))];
   const bk=(n,iv,c,reg,etd,prem,extra)=>Object.assign({cr49f_bookingid:g('e',n),cr49f_invoice_no:iv,cr49f_booking_no:'TESTBK'+n,cr49f_bl_number:'TESTBL'+n,cr49f_etd:etd,crcf9_bl_etd:etd,cr49f_main_ship_name:'SAMPLE VESSEL 00'+n,_cr49f_sale_contract_id_value:g('d',c),_cr49f_region_id_value:g('a',reg),_cr49f_region_japan_id_value:g('b',1),_cr49f_carrier_id_value:null,crcf9_insurance_premiums:prem,modifiedon:'2026-11-01T00:00:00Z'},extra||{});
   W.bookings=[bk(1,'NAA2611-01',1,1,D(3),1000),bk(2,'NAA2611-02',1,1,D(10),null),bk(3,'NBB2611-01',2,2,D(-5),null),bk(4,'NCC2611-01',3,3,D(60),null)];
   W.containers=[{_crcf9_booking_id_value:g('e',1),crcf9_container_no:'TSTU0000001',crcf9_type:'40HC'},{_crcf9_booking_id_value:g('e',1),crcf9_container_no:'TSTU0000002',crcf9_type:'40HC'}];
   const si=(n,c,lc)=>({cr49f_s_iid:g('f',n),_cr49f_sale_contract_id_value:g('d',c),crcf9_sino:1,cr49f_lc_no:lc,crcf9_consignee:'TO ORDER OF SAMPLE BANK',crcf9_notify_party:'SAMPLE NOTIFY CO',crcf9_po_vo:'PO TEST-'+n,crcf9_vo_no:null,crcf9_place_of_delivery_1:'SAMPLE PORT',crcf9_pod_bl1:null,modifiedon:'2026-11-01T00:00:00Z'});
   W.sis=[si(1,1,'TESTLC001'),si(2,2,'')];
+  /* v0.6 販売明細 · 品目 (PORTAL 「販売契約」 と同じ読み方) — 品目の表示値も番号 */
+  W.items=[{cr49f_itemid:g('7',1),cr49f_item:'TEST ITEM OCC'},{cr49f_itemid:g('7',2),cr49f_item:'TEST ITEM ONP'}];
+  const sd=(n,c,it,q,p)=>({cr49f_sale_detailid:g('8',n),_cr49f_sale_contract_id_value:g('d',c),_cr49f_item_id_value:g('7',it),['_cr49f_item_id_value'+FVK]:String(10+it),cr49f_quantity:q,cr49f_price:p});
+  W.sale=[sd(1,1,1,100,250),sd(2,3,1,200.5,1234),sd(3,3,2,50,180)];
   /* SharePoint — 경로 → 항목 */
   const WIP='古紙/-. 古紙書類/▲ 書類作成中', file=(name,mod)=>({id:'i'+Math.random().toString(36).slice(2,9),name,file:{},size:10,lastModifiedDateTime:mod||'2026-11-10T00:00:00Z',webUrl:'https://example.test/sp/'+encodeURIComponent(name)}), dir=name=>({id:'d'+name,name,folder:{childCount:1},webUrl:'https://example.test/sp/'+encodeURIComponent(name)});
   W.sp={};
@@ -55,9 +59,9 @@ function parseFilter(f){   // 「A eq x or A eq y」 · 「A eq 'x'」 · 날짜
 function dvHandle(W,url){
   const u=decodeURIComponent(url.slice(DV.length)); const m=u.match(/^(\w+)(?:\(([^)]+)\))?(?:\?(.*))?$/); if(!m) return [404,{}];
   const ent=m[1], id=m[2], qs=m[3]||'', filt=(qs.match(/\$filter=(.*?)(?:&\$|$)/)||[])[1]||'';
-  const T={cr49f_bookings:W.bookings,cr49f_regions:W.regions,crcf9_region_japans:W.pols,cr49f_sale_contracts:W.contracts,cr49f_buyers:W.buyers,cr49f_s_is:W.sis,crcf9_container_informations:W.containers,cr49f_sale_details:W.sale||[],crcf9_s_i_details:W.dets||[]}[ent];
+  const T={cr49f_bookings:W.bookings,cr49f_regions:W.regions,crcf9_region_japans:W.pols,cr49f_sale_contracts:W.contracts,cr49f_buyers:W.buyers,cr49f_s_is:W.sis,crcf9_container_informations:W.containers,cr49f_sale_details:W.sale||[],crcf9_s_i_details:W.dets||[],cr49f_items:W.items||[]}[ent];
   if(!T) return [404,{error:{message:'no table '+ent}}];
-  const pk={cr49f_bookings:'cr49f_bookingid',cr49f_regions:'cr49f_regionid',crcf9_region_japans:'crcf9_region_japanid',cr49f_sale_contracts:'cr49f_sale_contractid',cr49f_buyers:'cr49f_buyerid',cr49f_s_is:'cr49f_s_iid',crcf9_s_i_details:'crcf9_s_i_detailid'}[ent];
+  const pk={cr49f_bookings:'cr49f_bookingid',cr49f_regions:'cr49f_regionid',crcf9_region_japans:'crcf9_region_japanid',cr49f_sale_contracts:'cr49f_sale_contractid',cr49f_buyers:'cr49f_buyerid',cr49f_s_is:'cr49f_s_iid',crcf9_s_i_details:'crcf9_s_i_detailid',cr49f_items:'cr49f_itemid',cr49f_sale_details:'cr49f_sale_detailid'}[ent];
   if(id){ const r=T.find(x=>x[pk]===id); return r?[200,clone(r)]:[404,{}]; }
   let rows=T;
   if(/cr49f_etd ge/.test(filt)){ const d=filt.match(/\d{4}-\d{2}-\d{2}/g); rows=T.filter(r=>[r.cr49f_etd,r.crcf9_bl_etd].some(v=>v&&v.slice(0,10)>=d[0]&&v.slice(0,10)<=d[1])); }

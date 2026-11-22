@@ -24,7 +24,8 @@ const HEAD=['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','
   const bid={'b-sg':G('b500',1),'b-ca':G('b500',2)};
   FX.BUYERS.forEach(b=>W.buyers.push(Object.assign({},b,{cr49f_buyerid:bid[b.cr49f_buyerid],['crcf9_country'+FVK]:b.crcf9_country})));
   FX.SC.forEach(c=>W.contracts.push(Object.assign({},c,{cr49f_sale_contractid:cid[c.cr49f_sale_contract_no],_cr49f_buyer_id_value:bid[c._cr49f_buyer_id_value],['cr49f_pay_cls'+FVK]:'LC',_cr49f_pod1_value:null})));
-  W.sale=FX.NOS.map(no=>({cr49f_sale_detailid:sdid[no],_cr49f_sale_contract_id_value:cid[no],cr49f_price:200,cr49f_quantity:500,_cr49f_item_id_value:item,['_cr49f_item_id_value'+FVK]:'OCC'}));
+  W.sale=FX.NOS.map(no=>({cr49f_sale_detailid:sdid[no],_cr49f_sale_contract_id_value:cid[no],cr49f_price:200,cr49f_quantity:500,_cr49f_item_id_value:item,['_cr49f_item_id_value'+FVK]:'13'}));   // v0.6: 品目の表示値は番号 (実際の形) — 名前は cr49f_items
+  W.items=[{cr49f_itemid:item,cr49f_item:'OCC'}];
   W.dets=[]; let k=0;
   FX.NOS.filter(no=>no!=='LRS-2605SG1').forEach(no=>FX.siOf(no).forEach(h=>{ const id=G('51'+String(h.crcf9_sino),++k); W.sis.push(Object.assign({},h,{cr49f_s_iid:id,_cr49f_sale_contract_id_value:cid[no]}));
     W.dets.push({crcf9_s_i_detailid:G('de00',k),_crcf9_s_i_id_value:id,_crcf9_sale_detail_id_value:sdid[no],_crcf9_item_id_value:item,crcf9_productname:'OCC',crcf9_hs_code:'HS CODE: 47071000',crcf9_weight:500,crcf9_price:200,modifiedon:'2026-03-16T00:00:00Z'}); }));

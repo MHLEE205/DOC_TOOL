@@ -14,8 +14,8 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   /* ── 일반 담당자 (STAFF_A) ── */
   let W=X.world(), w=await P(W,{html});
   ok(/読み込み完了/.test(txt(w,'dtProg')),'읽기 완료',txt(w,'dtProg'));
-  ok(w.document.title==='LEENAI D-00 書類ツール v0.5','title · version 0.5');
-  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.5','LEENAI.init 설정 (redirectUri · sys · version)');
+  ok(w.document.title==='LEENAI D-00 書類ツール v0.6','title · version 0.6');
+  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.6','LEENAI.init 설정 (redirectUri · sys · version)');
   ok(/試験運用/.test(txt(w,'ln-hdr-right'))&&/山田/.test(txt(w,'ln-hdr-right')),'오른쪽 위 試験運用 · 내 이름',txt(w,'ln-hdr-right'));
   ok(!w.document.querySelector('#dtMain input[type=password]'),'평소 화면에 API 키 칸 없음');
   ok(JSON.stringify(ivs(w))===JSON.stringify(['NAA2611-01','NAA2611-02']),'自分の担当 = 내 Invoice 만 (ETD 순)',ivs(w));
@@ -71,13 +71,13 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   const cts=[...w.document.querySelectorAll('#dtTable button.dt-link[data-ct]')].map(b=>b.textContent);
   /* v0.3 (형님 D5): 계약별 = 계약일 直近1ヶ月 (기본) · 계약일 역순 — 가짜 계약일: AA1 · BB1 = 120 일 전 · CC1 = 10 일 전 */
   ok(JSON.stringify(cts)===JSON.stringify(['LRS-2611CC1']),'v0.3 계약별 — 直近1ヶ月 (기본) = 10 일 전 계약만',cts);
-  click(w,'#dtCtPeriod button[data-months="6"]');
+  click(w,'#dtCtPeriod button[data-days="180"]');
   const cts6=[...w.document.querySelectorAll('#dtTable button.dt-link[data-ct]')].map(b=>b.textContent);
-  ok(JSON.stringify(cts6)===JSON.stringify(['LRS-2611CC1','LRS-2611BB1','LRS-2611AA1'])&&w.localStorage.getItem('doc_tool_ct_months')==='6','v0.3 直近6ヶ月 → 계약일 역순 (같은 날 = 번호 역순) · 기억',cts6);
+  ok(JSON.stringify(cts6)===JSON.stringify(['LRS-2611CC1','LRS-2611BB1','LRS-2611AA1'])&&w.localStorage.getItem('doc_tool_ct_days')==='180','v0.3 直近6ヶ月 (v0.6: 180 日) → 계약일 역순 (같은 날 = 번호 역순) · 기억',cts6);
   const ctCell=no=>[...[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>t.textContent.indexOf(no)>=0).querySelectorAll('td.c .st')].map(s=>s.textContent);
   ok(JSON.stringify(ctCell('LRS-2611AA1'))===JSON.stringify(['済','済'])&&JSON.stringify(ctCell('LRS-2611BB1'))===JSON.stringify(['—','済'])&&JSON.stringify(ctCell('LRS-2611CC1'))===JSON.stringify(['待ち','待ち']),'계약 LC · S/I 칸',[ctCell('LRS-2611AA1'),ctCell('LRS-2611BB1'),ctCell('LRS-2611CC1')]);
   { const th=[...w.document.querySelectorAll('#dtTable thead th')].map(x=>x.textContent);
-    ok(JSON.stringify(th)===JSON.stringify(['契約番号','契約日','国','バイヤー','POD','決済','担当','LC','S/I'])&&!/出港済/.test(txt(w,'dtTable')),'v0.3 계약별 열 = 契約番号 · 契約日 · 国 · バイヤー · POD · 決済 · 担当 | LC · S/I (船積 · 次の ETD 없음)',th); }
+    ok(JSON.stringify(th)===JSON.stringify(['契約番号','契約日','国','バイヤー','ITEM','QTY(MT)','単価($/MT)','最終船積日','担当','LC','S/I'])&&!/出港済/.test(txt(w,'dtTable')),'v0.6 계약별 열 = 契約番号 · 契約日 · 国 · バイヤー · ITEM · QTY(MT) · 単価 · 最終船積日 · 担当 | LC · S/I (POD · 決済 없음)',th); }
 
   /* 검색 → 상세 */
   const search=async q=>{ w.document.getElementById('dtQ').value=q; click(w,'#dtGo'); await X.sleep(30); };

@@ -29,7 +29,7 @@ for(const t of ['dark','light','leenai','focus']){
   const need=[['text','surface',4.5,'글자'],['text2','surface',4.5,'글자 2'],['text3','surface',4.5,'글자 3 (설명)'],['text3','bg',4.5,'글자 3 / 배경'],['text','bg',4.5,'글자 / 배경'],['accent','surface',4.5,'링크'],['dt-on-accent','accent-btn',4.5,'버튼 글자'],
     ['st-done-fg','st-done-bg',4.5,'済'],['st-todo-fg','st-todo-bg',4.5,'確認'],['st-diff-fg','st-diff-bg',4.5,'相違'],['st-wait-fg','st-wait-bg',4.5,'待ち'],['st-unk-fg','st-unk-bg',4.5,'?'],['st-na-fg','surface',4.5,'— 대상 외'],
     ['st-diff-fg','surface',4.5,'오류 글자'],['st-done-fg','surface',4.5,'완료 글자'],['st-todo-fg','st-todo-bg',4.5,'XX 칸'],['text','dt-hl',4.5,'요확인 줄 글자'],['text','dt-now',4.5,'いまここ 탭 글자'],['st-done-fg','dt-now',4.5,'いまここ 표시'],
-    ['st-done-fg','surface',3,'점 済'],['st-todo-fg','surface',3,'점 確認'],['st-diff-fg','surface',3,'점 相違'],['dt-dot-wait','surface',3,'점 待ち · ?'],['st-unk-fg','st-unk-bg',3,'? 테두리'],['st-todo-fg','surface',3,'요확인 입력칸 테두리'],['accent-btn','surface',3,'선택 탭 밑줄']];
+    ['st-done-fg','surface',3,'점 済'],['st-todo-fg','surface',3,'점 確認'],['st-diff-fg','surface',3,'점 相違'],['dt-dot-wait','surface',3,'점 待ち'],['dt-dot-unk','surface',3,'점 ? 테두리 (v0.6 따로)'],['st-wait-fg','surface',4.5,'待ち 글자 / 면 (v0.6 바탕 거의 없음)'],['st-wait-fg','bg',4.5,'待ち 글자 / 배경'],['st-unk-fg','st-unk-bg',3,'? 테두리'],['st-todo-fg','surface',3,'요확인 입력칸 테두리'],['accent-btn','surface',3,'선택 탭 밑줄']];
   need.forEach(([f,b,min,l])=>{ const r=cr(get(f),get(b)); table.push([t,l,r.toFixed(2)]); ok(r>=min,t+' · '+l+' 대비 '+r.toFixed(2)+' ≥ '+min,[f,get(f),b,get(b)]); });
 }
 if(process.env.THEME_TABLE) table.forEach(r=>console.log(r.join('\t')));

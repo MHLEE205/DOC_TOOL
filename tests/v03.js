@@ -39,7 +39,7 @@ eq(DOC.jstDay('2026-11-17T20:00:00Z'),'2026-11-18','날짜 = 일본 시간');
 eq([E.mailKind('ご訂正ありがとうございます。本登録をお願いします。'),E.mailKind('Seal No →ABC ご訂正をお願いします。'),E.mailKind('D/Rを確認致しました。本登録お願いします。')],['本登録','訂正依頼','本登録'],'「ご訂正ありがとうございます…本登録を」 → 本登録 (엔진 MAIL_RULE 그대로)');
 /* #7 契約別 규칙 */
 eq(['LRS-2611AA1','UCS-26110BB2','LS-2611C3','TEST01','LRS2611AA1','lrs-2611aa1'].map(n=>DOC.CT_REAL.test(DOC.up(n))),[true,true,true,false,false,true],'실제 계약번호 모양 (LRS- · UCS- · LS-) · TEST01 · 하이픈 없음 → 제외');
-eq(DOC.CT_PERIODS.map(p=>p[1]),['直近1ヶ月','直近2ヶ月','直近3ヶ月','直近6ヶ月'],'기간 4가지 (PORTAL 과 같은 말)');
+eq(DOC.CT_PERIODS.map(p=>p[1]),['直近2週間','直近1ヶ月','直近3ヶ月','直近6ヶ月'],'기간 4가지 (v0.6: PORTAL 과 같은 말 · 直近2週間 + 直近6ヶ月 남김)');
 eq([DOC.monthsAgo('2026-11-20',1),DOC.monthsAgo('2026-03-31',1),DOC.monthsAgo('2026-11-20',6)],['2026-10-20','2026-02-28','2026-05-20'],'n 개월 전 (말일 맞춤)');
 eq(DOC.sortCtDate([{ct:'A',date:'2026-11-01'},{ct:'C',date:'2026-11-10'},{ct:'B',date:'2026-11-10'}]).map(r=>r.ct),['C','B','A'],'계약일 역순 (같은 날 = 번호 역순)');
 
@@ -101,16 +101,16 @@ const CSV_H='発信者,発信日時(JST),月,件名,返信/転送,件名規則,�
 { /* #7 契約別 — TEST01 제외 · 국 · POD · 계약일 */
   const W=X.world(), FVK='@OData.Community.Display.V1.FormattedValue', g=X.g;
   W.contracts.push({cr49f_sale_contractid:g('d',9),cr49f_sale_contract_no:'TEST01',cr49f_pay_cls:2,['cr49f_pay_cls'+FVK]:'TT',cr49f_terms_conditions:'CFR',_cr49f_buyer_id_value:g('c',1),cr49f_sale_contract_date:X.addDays(W.T,-3)});
-  Object.assign(W.contracts[2],{_cr49f_pod1_value:g('a',3),['_cr49f_pod1_value'+FVK]:'SAMPLE PORT ID',_cr49f_country_id_value:g('a',3),['_cr49f_country_id_value'+FVK]:'INDONESIA'});
+  Object.assign(W.contracts[2],{_cr49f_pod1_value:g('a',3),['_cr49f_pod1_value'+FVK]:'31'});   // v0.6: 表示値は番号 (実際の形)
   const w=await X.page(W,{ls:{doc_tool_who:'all',doc_tool_board:'ct'}});
-  const rows=$$(w,'#dtTable tbody tr').map(tr=>[...tr.querySelectorAll('td')].slice(0,7).map(td=>td.textContent));
-  eq(rows,[['LRS-2611CC1',X.addDays(W.T,-10),'INDONESIA','BUYER-C','SAMPLE PORT ID','LC','担当未登録']],'#7 直近1ヶ月 · 열 (契約番号 · 契約日 · 国 · バイヤー · POD · 決済 · 担当) · TEST01 제외');
+  const rows=$$(w,'#dtTable tbody tr').map(tr=>[...tr.querySelectorAll('td')].slice(0,9).map(td=>td.textContent));
+  eq(rows,[['LRS-2611CC1',X.addDays(W.T,-10),'INDONESIA','BUYER-C','TEST ITEM OCC','200.50','$1,234',X.addDays(W.T,50),'担当未登録'],['',X.addDays(W.T,-10),'INDONESIA','BUYER-C','TEST ITEM ONP','50.00','$180',X.addDays(W.T,50),'担当未登録']],'#7 直近1ヶ月 · 열 (v0.6: 契約番号 · 契約日 · 国 · バイヤー · ITEM · QTY · 単価 · 最終船積日 · 担当 — 명세 2 줄) · TEST01 제외');
   ok(/試験などの契約 1 件は出していません/.test(txt(w,'dtTable'))&&/TEST01/.test(w.document.querySelector('#dtTable .dt-note').getAttribute('title')),'#7 제외 건수 표시 (마우스 = 번호)');
-  eq($$(w,'#dtCtPeriod button').map(b=>b.textContent),['直近1ヶ月','直近2ヶ月','直近3ヶ月','直近6ヶ月'],'#7 기간 4가지 (契約別에만)');
+  eq($$(w,'#dtCtPeriod button').map(b=>b.textContent),['直近2週間','直近1ヶ月','直近3ヶ月','直近6ヶ月'],'#7 기간 4가지 (契約別에만)');
   ok(w.document.getElementById('dtIvCtl').style.display==='none','#7 ETD · FD済み 조작은 契約別에서 숨김');
-  w.document.querySelector('#dtCtPeriod button[data-months="3"]').click(); eq($$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent),['LRS-2611CC1'],'直近3ヶ月 (120 일 전 계약은 아직 밖)');
-  w.document.querySelector('#dtCtPeriod button[data-months="6"]').click(); eq($$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent),['LRS-2611CC1','LRS-2611BB1','LRS-2611AA1'],'直近6ヶ月 → 계약일 역순');
-  w.document.getElementById('dtTodo').click(); ok($$(w,'#dtTable tbody tr').every(tr=>[...tr.querySelectorAll('td.c .st')].some(s=>/確認|相違/.test(s.textContent))),'要対応 = LC · S/I 가 確認 · 相違');
+  w.document.querySelector('#dtCtPeriod button[data-days="90"]').click(); eq($$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent),['LRS-2611CC1'],'直近3ヶ月 (120 일 전 계약은 아직 밖)');
+  w.document.querySelector('#dtCtPeriod button[data-days="180"]').click(); eq($$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent),['LRS-2611CC1','LRS-2611BB1','LRS-2611AA1'],'直近6ヶ月 → 계약일 역순');
+  w.document.getElementById('dtTodo').click(); ok($$(w,'#dtTable tbody tr').filter(tr=>tr.querySelector('button[data-ct]')).every(tr=>[...tr.querySelectorAll('td.c .st')].some(s=>/確認|相違/.test(s.textContent))),'要対応 = LC · S/I 가 確認 · 相違');
 }
 { /* #8 처음 색 = LEENAI (공통 파일 키 leenai_theme 없을 때만 · 키는 쓰지 않음) · 고른 뒤 기억 */
   const W=X.world(), w=await X.page(W,{ls:{doc_tool_who:'all'}}), raw=k=>{ for(let i=0;i<w.localStorage.length;i++) if(w.localStorage.key(i)===k) return 'set'; return null; };
