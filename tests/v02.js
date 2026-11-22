@@ -129,14 +129,14 @@ w.document.querySelector('#dtIv [data-back]').click();
 /* #2 현황판 칸 누르면 그 탭 */
 const row=$$(w,'#dtTable tbody tr').find(t=>/NAA2611-01/.test(t.textContent));
 const blBtn=row.querySelectorAll('td.c button.st')[3]; ok(blBtn&&blBtn.dataset.tab==='bl'&&blBtn.textContent==='確認','현황판 상태 = 누를 수 있음 (B/L 確認)');
-blBtn.click(); await X.until(()=>w.document.getElementById('dtIv').style.display==='flex');
+blBtn.click(); await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&!!w.document.querySelector('#dtIvTabs button'));
 ok(w.document.querySelector('#dtIvTabs button.on').dataset.tab==='bl'&&w.document.querySelector('#dtIvTabs button.now').dataset.tab==='acl','눌러서 들어오면 그 탭 · いまここ 는 따로 (ACL)');
 w.document.querySelector('#dtIv [data-back]').click();
-$$(w,'#dtTable tbody tr').find(t=>/NAA2611-01/.test(t.textContent)).querySelectorAll('td.c button.st')[1].click(); await X.until(()=>w.document.getElementById('dtIv').style.display==='flex');
+$$(w,'#dtTable tbody tr').find(t=>/NAA2611-01/.test(t.textContent)).querySelectorAll('td.c button.st')[1].click(); await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&!!w.document.querySelector('#dtIvTabs button'));
 ok(w.document.querySelector('#dtIvTabs button.on').dataset.tab==='acl','相違 칸을 눌러 → ACL 탭');
 ok(!$$(w,'#dtTable td.c button.st-na').length,'대상 외 (—) 는 누를 수 없음');
 /* #6 계약 상세 툴팁 */
-w.document.querySelector('#dtIvSum button[data-goct]').click(); await X.until(()=>w.document.getElementById('dtCt').style.display==='flex');
+w.document.querySelector('#dtIvSum button[data-goct]').click(); await X.until(()=>w.document.getElementById('dtCt').style.display==='flex'&&!!w.document.querySelector('#dtCtTabs button'));
 const shipDiv=[...w.document.querySelectorAll('#dtCtSum > div')].find(d=>/出港済/.test(d.textContent));
 ok(shipDiv&&/ETD \(B\/L ETD 優先\) が過ぎたもの 0 件/.test(shipDiv.getAttribute('title')),'出港済 툴팁',shipDiv&&shipDiv.getAttribute('title'));
 ok(!w.document.querySelector('#dtCtTabs button.now')&&w.document.querySelectorAll('#dtCtTabs .dot').length===2,'계약 상세 탭도 점 (LC · S/I 済 → いまここ 없음)');
@@ -144,7 +144,7 @@ ok(!w.document.querySelector('#dtCtTabs button.now')&&w.document.querySelectorAl
 w.document.querySelector('#dtCtTabs button[data-tab="si"]').click(); await X.sleep(30);
 ok(!w.document.querySelector('[data-open="a1"]')&&!w.document.querySelector('[data-open="acl"]'),'직원 — 시험 페이지 버튼 없음');
 let W2=X.world(), w2=await X.page(W2,{email:'boss@example.test'});
-w2.document.getElementById('dtQ').value='LRS-2611AA1'; w2.document.getElementById('dtGo').click(); await X.until(()=>w2.document.getElementById('dtCt').style.display==='flex');
+w2.document.getElementById('dtQ').value='LRS-2611AA1'; w2.document.getElementById('dtGo').click(); await X.until(()=>w2.document.getElementById('dtCt').style.display==='flex'&&!!w2.document.querySelector('#dtCtTabs button'));
 w2.document.querySelector('#dtCtTabs button[data-tab="si"]').click(); await X.until(()=>!!w2.document.querySelector('#dtCtBody [data-open="a1"]'),5000).catch(()=>{});
 ok(!!w2.document.querySelector('#dtCtBody [data-open="a1"]'),'관리자 — a1_bench を開く 있음 (L/C 계약)');
 

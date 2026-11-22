@@ -11,7 +11,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 
 (async()=>{
 /* 엔진 고정 */
-ok(P.ver==='0.6'&&typeof E.finalView==='function'&&typeof E.finalCheck==='function','엔진 고정 = acl_bench v0.6 (커밋 '+P.commit.slice(0,7)+' · sha256 확인 — engine.js 가 다르면 멈춤)',P);
+ok(+P.ver>=0.6&&typeof E.finalView==='function'&&typeof E.finalCheck==='function','엔진 고정 = acl_bench v'+P.ver+' (v0.6 이상 — 最終確認 있음 · 커밋 '+P.commit.slice(0,7)+' · sha256 확인 — engine.js 가 다르면 멈춤)',P);
 /* 상태 규칙 표 */
 eq(DOC.ACL_RULE.map(r=>r[1]),['待ち','相違','確認','済'],'ACL 상태 표 4줄 (待ち · 相違 · 確認 · 済) — 규칙은 doc-core 표 1곳');
 /* aclJudge */
@@ -46,7 +46,7 @@ eq([c2.final&&c2.final.short, c3.final&&c3.final.short],['最終確認 ✗ 1','�
   const cell=iv=>{ const tr=[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>t.textContent.indexOf(iv)>=0); return tr?tr.querySelectorAll('td.c .st')[1]:null; };
   ok(cell('NAA2611-01').textContent==='相違'&&/^最終確認 ✗ 1/.test(cell('NAA2611-01').getAttribute('title')),'현황판 칸 = 相違 · 툴팁 「最終確認 ✗ 1」',cell('NAA2611-01').getAttribute('title'));
   w.document.getElementById('dtQ').value='NAA2611-01'; w.document.getElementById('dtGo').click();
-  await X.until(()=>w.document.getElementById('dtIv').style.display==='flex');
+  await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&!!w.document.querySelector('#dtIvTabs button'));
   w.document.querySelector('#dtIvTabs button[data-tab="acl"]').click();
   const B=w.document.getElementById('dtIvBody'), F=B.querySelector('.av-final'), html=B.innerHTML;
   ok(F&&html.indexOf('av-final')<html.indexOf('項目ごとの確認')&&/✗ 足りない内容 1 項目/.test(F.textContent)&&/SAMPLE ROAD 9/.test(F.textContent)&&/本登録: まだ/.test(F.textContent),'ACL 탭 맨 위 = 最終確認 (✗ 足りない内容 1 項目 · 항목 · 本登録) → 그 아래 項目ごとの確認',F&&F.textContent);
