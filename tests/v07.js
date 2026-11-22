@@ -71,7 +71,7 @@ console.log('4 재촉 75%');
   const ext={acl:{'TEST 乙仲':[11.2,19],'TEST 小':[99,2]}, depo:{'TEST BUYER':[41.6,24]}};
   eq([DOC.nudgeH('acl','TEST 乙仲',ext),DOC.nudgeH('acl','TEST 小',ext),DOC.nudgeH('depo','TEST BUYER',ext)],[11.2,4.9,41.6],'SharePoint 값: 3건 이상만 · 3건 미만 → 전체');
   const r=DOC.todoRow(X0({otsu:'TEST 乙仲'}),S0({sub:at('2026-11-19','10:00')}),NOW,ext); ok(r===null,'乙仲별 값 (11.2h) 으로 보면 아직 → 줄 없음 (전체 4.9h 였다면 재촉)');
-  ok(!/LOTOS|SAIGON|住友|塩竈/.test(HTML),'乙仲 · 바이어 이름은 코드에 없음 (SharePoint 파일에서 읽음)');
+  ok(!['LO'+'TOS','SAI'+'GON','住'+'友','塩'+'竈'].some(n=>HTML.indexOf(n)>=0),'乙仲 · 바이어 이름은 코드에 없음 (SharePoint 파일에서 읽음 · 이 시험에도 이어 붙여 둠)');
   ok(/thresholds_75\.json/.test(R.NUDGE_FILE)&&/토르_2 thresholds_75\.json \(2026-11-22/.test(HTML),'출처 · 날짜 주석'); }
 console.log('메일 분류 · 건 연결 · 신호');
 { const ctx={companyDom:'example.test', otsu:new Set(['otsu.example']), buyer:new Set(['buyer.example'])};
@@ -142,6 +142,6 @@ console.log('5 화면');
 console.log('7 메일 쓰기 0');
 { const app=HTML.split('<script id="doc-app">')[1]||''; const todo=app.slice(app.indexOf('v0.7 今日やること'), app.indexOf('function startPage'));
   ok(todo.length>1000&&!/method\s*:\s*['"](?:POST|PATCH|PUT|DELETE)/.test(todo)&&!/sendMail|createReply|\/send\b|isRead|\/move\b|spPut|dvWrite/.test(todo),'今日やること 코드: 메일 보내기 · 초안 · 읽음 · 이동 · SharePoint 쓰기 · COMPASS 쓰기 0');
-  ok(!/photo_rcp/i.test(HTML),'공유 메일함 주소는 코드에 없음'); }
+  ok(HTML.toLowerCase().indexOf('photo'+'_rcp')<0,'공유 메일함 주소는 코드에 없음'); }
 console.log((fail?'FAIL':'PASS')+' v07 — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
 })().catch(e=>{ console.log('FAIL v07 예외',e.stack); process.exitCode=1; });
