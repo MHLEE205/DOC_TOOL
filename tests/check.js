@@ -7,7 +7,7 @@ const re=/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g; let m,n=0,fail=0;
 while((m=re.exec(html))){ n++; const f=path.join(os.tmpdir(),'dtchk_'+n+'.js'); fs.writeFileSync(f,m[1]); try{ cp.execFileSync(process.execPath,['--check',f],{stdio:'pipe'}); }catch(e){ fail++; console.log('FAIL script',n,String(e.stderr).slice(0,500)); } }
 const code=html.replace(/\/\*[\s\S]*?\*\//g,'').replace(/(^|[^:'"`])\/\/[^\n]*/g,'$1');   // 주석 제외
 /* 쓰기 경로: SharePoint PUT 은 spPut 하나 (DOC.guardOut 먼저) · COMPASS 쓰기 (PATCH/POST) 는 dvWrite 하나 (DOC.guardDv 먼저) · DELETE 없음 */
-const sp=code.match(/async function spPut\([^)]*\)\{\s*\/?\/?[^\n]*\n?\s*DOC\.guardOut\(p\);/);
+const sp=code.match(/async function spPut\([^)]*\)\{\s*\/?\/?[^\n]*\n?\s*DOC\.guardOut\(p(?:, ?save)?\);/);   // v0.9: save (ACL の保存) も同じ門番
 const putCalls=(code.match(/method:'PUT'/g)||[]).length;
 const sendLines=code.split('\n').filter(l=>/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)), dvWrites=sendLines.filter(l=>!/method:'PUT'/.test(l)).length;   // 보내는 요청 (fetch 에 method) 줄
 const dvWriteFns=(code.match(/async function dvWrite\(/g)||[]).length;

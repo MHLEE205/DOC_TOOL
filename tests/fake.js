@@ -74,10 +74,19 @@ function fakeFetch(W){
   const res=(st,body,text)=>({ok:st>=200&&st<300,status:st,statusText:String(st),headers:{get:()=>null},json:async()=>clone(body),text:async()=>text!=null?text:JSON.stringify(body),arrayBuffer:async()=>Buffer.from(text||'')});
   return async(url,init)=>{
     init=init||{}; const method=(init.method||'GET').toUpperCase(); W.req.push(method+' '+url);
-    if(method!=='GET'){ W.writes.push({method,url,body:init.body}); if(url.indexOf(GR)===0){ return res(201,{size:1}); } return res(204,{}); }
+    if(method!=='GET'){ W.writes.push({method,url,body:init.body});
+      /* v0.9: 保存の入口 — 名前がもう使われている (409) の試験 */
+      if(W.putFail){ const st=W.putFail(decodeURIComponent(url)); if(st) return res(st,{error:{code:'nameAlreadyExists',message:'already exists'}}); }
+      if(url.indexOf(GR)===0){ return res(201,{size:1}); } return res(204,{}); }
+    /* v0.9: メールの添付 (GET · $value) · フォルダのファイルの中身 (items/{id}/content) */
+    const ab=b=>({ok:true,status:200,headers:{get:()=>null},arrayBuffer:async()=>{ const u=new Uint8Array(b); return u.buffer.slice(u.byteOffset,u.byteOffset+u.length); }});
+    { const mm=url.match(/\/me\/messages\/([^/]+)\/attachments\/([^/]+)\/\$value$/); if(mm){ const b=W.attBytes&&W.attBytes[mm[1]+'|'+mm[2]]; return b?ab(b):res(404,{}); } }
+    { const mm=url.match(/\/items\/([^/]+)\/content$/); if(mm&&W.itemBytes&&W.itemBytes[mm[1]]) return ab(W.itemBytes[mm[1]]); }
     /* v0.3: acl_bench エンジン (raw · 커밋 고정) · 메일함 (me/messages — 읽기만) */
     if(url.indexOf('https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/')===0&&/acl_bench\.html$/.test(url)){ const b=W.aclEngine; if(!b) return res(404,{}); return {ok:true,status:200,headers:{get:()=>null},arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.length)}; }
-    if(url.indexOf('https://graph.microsoft.com/v1.0/me/messages')===0){ W.mailReads=(W.mailReads||0)+1; if(W.mailErr) return res(W.mailErr,{error:{code:'ErrorAccessDenied'}}); return res(200,{value:clone(W.messages||[])}); }
+    if(url.indexOf('https://graph.microsoft.com/v1.0/me/messages')===0){ W.mailReads=(W.mailReads||0)+1; if(W.mailErr) return res(W.mailErr,{error:{code:'ErrorAccessDenied'}});
+      /* v0.9: receivedDateTime ge … (保存の入口のメール) — 日付で絞る */
+      const ge=decodeURIComponent(url).match(/receivedDateTime ge ([0-9T:.\-Z]+)/); return res(200,{value:clone((W.messages||[]).filter(m=>!ge||!m.receivedDateTime||m.receivedDateTime>=ge[1]))}); }
     if(url.indexOf(DV)===0){ const [st,b]=dvHandle(W,url); return res(st,b); }
     if(url.indexOf(GR)===0){
       const p=decodeURIComponent(url.slice(GR.length));
@@ -105,7 +114,7 @@ async function page(W, opt){
     w.open=(u)=>{ W.opened.push(u); return null; }; Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{ W.copied=t; }}});
     /* v0.7: 最初の画面は 今日やること — v0.6 までの試験は 前の現況板 (doc_tool_board · 既定 Invoice 別) で開く (opt.first なら何も入れない = 本当の最初の画面) */
     const L=Object.assign({},opt.ls||{}); if(!opt.first&&L.doc_tool_board_v7===undefined) L.doc_tool_board_v7=L.doc_tool_board||'iv';
-    Object.entries(L).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; }});
+    Object.entries(L).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; if(opt.init) opt.init(w); }});
   const w=dom.window; await until(()=>/読み込み完了|読み込み失敗/.test(w.document.getElementById('dtProg').textContent));
   return w;
 }

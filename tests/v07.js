@@ -140,7 +140,7 @@ console.log('5 화면');
   ok(/asof 2026-11-20 09:00/.test(w2.document.querySelector('.td-asof')&&w2.document.querySelector('.td-asof').textContent),'5 asof — 관리자 → 그 시각으로 계산 · 표시');
   eq([DOC.parseAsof('2026-11-20T09:00'),DOC.parseAsof('2026-11-20 09:00'),DOC.parseAsof('x')],[at('2026-11-20','09:00'),null,null],'asof 모양'); }
 console.log('7 메일 쓰기 0');
-{ const app=HTML.split('<script id="doc-app">')[1]||''; const todo=app.slice(app.indexOf('v0.7 今日やること'), app.indexOf('function startPage'));
+{ const app=HTML.split('<script id="doc-app">')[1]||''; const todo=app.slice(app.indexOf('v0.7 今日やること'), app.indexOf('v0.9 保存の入口')>0?app.indexOf('v0.9 保存の入口'):app.indexOf('function startPage'));
   ok(todo.length>1000&&!/method\s*:\s*['"](?:POST|PATCH|PUT|DELETE)/.test(todo)&&!/sendMail|createReply|\/send\b|isRead|\/move\b|spPut|dvWrite/.test(todo),'今日やること 코드: 메일 보내기 · 초안 · 읽음 · 이동 · SharePoint 쓰기 · COMPASS 쓰기 0');
   ok(HTML.toLowerCase().indexOf('photo'+'_rcp')<0,'공유 메일함 주소는 코드에 없음'); }
 console.log((fail?'FAIL':'PASS')+' v07 — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;

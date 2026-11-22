@@ -37,13 +37,14 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 · v0.6 = 2026-11-22)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
 5. **쓰기 문지기**
    - SharePoint 쓰기 = `spPut` 하나 → `DOC.guardOut` (`古紙/-. AI 活用/D-00/doc_tool/` 아래만 · `conflictBehavior=fail` · 덮어쓰지 않음).
    - COMPASS 쓰기 = `dvWrite` 하나 → `DOC.guardDv` (S/I · S/I 명세 · 이 계약 · 정해진 칸 · PATCH(`If-Match:*`)/POST 만 · DELETE 없음). S/I 탭 「COMPASS に書き込む」 만 쓴다.
+   - **v0.9 ACL 保存** = 같은 `spPut` 에 `save={iv, folder, test}` → `DOC.guardSave` — 시험 = `doc_tool/save_test/{IV}/` · 본번 = 그 Invoice 폴더 (書類作成中 · _OLD_DOC) · 이름은 `{IV}_ACL.pdf` / `{IV}_ACL REV.pdf` / `REV2` … 만. 새 파일만 (`conflictBehavior=fail` · 409 → 다음 이름을 다시 확인).
    - MASTER (`master_*.json`) 는 쓰지 않는다. confirm / alert 쓰지 않는다.
 6. **실제 값은 레포에 넣지 않는다** — 시험은 가짜 번호 (`TEST…` · `2699` · `example.test`). 실제 자료 확인 스크립트는 레포 밖 (PC 의 작업 폴더) 에서 돌리고, 결과는 숫자만 보고서에.
 7. **보안 grep** — push 전에 `ghp_ · github_pat_ · sk-ant · client_secret · AKIA` 0 (check.js 가 index.html 을 본다 · 새 파일도 직접 grep).
@@ -77,6 +78,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 담당 칩 = master `staff` 이름 전체 · 보조 = staff 의 `doc_role` = `書類補助` (기간 칸 없음) → 「{이름}・補助」 (= 서류 일 전체). 표시가 없으면 「補助（書類全体）」.
   - 今日やること: B/L 받은 건의 FD = 「本日」 묶음 (期限切れ 다음) · 다음 영업일이면 「昨日 B/L 受領」.
   - **고칠 때 주의**: 이미 있는 코드 줄 끝에 `//` 주석을 붙이지 말 것 (같은 줄 뒤의 코드가 주석이 되어 사라진 일이 3번) — 주석은 따로 줄로.
+
+- **v0.9 保存の入口** — 규칙 · 종류 표 · 이름은 doc-core `DOC.SAVE_RULES` **한 곳** (`saveKind` · `saveCands` · `saveJudge` · `saveBump` · `guardSave` · `textKeyOf`). 입구 2 개 → 처리 1 개:
+  - 입구 A 메일 = 로그인한 사람의 메일함 **GET 만** (최근 5 영업일 · 첫 읽기 후 1 번 + 「メールを確認」) · 회사 도메인 (담당자) 이 보낸 메일은 뺌 · 輸出許可 첨부는 안 냄 · `save_log` 에 있는 메일 id + 첨부는 다시 안 냄.
+  - 입구 B 놓기 = 화면 어디든 PDF · ACL 탭에서 놓으면 그 Invoice 먼저 (Booking 다르면 경고).
+  - 판단: 같은 해시 = 重複 · 같은 글자 = 同じ内容 · 아니면 다음 판 (옛 이름 파일도 1 판으로 셈). 기본 = 확인 (「保存する」) · 관리자 스위치 「確実なら確認なしで保存」 (기본 끔) · 「試験モード」 (관리자 · 저장 = `save_test/`).
+  - 저장 기록 = `doc_tool/save_log/{yyyymmdd}/{stamp}_{IV}_{rand}.json` (1 건 = 새 파일 1 개 · 追記 없음).
+  - 메일 확인을 두 번 눌러도 한 번만 (`SAVE.mailSt==='load'` 이면 무시) — 동시에 두 번 돌면 같은 첨부가 2 줄이 된다.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
