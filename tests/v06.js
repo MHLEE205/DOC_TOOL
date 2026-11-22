@@ -13,7 +13,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const qa=(w,s)=>[...w.document.querySelectorAll(s)], txt=(w,id)=>w.document.getElementById(id).textContent;
 (async()=>{
 /* 엔진 v0.8 고정 */
-ok(P.ver==='0.8'&&typeof E.siTentative==='function'&&typeof E.cntrLineKeys==='function','엔진 고정 = acl_bench v0.8 (커밋 '+P.commit.slice(0,7)+' · sha256)',P);
+ok(+P.ver>=0.8&&typeof E.siTentative==='function'&&typeof E.cntrLineKeys==='function','엔진 고정 = acl_bench v0.8 (커밋 '+P.commit.slice(0,7)+' · sha256)',P);
 ok(String(DOC.SI_TENT)===String(E.TENT_RE)&&DOC.ACL_TENT_NOTE===E.TENT_NOTE,'（仮） 모양 · 「参考」 문장 = 엔진 v0.8 과 같음 (한 규칙)');
 
 /* 1 待ち */

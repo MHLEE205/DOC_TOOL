@@ -63,7 +63,7 @@ ok(row({}, {sub:at('2026-11-19','17:00')})===null,'베트남 아님 → Deposit 
   const r3=row({blDate:'2026-11-19', country:'KOREA'}, {bl}); ok(r3.stage===7&&/RR 送付/.test(r3.what)&&r3.action[1]==='rr','한국 → RR · RR を開く',r3);
   const r4=row({blDate:'2026-11-19', carrier:'HEUNG A'}, {bl}); ok(DOC.dayOf(r4.due)==='2026-11-20'&&/後払い船社は 営業日1日/.test(r4.why),'후불 (베트남 아님) → FD = B/L date + 영업일 1일',r4);
   const r5=row({blDate:'2026-11-19', carrier:'HEUNG A', country:'VIETNAM'}, {bl}); ok(DOC.dayOf(r5.due)==='2026-11-24','후불이라도 베트남 → +2 일',r5);
-  const r6=row({blDate:'2026-11-18', pay:'LC'}, {bl:at('2026-11-18','18:00')}); ok(r6.group==='t1800'&&r6.when==='18:00 宅配','오늘이 FD 기한 · L/C → 18:00 宅配',r6);
+  const r6=row({blDate:'2026-11-18', pay:'LC'}, {bl:at('2026-11-18','18:00')}); ok(r6.group==='fdtoday'&&r6.when==='11/18 B/L 受領'&&DOC.hmOf(r6.due)==='18:00','오늘이 FD 기한 · L/C → v0.8: B/L 받은 건은 「本日 FD」 묶음 (기한 18:00 은 그대로)',r6);
   const rb=row({}, {bl:at('2026-11-19','15:00')}); ok(rb&&rb.stage===8&&DOC.dayOf(rb.due)==='2026-11-24','B/L date 가 비어도 (선사 B/L 메일만) → 그날 기준 FD 기한',rb);
   ok(row({term:'CIF',country:'KOREA',blDate:'2026-11-19'}, {bl, ins:'known', rr:at('2026-11-19','10:00')}).stage===8,'보험 · RR 끝 → FD'); }
 console.log('4 재촉 75%');
@@ -113,7 +113,7 @@ console.log('5 화면');
   ok(w.document.getElementById('dtBTodo').classList.contains('on')&&w.document.getElementById('dtTodoBox').style.display==='flex'&&w.document.getElementById('dtTable').style.display==='none','5 첫 화면 = 今日やること (현황판 표 숨김)');
   eq(qa(w,'.dt-seg button').map(b=>b.textContent),['今日やること','契約別（LC · S/I）','Invoice 別（船積）'],'5 탭 순서 今日やること · 契約別 · Invoice 別');
   const who=qa(w,'#dtWho button').map(b=>b.textContent); ok(who[0].indexOf('自分の担当')===0&&who.indexOf(R.ASSIST_LABEL)>=0&&who.indexOf('全員')>who.indexOf(R.ASSIST_LABEL),'5 담당 버튼 (自分 · 담당자 · 補助 · 全員)',who);
-  eq(qa(w,'.td-card .l:first-child').map(e=>e.textContent),['期限切れ','15:00 送金まで','18:00 宅配まで','近日 · 後払い','催促'],'5 숫자 5칸');
+  eq(qa(w,'.td-card .l:first-child').map(e=>e.textContent),['期限切れ','15:00 送金まで','本日 FD · 18:00 宅配','近日 · 後払い','催促'],'5 숫자 5칸 (v0.8: 3번째 = 本日 FD + 18:00 宅配)');
   ok(/今日の締切/.test(w.document.querySelector('.td-bar').textContent)&&qa(w,'.td-mk').length===5,'5 오늘 마감 줄 (지금 · 12:00 · 14:30 · 15:00 · 18:00)');
   const rowsN=()=>qa(w,'.td-row').length, iv=qa(w,'.td-row button.dt-link').map(b=>b.textContent);
   ok(iv.indexOf('NAA2611-01')>=0&&iv.length===new Set(iv).size,'5 1 Invoice = 1 줄 (같은 Invoice 두 줄 없음)',iv);

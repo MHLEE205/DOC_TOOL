@@ -87,10 +87,12 @@ async function engineText(){
   const body=txt('dtIvBody');
   ok(/直してもらうところ/.test(body)&&/SL999999/.test(body)&&/相違 1/.test(body),'相違 화면 (直してもらうところ · ACL 값)',body.slice(0,400));
   ok(/表示欄/.test(body)&&/Received B\/L/.test(body),'표시 칸 줄');
-  $('dtAclMail').click(); await X.sleep(20);
-  const mt=W.opened.pop()||''; const dec=decodeURIComponent(mt);
-  ok(/^mailto:fwd@example\.test\?subject=/.test(mt)&&/cc=fwd2@example\.test,fwd3@example\.test/.test(dec),'메일 = 乙仲 To · Cc (Outlook 에서 열기만)',mt.slice(0,200));
-  ok(/\[ACL訂正依頼\] NFK2601-02/.test(dec)&&/ご訂正をお願いいたします/.test(dec)&&/SL999999/.test(dec)&&/✦ Powered by LEENAI Automation System/.test(dec),'메일 제목 · 본문 일본어 · 푸터');
+  /* v0.8: 메일은 下書き 만 (mailto 도 열지 않음 · 보내기 0) — 제목 태그 자동 · 정정 A 블록 · 복사 */
+  const op0=W.opened.length; $('dtAclMail').click(); await X.sleep(20);
+  const dr=w.document.getElementById('dtAclDraft'), subj=dr.querySelector('input').value, bodyT=dr.querySelector('textarea').value;
+  ok(W.opened.length===op0&&/^\[ACL訂正依頼\] Re: /.test(subj),'메일 = 下書き 화면만 (창 · mailto 안 열림) · 제목 태그 [ACL訂正依頼] 자동',subj);
+  ok(/SL999999/.test(bodyT)&&/→/.test(bodyT)&&/赤字部分へご訂正をお願いできますでしょうか/.test(bodyT)&&/いつもお世話になっております/.test(bodyT),'본문 = 정정 A (訂正前 → 訂正後 · 토르_2 템플릿)',bodyT.slice(0,300));
+  w.document.getElementById('dtAclBody').click(); await X.sleep(10);
   ok(W.copied&&/SL999999/.test(W.copied),'본문 복사');
   ok(!W.writes.some(p=>p.method!=='PUT')&&W.writes.every(p=>/D-00\/doc_tool\//.test(decodeURIComponent(p.url))),'쓰기는 doc_tool/ 아래 PUT 만 (COMPASS 쓰기 0)');
   /* 현황판 — 이 도구의 결과로 칸이 바뀜 */

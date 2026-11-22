@@ -14,8 +14,8 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   /* ── 일반 담당자 (STAFF_A) ── */
   let W=X.world(), w=await P(W,{html});
   ok(/読み込み完了/.test(txt(w,'dtProg')),'읽기 완료',txt(w,'dtProg'));
-  ok(w.document.title==='LEENAI D-00 書類ツール v0.7','title · version 0.7');
-  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.7','LEENAI.init 설정 (redirectUri · sys · version)');
+  ok(w.document.title==='LEENAI D-00 書類ツール v0.8','title · version 0.8');
+  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.8','LEENAI.init 설정 (redirectUri · sys · version)');
   ok(/試験運用/.test(txt(w,'ln-hdr-right'))&&/山田/.test(txt(w,'ln-hdr-right')),'오른쪽 위 試験運用 · 내 이름',txt(w,'ln-hdr-right'));
   ok(!w.document.querySelector('#dtMain input[type=password]'),'평소 화면에 API 키 칸 없음');
   ok(JSON.stringify(ivs(w))===JSON.stringify(['NAA2611-01','NAA2611-02']),'自分の担当 = 내 Invoice 만 (ETD 순)',ivs(w));
@@ -31,7 +31,7 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   ok(w.localStorage.getItem('doc_tool_who')==='all','고른 담당 기억 (localStorage)');
   ok(JSON.stringify(cellsOf(w,'NBB2611-01'))===JSON.stringify(['済','済','—','済','—','済','済']),'NBB2611-01 (KOREA · CFR · REV 照合 · SWB · RR · FD)',cellsOf(w,'NBB2611-01'));
   const chips=[...w.document.querySelectorAll('#dtWho button')].map(b=>b.textContent);
-  ok(chips[0]==='自分の担当'&&chips.includes('全員')&&chips.includes('山田')&&chips.includes('佐藤')&&chips.includes('担当未登録'),'担当 버튼 줄',chips);
+  ok(chips[0]==='自分の担当'&&chips.includes('全員')&&chips.includes('山田 太郎')&&chips.includes('佐藤 花子')&&chips.includes('担当未登録'),'担当 버튼 줄 (v0.8 D6: 이름 전체)',chips);
   click(w,'#dtWho button[data-who="STAFF_B"]'); ok(JSON.stringify(ivs(w))===JSON.stringify(['NBB2611-01']),'담당자별 (佐藤)');
 
   /* 상세 — 현황판 → Invoice 상세 → 탭 → 돌아가기 */

@@ -56,7 +56,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.8) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `d2f097b7ee184cf4dc136454d758dc1af6baea55` | `97ed40e648a635225f181fe53a81a0cdbc5cae396f93413418bc95ad98b36a25` |
+| ACL 대조 (acl_bench v0.9) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `614998bbb56540eee4459e6aacbae79b16f5b85f` | `733055c089382a8dfc34b14986558108140aba08411bc7faaa33005fd1489b04` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -71,6 +71,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 메일은 **로그인한 사람의 메일함 GET 만** (35일 · 10조각 병렬 · 보내기 · 초안 · 읽음 0). 공유 메일함 (사진 · Draft 받는 곳) 은 주소 · 권한이 없어 읽지 않고 폴더 Draft 파일로 대신.
   - `crcf9_bl_etd` (B/L date) 는 **미리 들어 있는 일이 많다** (실측 200 건 중 193 · 앞날 71) — 「B/L 받음」 = 선사 B/L 메일 · 또는 B/L date 18:00 지남 + 앞 단계 신호 (선불 = 송금 · 후불/FOB = B/L 의뢰 · Draft). 지불일도 앞날이면 안 씀 (지금보다 뒤 신호 0).
   - `?asof=YYYY-MM-DDTHH:MM` (관리자만) = 그 시각 전 신호만으로 계산 (시험 · 비교용).
+
+- **v0.8** — 엔진 v0.9 (표기 P1 · 읽기 P2 · 담당자 메일 판단 · Shipper's Mail 빈칸 = 参考 · 本船変更 = 相違 + 「本船変更依頼」 · L/C JSON 대조 · ACL 이 S/I 보다 더 적은 것 = 参考 · Description `*` 넘침 단락 이어 붙이기).
+  - **ACL 메일 下書き** = doc-core `DOC.ACL_MAIL` (문구 표 한 곳) · `DOC.aclMailDraft(res, ctx)` → 本登録 A / 訂正 A (칸마다 前 → 後) / 訂正 B (표시 칸 · 本船変更) · 제목 태그 자동. **보내기 0** — 화면 · 복사 · Outlook 에서 원래 ACL 메일 (webLink) 열기까지. S/I ↔ L/C 차이는 메일에 넣지 않음.
+  - 담당 칩 = master `staff` 이름 전체 · 보조 = staff 의 `doc_role` = `書類補助` (기간 칸 없음) → 「{이름}・補助」 (= 서류 일 전체). 표시가 없으면 「補助（書類全体）」.
+  - 今日やること: B/L 받은 건의 FD = 「本日」 묶음 (期限切れ 다음) · 다음 영업일이면 「昨日 B/L 受領」.
+  - **고칠 때 주의**: 이미 있는 코드 줄 끝에 `//` 주석을 붙이지 말 것 (같은 줄 뒤의 코드가 주석이 되어 사라진 일이 3번) — 주석은 따로 줄로.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
