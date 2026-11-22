@@ -68,7 +68,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 - **COMPASS 조회 칸 (lookup) 의 표시값 (FormattedValue) 을 이름으로 쓰지 않는다** (v0.6) — 판매계약의 国 · POD · Buyer, 명세의 品目, 부킹의 선사 · 乙仲 은 상대 표의 이름 칸이 `cr49f_id` (번호) 라 표시값이 `7` · `31` 같은 번호. 이름은 상대 표에서 읽는다 (国 = `cr49f_buyers.crcf9_country` · POD = `cr49f_regions.cr49f_pod` · ITEM = `cr49f_items.cr49f_item` — PORTAL 「販売契約」 과 같음). 선택지 칸 (`cr49f_pay_cls` 등) 의 표시값은 괜찮다.
 
 - **v0.7 今日やること (첫 화면)** — 규칙 · 표 · 낱말은 doc-core `DOC.TODO_RULES` **한 곳** (영업시간 · 공휴일 · 고정 마감 · FD +2/+1 · 후불 7곳 · 75% 상수 (선사만) · 메일 용도 / 종류 낱말 · 묶음 · 버튼). 계산 = `todoSignals` (신호 시각) → `todoRow` (Invoice 마다 지금 단계 하나 · 규칙표 v0.4) → `todoGroup` · `todoSort`. 乙仲 · 바이어별 75% 값은 SharePoint `D-00/todo_replay/thresholds_75.json` 을 읽음 (이름을 코드에 넣지 않음).
-  - 메일은 **로그인한 사람의 메일함 GET 만** (35일 · 10조각 병렬 · 보내기 · 초안 · 읽음 0). 공유 메일함 (photo_rcp@) 은 주소 · 권한이 없어 읽지 않고 폴더 Draft 파일로 대신.
+  - 메일은 **로그인한 사람의 메일함 GET 만** (35일 · 10조각 병렬 · 보내기 · 초안 · 읽음 0). 공유 메일함 (사진 · Draft 받는 곳) 은 주소 · 권한이 없어 읽지 않고 폴더 Draft 파일로 대신.
   - `crcf9_bl_etd` (B/L date) 는 **미리 들어 있는 일이 많다** (실측 200 건 중 193 · 앞날 71) — 「B/L 받음」 = 선사 B/L 메일 · 또는 B/L date 18:00 지남 + 앞 단계 신호 (선불 = 송금 · 후불/FOB = B/L 의뢰 · Draft). 지불일도 앞날이면 안 씀 (지금보다 뒤 신호 0).
   - `?asof=YYYY-MM-DDTHH:MM` (관리자만) = 그 시각 전 신호만으로 계산 (시험 · 비교용).
 

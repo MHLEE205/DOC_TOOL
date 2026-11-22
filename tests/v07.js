@@ -99,7 +99,7 @@ console.log('메일 분류 · 건 연결 · 신호');
   const s6=DOC.todoSignals(Object.assign({},base,{mails, carrier:'SINOKOR', blDate:'2026-11-19'})); ok(s6.bl!=null,'후불: B/L date 지남 + Draft → B/L 받음',s6);
   const s7=DOC.todoSignals(Object.assign({},base,{mails, blDate:'2026-11-19', portal:{fd_date:'2026-11-01'}})); ok(s7.fd===null,'PORTAL FD送付日 이 B/L date 보다 3일 넘게 앞 → 일괄 입력으로 보고 버림 (토르_2)');
   const s8=DOC.todoSignals(Object.assign({},base,{mails, files:[{name:'NTE2699-01_FD.pdf', lastModified:'2026-11-19T01:00:00Z'}]})); ok(s8.fd===T('2026-11-19','10:00')&&s8.fdSrc==='フォルダ FD','폴더 FD (v0.3 규칙) → FD 끝',s8);
-  const s9=DOC.todoSignals(Object.assign({},base,{mails:[], files:[{name:'NTE2699-01_DRAFT.pdf', lastModified:'2026-11-19T01:00:00Z'},{name:'NTE2699-01_FRT MEMO.pdf', lastModified:'2026-11-19T01:20:00Z'}]})); ok(s9.drafts.length===1,'폴더 Draft · FRT MEMO (photo_rcp@ 대신)',s9);
+  const s9=DOC.todoSignals(Object.assign({},base,{mails:[], files:[{name:'NTE2699-01_DRAFT.pdf', lastModified:'2026-11-19T01:00:00Z'},{name:'NTE2699-01_FRT MEMO.pdf', lastModified:'2026-11-19T01:20:00Z'}]})); ok(s9.drafts.length===1,'폴더 Draft · FRT MEMO (공유 메일함 대신)',s9);
   const s10=DOC.todoSignals(Object.assign({},base,{mails, blDate:'2026-11-20', payDate:'2026-11-19'})); ok(s10.bl===null,'B/L date 가 오늘 · 아직 18:00 전 → B/L 받음 아님 (지금보다 뒤 신호는 안 씀)',s10); }
 
 console.log('5 화면');
