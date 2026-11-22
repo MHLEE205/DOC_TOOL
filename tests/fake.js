@@ -59,7 +59,7 @@ function parseFilter(f){   // 「A eq x or A eq y」 · 「A eq 'x'」 · 날짜
 function dvHandle(W,url){
   const u=decodeURIComponent(url.slice(DV.length)); const m=u.match(/^(\w+)(?:\(([^)]+)\))?(?:\?(.*))?$/); if(!m) return [404,{}];
   const ent=m[1], id=m[2], qs=m[3]||'', filt=(qs.match(/\$filter=(.*?)(?:&\$|$)/)||[])[1]||'';
-  const T={cr49f_bookings:W.bookings,cr49f_regions:W.regions,crcf9_region_japans:W.pols,cr49f_sale_contracts:W.contracts,cr49f_buyers:W.buyers,cr49f_s_is:W.sis,crcf9_container_informations:W.containers,cr49f_sale_details:W.sale||[],crcf9_s_i_details:W.dets||[],cr49f_items:W.items||[]}[ent];
+  const T={cr49f_bookings:W.bookings,cr49f_regions:W.regions,crcf9_region_japans:W.pols,cr49f_sale_contracts:W.contracts,cr49f_buyers:W.buyers,cr49f_s_is:W.sis,crcf9_container_informations:W.containers,cr49f_sale_details:W.sale||[],crcf9_s_i_details:W.dets||[],cr49f_items:W.items||[],crcf9_carriers:W.carriers||[],crcf9_customses:W.customs||[]}[ent];
   if(!T) return [404,{error:{message:'no table '+ent}}];
   const pk={cr49f_bookings:'cr49f_bookingid',cr49f_regions:'cr49f_regionid',crcf9_region_japans:'crcf9_region_japanid',cr49f_sale_contracts:'cr49f_sale_contractid',cr49f_buyers:'cr49f_buyerid',cr49f_s_is:'cr49f_s_iid',crcf9_s_i_details:'crcf9_s_i_detailid',cr49f_items:'cr49f_itemid',cr49f_sale_details:'cr49f_sale_detailid'}[ent];
   if(id){ const r=T.find(x=>x[pk]===id); return r?[200,clone(r)]:[404,{}]; }
@@ -100,10 +100,12 @@ async function page(W, opt){
     'init:function(o){ window.__cfg=o; document.title="LEENAI "+o.sys+" "+o.name+" v"+o.version; setTimeout(function(){ var h=document.createElement("div"); h.id="ln-hdr-right"; document.getElementById("app").prepend(h); document.getElementById("app").style.display=""; o.onReady(); },0); }};</script>';
   const h=HTML.replace(/<script src="https:\/\/mhlee205\.github\.io\/LEENAI_COMMON\/v1\/leenai-common\.js"><\/script>/,FAKE).replace(/<link rel="stylesheet"[^>]*>/,'');
   if(W.aclEngine===undefined) W.aclEngine=ENG.bytes(HTML);   // v0.3: 고정한 엔진 원문 (sha256 확인됨) — null 이면 읽기 실패 시험
-  const dom=new JSDOM(h,{url:'https://mhlee205.github.io/DOC_TOOL/',runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){
+  const dom=new JSDOM(h,{url:'https://mhlee205.github.io/DOC_TOOL/'+(opt.url||''),runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){
     w.__W=W; w.fetch=fakeFetch(W); if(!w.crypto||!w.crypto.subtle) Object.defineProperty(w,'crypto',{value:nodeCrypto.webcrypto}); w.confirm=w.alert=w.prompt=()=>{ throw new Error('confirm/alert 호출됨'); };
     w.open=(u)=>{ W.opened.push(u); return null; }; Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{ W.copied=t; }}});
-    Object.entries(opt.ls||{}).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; }});
+    /* v0.7: 最初の画面は 今日やること — v0.6 までの試験は 前の現況板 (doc_tool_board · 既定 Invoice 別) で開く (opt.first なら何も入れない = 本当の最初の画面) */
+    const L=Object.assign({},opt.ls||{}); if(!opt.first&&L.doc_tool_board_v7===undefined) L.doc_tool_board_v7=L.doc_tool_board||'iv';
+    Object.entries(L).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; }});
   const w=dom.window; await until(()=>/読み込み完了|読み込み失敗/.test(w.document.getElementById('dtProg').textContent));
   return w;
 }

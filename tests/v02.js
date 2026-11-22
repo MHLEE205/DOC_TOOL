@@ -100,8 +100,8 @@ const $$=(w,s)=>[...w.document.querySelectorAll(s)], txt=(w,id)=>(w.document.get
 const ivs=w=>$$(w,'#dtTable tbody tr').map(tr=>tr.querySelector('button.dt-link').textContent);
 /* #8 전환 순서 */
 let W=X.world(), w=await X.page(W,{ls:{doc_tool_who:'all'}});
-eq($$(w,'.dt-seg button').map(b=>b.id),['dtBCt','dtBIv'],'전환 버튼 순서 = 契約別 → Invoice 別');
-ok(w.document.getElementById('dtBIv').classList.contains('on'),'처음 여는 사람 기본 = Invoice 別');
+eq($$(w,'.dt-seg button').map(b=>b.id),['dtBTodo','dtBCt','dtBIv'],'전환 버튼 순서 = (v0.7 今日やること →) 契約別 → Invoice 別');
+ok(w.document.getElementById('dtBIv').classList.contains('on'),'v0.6 까지 고른 현황판 (가짜 = Invoice 別) — v0.7 의 처음 화면은 v07.js');
 /* #1 FD済み 기본 ON */
 ok(w.document.getElementById('dtHideFd').checked,'「FD済みは表示しない」 기본 ON');
 eq(ivs(w),['NAA2611-01','NAA2611-02'],'FD 있는 NBB2611-01 숨김');
@@ -116,7 +116,7 @@ hf.checked=true; hf.dispatchEvent(new w.Event('change')); w.document.getElementB
 const cts=()=>$$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent);
 eq([w.document.getElementById('dtIvCtl').style.display,w.document.getElementById('dtCtCtl').style.display],['none',''],'v0.3 契約別: ETD · FD済み 조작 숨김 · 期間 보임');
 eq(cts(),['LRS-2611CC1'],'v0.3 契約別: 直近1ヶ月 (FD 숨김과 무관)');
-ok(w.localStorage.getItem('doc_tool_board')==='ct','현황판 선택 기억');
+ok(w.localStorage.getItem('doc_tool_board_v7')==='ct','현황판 선택 기억 (v0.7 키)');
 /* 검색은 숨김과 무관 */
 hf.checked=true; hf.dispatchEvent(new w.Event('change')); w.document.getElementById('dtBIv').click();
 w.document.getElementById('dtQ').value='NBB2611-01'; w.document.getElementById('dtGo').click();
