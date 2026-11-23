@@ -14,8 +14,8 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   /* ── 일반 담당자 (STAFF_A) ── */
   let W=X.world(), w=await P(W,{html});
   ok(/読み込み完了/.test(txt(w,'dtProg')),'읽기 완료',txt(w,'dtProg'));
-  ok(w.document.title==='LEENAI D-00 書類ツール v0.10','title · version 0.10');
-  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.10','LEENAI.init 설정 (redirectUri · sys · version)');
+  ok(w.document.title==='LEENAI D-00 書類ツール v0.11','title · version 0.11');
+  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.11','LEENAI.init 설정 (redirectUri · sys · version)');
   ok(/試験運用/.test(txt(w,'ln-hdr-right'))&&/山田/.test(txt(w,'ln-hdr-right')),'오른쪽 위 試験運用 · 내 이름',txt(w,'ln-hdr-right'));
   ok(!w.document.querySelector('#dtMain input[type=password]'),'평소 화면에 API 키 칸 없음');
   ok(JSON.stringify(ivs(w))===JSON.stringify(['NAA2611-01','NAA2611-02']),'自分の担当 = 내 Invoice 만 (ETD 순)',ivs(w));
@@ -87,7 +87,7 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   await search('NZZ2611-99'); ok(/ありません/.test(txt(w,'dtQSt')),'검색 없음 → 안내',txt(w,'dtQSt'));
 
   /* ⚙ 設定 — API 키는 설정 안에만 · 이 브라우저에만 */
-  ok(w.__btns.length===1&&/設定/.test(w.__btns[0].label),'헤더 ⚙ 設定 버튼');
+  ok(w.__btns.length===3&&/設定/.test(w.__btns[0].label)&&w.__btns.some(b=>b.label==='チェックポイント')&&w.__btns.some(b=>b.label==='見落とし報告'),'헤더 ⚙ 設定 · チェックポイント · 見落とし報告 버튼 (v0.11)');
   w.__btns[0].onClick(); ok(!w.document.getElementById('dtModal').hidden&&w.document.getElementById('dtKey'),'설정 열기');
   w.document.getElementById('dtKey').value='TEST-KEY-0000'; click(w,'#dtKeySave'); ok(w.localStorage.getItem('leenai_apikey_v1')==='TEST-KEY-0000'&&w.document.getElementById('dtKey').value==='','키 저장 (a1_bench 와 같은 곳) · 입력칸 비움');
   ok(!/TEST-KEY-0000/.test(w.document.body.innerHTML),'키가 화면에 안 나옴');

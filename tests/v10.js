@@ -40,7 +40,7 @@ const cp=await w.eval('aclFetchCompass("NAA2611-01")');
 ok(cp&&cp.ok&&cp.lc&&cp.lc.schema==='lc_read/1'&&cp.lc.lc_no==='TESTLC001','ACL 照合에 넘기는 L/C = 보관소 lc_read/1',cp&&cp.lc);
 ok(W.req.some(r=>/cr49f_bookings\?.*cr49f_etd,crcf9_bl_etd/.test(decodeURIComponent(r))),'부킹 조회에 cr49f_etd · crcf9_bl_etd (엔진과 같게)');
 ok(typeof cp.meta.etd==='string'&&'etdSrc' in cp.meta,'meta.etd · etdSrc',cp.meta);
-const Pn=ENG.pin(HTML), E=ENG.engine(HTML); ok(Pn.ver==='0.10'&&typeof E.lcConsigneeBank==='function'&&typeof E.lcDays==='function','엔진 고정 = acl_bench v0.10 (커밋 '+Pn.commit.slice(0,7)+' · sha256 확인)',Pn);
+const Pn=ENG.pin(HTML), E=ENG.engine(HTML); ok(ENG.vnum(Pn.ver)>=ENG.vnum('0.10')&&typeof E.lcConsigneeBank==='function'&&typeof E.lcDays==='function','엔진 고정 = acl_bench v0.10 이상 (커밋 '+Pn.commit.slice(0,7)+' · sha256 확인)',Pn);
 const it=E.lcItems(cp.lc, {si:{cr49f_lc_no:'TESTLC001'}, description:'', consignee:'TO THE ORDER OF SAMPLE BANK', notify:'SAMPLE PAPER CO., LTD.', pol:'TOKYO'}, {consignee:{text:'TO THE ORDER OF SAMPLE BANK',conf:'SURE'},originals:{text:'3',conf:'SURE'}}, null, null, {etd:'2026-12-16'});
 eq(['lc:no','lc:consignee','lc:consignee_acl','lc:shipment'].map(k=>(it.find(i=>i.key===k)||{}).status),['MATCH','MATCH','MATCH','DIFF'],'가짜 보관소 판독 → 엔진 v0.10 L/C 항목 (선적기한 초과 = 相違)');
 ok(!W.writes.length,'쓰기 0',W.writes);

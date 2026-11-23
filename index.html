@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.10</title>
+<title>LEENAI D-00 書類ツール v0.11</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -95,6 +95,18 @@ button.st:hover{border-color:currentColor}
 .dt-xx{background:var(--st-todo-bg);color:var(--st-todo-fg);padding:0 4px;border-radius:4px}
 .dt-modal{position:fixed;inset:0;background:rgba(15,17,23,.45);display:flex;align-items:center;justify-content:center;z-index:400;padding:16px}
 .dt-modal[hidden]{display:none}
+.cp-list{display:flex;flex-direction:column;gap:4px;max-height:52vh;overflow:auto}
+.cp-row{display:flex;align-items:center;gap:10px;text-align:left;width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13.5px;cursor:pointer}
+.cp-row:hover{background:var(--surface2)}
+.cp-id{font-size:11.5px;font-weight:600;padding:1px 6px;border-radius:6px;background:var(--surface2);color:var(--text2);white-space:nowrap}
+.cp-t{flex:1;min-width:0}.cp-k{font-size:12px;color:var(--text2);white-space:nowrap}
+.cp-st{font-size:11.5px;padding:1px 8px;border-radius:999px;white-space:nowrap;background:var(--st-todo-bg);color:var(--st-todo-fg)}
+.cp-st-on{background:var(--st-done-bg,var(--surface2));color:var(--st-done-fg,var(--ok))}.cp-st-off{background:var(--surface2);color:var(--text3)}
+.cp-kv{border-collapse:collapse;width:100%;font-size:13.5px}.cp-kv th{width:7.5em;text-align:left;vertical-align:top;color:var(--text2);font-weight:500;padding:6px 8px 6px 0}.cp-kv td{padding:6px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.cp-new{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 14px;border-left:4px solid var(--accent-btn)}
+.cp-rep{border:none;cursor:pointer;font-family:inherit;background:var(--st-diff-bg,var(--st-todo-bg));color:var(--st-diff-fg,var(--st-todo-fg))}
+.cp-rep-row{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid var(--border);border-radius:8px}
+.av-cp{font:inherit;font-size:10.5px;font-weight:600;line-height:1.4;padding:0 5px;margin-left:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text2);cursor:pointer;vertical-align:1px}
 .dt-modal .box{background:var(--surface);color:var(--text);border-radius:12px;border:1px solid var(--border);max-width:640px;width:100%;max-height:86vh;overflow:auto;padding:20px 22px;display:flex;flex-direction:column;gap:12px}
 .dt-modal input[type=password],.dt-modal input[type=number]{height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-family:inherit;font-size:14px}
 .dt-kv{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;font-size:13px}
@@ -227,6 +239,8 @@ button.st:hover{border-color:currentColor}
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
+   v0.11 (2026-11-23 指示書 D00 체크포인트 마스터 v1 · 형님 D1 ~ D7): チェックポイント一覧 (全員 · 見るだけ — 職員 = 基本 + 追加の有効 · 管理者 = 全部) · ACL 結果の CP 番号 → 説明 ·
+     見落とし報告 (D-00/checkpoint_reports/ · 管理者に 未確認 n 件) · 新しいチェックの帯 (有効になって 7 日 · 担当だけ) · エンジン v0.11 (master_checkpoint · master_port_alias を渡す)
    v0.10 (2026-11-23 指示書 D00 L/C 保管所 · ACL 転換 · 형님 D1): L/C は 保管所 古紙/LC/_READ/{契約}.json (lc_read/1) から読む (D-01 JSON は読まない) · エンジン v0.10 (Consignee 銀行 · 船積期限 ↔ ETD) · 「LC 読み取り」 = 保管所の MD (人が読む判)
    v0.9 (2026-11-22 指示書 書類ツール v0.9 保存の入口): ACL を Invoice フォルダへ 決まった名前で保存 — 入口 2 つ (自分のメールの ACL 添付 · 画面に PDF を置く) → 処理 1 つ (種類 · Invoice · 重複 · 版 · 確認 · 新規作成だけ · 保存の記録 · ACL 照合) · 試験モード = doc_tool/save_test/
    v0.8 (2026-11-22 指示書 acl_bench v0.9 · 書類ツール v0.8 정확도): エンジン v0.9 · ACL メールの下書き (本登録 / 訂正 / 本船変更 · 件名タグ自動 · 送るのは人) · 担当の名前を全部 · B/L を受け取った件の FD = 「本日」
@@ -239,7 +253,7 @@ const DOC = (()=>{
   /* 船積の流れ (형님 D4 · D5): 通関 → ACL → DEPO → B/L draft → 保険 → RR → FD */
   const STEPS = [['customs','通関'],['acl','ACL'],['depo','DEPO'],['bl','B/L Draft'],['ins','保険'],['rr','RR'],['fd','FD']];
   const CT_STEPS = [['lc','LC'],['si','S/I']];
-  const OUT_ROOT = '古紙/-. AI 活用/D-00/doc_tool/';   // この TOOL が SharePoint に書く場所はここだけ
+  const OUT_ROOT = '古紙/-. AI 活用/D-00/doc_tool/';   // この TOOL が SharePoint に書く場所 (v0.11: ほかに CP_REPORT_DIR の決まった名前だけ)
   const SRC = {wip:'古紙/-. 古紙書類/▲ 書類作成中', old:'古紙/_OLD_DOC', lc:'古紙/LC/_READ', acl:'古紙/-. AI 活用/D-00/ACL_bench'};
 
   /* ── ファイル名の規則 (実際の Invoice フォルダ 166 件の名前から · 2026-11-20) ── */
@@ -504,7 +518,9 @@ const DOC = (()=>{
 
   /* ── 書き込みの門番 — SharePoint は OUT_ROOT の下だけ ── */
   function guardOut(p, save){ if(save) return guardSave(p, save);   // v0.9: ACL の保存 (保存の入口) だけ Invoice フォルダ / 試験フォルダの 決まった名前
-    const s=String(p||''); if(s.indexOf(OUT_ROOT)!==0||/(^|\/)\.\.(\/|$)/.test(s)) throw new Error('書き込み禁止の場所: '+s); return true; }
+    const s=String(p||'');
+    if(s.indexOf(CP_REPORT_DIR)===0){ const b=s.slice(CP_REPORT_DIR.length); if(CP_REPORT_RE.test(b)||CP_ACK_RE.test(b)) return true; throw new Error('書き込み禁止の名前: '+s); }   // v0.11: 見落とし報告 · 確認済み (決まった名前 · フォルダ直下だけ)
+    if(s.indexOf(OUT_ROOT)!==0||/(^|\/)\.\.(\/|$)/.test(s)) throw new Error('書き込み禁止の場所: '+s); return true; }
   function stamp(d){ const p=n=>String(n).padStart(2,'0'); d=d||new Date(); return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())+p(d.getSeconds()); }
   function safeKey(s){ return String(s||'').replace(/[^A-Za-z0-9_\-]/g,'_'); }
   function logPath(key, kind, d){ return OUT_ROOT+'log/'+safeKey(key)+'/'+stamp(d)+'_'+safeKey(kind)+'.json'; }
@@ -1059,7 +1075,46 @@ const DOC = (()=>{
     return true;
   }
 
+  /* ══════════ v0.11 チェックポイント (master_checkpoint) · 見落とし報告 — 指示書 (2026-11-23) D00 체크포인트 마스터 v1 Step 3 ══════════
+     ・一覧 = 職員: 基本 全部 + 追加 の 有効 だけ · 管理者 (portal_admin): 全部 (候補 · 試験 · 停止 · 承認待ち) — 見るだけ (編集は ⚙ マスター設定)
+     ・見落とし報告 = 古紙/-. AI 活用/D-00/checkpoint_reports/{yyyymmdd-hhmmss}_{職員コード}.json (新規だけ) · 確認済み = 同じフォルダに {同じ名前}.ack.json (新規だけ)
+     ・メール · Teams の自動送信はしない (형님の承認事項) */
+  const CP_REPORT_DIR = '古紙/-. AI 活用/D-00/checkpoint_reports/';
+  const CP_REPORT_RE = /^(\d{8}-\d{6})_([A-Za-z0-9_]+)\.json$/, CP_ACK_RE = /^(\d{8}-\d{6}_[A-Za-z0-9_]+)\.ack\.json$/;
+  const CP_NEW_DAYS = 7;   // 追加 が 有効 になってから 7 日 「新しいチェック」 の帯 (D4)
+  const CP_STAGE_JA = {ACL:'ACL', BL_DRAFT:'B/L Draft', BL:'B/L 原本', INS:'保険', FD:'FD'};
+  const CP_SCOPE_JA = {all:'全取引', country:'国', buyer:'バイヤー', bank:'銀行', carrier:'船会社'};
+  const CP_REPORT_STAGES = ['ACL','B/L Draft','B/L 原本','保険','FD','その他'];
+  function cpReportName(d, code){ return stamp(d)+'_'+(safeKey(code)||'UNKNOWN')+'.json'; }
+  function cpReportPath(d, code){ return CP_REPORT_DIR+cpReportName(d, code); }
+  function cpAckPath(reportName){ const m=String(reportName||'').match(CP_REPORT_RE); if(!m) throw new Error('報告の名前ではない: '+reportName); return CP_REPORT_DIR+m[1]+'_'+m[2]+'.ack.json'; }
+  /* 報告の中身 — 何が違っていたか (必須) · 段階 · どこで気づいたか · Invoice は画面から */
+  function cpReportBody(f, ctx){ const t=s=>String(s==null?'':s).trim(); if(!t(f.what)) throw new Error('「何が違っていたか」 を書いてください');
+    return {schema:'checkpoint_report/1', invoice:up(f.invoice||''), stage:t(f.stage), what:t(f.what), where:t(f.where), by:(ctx&&ctx.code)||'', by_name:(ctx&&ctx.name)||'', by_email:(ctx&&ctx.email)||'', at:(ctx&&ctx.at)||new Date().toISOString(), tool:(ctx&&ctx.tool)||'', status:'未確認'}; }
+  /* フォルダの名前の一覧 → {reports:[{name, at, code}], acked:Set, unread} */
+  function cpReportsState(names){ const ack=new Set(), reps=[];
+    (names||[]).forEach(n=>{ const a=String(n).match(CP_ACK_RE); if(a){ ack.add(a[1]); return; } const m=String(n).match(CP_REPORT_RE); if(m) reps.push({name:n, stamp:m[1], code:m[2]}); });
+    reps.sort((a,b)=>b.stamp.localeCompare(a.stamp)); reps.forEach(r=>{ r.acked=ack.has(r.stamp+'_'+r.code); });
+    return {reports:reps, unread:reps.filter(r=>!r.acked).length}; }
+  /* 一覧に出す行 — rows = エンジン cpPrepare の rows (state つき) · admin = portal_admin */
+  function cpVisible(rows, admin){ return (rows||[]).filter(r=>admin||r.kind==='基本'||(r.kind==='追加'&&r.state==='有効')); }
+  /* 絞り込み — f = {stage, country, buyer, kind, state, q} (空 = すべて) */
+  function cpFilter(rows, f){ f=f||{}; const U=s=>String(s==null?'':s).trim().toUpperCase();
+    return (rows||[]).filter(r=>{ if(f.stage&&(r.stages||[]).indexOf(f.stage)<0) return false; if(f.kind&&r.kind!==f.kind) return false; if(f.state&&r.state!==f.state) return false;
+      if(f.country&&!(r.scope_type==='all'||(r.scope_type==='country'&&U(r.scope)===U(f.country)))) return false;
+      if(f.buyer&&!(r.scope_type==='all'||(r.scope_type==='buyer'&&U(r.scope)===U(f.buyer)))) return false;
+      if(f.q){ const q=U(f.q), row=r.row||{}; if([r.id,r.title,row.why_ja,row.example,row.engine_key].map(U).join(' ').indexOf(q)<0) return false; }
+      return true; }); }
+  /* 新しいチェックの帯 — 追加 · 有効 · 承認日から 7 日以内 · その範囲の担当 (doc_staff: IV コード → 担当) に自分がいる · dismissed = 「確認した」 の ID */
+  function cpNewFor(rows, me, docStaff, buyerIv, todayDay, dismissed){
+    const code=me&&me.code; if(!code) return []; const ds=docStaff||{}, mine=Object.keys(ds).filter(k=>ds[k]===code), dm=new Set(dismissed||[]);
+    return (rows||[]).filter(r=>{ if(r.kind!=='追加'||r.state!=='有効'||dm.has(r.id)) return false; const d=isoDay((r.row||{}).approved_at); if(!d) return false;
+      const age=(Date.parse(todayDay+'T00:00:00Z')-Date.parse(d+'T00:00:00Z'))/864e5; if(!(age>=0&&age<CP_NEW_DAYS)) return false;
+      if(me.admin) return true; if(r.scope_type==='all'||r.scope_type==='country'||r.scope_type==='bank'||r.scope_type==='carrier') return mine.length>0;   // 書類担当の人に
+      if(r.scope_type==='buyer'){ const s=up(r.scope), iv=(buyerIv||{})[s]||s; return mine.indexOf(up(iv))>=0; } return false; }); }
+
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+    /* v0.11 */ CP_REPORT_DIR, CP_REPORT_RE, CP_ACK_RE, CP_NEW_DAYS, CP_STAGE_JA, CP_SCOPE_JA, CP_REPORT_STAGES, cpReportName, cpReportPath, cpAckPath, cpReportBody, cpReportsState, cpVisible, cpFilter, cpNewFor,
     /* v0.9 */ SAVE_RULES, saveKind, textKeyOf, saveCands, saveJudge, saveBump, guardSave,
     /* v0.8 */ ACL_MAIL, aclMailDraft, reSubj, lcOriginals, /* v0.10 */ mdHtml,
     /* v0.7 */ TODO_RULES, jst, at, dayOf, hmOf, bday, badd, nextBday, bhours, postpaid, mailHead, senderKind, mailUses, mailKind, kindTarget, linkIndex, linkMail, nudgeH, todoSignals, todoRow, todoGroup, whenLabel, todoSort, parseAsof,
@@ -1155,7 +1210,8 @@ async function loadAll(){
   try{
     prog('マスター · COMPASS を読み込み中…');
     if(!S.staff.length){ const [st,ds]=await Promise.all([LEENAI.master.get('staff').catch(()=>[]), LEENAI.master.get('doc_staff').catch(()=>[])]);
-      S.staff=st||[]; S.docStaff=DOC.docStaffMap(ds); S.me=DOC.meOf(LEENAI.user&&LEENAI.user.email, S.staff); renderMe(); renderWho(); }
+      S.staff=st||[]; S.docStaff=DOC.docStaffMap(ds); S.me=DOC.meOf(LEENAI.user&&LEENAI.user.email, S.staff); renderMe(); renderWho();
+      cpLoad(true).then(()=>{ if(S.view==='list'&&S.board==='todo') renderTodo(); }); cpReportsLoad(); }   // v0.11: チェックポイント (新しいチェックの帯) · 見落とし報告の数 (管理者)
     const f=S.range.from, t=S.range.to;
     const [bk, regs, pols]=await Promise.all([
       dvAll(`cr49f_bookings?$filter=(cr49f_etd ge ${f} and cr49f_etd le ${t}) or (crcf9_bl_etd ge ${f} and crcf9_bl_etd le ${t})&$select=${BK_SEL}`),
@@ -1467,6 +1523,7 @@ function aclTabHtml(r){
     (f&&f.webUrl?'<button class="dt-btn ghost" data-url="'+esc(f.webUrl)+'">ACL を開く</button>':'')+
     (can?'<button class="dt-btn ghost" id="dtAclRun">'+(fresh?'再照合':'照合する')+'</button>':'')+
     (fresh?'<button class="dt-btn" id="dtAclMail">'+(g.diff.length?'訂正依頼メールの下書き':'本登録メールの下書き')+'</button>':'')+   // v0.8: 下書きまで (送るのは人)
+    '<button class="dt-btn ghost" id="dtAclMiss" title="この照合で見つけられなかった違いを報告">見落とし報告</button>'+   // v0.11
     benchBtn('acl')+'</div></section>';
 }
 /* 履歴 (SharePoint D-00/doc_tool/log/{key}/) */
@@ -1521,6 +1578,7 @@ function bindCommon(root){
   root.querySelectorAll('[data-goct]').forEach(b=>{ b.onclick=()=>openCt(b.dataset.goct); });
   root.querySelectorAll('[data-lcjson]').forEach(b=>{ b.onclick=()=>showLcJson(b.dataset.lcjson); });
   root.querySelectorAll('[data-lcorig]').forEach(b=>{ b.onclick=()=>openLcOriginal(b.dataset.lcorig); });
+  root.querySelectorAll('[data-cp]').forEach(b=>{ b.onclick=e=>{ e.stopPropagation(); cpDetailModal(b.dataset.cp).catch(err=>toast(err.message,'warn')); }; });   // v0.11: ACL 結果の CP 番号 → 説明
 }
 /* v0.10: 保管所の {契約}.json (lc_read/1) を 1 つ読む — 読むだけ */
 async function readLcJson(id){ const L=lcOfCt(id); if(!L.files.length) return null; const f=L.files[0];
@@ -1584,15 +1642,17 @@ async function runSearch(){
    エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
    v0.3: ACL の名前の規則 (aclScan · aclPick) · 本登録の語 (mailKind) · 結果の見せ方 (viewHtml) もエンジンから — 現況板が始まるときに読む (loadAll)
    下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @903d923 (v0.4 から変わっていない) */
-const ACL_ENGINE = {commit:'af46667bc4f4fcc4585180cfb8aeb76f26ff9c02', sha256:'0bd7f29d19c417f2dedf2932e42630ed50db75b25dd2f21f10bf40783d9250dd', ver:'0.10'};   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
+const ACL_ENGINE = {commit:'fcb2cc56966f1f12e36aba8862360d84af1b2fbf', sha256:'0fcf896fa5f87ee6ee4bc8482160c7d9a4bb4de366aa55c505c408538982a9be', ver:'0.11'};   // v0.11: エンジン v0.11 (チェックポイント · 港の別名)   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
 ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 let ACLX = null;
 async function sha256hex(buf){ const h=await crypto.subtle.digest('SHA-256',buf); return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
 const engineErr = m => Object.assign(new Error(m),{engine:true});
+let ACLX_P = null;   // v0.11: 読んでいる間に また呼ばれても 1 回だけ (チェックポイントの読み込みと 現況板)
 async function loadAclEngine(){
   if(ACLX) return ACLX;
-  try{ ACLX=await loadAclEngine0(); return ACLX; }catch(e){ throw e.engine?e:engineErr(e.message||String(e)); }
+  if(!ACLX_P) ACLX_P=loadAclEngine0().then(x=>{ ACLX=x; ACLX_P=null; return x; }).catch(e=>{ ACLX_P=null; throw e.engine?e:engineErr(e.message||String(e)); });
+  return ACLX_P;
 }
 async function loadAclEngine0(){
   const r=await fetch(ACL_ENGINE.url); if(!r.ok) throw engineErr('エンジンを読めません ('+r.status+')');
@@ -1668,7 +1728,7 @@ async function aclCompareOne(iv){
   if(fm.format!=='NACCS'){ r.verdict='読取対象外'; r.why=fm.why; r.kinds={['読取対象外:'+fm.format]:1}; return r; }
   const cp=await aclFetchCompass(t.invoice);
   if(!cp.ok){ r.verdict='COMPASS照会不可'; r.why=cp.reason; r.kinds={'COMPASS照会不可':1}; return r; }
-  const rules=await aclRules(), acl=E.readNaccs(pages), c=E.compareOne(acl,cp,{rules:rules.rules, meta:cp.meta, podExclude:rules.podExclude||[], fileModified:r.fileModified});
+  const rules=await aclRules(), cpx=await cpLoad(), acl=E.readNaccs(pages), c=E.compareOne(acl,cp,{rules:rules.rules, meta:cp.meta, podExclude:rules.podExclude||[], fileModified:r.fileModified, checkpoints:cpx||undefined});   // v0.11: チェックポイント (読めなければ v0.10 と同じ)
   r.cp={booking_no:cp.booking.cr49f_booking_no||'', bl_number:cp.booking.cr49f_bl_number||''}; r.meta=cp.meta;
   Object.assign(r,c,{sino:c.expected.sino, bookings:cp.bookings}); delete r.expected; r.read={fields:acl.fields, rows:acl.rows, totals:acl.totals};
   if(cp.bookings>1) r.items.push({group:'ブッキング',key:'multi',label:'同じ Invoice のブッキング',status:'INFO',expected:'',actual:cp.bookings+' 件',detail:'最初の 1 件で照合',kind:''});
@@ -1718,6 +1778,7 @@ function aclMail(iv){
 function aclTabAfter(r){
   const run=$('dtAclRun'); if(run) run.onclick=()=>aclRerun(r.iv);
   const ml=$('dtAclMail'); if(ml) ml.onclick=()=>aclMail(r.iv);
+  const mi=$('dtAclMiss'); if(mi) mi.onclick=()=>cpReportModal(r.iv);   // v0.11
 }
 
 /* ══════════ P3 — S/I タブ (a1_bench v0.12 の R2 · マスター使用 を 契約 1 件に) ══════════
@@ -2069,7 +2130,7 @@ function renderTodo(){
     '<div><div class="td-what">'+esc(r.what)+'</div><div class="dt-note">'+esc(r.why)+'</div>'+stg(r.stage)+'</div><div class="td-act"><button class="dt-btn ghost sm" data-tdiv="'+esc(r.iv)+'" data-tdtab="'+esc(r.action[1])+'">'+esc(r.action[0])+'</button></div></div>';
   const secs=R.GROUPS.filter(([k])=>n(k)).map(([k,title,tag,hint])=>'<section class="dt-card td-sec"><button class="td-sh" data-tdtoggle="'+k+'"><span class="dt-row" style="gap:10px"><span class="td-tag td-t-'+k+'">'+esc(tag)+'</span><span class="td-title">'+esc(title)+'</span><span class="dt-note" style="font-size:13px">'+n(k)+' 件</span></span><span class="dt-note">'+esc(hint)+' '+(O[k]?'▲':'▼')+'</span></button>'+
     (O[k]?'<div class="td-rows">'+G[k].map(rowH).join('')+'</div>':'')+'</section>').join('');
-  box.innerHTML=(TODO.asof!=null?'<div class="dt-card td-asof">asof '+esc(DOC.dayOf(now)+' '+nowHm)+' の時点で計算しています（管理者 · 試験 · その時刻より前の信号だけ）</div>':'')+
+  box.innerHTML=cpBannerHtml()+(TODO.asof!=null?'<div class="dt-card td-asof">asof '+esc(DOC.dayOf(now)+' '+nowHm)+' の時点で計算しています（管理者 · 試験 · その時刻より前の信号だけ）</div>':'')+
     '<section class="td-sum">'+card('td-c-late','期限切れ',n('late'),'今すぐ')+card('td-c-1430','15:00 送金まで',n('t1430'),'14:30 までに確認')+card('td-c-1800','本日 FD · 18:00 宅配',n('fdtoday')+n('t1800'),'B/L 受領 · L/C 原本')+card('td-c-soon','近日 · 後払い',n('soon')+n('post'),'期限つき / なし')+card('td-c-chase','催促',n('chase'),'相手待ち')+'</section>'+
     '<section class="dt-card td-bar"><div class="dt-note">今日の締切 · いま '+esc(nowHm)+'</div><div class="td-track"><div class="td-line"></div><div class="td-fill" style="width:'+pos(nowHm)+'"></div>'+
       mk(nowHm,nowHm+' 今','now')+mk('12:00','12:00 CY_CUT 午前','am')+mk('14:30','14:30 確認','dr')+mk('15:00','15:00 送金','dl')+mk('18:00','18:00 宅配','dl')+'</div></section>'+
@@ -2077,6 +2138,7 @@ function renderTodo(){
     '<div class="dt-note" id="dtTodoMail">'+esc(todoMailNote())+'</div>'+
     '<div class="dt-note">1 Invoice = 1 行（いまの段階だけ）。データで確認できたいちばん後ろの段階より前の作業は「済」とみなして表示しない（確認できなかっただけ）。FD を送ったら一覧から消える。並び順：期限切れ → 今日の締切（14:30 · 15:00 · 18:00）→ 近日 → 後払い船社 → 催促（遅れの大きい順）。'+
       (TODO.portalErr?' ⚠ PORTAL を読めない: '+esc(TODO.portalErr):'')+'</div>';
+  cpBannerBind(box);   // v0.11
   box.querySelectorAll('[data-tdtoggle]').forEach(b=>{ b.onclick=()=>{ const o=Object.assign({},TODO.open||TODO_OPEN_DEF); o[b.dataset.tdtoggle]=!o[b.dataset.tdtoggle]; TODO.open=o; lsSet(LS.todoOpen,JSON.stringify(o)); renderTodo(); }; });
   box.querySelectorAll('[data-tdiv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.tdiv, b.dataset.tdtab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
   $('dtTodoAll').textContent='全 '+rows.length+' 件';
@@ -2161,7 +2223,7 @@ async function aclRerunQuiet(iv){
 async function aclCompareFromPages(iv, pages, name){
   const E=await loadAclEngine(), fm=E.classifyFormat(pages); if(fm.format!=='NACCS') return {verdict:'読取対象外'};
   const cp=await aclFetchCompass(iv); if(!cp.ok) return {verdict:'COMPASS照会不可'};
-  const rules=await aclRules(), acl=E.readNaccs(pages); return E.compareOne(acl,cp,{rules:rules.rules, meta:cp.meta, podExclude:rules.podExclude||[]});
+  const rules=await aclRules(), cpx=await cpLoad(), acl=E.readNaccs(pages); return E.compareOne(acl,cp,{rules:rules.rules, meta:cp.meta, podExclude:rules.podExclude||[], checkpoints:cpx||undefined});
 }
 /* 保存の記録 — 1 件 = 新しいファイル 1 つ (D-00/doc_tool/save_log/{yyyymmdd}/… · 追記 · 上書きはしない) */
 async function saveLog(row, result){
@@ -2262,10 +2324,135 @@ function startPage(){
 (function(){ try{ const P=window.Storage&&window.Storage.prototype, orig=P&&P.getItem; if(!orig||orig.call(window.localStorage,'leenai_theme')!=null) return;
   P.getItem=function(k){ const v=orig.call(this,k); return this===window.localStorage&&k==='leenai_theme'&&v==null?'leenai':v; }; }catch(e){} })();
 LEENAI.addHeaderButton({label:'⚙ 設定', title:'設定 (API キー · 範囲 · マスター)', onClick:()=>openSettings()});
+LEENAI.addHeaderButton({label:'見落とし報告', title:'チェックで見つけられなかった違いを報告 (管理者に届く)', onClick:()=>cpReportModal()});   // v0.11
+LEENAI.addHeaderButton({label:'チェックポイント', title:'書類の確認項目の一覧 (なぜ必要か · 実例)', onClick:()=>cpListModal().catch(e=>toast(e.message,'warn'))});   // v0.11
+/* ══════════ v0.11 チェックポイント (master_checkpoint · master_port_alias) · 見落とし報告 ══════════
+   ・マスターは LEENAI.master.get (読むだけ · 編集は ⚙ マスター設定) · 承認の安全装置 = SharePoint の版の記録から 行ごとの最後の変更者 (共通マスターの history には 「どの行」 が残らないため)
+   ・マスターを読めない → ACL 照合は エンジン v0.10 と同じ (CP 番号なし) · 画面に 「読めない」 */
+const CPS = {state:'', prep:null, err:'', at:0, reports:null, repErr:'', names:[]};
+const CP_VER_MAX = 50;   // 版の記録を見る数 (新しい順)
+const LS_CP_SEEN = 'doc_tool_cp_seen';   // 「確認した」 新しいチェック (このブラウザだけ)
+async function cpVersions(name){   // → [{by, items}] 新しい順 — 読めなければ null
+  try{ const p=LEENAI_MASTER_DIR+'/master_'+name+'.json', meta=await graphJson(drv()+'/root:/'+spEnc(p)+'?$select=id');
+    const vs=((await graphJson(drv()+'/items/'+meta.id+'/versions?$select=id,lastModifiedBy,lastModifiedDateTime&$top='+CP_VER_MAX))||{}).value||[];
+    /* 一番新しい版 (= 今のファイル) は versions/{id}/content で読めない (SharePoint は 400) → 今のファイルの中身 */
+    const out=[]; await mapLimit(vs.slice(0,CP_VER_MAX),4,async(v,i)=>{ const r=await graphFetch(i===0?drv()+'/items/'+meta.id+'/content':drv()+'/items/'+meta.id+'/versions/'+encodeURIComponent(v.id)+'/content'); if(!r.ok) throw new Error('版 '+r.status);
+      const j=await r.json(); const u=(v.lastModifiedBy&&v.lastModifiedBy.user)||{}; out[i]={by:String(u.email||u.displayName||'').toLowerCase(), items:Array.isArray(j.items)?j.items:[]}; });
+    return out.filter(Boolean); }catch(e){ return null; } }
+const LEENAI_MASTER_DIR = '古紙/-. AI 活用/MASTER';
+async function cpLoad(force){
+  if(CPS.state==='ok'&&!force&&Date.now()-CPS.at<10*60e3) return CPS.prep;
+  if(CPS.p&&!force) return CPS.p;
+  CPS.p=(async()=>{ try{ const E=await loadAclEngine(); let items=null;
+      try{ items=await LEENAI.master.get('checkpoint',force?{fresh:true}:undefined); if(!Array.isArray(items)) throw new Error('items が配列でない'); }catch(e){ throw new Error('チェックポイントマスターを読めない ('+(e.message||e)+')'); }
+      let alias=[]; try{ alias=await LEENAI.master.get('port_alias',force?{fresh:true}:undefined)||[]; }catch(e){ alias=[]; }
+      const [v1,v2]=await Promise.all([cpVersions('checkpoint'),cpVersions('port_alias')]);
+      const lastBy=Object.assign({}, v1?E.cpLastChangers(v1):{}, v2?E.cpLastChangers(v2):{});   // 読めない → その行は 承認待ち (安全側)
+      CPS.prep=E.cpPrepare(items, alias, {admins:E.cpAdmins(S.staff), lastBy}); CPS.verOk=!!(v1&&v2); CPS.state=S.staff.length?'ok':''; CPS.err=''; CPS.at=Date.now(); }   // 職員マスターの前に読んだら 次にもう一度
+    catch(e){ CPS.prep=null; CPS.state='error'; CPS.err=e.message||String(e); }
+    finally{ CPS.p=null; } return CPS.prep; })();
+  return CPS.p;
+}
+/* ── 一覧 (全員 · 見るだけ) ── */
+const CPF = {stage:'', country:'', buyer:'', kind:'', state:'', q:''};
+async function cpListModal(){
+  modal('<div class="dt-h">チェックポイント</div><div class="dt-note">読み込み中…</div>');
+  await cpLoad(); if(!CPS.prep){ modal('<div class="dt-h">チェックポイント</div><div class="dt-c-diff">'+esc(CPS.err||'読めません')+'</div><div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>'); bindClose(); return; }
+  cpListRender();
+}
+function cpListRender(){
+  const E=S.aclE||ACLX, all=DOC.cpVisible(CPS.prep.rows, S.me.admin), rows=DOC.cpFilter(all, CPF), U=s=>String(s||'').toUpperCase();
+  const uniq=f=>[...new Set(all.map(f).filter(Boolean))].sort();
+  const countries=uniq(r=>r.scope_type==='country'?U(r.scope):''), buyers=uniq(r=>r.scope_type==='buyer'?U(r.scope):'');
+  const sel=(k,label,opts)=>'<label class="dt-row" style="gap:6px;font-size:13px">'+esc(label)+' <select class="dt-in cp-f" data-f="'+k+'" style="height:32px;width:auto">'+['<option value="">すべて</option>'].concat(opts.map(o=>'<option value="'+esc(o[0])+'"'+(CPF[k]===o[0]?' selected':'')+'>'+esc(o[1])+'</option>')).join('')+'</select></label>';
+  const stTag=r=>'<span class="cp-st cp-st-'+(r.state==='有効'?'on':r.state==='停止'?'off':'wait')+'">'+esc(r.state)+'</span>';
+  const line=r=>'<button class="cp-row" data-cpd="'+esc(r.id)+'"><span class="cp-id">'+esc(r.id)+'</span><span class="cp-t">'+esc(r.title)+'<span class="dt-note"> '+esc((r.stages||[]).map(s=>DOC.CP_STAGE_JA[s]||s).join(' · ')+' · '+(r.pay==='ALL'?'全取引':r.pay==='LC'?'L/C':r.pay)+(r.scope_type!=='all'?' · '+(DOC.CP_SCOPE_JA[r.scope_type]||r.scope_type)+' '+r.scope:''))+'</span></span><span class="cp-k">'+esc(r.kind)+'</span>'+stTag(r)+'</button>';
+  modal('<div class="dt-h">チェックポイント <span class="dt-note">'+rows.length+' / '+all.length+' 件 — 書類の確認項目の一覧（会社の書類の教科書）。押すと 「なぜ必要か」 と 実例。</span></div>'+
+    '<div class="dt-row" style="flex-wrap:wrap;gap:10px">'+sel('stage','段階',E.CP_STAGES.map(s=>[s,DOC.CP_STAGE_JA[s]||s]))+sel('kind','種類',E.CP_KINDS.map(k=>[k,k]))+(S.me.admin?sel('state','状態',E.CP_STATES.concat(['承認待ち']).map(k=>[k,k])):'')+
+      (countries.length?sel('country','国',countries.map(c=>[c,c])):'')+(buyers.length?sel('buyer','バイヤー',buyers.map(c=>[c,c])):'')+
+      '<input class="dt-in cp-f" data-f="q" placeholder="ことばで探す" value="'+esc(CPF.q)+'" style="height:32px;width:180px"></div>'+
+    '<div class="cp-list">'+(rows.map(line).join('')||'<div class="dt-note">該当なし</div>')+'</div>'+
+    '<div class="dt-note">'+(S.me.admin?'管理者の画面: 候補 · 試験 · 停止 · 承認待ち も出ています（職員には 基本 と 有効 の追加 だけ）。':'')+'編集は ⚙ マスター設定（「チェックポイント」）で — この画面は見るだけです。'+(CPS.verOk===false?' ⚠ 版の記録を読めないため 有効 · 停止 の行は 承認待ち として扱っています。':'')+'</div>'+
+    '<div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>');
+  bindClose();
+  $('dtModalBox').querySelectorAll('.cp-f').forEach(el=>{ const go=()=>{ CPF[el.dataset.f]=el.value; cpListRender(); const n=$('dtModalBox').querySelector('.cp-f[data-f="'+el.dataset.f+'"]'); if(n&&el.dataset.f==='q'){ n.focus(); n.setSelectionRange(n.value.length,n.value.length); } };
+    if(el.tagName==='SELECT') el.onchange=go; else el.oninput=go; });
+  $('dtModalBox').querySelectorAll('[data-cpd]').forEach(b=>{ b.onclick=()=>cpDetailModal(b.dataset.cpd, true); });
+}
+/* ── 1 行の説明 (一覧から · ACL 結果の CP 番号から) ── */
+async function cpDetailModal(id, fromList){
+  await cpLoad(); const E=S.aclE||ACLX, r=CPS.prep&&CPS.prep.rows.find(x=>x.id===id);
+  if(!r||(!S.me.admin&&DOC.cpVisible([r],false).length===0)){ modal('<div class="dt-h">'+esc(id)+'</div><div class="dt-note">'+esc(CPS.prep?'この番号は一覧にありません':CPS.err||'読めません')+'</div><div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>'); bindClose(); return; }
+  const row=r.row||{}, O=E.cpOp(r.op), cat=E.cpCatalog(), nm=n=>{ const c=cat.find(x=>x.name===n)||(/^text:/.test(n)?{label:'「'+n.slice(5)+'」'}:/^si\./.test(n)?{label:'S/I の欄 '+n.slice(3)}:/^booking\./.test(n)?{label:'ブッキングの欄 '+n.slice(8)}:null); return c?c.label:n; };
+  const how=r.kind==='追加'||r.op?(O?'「'+nm(r.left)+'」 と 「'+nm(r.right)+'」 を — '+E.CP_OPS[O.name].ja+(O.p?' ('+O.p+')':''):r.op?'(比べ方 '+r.op+' はない)':''):'';
+  const kv=(k,v)=>v?'<tr><th>'+esc(k)+'</th><td>'+v+'</td></tr>':'';
+  modal('<div class="dt-h"><span class="cp-id">'+esc(r.id)+'</span> '+esc(r.title)+'</div>'+
+    '<table class="cp-kv">'+kv('なぜ必要か',esc(row.why_ja||''))+kv('実例',esc(row.example||''))+kv('比べ方',esc(how))+kv('結果',esc(r.result+(r.kind==='追加'?' (違ったとき)':'')))+
+      kv('段階',esc((r.stages||[]).map(s=>DOC.CP_STAGE_JA[s]||s).join(' · ')))+kv('範囲',esc((r.pay==='ALL'?'全取引':r.pay==='LC'?'L/C 取引':r.pay)+(r.scope_type!=='all'?' · '+(DOC.CP_SCOPE_JA[r.scope_type]||r.scope_type)+' '+r.scope:'')))+
+      kv('状態',esc(r.state+(r.why&&S.me.admin?' — '+r.why:'')))+kv('承認',esc([row.approved_by?staffName(row.approved_by):'',row.approved_at||''].filter(Boolean).join(' · ')))+
+      (S.me.admin?kv('試験結果',esc(row.trial||''))+kv('報告者',esc(row.reported_by||''))+kv('エンジン項目',esc(r.engine_key||''))+kv('メモ',esc(row.note||'')):'')+'</table>'+
+    '<div class="dt-actions">'+(fromList?'<button class="dt-btn ghost" id="dtCpBack">一覧へ</button>':'<button class="dt-btn ghost" id="dtCpAll">チェックポイント一覧</button>')+'<button class="dt-btn ghost" data-close>閉じる</button></div>');
+  bindClose(); const b=$('dtCpBack')||$('dtCpAll'); if(b) b.onclick=()=>cpListModal();
+}
+function bindClose(){ $('dtModalBox').querySelectorAll('[data-close]').forEach(b=>{ b.onclick=closeModal; }); }
+/* ── 見落とし報告 (入力 → SharePoint D-00/checkpoint_reports/ に新規 1 つ) ── */
+function cpReportModal(iv){
+  const cur=iv||(S.cur&&S.cur.iv)||'';
+  modal('<div class="dt-h">見落とし報告</div><div class="dt-note">チェックで見つけられなかった違いを教えてください。管理者が チェックポイント（確認項目）を 1 行足すかを決めます。</div>'+
+    '<label class="dt-note">Invoice</label><input class="dt-in" id="cpRIv" style="height:36px" value="'+esc(cur)+'" placeholder="例 NXX2611-01">'+
+    '<label class="dt-note">段階</label><select class="dt-in" id="cpRStage" style="height:36px"><option value="">（選ぶ）</option>'+DOC.CP_REPORT_STAGES.map(s=>'<option>'+esc(s)+'</option>').join('')+'</select>'+
+    '<label class="dt-note">何が違っていたか（必須）</label><textarea class="dt-in" id="cpRWhat" rows="4" style="padding:8px 10px" placeholder="例 ACL の Consignee の銀行名が L/C と違っていた (CO., LTD. → COMPANY LIMITED)"></textarea>'+
+    '<label class="dt-note">どこで気づいたか</label><input class="dt-in" id="cpRWhere" style="height:36px" placeholder="例 銀行からの Discrepancy 通知 · B/L Draft を見て">'+
+    '<div id="cpRSt" class="dt-note"></div><div class="dt-actions"><button class="dt-btn" id="cpRSend">送る（保存）</button><button class="dt-btn ghost" data-close>やめる</button></div>');
+  bindClose();
+  $('cpRSend').onclick=async()=>{ const st=$('cpRSt'), btn=$('cpRSend'); let body;
+    try{ const d=new Date(); body=DOC.cpReportBody({invoice:$('cpRIv').value, stage:$('cpRStage').value, what:$('cpRWhat').value, where:$('cpRWhere').value},
+      {code:S.me.code, name:S.me.name, email:(LEENAI.user&&LEENAI.user.email)||'', at:d.toISOString(), tool:'書類ツール v'+CFG.version});
+      btn.disabled=true; st.textContent='保存中…'; await spPut(DOC.cpReportPath(d, S.me.code||'UNKNOWN'), JSON.stringify(body,null,1));
+      closeModal(); toast('見落とし報告を保存しました — ありがとうございます','ok'); CPS.reports=null; cpReportsLoad(); }
+    catch(e){ btn.disabled=false; st.innerHTML='<span class="dt-c-diff">'+esc(e.message||e)+'</span>'; } };
+}
+/* ── 管理者: 見落とし報告 n 件 (未確認) ── */
+async function cpReportsLoad(){
+  if(!S.me.admin) return;
+  try{ const k=await spChildren(DOC.CP_REPORT_DIR.replace(/\/$/,'')); CPS.names=(k||[]).filter(x=>x.file).map(x=>x.name); CPS.reports=DOC.cpReportsState(CPS.names); CPS.repErr=''; }
+  catch(e){ CPS.reports=DOC.cpReportsState([]); CPS.repErr=e.message; }
+  renderCpBadge();
+}
+function renderCpBadge(){
+  const r=document.getElementById('ln-hdr-right'); if(!r) return; let b=$('dtCpRep');
+  if(!b){ b=document.createElement('button'); b.id='dtCpRep'; b.className='dt-badge cp-rep'; b.onclick=()=>cpReportsModal(); const t=$('dtTrial'); if(t) t.appendChild(b); else r.insertBefore(b, r.firstChild); }
+  const n=S.me.admin&&CPS.reports?CPS.reports.unread:0; b.hidden=!n; b.textContent='見落とし報告 '+n+' 件 (未確認)';
+}
+async function cpReportsModal(){
+  modal('<div class="dt-h">見落とし報告</div><div class="dt-note">読み込み中…</div>');
+  await cpReportsLoad(); const R=CPS.reports||{reports:[]};
+  const list=await Promise.all(R.reports.slice(0,60).map(async x=>{ let j=null; try{ const t=await spText(DOC.CP_REPORT_DIR+x.name); j=t?JSON.parse(t):null; }catch(e){} return Object.assign({},x,{j}); }));
+  modal('<div class="dt-h">見落とし報告 <span class="dt-note">'+R.reports.length+' 件 · 未確認 '+R.unread+'</span></div>'+(CPS.repErr?'<div class="dt-c-diff">'+esc(CPS.repErr)+'</div>':'')+
+    '<div class="cp-list">'+(list.map(x=>{ const j=x.j||{}; return '<div class="cp-rep-row"><div><b>'+esc(j.invoice||'—')+'</b> <span class="dt-note">'+esc([j.stage,staffName(j.by||x.code),String(j.at||'').slice(0,16).replace('T',' ')].filter(Boolean).join(' · '))+'</span></div>'+
+      '<div>'+esc(j.what||'(読めない)')+'</div>'+(j.where?'<div class="dt-note">気づいた所: '+esc(j.where)+'</div>':'')+
+      '<div>'+(x.acked?'<span class="cp-st cp-st-on">確認済み</span>':'<button class="dt-btn ghost sm" data-ack="'+esc(x.name)+'">確認済みにする</button>')+'</div></div>'; }).join('')||'<div class="dt-note">報告はありません</div>')+'</div>'+
+    '<div class="dt-note">チェックポイントに足すときは リナイが 1 行を作り、過去の書類で試してから 形님が承認します（DOC-D-00 §2-13）。メール · Teams の自動送信はしていません。</div>'.replace('形님','형님')+
+    '<div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>');
+  bindClose();
+  $('dtModalBox').querySelectorAll('[data-ack]').forEach(b=>{ b.onclick=async()=>{ b.disabled=true; try{ await spPut(DOC.cpAckPath(b.dataset.ack), JSON.stringify({schema:'checkpoint_report_ack/1', report:b.dataset.ack, by:S.me.code, at:new Date().toISOString()})); toast('確認済みにしました','ok'); cpReportsModal(); }catch(e){ b.disabled=false; toast('保存できません: '+e.message,'warn'); } }; });
+}
+/* ── 今日やること の帯 — 新しいチェック (有効になって 7 日 · 自分の担当の範囲) ── */
+function cpSeen(){ try{ return JSON.parse(lsGet(LS_CP_SEEN,'[]'))||[]; }catch(e){ return []; } }
+function cpBannerHtml(){
+  if(!CPS.prep) return ''; const buyerIv={}; Object.keys(S.ct||{}).forEach(id=>{ const c=S.ct[id]||{}, b=S.buyers[c._cr49f_buyer_id_value]||{}, code=DOC.ctCode(c.cr49f_sale_contract_no||''); if(b.cr49f_buyer&&code) buyerIv[String(b.cr49f_buyer).toUpperCase()]=code; });   // バイヤー名 → IV コード (契約番号から)
+  const rows=DOC.cpNewFor(CPS.prep.rows, S.me, S.docStaff, buyerIv, S.today, cpSeen()); if(!rows.length) return '';
+  return rows.map(r=>'<div class="dt-card cp-new"><span class="cp-id">新しいチェック</span><span>'+esc(r.title)+'</span><button class="dt-a" data-cpd="'+esc(r.id)+'">詳しく</button><button class="dt-btn ghost sm" data-cpseen="'+esc(r.id)+'">確認した</button></div>').join('');
+}
+function cpBannerBind(box){
+  box.querySelectorAll('[data-cpd]').forEach(b=>{ b.onclick=()=>cpDetailModal(b.dataset.cpd); });
+  box.querySelectorAll('[data-cpseen]').forEach(b=>{ b.onclick=()=>{ const s=cpSeen(); if(s.indexOf(b.dataset.cpseen)<0) s.push(b.dataset.cpseen); lsSet(LS_CP_SEEN, JSON.stringify(s)); renderTodo(); }; });
+}
+
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.10', date:'2026-11-23',
+  sys:'D-00', name:'書類ツール', version:'0.11', date:'2026-11-23',
   desc:'今日やること (Invoice ごとに いまの段階 1 つ) · 書類担当の進み具合 (Invoice 別 · 契約別) · ACL 照合 · S/I 推薦 — D-01 · D-03 · D-04 をまとめる試験運用版',
-  graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下だけ (履歴 · S/I 控え — DOC.guardOut)
+  graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',
   onReady:startPage
 };

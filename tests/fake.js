@@ -97,6 +97,12 @@ function fakeFetch(W){
     if(url.indexOf(GR)===0){
       const p=decodeURIComponent(url.slice(GR.length));
       let m;
+      /* v0.11: マスターの版の記録 (チェックポイントの承認の安全装置) — /root:/{path}?$select=id · /items/{id}/versions · /items/{id}/versions/{vid}/content */
+      if((m=p.match(/^\/root:\/([^:?]*)\?\$select=id$/))){ const id=W.metaId&&W.metaId[m[1]]; return id?res(200,{id}):res(404,{}); }
+      if((m=p.match(/^\/items\/([^/]+)\/versions\?/))){ const v=W.versions&&W.versions[m[1]]; return v?res(200,{value:v.map(x=>({id:x.id, lastModifiedBy:{user:{email:x.by}}}))}):res(404,{}); }
+      if((m=p.match(/^\/items\/([^/]+)\/content$/))&&W.versions&&W.versions[m[1]]) return res(200,{items:W.versions[m[1]][0].items});   // 今の版 = ファイルの中身
+      if((m=p.match(/^\/items\/([^/]+)\/versions\/([^/]+)\/content$/))){ if(W.versions&&W.versions[m[1]]&&W.versions[m[1]][0].id===m[2]) return res(400,{error:{code:'invalidRequest'}});   // 実際と同じ: 今の版は versions で読めない
+        const v=W.versions&&(W.versions[m[1]]||[]).find(x=>x.id===m[2]); return v?res(200,{items:v.items}):res(404,{}); }
       if((m=p.match(/^\/root:\/(.*):\/children/))){ const k=W.sp[m[1]]; return k?res(200,{value:clone(k)}):res(404,{}); }
       if((m=p.match(/^\/root:\/(.*):\/content/))){ const t=W.content[m[1]]; return t!=null?res(200,null,t):res(404,{}); }
       if(/^\/root\/search\(q='mail_docstaff'\)/.test(p)) return res(200,{value:[{id:'mail1',name:'mail_docstaff_test.csv',size:10,lastModifiedDateTime:'2026-11-14T00:00:00Z',parentReference:{path:'/drives/DRV/root:/古紙/-. AI 活用/D-00/ACL_bench/_input'},file:{}}]});
@@ -110,7 +116,7 @@ function fakeFetch(W){
 async function page(W, opt){
   opt=opt||{}; const HTML=fs.readFileSync(opt.html||path.join(__dirname,'../index.html'),'utf8');
   const FAKE='<script>window.__btns=[];window.LEENAI={auth:{token:async t=>"TOK-"+t,status:{dataverse:"ok",graph:"ok"}},user:{email:'+JSON.stringify(opt.email||'tester@example.test')+',name:"TEST USER"},SP:{DRIVE_ID:"DRV"},'+
-    'master:{get:async function(n){ return JSON.parse(JSON.stringify(n==="staff"?window.__W.staff:n==="doc_staff"?window.__W.docStaff:[])); }},toast:function(m,t){ (window.__toasts=window.__toasts||[]).push(m); },'+
+    'master:{get:async function(n){ return JSON.parse(JSON.stringify(n==="staff"?window.__W.staff:n==="doc_staff"?window.__W.docStaff:(window.__W.masters&&window.__W.masters[n])||(window.__W.masters&&n!=="si_rule"&&n!=="forwarder"&&n!=="dray"&&n!=="sales_mail"?(function(){ throw new Error("SP master 404"); })():[]))); }},toast:function(m,t){ (window.__toasts=window.__toasts||[]).push(m); },'+
     'addHeaderButton:function(o){ window.__btns.push(o); },_openMasterPanel:function(){ window.__master=1; },'+
     'init:function(o){ window.__cfg=o; document.title="LEENAI "+o.sys+" "+o.name+" v"+o.version; setTimeout(function(){ var h=document.createElement("div"); h.id="ln-hdr-right"; document.getElementById("app").prepend(h); document.getElementById("app").style.display=""; o.onReady(); },0); }};</script>';
   const h=HTML.replace(/<script src="https:\/\/mhlee205\.github\.io\/LEENAI_COMMON\/v1\/leenai-common\.js"><\/script>/,FAKE).replace(/<link rel="stylesheet"[^>]*>/,'');
