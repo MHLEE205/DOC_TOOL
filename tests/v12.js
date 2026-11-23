@@ -25,8 +25,8 @@ console.log('1 규칙');
   const F=WIP+'/NAA2611-01', g=(p,kind)=>{ try{ return DOC.guardSave(p,{iv:'NAA2611-01', folder:F, test:false, kind}); }catch(e){ return e.message; } };
   eq([g(F+'/NAA2611-01_FRT MEMO REV.pdf','BL'),/保存できない名前/.test(g(F+'/NAA2611-01_ACL.pdf','BL')),/保存できない名前/.test(g(F+'/NAA2611-01_FRT MEMO.pdf')),/保存できない名前/.test(g(F+'/NAA2611-01_DRAFT.pdf','BL'))],[true,true,true,true],'문지기 — B/L 은 FRT MEMO 이름만 · ACL 은 ACL 이름만');
   /* 메일 下書き */
-  const res={iv:'NAA2611-01', A:[{field:'Consignee',class:'진짜 차이 의심',draft:'TO THE ORDER OF OTHER BANK',si:'TO THE ORDER OF SAMPLE BANK'},{field:'Shipper',class:'같음'},{field:'Notify',class:'판단 불가'}],
-    B:[{item:'47A 모든 서류 L/C 번호',result:'차이',draft:'',lc_quote:'ALL DOCUMENTS MUST INDICATE THIS CREDIT NUMBER.'},{item:'FREIGHT PREPAID',result:'같음'}],
+  const res={iv:'NAA2611-01', A:[{field:'Consignee',class:'DIFF',draft:'TO THE ORDER OF OTHER BANK',si:'TO THE ORDER OF SAMPLE BANK'},{field:'Shipper',class:'SAME'},{field:'Notify',class:'UNKNOWN'}],
+    B:[{item:'47A L/C No. in all docs',result:'DIFF',draft:'',lc_quote:'ALL DOCUMENTS MUST INDICATE THIS CREDIT NUMBER.'},{item:'FREIGHT PREPAID',result:'SAME'}],
     CP:[{label:'Consignee は L/C 46A の文言どおり',status:'DIFF',trial:false,actual:'X',expected:'Y'},{label:'試験',status:'INFO',trial:true,would:'DIFF',actual:'A',expected:'B'}]};
   const f=DOC.blMailDraft(res,'fix',{carrier:'SAMPLE LINE', person:'Taro Sample', to:'cs@carrier.test', blNo:'TESTBL1', subject:'RE: B/L Draft TESTBK1'});
   ok(f.subject==='[訂正依頼BL#TESTBL1] Re: B/L Draft TESTBK1'&&f.to==='cs@carrier.test'&&f.blocks===3,'訂正 — 件名 [訂正依頼BL#{B/L 番号}] Re: · 宛先 · 相違 3 (A · B · 有効 CP — 試験 CP · 같음 은 넣지 않음)',f);
@@ -38,9 +38,9 @@ console.log('1 규칙');
 console.log('2 엔진 고정');
 { const P=ENG.pin(HTML), Q=ENG.blPin(HTML), E=ENG.engine(HTML), B=ENG.blEngine(HTML);
   ok(ENG.vnum(P.ver)>=ENG.vnum('0.12')&&typeof E.cpStageRows==='function'&&typeof E.cpAliasSame==='function'&&E.cpOp('same_text_ws:trim_end_punct').p==='trim_end_punct','ACL 엔진 v0.12 고정 (커밋 '+P.commit.slice(0,7)+' · sha256 확인 · trim_end_punct)');
-  ok(Q.ver==='0.2'&&B.VERSION==='0.2'&&typeof B.applyCp==='function'&&typeof B.maskPlan==='function','B/L Draft 엔진 = bl_bench v0.2 고정 (커밋 '+Q.commit.slice(0,7)+' · sha256 확인)');
+  ok(ENG.vnum(Q.ver)>=ENG.vnum('0.2')&&B.VERSION===Q.ver&&typeof B.applyCp==='function'&&typeof B.maskPlan==='function','B/L Draft 엔진 = bl_bench v0.2 이상 고정 (커밋 '+Q.commit.slice(0,7)+' · sha256 확인)');
   ok(/const CMAPS = 'https:\/\/cdn\.jsdelivr\.net\/npm\/pdfjs-dist@3\.11\.174\/cmaps\/'/.test(HTML)&&!/cMapUrl:PDFJS\+'cmaps\/'/.test(HTML),'cmaps = jsdelivr 3.11.174 (cdnjs 403)');
-  ok(/source: CONTRACT_SEND\/bl_bench\.html @d318de3/.test(HTML),'바이어용 Draft 만들기 = bl_bench bl-app 의 사본 (출처 커밋 적음)'); }
+  ok(new RegExp('source: CONTRACT_SEND/bl_bench\\.html @'+Q.commit.slice(0,7)).test(HTML),'바이어용 Draft 만들기 = bl_bench bl-app 의 사본 (출처 커밋 적음)'); }
 
 /* 가짜 세계 — NAA2611-01 의 Draft (Consignee 은행이 L/C 와 다름) · 마스터 (BL_DRAFT 基本 2 · CP-A01 試験) */
 const DRAFT=await BF.mkPdf([BF.draftItems({consignee:['TO THE ORDER OF OTHER BANK']})]);
@@ -85,7 +85,8 @@ console.log('3 화면 — 직원');
   const mt=w.document.getElementById('dtModalBox').textContent; ok(/強い依頼/.test(mt)&&/ベトナム向け Deposit 依頼/.test(mt)&&/当社書類の頁/.test(mt)&&/画像の PDF/.test(mt),'バイヤー用 — 확인 문구 (① 강한 요청 ② 베트남 Deposit · 当社書類 뺌)',mt);
   w.document.getElementById('dtBlAskNo').click(); await X.until(()=>/やめました/.test(txt(w,'dtBlBuyerSt')));
   ok(true,'やめる → 만들지 않음');
-  const ws=W.writes.slice(w0); eq(ws.map(x=>x.method+' '+decodeURIComponent(x.url).replace(/^https:\/\/graph\.microsoft\.com\/v1\.0\/drives\/DRV/,'')),[],'照合 · 下書き · 확인 = 쓰기 0 (結果는 화면만)');
+  const ws=W.writes.slice(w0); const wu=ws.map(x=>x.method+' '+decodeURIComponent(x.url).replace(/^https:\/\/graph\.microsoft\.com\/v1\.0\/drives\/DRV/,''));
+  ok(wu.length===1&&/^PUT \/root:\/古紙\/-\. AI 活用\/D-00\/doc_tool\/bl\/NAA2611-01_\d{8}-\d{6}\.json:\/content\?@microsoft\.graph\.conflictBehavior=fail$/.test(wu[0]),'照合 · 下書き · 확인 = 쓰기 1 (v0.13: 照合 結果 doc_tool/bl/ 새 파일만)',wu);
   ok(W.req.some(r=>/raw\.githubusercontent\.com\/MHLEE205\/CONTRACT_SEND\/[0-9a-f]{40}\/bl_bench\.html$/.test(r)),'B/L 엔진 = 고정 커밋의 bl_bench.html');
   /* 版 선택 · 「Draft OK」 (같은 Draft → 一致) */
   /* T/T の件 (NBB2611-01) に S/I どおりの Draft → 相違なし → 「Draft OK」 */

@@ -37,7 +37,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.12 = 2026-11-23)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.13 = 2026-11-23)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -57,8 +57,8 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.12) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `44b4b6c2817bbfaaca11529136d8399c62ee7c4b` | `b076b336509a4621127c696a689dc8a9d29749e1590e8716d6e11572d5f582f9` |
-| B/L Draft 대조 (bl_bench v0.2) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `d318de33773e7905809e1e5de98c0980915e5571` | `75a23440d42fc2a9cfd07dbd9b52544147ba3f91b4ab7b9fd4db232f3e9ae0aa` |
+| ACL 대조 (acl_bench v0.13) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `f063889e3d8dd746d72696d43197cd1e360c5a53` | `be8130aeddc1e44eb935bb8df6476ce3494e9ce2034f9c7265bc43e2e9540068` |
+| B/L Draft 대조 (bl_bench v0.3) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `e18253ad9e32b79c3bd2c5d357acfd7f31c0b8ab` | `df29d87bade9e705b34378f1ccb6e5547cf4215fb32d16e34262228323654608` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -90,10 +90,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 - **v0.11 체크포인트** — 마스터 `master_checkpoint` (基本 = 엔진 항목 `engine_key` · 追加 = 줄의 `left` · `op` · `right` 를 엔진 `CP_OPS` 로 실행) · `master_port_alias` 를 `cpLoad` 가 읽어 `compareOne(…, {checkpoints})` 에 넘긴다 (못 읽으면 넘기지 않음 = 엔진 v0.10 과 같은 결과).
   - 承認の安全装置 = 承認者 + **그 줄의 마지막 변경자** (SharePoint 판 기록 `cpVersions` — 공통 마스터 `history` 에는 「어느 줄」 이 안 남음) 가 `portal_admin`. 가장 새 판은 `versions/{id}/content` 가 400 → 현재 파일 `items/{id}/content` 로 읽는다.
   - 一覧 (`cpListModal` · 직원 = 基本 + 有効 追加 · 관리자 = 전부) · ACL 결과 `data-cp` → `cpDetailModal` · 見落とし報告 = `D-00/checkpoint_reports/{yyyymmdd-hhmmss}_{코드}.json` · 確認済み = `.ack.json` (새 파일만 · `DOC.guardOut`) · 관리자 배지 `#dtCpRep` · 今日やること 띠 (`DOC.cpNewFor` · 7 일 · 「確認した」 = localStorage `doc_tool_cp_seen`). 메일 · Teams 자동 발송 없음.
-- **v0.12 B/L Draft 탭** — 기존 「B/L Draft」 탭 = 照合 (bl-core `judgeInvoice` · 기준 = COMPASS + L/C 보관소 · ACL 은 참고 · 운임 금액 비교 없음 · 체크포인트 stage `BL_DRAFT` = `cpLoad` 마스터). 결과는 **화면만** (SharePoint 에 쓰지 않음).
+- **v0.12 B/L Draft 탭** — 기존 「B/L Draft」 탭 = 照合 (bl-core `judgeInvoice` · 기준 = COMPASS + L/C 보관소 · ACL 은 참고 · 운임 금액 비교 없음 · 체크포인트 stage `BL_DRAFT` = `cpLoad` 마스터). v0.13: 결과 = `doc_tool/bl/{IV}_{UTC}.json` (「照合する」 · 保存の入口 본번 뒤 · 새 파일만 · 試験モード는 안 씀 · 今日やること 신호에는 아직 안 씀) · 「前回の照合」 = 가장 새 1 건 (읽기만).
   - 메일 下書き 3 = doc-core `DOC.BL_MAIL` (문구 표 한 곳) · `DOC.blMailDraft(res, type, ctx)` — `fix` 선사 정정 (`[訂正依頼BL#{B/L No}]`) · `ok` 「Draft OK」 (원 Draft 메일 Re:) · `buyer` (`[B/L Draft for {IV}]` · 베트남 = Deposit 한 줄). 받는 사람 = 메일함에서 (선사 = Draft 메일 보낸 사람 · 바이어 = 전에 바이어에게 보낸 메일의 받는 사람) · 없으면 빈칸. **보내기 0**.
   - バイヤー用 Draft = bl_bench bl-app `buildBuyerPdf` 의 사본 (출처 커밋 주석) — 확인 문구 → 운임 가린 이미지 PDF → **이 PC 에 내려받기만**. 当社書類 쪽 뺌 · B/L 쪽 없음 = 「別に取得」.
   - pdf.js `cmaps` = jsdelivr 3.11.174 (`CMAPS` · cdnjs 는 403).
+- **v0.13 일본어화** — 직원 화면 · 메일 下書き · 저장 JSON 에 **한글 0** (`tests/hangul.js` 가 index.html 의 문자열 · HTML 을 봄 · 주석 · 정규식 제외). bl-core v0.3 의 판정 = 영문 코드 (class `SAME` · `DIFF` … / L/C `SAME` · `DIFF_ABBR` · `NA_…` …) · 칸 이름 = 코드 (`Consignee bank` · `Vessel/Voyage` · `Container …`) — 화면 글자는 엔진의 표 (`CLASS_JA` · `LC_RES` · `FIELD_JA` · `LC_JA`) · 메일 칸 이름은 `DOC.BL_MAIL` 의 표 (코드가 열쇠).
+  - `#dtModal` 은 `#app` 밖 — 공통 파일 init 이 붙이는 `display:none` 을 startPage 에서 뗀다 (v0.12 · 지우면 창이 안 보임).
 - **v0.10 L/C 보관소** — L/C 는 SharePoint `古紙/LC/_READ/{계약}.json` (schema `lc_read/1` · A1 R2 2 회 판독을 코드로 정리 · 계약마다 1 개 · Amend 오면 다시 판독 → 옛 판은 `_old/`) 에서만 읽는다. **D-01 폴더 (`D-01-LC_FD_CHECKER`) 는 읽지 않는다.**
   - `DOC.SRC.lc` · `loadLcFiles` (`_` 로 시작하는 파일 · 폴더는 건너뜀) · `readLcJson` · 「LC 読み取り」 = `{계약}.md` 를 `DOC.mdHtml` 로 (글자는 전부 escape) · `aclFetchCompass` 의 부킹 `$select` 에 `cr49f_etd,crcf9_bl_etd` (엔진 v0.10 의 船積期限 照合).
   - 보관소 만들기 · 새 L/C 1 건 판독 = CONTRACT_SEND `tools/lc_read_build.mjs` · `tools/lc_read_one.mjs` (토르 · 리나이가 PC 에서 실행 · 이 TOOL 은 읽기만).
