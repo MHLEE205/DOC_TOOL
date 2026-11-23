@@ -1,5 +1,5 @@
 /* v0.9 시험 (지시서 D00 書類ツール v0.9 保存の入口 · 자체 확인 1~11) — 가짜 데이터만 · 실제 거래처 · 메일함 이름 0. node v09.js [html]
-   1 종류 (ACL 가족만 · 輸出許可 제외 · 나머지 「まだ対応していません」) · 2 Invoice 정하기 (Booking → 컨테이너 → 이름 · 제목 · 여러 개 = 고르기)
+   1 종류 (ACL 가족 · v0.12: B/L Draft 도 · 輸出許可 제외 · 나머지 「まだ対応していません」) · 2 Invoice 정하기 (Booking → 컨테이너 → 이름 · 제목 · 여러 개 = 고르기)
    3 중복 (해시) · 같은 내용 (글자) · 새 판 (다음 이름 · 옛 이름 = 1판) · 4 이름 규칙 · 5 저장 문지기 (시험 폴더 · Invoice 폴더 · 정해진 이름만)
    6 메일 입구 (읽기만 · 담당자 메일 · ED 제외 · 기록된 것 다시 안 냄) · 7 끌어다 놓기 (PDF 만 · ACL 탭 우선 · Booking 다름 경고)
    8 확인 → 저장 (새 파일만 · 409 → 다음 이름 다시 제안) · 9 저장 기록 (1 건 = 새 파일 1 개) · 10 자동 저장 스위치 = 기본 끔 (관리자만) · 11 쓰기 범위 grep */
@@ -18,7 +18,7 @@ console.log('1 종류');
 { const k=n=>DOC.saveKind(n,'');
   eq([k('NAA2611-01_ACL.pdf').key,k('ACL_TESTBK1.pdf').ok,k('仮ACL TESTBK1.pdf').sub,k('TESTBK1 DR.pdf').sub,k('本登録 TESTBK1.pdf').key],['ACL',true,'仮ACL','DR','ACL'],'ACL 가족 (ACL · 仮 · DR · 本登録) = 저장 대상 · sub (仮/DR/ACL)');
   ok(k('NAA2611-01_ED.pdf').skip&&!k('NAA2611-01_ED.pdf').ok&&k('輸出許可通知書.pdf').skip,'輸出許可 (ED) = 이 입구에 안 냄 (C-01)');
-  eq(['TEST_DRAFT.pdf','TEST_FD.pdf','TEST_SWB.pdf','TEST_RR.pdf','TEST IV.pdf','memo.pdf'].map(n=>k(n).ok?'ok':k(n).label),['B/L Draft · FRT MEMO','FD','B/L (SWB · 原本)','RR','IV · PL','その他'],'나머지 = 저장 안 함 · 종류 이름 (「まだ対応していません（…）」)');
+  eq(['TEST_DRAFT.pdf','TEST_FD.pdf','TEST_SWB.pdf','TEST_RR.pdf','TEST IV.pdf','memo.pdf'].map(n=>k(n).ok?'ok':k(n).label),['ok','FD','B/L (SWB · 原本)','RR','IV · PL','その他'],'나머지 = 저장 안 함 · 종류 이름 (「まだ対応していません（…）」) · v0.12: B/L Draft 는 保存');
   ok(DOC.saveKind('scan001.pdf','NACCS').ok,'이름이 달라도 내용이 NACCS 양식이면 ACL'); }
 
 console.log('2 Invoice 정하기');
@@ -94,7 +94,7 @@ console.log('6 메일 입구');
   ok(rows.length===2,'ACL 첨부 2 건 (ED 첨부 · 담당자 (회사 도메인) 메일 = 빠짐)',rows);
   ok(rows.some(t=>/2版目/.test(t)&&/NAA2611-01 の ACL（2版目）として保存します: NAA2611-01_ACL REV\.pdf/.test(t)),'새 판 → 「{IV} の ACL（2版目）として保存します: {이름}」',rows);
   ok(rows.some(t=>/重複/.test(t)&&/同じファイルが保存済み: NAA2611-01_ACL\.pdf/.test(t)),'폴더에 있는 것과 같은 파일 → 重複 (저장 버튼 없음)',rows);
-  ok(/新着 ACL（未保存）1 件/.test(box)&&/すべて保存（新規・新しい版のみ 1）/.test(box)&&/試験モード/.test(box),'「新着 ACL（未保存）n 件」 · 「すべて保存」 · 시험 모드 표시',box.slice(0,300));
+  ok(/新着 ACL · B\/L Draft（未保存）1 件/.test(box)&&/すべて保存（新規・新しい版のみ 1）/.test(box)&&/試験モード/.test(box),'「新着 ACL（未保存）n 件」 · 「すべて保存」 · 시험 모드 표시',box.slice(0,300));
   const mailUrls=W.req.filter(r=>/\/me\/messages/.test(r));
   ok(mailUrls.length&&mailUrls.every(r=>/^GET /.test(r))&&W.writes.slice(w0).every(x=>!/messages/.test(x.url)),'메일 = GET 만 (보내기 · 읽음 · 이동 0)',W.writes.slice(w0).map(x=>x.url));
   ok(mailUrls.some(r=>/attachments\/a1\/\$value/.test(r))&&!mailUrls.some(r=>/attachments\/a2\/\$value/.test(r)),'ED 첨부는 받지도 않음');
@@ -125,10 +125,10 @@ console.log('7 끌어다 놓기');
 { const W=mkWorld(), w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all', doc_tool_save_test:'1'}}); prep(w);
   await X.until(()=>SV(w).mailSt==='ok'||SV(w).mailSt==='error',20000); await X.until(()=>rowsOf(w).every(t=>!/判断中/.test(t)),20000);
   SV(w).rows=[]; const w0=W.writes.length;
-  await w.saveDrop([file('memo.txt',Buffer.from('x')), file('TEST_DRAFT.pdf',OTHER), file('scan.pdf',PDF1b), file('acl.pdf',PDF1), file('x.pdf',PDF3)]);
+  await w.saveDrop([file('memo.txt',Buffer.from('x')), file('TEST_RR.pdf',OTHER), file('scan.pdf',PDF1b), file('acl.pdf',PDF1), file('x.pdf',PDF3)]);
   const rows=rowsOf(w);
   ok(/PDF だけ対応/.test(rows[0]),'PDF 아님 → 「PDF だけ対応」',rows[0]);
-  ok(/この書類はまだ対応していません（B\/L Draft · FRT MEMO）/.test(rows[1]),'다른 서류 → 「この書類はまだ対応していません（{종류}）」',rows[1]);
+  ok(/この書類はまだ対応していません（RR）/.test(rows[1]),'다른 서류 → 「この書類はまだ対応していません（{종류}）」',rows[1]);
   ok(/同じ内容/.test(rows[2])&&/同じ内容のファイルが保存済み: NAA2611-01_ACL\.pdf/.test(rows[2]),'같은 글자 · 다른 파일 → 同じ内容',rows[2]);
   ok(/重複/.test(rows[3]),'같은 파일 → 重複',rows[3]);
   ok(/Invoice 不明/.test(rows[4])&&!!w.document.querySelectorAll('#dtInbox [data-svsel]').length,'Invoice 를 못 정함 → 不明 + 고르기',rows[4]);

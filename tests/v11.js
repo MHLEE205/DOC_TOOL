@@ -77,7 +77,7 @@ console.log('2 화면 — 직원');
   w.document.getElementById('cpRSend').click(); await X.until(()=>W.writes.length>before);
   const wr=W.writes.slice(before), u=decodeURIComponent(wr[0].url), body=JSON.parse(await (async b=>b&&b.text?await b.text():String(b))(wr[0].body));
   ok(wr.length===1&&wr[0].method==='PUT'&&/checkpoint_reports\/\d{8}-\d{6}_STAFF_A\.json:\/content\?@microsoft\.graph\.conflictBehavior=fail$/.test(u),'저장 = checkpoint_reports/{시각}_STAFF_A.json 새 파일 1 (덮어쓰기 없음)',u);
-  eq([body.invoice,body.stage,body.what,body.where,body.by,body.tool],['NAA2611-01','ACL','TEST: ACL の Consignee の銀行名','B/L Draft','STAFF_A','書類ツール v0.11'],'본문');
+  eq([body.invoice,body.stage,body.what,body.where,body.by,body.tool],['NAA2611-01','ACL','TEST: ACL の Consignee の銀行名','B/L Draft','STAFF_A','書類ツール v'+w.__cfg.version],'본문');
   ok(!W.writes.some(x=>/MASTER|cr49f_|crcf9_/.test(decodeURIComponent(x.url))),'마스터 · COMPASS 쓰기 0'); }
 
 console.log('3 화면 — 관리자');
@@ -116,7 +116,7 @@ console.log('4 ACL 결과');
   w.eval('closeModal(); S.me.admin=true; renderIv()'); ok(/試験中のチェック/.test(w.document.getElementById('dtIvBody').textContent),'관리자 화면 = 試験 줄 보임'); }
 
 console.log('5 엔진 · 照合');
-ok(Pn.ver==='0.11'&&typeof E.cpPrepare==='function'&&typeof E.cpApply==='function','엔진 고정 = acl_bench v0.11 (커밋 '+Pn.commit.slice(0,7)+' · sha256 확인)',Pn);
+ok(ENG.vnum(Pn.ver)>=ENG.vnum('0.11')&&typeof E.cpPrepare==='function'&&typeof E.cpApply==='function','엔진 고정 = acl_bench v0.11 이상 (v0.12: CP-A01 보완 · 커밋 '+Pn.commit.slice(0,7)+' · sha256 확인)',Pn);
 ok((HTML.match(/checkpoints:cpx\|\|undefined/g)||[]).length===2,'ACL 照合 2 곳 (화면 · 保存の入口) 이 checkpoints 를 엔진에 넘김 (못 읽으면 undefined = v0.10 과 같음)');
 { const W=X.world(); W.masters={}; const w=await P(W); await X.until(()=>w.eval('CPS.state')!=='');
   ok(w.eval('CPS.state')==='error'&&w.eval('CPS.prep')===null,'마스터를 못 읽음 → checkpoints 없음 (엔진 v0.10 과 같은 결과)'); }

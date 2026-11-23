@@ -89,6 +89,8 @@ function fakeFetch(W){
     { const mm=url.match(/\/me\/messages\/([^/]+)\/attachments\/([^/]+)\/\$value$/); if(mm){ const b=W.attBytes&&W.attBytes[mm[1]+'|'+mm[2]]; return b?ab(b):res(404,{}); } }
     { const mm=url.match(/\/items\/([^/]+)\/content$/); if(mm&&W.itemBytes&&W.itemBytes[mm[1]]) return ab(W.itemBytes[mm[1]]); }
     /* v0.3: acl_bench エンジン (raw · 커밋 고정) · 메일함 (me/messages — 읽기만) */
+    /* v0.12: bl_bench エンジン (raw · 커밋 고정) */
+    if(url.indexOf('https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/')===0&&/bl_bench\.html$/.test(url)){ const b=W.blEngine; if(!b) return res(404,{}); return {ok:true,status:200,headers:{get:()=>null},arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.length)}; }
     if(url.indexOf('https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/')===0&&/acl_bench\.html$/.test(url)){ const b=W.aclEngine; if(!b) return res(404,{}); return {ok:true,status:200,headers:{get:()=>null},arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.length)}; }
     if(url.indexOf('https://graph.microsoft.com/v1.0/me/messages')===0){ W.mailReads=(W.mailReads||0)+1; if(W.mailErr) return res(W.mailErr,{error:{code:'ErrorAccessDenied'}});
       /* v0.9: receivedDateTime ge … (保存の入口のメール) — 日付で絞る */
@@ -120,7 +122,8 @@ async function page(W, opt){
     'addHeaderButton:function(o){ window.__btns.push(o); },_openMasterPanel:function(){ window.__master=1; },'+
     'init:function(o){ window.__cfg=o; document.title="LEENAI "+o.sys+" "+o.name+" v"+o.version; setTimeout(function(){ var h=document.createElement("div"); h.id="ln-hdr-right"; document.getElementById("app").prepend(h); document.getElementById("app").style.display=""; o.onReady(); },0); }};</script>';
   const h=HTML.replace(/<script src="https:\/\/mhlee205\.github\.io\/LEENAI_COMMON\/v1\/leenai-common\.js"><\/script>/,FAKE).replace(/<link rel="stylesheet"[^>]*>/,'');
-  if(W.aclEngine===undefined) W.aclEngine=ENG.bytes(HTML);   // v0.3: 고정한 엔진 원문 (sha256 확인됨) — null 이면 읽기 실패 시험
+  if(W.aclEngine===undefined) W.aclEngine=ENG.bytes(HTML);
+  if(W.blEngine===undefined&&/const BL_ENGINE = /.test(HTML)) W.blEngine=ENG.blBytes(HTML);   // v0.12   // v0.3: 고정한 엔진 원문 (sha256 확인됨) — null 이면 읽기 실패 시험
   const dom=new JSDOM(h,{url:'https://mhlee205.github.io/DOC_TOOL/'+(opt.url||''),runScripts:'dangerously',pretendToBeVisual:true,beforeParse(w){
     w.__W=W; w.fetch=fakeFetch(W); if(!w.crypto||!w.crypto.subtle) Object.defineProperty(w,'crypto',{value:nodeCrypto.webcrypto}); w.confirm=w.alert=w.prompt=()=>{ throw new Error('confirm/alert 호출됨'); };
     w.open=(u)=>{ W.opened.push(u); return null; }; Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{ W.copied=t; }}});
