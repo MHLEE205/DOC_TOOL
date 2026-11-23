@@ -1234,8 +1234,8 @@ const DOC = (()=>{
   /* ══════════ v0.15 (指示書 MAC-THOR_5 D00 書類ツール v0.15 · 修正まとめ v0.2) — 規則 · 表 · 語はこの 1 か所 ══════════
      B1 ~ B6 L/C のない契約 · 仮 S/I (L/C 番号 = XXX) · B7 · B8 FD 済をメールの検索で · B10 · B11 ファイル名の Invoice 番号 · B12 は master_checkpoint (試験) */
   const V15 = {
-    /* B4 (形さん D2): S/I の L/C 番号が XXX (空白 · 大小は見ない · XXX だけ) = 仮 S/I — （仮） と同じ扱い · 重量 · Bales の XX は関係なし */
-    LC_TENT_RE:/^XXX$/,
+    /* B4 (形さん D2 · 追加指示): S/I の L/C 番号に XXX が入っている (空白 · 大小は見ない · 一部だけでも — 実例 「…825XXX DATED ON …」) = 仮 S/I — （仮） と同じ扱い · XX だけ · 重量 · Bales の XX は関係なし */
+    LC_TENT_RE:/XXX/,
     LC_TENT_VAL:'XXX',
     SI_LC_TENT_WHY:'仮 S/I（L/C 番号 XXX）',
     LC_TENT_MARK:'仮 — L/C 着で確認',

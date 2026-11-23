@@ -40,7 +40,9 @@ async function simplePdf(t){ const d=await PDFDocument.create(), p=d.addPage([40
 (async()=>{
 console.log('B4 L/C 번호 XXX = 仮 S/I');
 { const si=(lc,o)=>Object.assign({crcf9_sino:1,cr49f_lc_no:lc,crcf9_consignee:'C',crcf9_notify_party:'N',crcf9_po_vo:'PO',crcf9_place_of_delivery_1:'P'},o||{});
-  eq(['XXX',' x x x ','xxx','XX','XXXX','XXX-1','TESTLC1',''].map(v=>DOC.siLcTent([si(v)])),[true,true,true,false,false,false,false,false],'XXX (공백 · 대소문자 무시) 만 — XX · XXXX · 다른 글자 아님');
+  eq(['XXX',' x x x ','xxx','TESTLC825XXX DATED ON NOV 19, 2026','XXXX','XXX-1','XX','TESTLC66XX DATED ON JUN XX, 2026','TESTLC1',''].map(v=>DOC.siLcTent([si(v)])),[true,true,true,true,true,true,false,false,false,false],'XXX 가 들어 있으면 (일부만 · 공백 · 대소문자 무시) 仮 S/I — XX 만은 아님 (B4 추가 지시)');
+  { const c2=DOC.judgeCt({pay:'LC', lcFiles:[], lcOrig:[], sis:[si('TESTLC825XXX DATED ON NOV 19, 2026')]}); ok(c2.si.tent&&c2.si.lcTent&&!/LC No 未確定/.test(c2.si.why),'일부 XXX → 仮 S/I (L/C 未着 이면 確認)',c2.si);
+    const c3=DOC.judgeCt({pay:'LC', lcFiles:[], lcOrig:[], sis:[si('TESTLC66XX DATED ON JUN XX, 2026')]}); ok(!c3.si.tent&&/LC No 未確定 \(XX\)/.test(c3.si.why),'XX 만 → 전과 같음 (LC No 未確定 (XX))',c3.si); }
   ok(!DOC.siLcTent([si('TESTLC1',{crcf9_weight:'XX'})])&&!DOC.siLcTent([si('TESTLC1',{crcf9_remark:'XX BALES'})]),'중량 · Bales 의 XX 는 해당 없음');
   const c=DOC.judgeCt({pay:'LC', lcFiles:[], lcOrig:[], sis:[si('XXX')]});
   ok(c.si.s==='todo'&&c.si.tent&&c.si.lcTent&&/仮 S\/I（L\/C 番号 XXX）/.test(c.si.why)&&!/LC No 未確定/.test(c.si.why),'S/I 칸 = 確認 · 「仮 S/I（L/C 番号 XXX）」 (（仮） 와 같은 취급)',c.si);
