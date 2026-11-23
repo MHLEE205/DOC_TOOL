@@ -37,7 +37,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 = 2026-11-24)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -111,6 +111,15 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - B7 FD 메일 검색 = `fdSearchRun` (현황판 FD 칸 済 아님 · ETD 지남 · 통관 뒤 · 최대 40 · 동시 2 · 같은 Invoice 6 시간에 1 번 = localStorage `doc_tool_fdsearch_v15` · 모든 메일 읽기가 끝난 뒤) → `DOC.fdMailFound` → `state/fd/{IV}` → `x.fdState` (현황판 FD 済 · 今日やること 신호). `?asof` 시험에서는 안 씀.
   - B10 `DOC.fnameCheck` (선사 · 乙仲 이름 = `V15.FNAME_REF` 参考) · 판단 `state/fname` (`this` = 그 Invoice 이름으로 읽음 `fnameFix` · `other` · 메일 `ack`) · B11 `DOC.fdMailBad` (첨부 번호가 **제목의 어느 Invoice 번호와도** 다를 때 · `subjIvs` 가 `NA2610-03/04/06` 줄임 번호를 펼침 — 실자료 헛경보 15 → 0) · `DOC.fdDraftCheck` (FD 메일 초안 기능이 생기면 쓸 검사 · 지금은 초안 없음).
   - 今日やること 의 덧붙임 줄 = `DOC.todoExtra` (Invoice 의 단계 줄과 따로 · `fname` · `si` 그룹 · `red` = 빨강).
+- **v0.16 Invoice 別 = PORTAL 「船積書類」 と同じ表 (지시서 `THOR_8_지시서_D00_書類ツール_v0.16_PORTAL동일표`)** — 규칙 · 열 · 선택지 · 경로는 doc-core `DOC.PT` **한 곳**.
+  - 기본 = 「PORTAL と同じ」 (`LS.ivMode` = `doc_tool_iv_mode_v16` · 'portal' | 'etd'). 「ETD 範囲で見る」 = v0.15 표 그대로 (ETD 범위 · FD済み 숨김 · 열도 그대로). 담당 칩은 둘 다.
+  - 줄 = PORTAL `loadShipping` 과 같음 (`DOC.ptRows`): 부킹 `cr49f_etd` 今日 -90 〜 +180 (`$orderby=cr49f_etd asc&$top=500` · `loadPortalBk` · 첫 화면 뒤) → IV 「L」 시작 뺌 · `shipping[IV].fd_date` 있으면 뺌 · ETD (B/L ETD 우선) 가 今日 -30 보다 앞이면 뺌 · 빈 ETD 남김 · 순서 = ETD (빈 것 먼저). **PORTAL 에는 「通関依頼済」 줄 조건이 없다** (제목 글자뿐 · 通関 열은 ✅ 표시만).
+  - 열 = `PT.COLS` (ETD(E) · ETA(E) · CY_CUT · 通関 · POL · IV_NO (아래 작은 글씨 계약번호) · BKG本 · CNTR · SHIP · BKG_NO · 担当者) → 판정 칩 `PT.CHIPS` (ACL · B/L Draft · 保険 · RR) → 입력 `PT.INPUTS` (DEP · 振込 · FD送付日 · 備考). POL = `crcf9_region_japans.crcf9_pol` · 없으면 `crcf9_region_japan` (PORTAL `fetchPolMap` 그대로) · 「, JAPAN」 뺌. 通関 ✅ = `records[IV].tsukan_irai` 또는 CY_CUT ≤ 2026-08-17. BKG本 = `crcf9_container_informations` 수. 担当者 = 書類ツール 마스터 (`docStaff`) · PORTAL 방식 (`DOC.ptStaff`) 과 다르면 「PORTAL: …」 표시만.
+  - DEP = 베트남만 선택 (`PT.DEP_OPTS` 未 · 依頼中 · 確認) · 값이 「未」 면 書類ツール 판정 (済 · 待ち · —) 을 밑에. 振込 `PT.FURI_OPTS` (未 · 確認済) · FD送付日 date · 備考 text (`fd_note`) — 칸을 바꾸면 (change) 바로 저장.
+  - **저장 = `ptSave`** — 직전에 `?$select=id,eTag` + 내용 다시 읽기 → `DOC.ptMerge` (그 Invoice 그 칸 + `updated_by` + `last_updated` 만 · `JSON.stringify(…,null,2)` = PORTAL 과 같은 문자 모양) → `spPut(path, text, type, {portal:true, ifMatch})` (같은 PUT 한 줄 · `DOC.guardOut` → `guardPortal` = `PT.PATH` · `PT.TEST_PATH` 만 · eTag 없으면 거부). 412 → 다시 읽고 1 번 · 그래도 → 「他の人が更新しました — もう一度」. 같은 값이면 쓰지 않음.
+  - 試験モード (관리자 · 保存の入口 과 같은 스위치) = 저장 경로 `doc_tool/save_test/clearance_status_test.json` (사본 — 없으면 저장 안 함 · 실파일로 넘어가지 않음).
+  - 提案 = FD送付日 빈칸 + TOOL 이 FD 송부를 찾음 (`todoSignals` 의 `fd` · `fdSrc` — 메일 · 폴더 · 메일 검색) → 흐린 「提案 날짜」 + 「入力」 (누를 때만 저장 · 자동 저장 0).
+  - ⚠ PORTAL (v4.8) 은 지금도 **파일 전체를 eTag 없이** 덮어쓴다 — PORTAL 을 열어 둔 채 오래 있다가 저장하면 그 사이 書類ツール 이 저장한 값이 지워질 수 있다 (PORTAL 코드는 이번에 고치지 않음).
 - **v0.10 L/C 보관소** — L/C 는 SharePoint `古紙/LC/_READ/{계약}.json` (schema `lc_read/1` · A1 R2 2 회 판독을 코드로 정리 · 계약마다 1 개 · Amend 오면 다시 판독 → 옛 판은 `_old/`) 에서만 읽는다. **D-01 폴더 (`D-01-LC_FD_CHECKER`) 는 읽지 않는다.**
   - `DOC.SRC.lc` · `loadLcFiles` (`_` 로 시작하는 파일 · 폴더는 건너뜀) · `readLcJson` · 「LC 読み取り」 = `{계약}.md` 를 `DOC.mdHtml` 로 (글자는 전부 escape) · `aclFetchCompass` 의 부킹 `$select` 에 `cr49f_etd,crcf9_bl_etd` (엔진 v0.10 의 船積期限 照合).
   - 보관소 만들기 · 새 L/C 1 건 판독 = CONTRACT_SEND `tools/lc_read_build.mjs` · `tools/lc_read_one.mjs` (토르 · 리나이가 PC 에서 실행 · 이 TOOL 은 읽기만).

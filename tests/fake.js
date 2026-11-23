@@ -86,6 +86,13 @@ function fakeFetch(W){
         for(const r of rq){ const x=await self('https://graph.microsoft.com/v1.0'+r.url); let body=null; try{ body=await x.json(); }catch(e){} out.push({id:r.id, status:x.status, headers:{}, body}); }
         return res(200,{responses:out}); } }
     if(method!=='GET'){ W.writes.push({method,url,body:init.body});
+      /* v0.16: PORTAL clearance_status.json — If-Match (eTag) の上書き · 違えば 412 · W.beforePut = 同時に誰かが保存した 흉내 */
+      const IM=init.headers&&init.headers['If-Match'];
+      if(IM&&url.indexOf(GR)===0){ const pm=decodeURIComponent(url.slice(GR.length)).match(/^\/root:\/(.*):\/content$/); if(!pm) return res(400,{});
+        if(W.beforePut) await W.beforePut(pm[1]);
+        W.etag=W.etag||{}; const cur=W.etag[pm[1]]||'"e0"'; if(W.content[pm[1]]==null) return res(404,{});
+        if(IM!==cur){ W.puts412=(W.puts412||0)+1; return res(412,{error:{code:'resourceModified',message:'ETag does not match'}}); }
+        W.content[pm[1]]=typeof init.body==='string'?init.body:await init.body.text(); W.etag[pm[1]]='"e'+(W.etagN=(W.etagN||0)+1)+'"'; return res(200,{size:1}); }
       /* v0.9: 保存の入口 — 名前がもう使われている (409) の試験 */
       if(W.putFail){ const st=W.putFail(decodeURIComponent(url)); if(st) return res(st,{error:{code:'nameAlreadyExists',message:'already exists'}}); }
       if(url.indexOf(GR)===0){ return res(201,{size:1}); } return res(204,{}); }
@@ -107,6 +114,7 @@ function fakeFetch(W){
       const p=decodeURIComponent(url.slice(GR.length));
       let m;
       /* v0.11: マスターの版の記録 (チェックポイントの承認の安全装置) — /root:/{path}?$select=id · /items/{id}/versions · /items/{id}/versions/{vid}/content */
+      if((m=p.match(/^\/root:\/([^:?]*)\?\$select=id,eTag$/))){ if(W.content[m[1]]==null) return res(404,{}); W.etag=W.etag||{}; return res(200,{id:'pt-'+m[1].length, eTag:W.etag[m[1]]||'"e0"'}); }   // v0.16
       if((m=p.match(/^\/root:\/([^:?]*)\?\$select=id$/))){ const id=W.metaId&&W.metaId[m[1]]; return id?res(200,{id}):res(404,{}); }
       if((m=p.match(/^\/items\/([^/]+)\/versions\?/))){ const v=W.versions&&W.versions[m[1]]; return v?res(200,{value:v.map(x=>({id:x.id, lastModifiedBy:{user:{email:x.by}}}))}):res(404,{}); }
       if((m=p.match(/^\/items\/([^/]+)\/content$/))&&W.versions&&W.versions[m[1]]) return res(200,{items:W.versions[m[1]][0].items});   // 今の版 = ファイルの中身
@@ -137,6 +145,7 @@ async function page(W, opt){
     w.open=(u)=>{ W.opened.push(u); return null; }; Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{ W.copied=t; }}});
     /* v0.7: 最初の画面は 今日やること — v0.6 までの試験は 前の現況板 (doc_tool_board · 既定 Invoice 別) で開く (opt.first なら何も入れない = 本当の最初の画面) */
     const L=Object.assign({},opt.ls||{}); if(!opt.first&&L.doc_tool_board_v7===undefined) L.doc_tool_board_v7=L.doc_tool_board||'iv';
+    if(!opt.first&&L.doc_tool_iv_mode_v16===undefined) L.doc_tool_iv_mode_v16='etd';   // v0.16: v0.15 までの試験は 「ETD 範囲で見る」 の表
     Object.entries(L).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; if(opt.init) opt.init(w); }});
   const w=dom.window; await until(()=>/読み込み完了|読み込み失敗/.test(w.document.getElementById('dtProg').textContent));
   return w;
