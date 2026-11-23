@@ -37,8 +37,14 @@ function world(){
   W.sp[WIP+'/NAA2611-01']=[file('NAA2611-01_ED.pdf'),file('NAA2611-01_ACL.pdf'),file('NAA2611-01_DRAFT.pdf'),dir('PHOTO')];
   W.sp[WIP+'/NBB2611-01']=[file('NBB2611-01_ED.pdf'),file('NBB2611-01_ACL.pdf'),file('NBB2611-01_ACL REV.pdf'),file('NBB2611-01_SWB.pdf'),file('NBB2611-01_RR.pdf'),file('NBB2611-01_FD.pdf')];
   W.sp['古紙/_OLD_DOC/'+T.slice(0,4)]=[]; W.sp['古紙/_OLD_DOC/'+(+T.slice(0,4)-1)]=[];
-  W.sp['古紙/-. AI 活用/D-01-LC_FD_CHECKER']=[file('LRS-2611AA1_TESTLC001.json'),dir('履歴')];
+  /* v0.10: L/C 保管所 (古紙/LC/_READ · lc_read/1) — D-01 フォルダは読まない (中身を置いても使われないことを v10.js で確認) */
+  W.sp['古紙/LC/_READ']=[file('LRS-2611AA1.json'),file('LRS-2611AA1.md'),file('_index.json'),dir('_old')];
   W.content={};
+  W.content['古紙/LC/_READ/LRS-2611AA1.json']=JSON.stringify({schema:'lc_read/1',contract:'LRS-2611AA1',version:1,lc_no:'TESTLC001',issue_date:'2026-10-01',expiry_date:'2026-12-31',latest_shipment:'2026-12-15',
+    source:{run:'test',reads:2,lc_pdf:['TESTLC001.pdf'],amends:[]},pol:{text:'ANY JAPANESE PORT',any_japan:true},pod:{text:'CAT LAI',list:['CAT LAI']},applicant:{name:'SAMPLE PAPER CO., LTD.',address:''},
+    bl:{consignee_text:'TO THE ORDER OF SAMPLE BANK',consignee_bank:'SAMPLE BANK',notify_text:'NOTIFY APPLICANT',notify_is_applicant:true,notify_name_words:['SAMPLE','PAPER'],originals:3,freight:'PREPAID'},fields:{},checks:[]});
+  W.content['古紙/LC/_READ/LRS-2611AA1.md']='# L/C 判読 — LRS-2611AA1 (v1)\n\n| 項目 | 値 |\n|---|---|\n| L/C 番号 | TESTLC001 |\n| **船積期限 (44C)** | **2026-12-15** |\n| **有効期限 (31D)** | **2026-12-31** |\n| Consignee (46A) | TO THE ORDER OF SAMPLE BANK → 銀行 **SAMPLE BANK** |\n\n## 確認が必要 (0)\n\nなし\n\n---\n✦ Powered by LEENAI Automation System\n';
+  W.sp['古紙/-. AI 活用/D-01-LC_FD_CHECKER']=[file('LRS-2611AA1_TESTLC001.json')];
   W.content['古紙/-. AI 活用/D-01-LC_FD_CHECKER/LRS-2611AA1_TESTLC001.json']=JSON.stringify([{id:'x',contractNo:'LRS-2611AA1',lcNo:'TESTLC001',lcDate:'2026-10-01',amount:'USD 1,000.00',issuingBank:'SAMPLE BANK',fileNames:['TESTLC001.pdf']}]);
   W.sp['古紙/-. AI 活用/D-00/ACL_bench']=[dir('ACL_20261101-000000'),dir('ACL_20261120-000000'),dir('_input')];
   const item=(status,label,exp,act,group,detail)=>({group:group||'本文',key:label,label,status,expected:exp,actual:act,detail:detail||'',kind:''});

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.9</title>
+<title>LEENAI D-00 書類ツール v0.10</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -100,6 +100,16 @@ button.st:hover{border-color:currentColor}
 .dt-kv{display:grid;grid-template-columns:160px 1fr;gap:6px 12px;font-size:13px}
 .dt-kv div:nth-child(odd){color:var(--text3)}
 .dt-kv div:nth-child(even){white-space:pre-wrap;word-break:break-word}
+/* v0.10 LC 読み取り (保管所の MD) */
+.dt-md{max-height:70vh;overflow:auto;font-size:13px;line-height:1.5}
+.dt-md-h1{font-size:15px;font-weight:600;margin:4px 0 6px}
+.dt-md-h2{font-size:14px;font-weight:600;margin:12px 0 4px}
+.dt-md-h3{font-weight:600;margin:8px 0 4px}
+.dt-md-t{border-collapse:collapse;width:100%;margin:4px 0}
+.dt-md-t td,.dt-md-t th{border:1px solid var(--border);padding:3px 6px;vertical-align:top;text-align:left;word-break:break-word}
+.dt-md-t th{color:var(--text3);font-weight:500}
+.dt-md ul{margin:4px 0 4px 18px;padding:0}
+.dt-md code{font-size:12px}
 .av{display:flex;flex-direction:column;gap:10px}
 .av-concl{font-size:16px;font-weight:500;padding:10px 14px;border-radius:10px;background:var(--surface2)}
 .av-ok{color:var(--st-done-fg)}.av-ng{color:var(--st-diff-fg)}.av-read,.av-note{color:var(--st-todo-fg)}.av-na{color:var(--st-na-fg)}
@@ -217,6 +227,7 @@ button.st:hover{border-color:currentColor}
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
+   v0.10 (2026-11-23 指示書 D00 L/C 保管所 · ACL 転換 · 형님 D1): L/C は 保管所 古紙/LC/_READ/{契約}.json (lc_read/1) から読む (D-01 JSON は読まない) · エンジン v0.10 (Consignee 銀行 · 船積期限 ↔ ETD) · 「LC 読み取り」 = 保管所の MD (人が読む判)
    v0.9 (2026-11-22 指示書 書類ツール v0.9 保存の入口): ACL を Invoice フォルダへ 決まった名前で保存 — 入口 2 つ (自分のメールの ACL 添付 · 画面に PDF を置く) → 処理 1 つ (種類 · Invoice · 重複 · 版 · 確認 · 新規作成だけ · 保存の記録 · ACL 照合) · 試験モード = doc_tool/save_test/
    v0.8 (2026-11-22 指示書 acl_bench v0.9 · 書類ツール v0.8 정확도): エンジン v0.9 · ACL メールの下書き (本登録 / 訂正 / 本船変更 · 件名タグ自動 · 送るのは人) · 担当の名前を全部 · B/L を受け取った件の FD = 「本日」
    v0.7 (2026-11-22 指示書 書類ツール v0.7 今日やること): 最初の画面 = 今日やること — Invoice ごとに いまの段階 1 つ (規則表 v0.4) · 規則 · 表 · 語は TODO_RULES 1 か所
@@ -229,7 +240,7 @@ const DOC = (()=>{
   const STEPS = [['customs','通関'],['acl','ACL'],['depo','DEPO'],['bl','B/L Draft'],['ins','保険'],['rr','RR'],['fd','FD']];
   const CT_STEPS = [['lc','LC'],['si','S/I']];
   const OUT_ROOT = '古紙/-. AI 活用/D-00/doc_tool/';   // この TOOL が SharePoint に書く場所はここだけ
-  const SRC = {wip:'古紙/-. 古紙書類/▲ 書類作成中', old:'古紙/_OLD_DOC', lc:'古紙/-. AI 活用/D-01-LC_FD_CHECKER', acl:'古紙/-. AI 活用/D-00/ACL_bench'};
+  const SRC = {wip:'古紙/-. 古紙書類/▲ 書類作成中', old:'古紙/_OLD_DOC', lc:'古紙/LC/_READ', acl:'古紙/-. AI 活用/D-00/ACL_bench'};
 
   /* ── ファイル名の規則 (実際の Invoice フォルダ 166 件の名前から · 2026-11-20) ── */
   const NAME = {
@@ -440,7 +451,7 @@ const DOC = (()=>{
   /* ── 契約行の判定 ── x = {pay, lcFiles:[name], sis:[S/I]} */
   function judgeCt(x){
     const out={};
-    const n=NA.lc(x); out.lc=n?{s:'na', why:n, files:[]}:(x.lcFiles===undefined?{s:'load',why:'読み込み中',files:[]}:(x.lcFiles||[]).length?{s:'done', why:'D-01 の LC 読み取り結果あり', files:x.lcFiles}:{s:'wait', why:'D-01 の LC 読み取り結果なし (LC 未着 · 未読取)', files:[]});
+    const n=NA.lc(x); out.lc=n?{s:'na', why:n, files:[]}:(x.lcFiles===undefined?{s:'load',why:'読み込み中',files:[]}:(x.lcFiles||[]).length?{s:'done', why:'L/C 判読 (保管所) あり', files:x.lcFiles}:{s:'wait', why:'L/C 判読 (保管所) なし (LC 未着 · 未登録)', files:[]});
     const sis=x.sis||[];
     if(x.sis===undefined) out.si={s:'load',why:'読み込み中',files:[]};
     else if(!sis.length) out.si={s:'wait', why:'COMPASS に S/I なし', files:[]};
@@ -970,8 +981,22 @@ const DOC = (()=>{
     const body=head.concat(lines).concat(onlyDisp?ACL_MAIL.DISP_TAIL.slice(1):ACL_MAIL.FIX_TAIL).join(NL);
     return {type:ves?'vessel':'fix', subject:(ves?ACL_MAIL.TAG.vessel:ACL_MAIL.TAG.fix)+' Re: '+orig, body, blocks, skipped, read:it.filter(i=>i.status==='READ_CHECK').length};
   }
-  /* 原本通数 — L/C 46A (TELEX / SURRENDER → 1 · FULL SET → 3) · acl_bench エンジン v0.9 の lcOriginals と同じ関数 (B/L 発行依頼の下書きは次の版) */
-  const lcOriginals = lc => AE&&typeof AE.lcOriginals==='function'?AE.lcOriginals(lc):null;
+  /* 原本通数 — L/C 46A (TELEX / SURRENDER → 1 · FULL SET → 3) · v0.10: 保管所の判読 (lc_read/1) は エンジン lcOriginalsText で出した bl.originals を持つ → それを読む (B/L 発行依頼の下書きは次の版) */
+  const lcOriginals = lc => lc&&lc.bl&&lc.bl.originals!=null?+lc.bl.originals:null;
+  /* v0.10: 保管所の MD (人が読む判 · tools/lc_read_lib.mjs renderMd の形) → HTML — 見出し · 表 · 箇条 · 引用 · 太字 · code · 区切り だけ (文字は全部 escape) */
+  function mdHtml(md){ const E=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'), I=t=>E(t).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>');
+    const L=String(md||'').replace(/\r/g,'').split('\n'), out=[]; let i=0;
+    const cells=l=>l.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split(/(?<!\\)\|/).map(c=>c.replace(/\\\|/g,'|').trim());
+    while(i<L.length){ const l=L[i];
+      if(/^\s*\|/.test(l)){ const rows=[]; while(i<L.length&&/^\s*\|/.test(L[i])) rows.push(L[i++]); const body=rows.filter(r=>!/^\s*\|[\s|:-]+\|\s*$/.test(r));
+        out.push('<table class="dt-md-t">'+body.map((r,k)=>'<tr>'+cells(r).map(c=>k===0&&rows.length>1&&/^\s*\|[\s|:-]+\|\s*$/.test(rows[1])?'<th>'+I(c)+'</th>':'<td>'+I(c)+'</td>').join('')+'</tr>').join('')+'</table>'); continue; }
+      if(/^- /.test(l)){ const it=[]; while(i<L.length&&/^- /.test(L[i])) it.push('<li>'+I(L[i++].slice(2))+'</li>'); out.push('<ul>'+it.join('')+'</ul>'); continue; }
+      let m; if((m=l.match(/^(#{1,3})\s+(.*)$/))) out.push('<div class="dt-md-h'+m[1].length+'">'+I(m[2])+'</div>');
+      else if(/^>\s?/.test(l)) out.push('<div class="dt-note">'+I(l.replace(/^>\s?/,''))+'</div>');
+      else if(/^---\s*$/.test(l)) out.push('<hr>');
+      else if(l.trim()) out.push('<div>'+I(l)+'</div>');
+      i++; }
+    return out.join(''); }
 
   /* ══════════ v0.9 保存の入口 (指示書 書類ツール v0.9 · 형님 D1 · D2 · D3) — 規則 · 表 · 名前はこの 1 か所 ══════════
      入口 2 つ (メール · 置く) → 処理 1 つ: 種類 → どの Invoice → 重複 → (確認) → 決まった名前で 新規作成 だけ → ACL 照合 */
@@ -1036,7 +1061,7 @@ const DOC = (()=>{
 
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     /* v0.9 */ SAVE_RULES, saveKind, textKeyOf, saveCands, saveJudge, saveBump, guardSave,
-    /* v0.8 */ ACL_MAIL, aclMailDraft, reSubj, lcOriginals,
+    /* v0.8 */ ACL_MAIL, aclMailDraft, reSubj, lcOriginals, /* v0.10 */ mdHtml,
     /* v0.7 */ TODO_RULES, jst, at, dayOf, hmOf, bday, badd, nextBday, bhours, postpaid, mailHead, senderKind, mailUses, mailKind, kindTarget, linkIndex, linkMail, nudgeH, todoSignals, todoRow, todoGroup, whenLabel, todoSort, parseAsof,
     /* v0.6 */ SI_TENT, SI_TENT_WHY, ACL_TENT_NOTE, siTent, CT_DAYS_DEFAULT,
     /* v0.3 */ useAclEngine, aclReady, aclPick, FD_TENT, fdFiles, fdBundle, honIndex, jstDay, CT_REAL, CT_PERIODS, monthsAgo, sortCtDate,
@@ -1168,7 +1193,9 @@ async function loadAll(){
     if(!SAVE.started){ SAVE.started=true; saveMailScan(); }   // v0.7: メールは後から (先に COMPASS · フォルダ · PORTAL で表示)
   }catch(e){ prog('読み込み失敗: '+e.message); toast('読み込み失敗: '+e.message,'danger'); }
 }
-async function loadLcFiles(){ try{ const k=await spChildren(DOC.SRC.lc); const m={}; (k||[]).filter(x=>x.file&&/\.json$/i.test(x.name)).forEach(x=>{ const c=DOC.up(x.name.split('_')[0]); (m[c]=m[c]||[]).push({name:x.name, webUrl:x.webUrl, lastModified:x.lastModifiedDateTime}); }); S.lcFiles=m; }catch(e){ S.lcFiles={}; S.lcErr=e.message; } }
+/* v0.10: L/C 保管所 (古紙/LC/_READ) — 契約ごとに {契約}.json (lc_read/1) + {契約}.md · _index.json · _old/ · _text/ は飛ばす */
+async function loadLcFiles(){ try{ const k=await spChildren(DOC.SRC.lc); const m={}, md={}; (k||[]).filter(x=>x.file&&!/^_/.test(x.name)&&/\.md$/i.test(x.name)).forEach(x=>{ md[DOC.up(x.name.replace(/\.md$/i,''))]=x.webUrl; });
+    (k||[]).filter(x=>x.file&&!/^_/.test(x.name)&&/\.json$/i.test(x.name)).forEach(x=>{ const c=DOC.up(x.name.replace(/\.json$/i,'')); (m[c]=m[c]||[]).push({name:x.name, webUrl:x.webUrl, mdUrl:md[c]||'', lastModified:x.lastModifiedDateTime}); }); S.lcFiles=m; }catch(e){ S.lcFiles={}; S.lcErr=e.message; } }
 async function loadRoots(){
   const y=+S.today.slice(0,4); S.wip={}; S.old={};
   const [w,o1,o2]=await Promise.all([spChildren(DOC.SRC.wip).catch(()=>null), spChildren(DOC.SRC.old+'/'+y).catch(()=>null), spChildren(DOC.SRC.old+'/'+(y-1)).catch(()=>null)]);
@@ -1363,7 +1390,7 @@ function lcOfCt(id){ const c=S.ct[id]||{}, sis=S.sis[id]||[], s1=sis.find(s=>+s.
   return {no:String(s1.cr49f_lc_no||'').trim(), files, pay:DOC.up(FV(c,'cr49f_pay_cls')||c.cr49f_pay_cls)}; }
 function lcLinks(id){ const L=lcOfCt(id);
   if(L.pay!=='LC') return '<span class="v">— ('+esc(L.pay||'LC 以外')+')</span>';
-  return '<span class="v">'+esc(L.no||'(S/I に LC 番号なし)')+'</span>'+(L.files.length?' <button class="dt-a" data-lcorig="'+esc(id)+'">LC 原本を開く</button> <button class="dt-a" data-lcjson="'+esc(id)+'">読み取り結果</button>':' <span class="dt-note">D-01 の読み取り結果なし</span>'); }
+  return '<span class="v">'+esc(L.no||'(S/I に LC 番号なし)')+'</span>'+(L.files.length?' <button class="dt-a" data-lcorig="'+esc(id)+'">LC 原本を開く</button> <button class="dt-a" data-lcjson="'+esc(id)+'">LC 読み取り</button>':' <span class="dt-note">L/C 判読 (保管所) なし</span>'); }
 function renderIvSum(){
   const r=ivRow(S.cur.b), b=r.b;
   const kv=(k,v,raw)=>'<div><div class="k">'+esc(k)+'</div><div class="v">'+(raw?v:esc(v||'—'))+'</div></div>';
@@ -1475,7 +1502,7 @@ function renderCt(){
   $('dtCtTabs').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.curTab=b.dataset.tab; renderCt(); }; });
   const box=inner=>'<section class="dt-card dt-panel">'+inner+'</section>';
   let h='';
-  if(S.curTab==='lc') h=box('<div class="dt-h">LC</div><div class="dt-p">LC の読み取り · アメンド反映は今の D-01 ① をそのまま使います。</div>'+statusLine(r.cells.lc)+'<div class="dt-actions">'+copyBtn(r.ct)+toolBtn('d01')+'</div>');
+  if(S.curTab==='lc') h=box('<div class="dt-h">LC</div><div class="dt-p">LC の読み取りは L/C 判読 (保管所 <code>'+esc(DOC.SRC.lc)+'</code>) を使います — 契約ごとに 1 回きちんと読み、アメンドが来たら読み直して登録します。</div>'+statusLine(r.cells.lc)+'<div class="dt-actions">'+copyBtn(r.ct)+(r.cells.lc.s==='done'?'<button class="dt-btn ghost" data-lcjson="'+esc(r.id)+'">LC 読み取り</button>':'')+'</div>');
   else if(S.curTab==='si') h=(typeof siTabHtml==='function')?siTabHtml(r):box('<div class="dt-h">S/I</div><div class="dt-p">S/I 推薦（A1）と COMPASS 書き込みは準備中です。今は a1_bench で確認してください。</div>'+statusLine(r.cells.si)+'<div class="dt-actions">'+copyBtn(r.ct)+toolBtn('a1')+'</div>');
   else h=box('<div class="dt-h">履歴</div><div class="dt-p">この TOOL で行った記録（S/I 書き込み）。</div><div id="dtCtLog" class="dt-note">読み込み中…</div>');
   $('dtCtBody').innerHTML=h; bindCommon($('dtCtBody')); bindCommon($('dtCtSum'));
@@ -1495,16 +1522,18 @@ function bindCommon(root){
   root.querySelectorAll('[data-lcjson]').forEach(b=>{ b.onclick=()=>showLcJson(b.dataset.lcjson); });
   root.querySelectorAll('[data-lcorig]').forEach(b=>{ b.onclick=()=>openLcOriginal(b.dataset.lcorig); });
 }
-async function readLcJson(id){ const L=lcOfCt(id); if(!L.files.length) return null; const f=L.files.slice().sort((a,b)=>String(b.lastModified).localeCompare(a.lastModified))[0];
-  const t=await spText(DOC.SRC.lc+'/'+f.name); if(!t) return null; const j=JSON.parse(t); return {file:f, lc:Array.isArray(j)?j[0]:j}; }
+/* v0.10: 保管所の {契約}.json (lc_read/1) を 1 つ読む — 読むだけ */
+async function readLcJson(id){ const L=lcOfCt(id); if(!L.files.length) return null; const f=L.files[0];
+  const t=await spText(DOC.SRC.lc+'/'+f.name); if(!t) return null; const j=JSON.parse(t); if(!j||j.schema!=='lc_read/1') throw new Error('保管所の形が違う ('+(j&&j.schema)+')'); return {file:f, lc:j}; }
+/* v0.10: 「LC 読み取り」 = 保管所の MD (人が読む判) */
 async function showLcJson(id){
-  try{ const r=await readLcJson(id); if(!r){ toast('LC 読み取り結果がありません','warn'); return; }
-    const L=r.lc, K=[['lcNo','LC No'],['lcDate','発行日'],['expiryDate','有効期限'],['latestShipment','最終船積'],['amount','金額'],['issuingBank','発行銀行'],['applicant','Applicant'],['pol','POL'],['pod','POD'],['partialShipment','分割船積'],['transhipment','積替'],['consignee46A','Consignee (46A)'],['notifyParty46A','Notify (46A)'],['docs46A','書類 (46A)'],['addCond47A','追加条件 (47A)'],['insuranceCondition','保険条件'],['presentationDays','呈示期間']];
-    modal('<div class="dt-h">LC 読み取り結果</div><div class="dt-note">'+esc(r.file.name)+' (D-01 · 読むだけ)</div><div class="dt-kv">'+K.map(([k,l])=>'<div>'+esc(l)+'</div><div>'+esc(typeof L[k]==='object'?JSON.stringify(L[k]):L[k]||'—')+'</div>').join('')+'</div><div class="dt-actions"><button class="dt-btn ghost" data-url="'+esc(r.file.webUrl||'')+'">ファイルを開く</button><button class="dt-btn" data-close="1">閉じる</button></div>');
+  try{ const L=lcOfCt(id); if(!L.files.length){ toast('L/C 判読 (保管所) がありません','warn'); return; } const f=L.files[0], mdName=f.name.replace(/\.json$/i,'.md');
+    const md=await spText(DOC.SRC.lc+'/'+mdName); if(md==null){ toast('L/C 判読の MD がありません: '+mdName,'warn'); return; }
+    modal('<div class="dt-h">LC 読み取り — L/C 判読 (保管所)</div><div class="dt-note">'+esc(DOC.SRC.lc+'/'+mdName)+' (読むだけ)</div><div class="dt-md">'+DOC.mdHtml(md)+'</div><div class="dt-actions">'+(f.mdUrl?'<button class="dt-btn ghost" data-url="'+esc(f.mdUrl)+'">ファイルを開く</button>':'')+'<button class="dt-btn" data-close="1">閉じる</button></div>');
   }catch(e){ toast('LC を読めません: '+e.message,'danger'); }
 }
 async function openLcOriginal(id){
-  try{ const r=await readLcJson(id); const names=(r&&r.lc&&r.lc.fileNames)||[]; if(!names.length){ toast('原本のファイル名が記録されていません','warn'); return; }
+  try{ const r=await readLcJson(id); const names=(r&&r.lc&&r.lc.source&&r.lc.source.lc_pdf)||[]; if(!names.length){ toast('原本のファイル名が記録されていません','warn'); return; }
     const nm=String(names[0]).split('/').pop(); const j=await graphJson(drv()+"/root/search(q='"+encodeURIComponent(nm.replace(/'/g,"''"))+"')?$select=name,webUrl,file&$top=25");
     const hit=((j&&j.value)||[]).find(x=>x.file&&x.name===nm)||((j&&j.value)||[]).find(x=>x.file&&/\.pdf$/i.test(x.name));
     if(hit) window.open(hit.webUrl,'_blank','noopener'); else toast('原本が見つかりません: '+nm,'warn');
@@ -1555,7 +1584,7 @@ async function runSearch(){
    エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
    v0.3: ACL の名前の規則 (aclScan · aclPick) · 本登録の語 (mailKind) · 結果の見せ方 (viewHtml) もエンジンから — 現況板が始まるときに読む (loadAll)
    下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @903d923 (v0.4 から変わっていない) */
-const ACL_ENGINE = {commit:'614998bbb56540eee4459e6aacbae79b16f5b85f', sha256:'733055c089382a8dfc34b14986558108140aba08411bc7faaa33005fd1489b04', ver:'0.9'};   // v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
+const ACL_ENGINE = {commit:'af46667bc4f4fcc4585180cfb8aeb76f26ff9c02', sha256:'0bd7f29d19c417f2dedf2932e42630ed50db75b25dd2f21f10bf40783d9250dd', ver:'0.10'};   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
 ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 let ACLX = null;
@@ -1572,10 +1601,10 @@ async function loadAclEngine0(){
   const m=new TextDecoder('utf-8').decode(buf).match(/<script id="acl-core">([\s\S]*?)<\/script>/); if(!m) throw new Error('エンジンの部分が見つかりません');
   return new Function('module', m[1]+';return ACL;')(undefined);
 }
-/* COMPASS: Invoice → ブッキング → 港 · コンテナ · S/I · S/I 明細 (acl_bench fetchCompass と同じ質問) */
+/* COMPASS: Invoice → ブッキング → 港 · コンテナ · S/I · S/I 明細 (acl_bench v0.10 fetchCompass と同じ質問 · ETD を含む) */
 async function aclFetchCompass(inv){
   if(!/^[A-Za-z0-9_\-]+$/.test(inv)) return {ok:false, reason:'Invoice 番号の形が違う'};
-  const bk=await dvAll(`cr49f_bookings?$filter=cr49f_invoice_no eq '${inv}'&$select=cr49f_bookingid,cr49f_booking_no,cr49f_bl_number,cr49f_main_ship_name,cr49f_invoice_no,crcf9_delivery_location,_cr49f_sale_contract_id_value,_cr49f_region_japan_id_value,_cr49f_region_id_value,_cr49f_carrier_id_value,_cr49f_fowarder_id_value,modifiedon`);
+  const bk=await dvAll(`cr49f_bookings?$filter=cr49f_invoice_no eq '${inv}'&$select=cr49f_bookingid,cr49f_booking_no,cr49f_bl_number,cr49f_main_ship_name,cr49f_invoice_no,crcf9_delivery_location,_cr49f_sale_contract_id_value,_cr49f_region_japan_id_value,_cr49f_region_id_value,_cr49f_carrier_id_value,_cr49f_fowarder_id_value,modifiedon,cr49f_etd,crcf9_bl_etd`);
   if(!bk.length) return {ok:false, reason:'COMPASS に Invoice '+inv+' のブッキングなし'};
   const b=bk[0]; let pol='', pod='';
   if(b._cr49f_region_japan_id_value){ try{ pol=(await dvGet(`crcf9_region_japans(${b._cr49f_region_japan_id_value})?$select=crcf9_pol`)).crcf9_pol||''; }catch(e){} }
@@ -1591,8 +1620,10 @@ async function aclFetchCompass(inv){
       if(sc._cr49f_buyer_id_value){ const by=await dvGet(`cr49f_buyers(${sc._cr49f_buyer_id_value})?$select=cr49f_buyer,cr49f_buyer_code,crcf9_country`); meta.buyer=by.cr49f_buyer||FV(sc,'_cr49f_buyer_id_value'); meta.buyerCode=by.cr49f_buyer_code||''; meta.country=FV(by,'crcf9_country')||by.crcf9_country||''; } }catch(e){ meta.error=String(e.message||e); } }
   const s1=ACLX.pickBlSi(sis); if(!meta.pay&&s1) meta.pay=FV(s1,'crcf9_payment_classification')||s1.crcf9_payment_classification||'';
   const fid=b._cr49f_fowarder_id_value; if(fid){ try{ const f=await aclForwarder(fid); meta.forwarderCompany=f.company; meta.forwarderPort=f.port; meta.forwarderTo=f.to; meta.forwarderCc=f.cc; }catch(e){ meta.forwarderError=String(e.message||e); } }
-  /* v0.8: L/C 取引 → D-01 の L/C 読み取り結果 (JSON · analyzedAt の一番新しい 1 つ) — エンジン v0.9 の L/C 照合に渡す (読むだけ) */
-  let lc=null; if(String(meta.pay||'').toUpperCase()==='LC'&&meta.contract){ if(!S.lcFiles) await loadLcFiles(); for(const f of (S.lcFiles&&S.lcFiles[DOC.up(meta.contract)])||[]){ try{ const t=await spText(DOC.SRC.lc+'/'+f.name); [].concat(t?JSON.parse(t):[]).forEach(x=>{ if(x&&x.lcNo&&(!lc||String(x.analyzedAt||'')>String(lc.analyzedAt||''))) lc=x; }); }catch(e){} } }
+  /* v0.10: ETD = crcf9_bl_etd (B/L date) 優先 · なければ cr49f_etd (前 10 桁) — エンジン v0.10 の 船積期限 照合 (acl_bench fetchCompass と同じ) */
+  meta.etd=String(b.crcf9_bl_etd||b.cr49f_etd||'').slice(0,10); meta.etdSrc=b.crcf9_bl_etd?'B/L date':b.cr49f_etd?'ETD':'';
+  /* v0.10: L/C 取引 → 保管所の L/C 判読 (古紙/LC/_READ/{契約}.json 1 つ · lc_read/1) — エンジン v0.10 の L/C 照合に渡す (読むだけ · なければ 「保管所に未登録」) */
+  let lc=null; if(String(meta.pay||'').toUpperCase()==='LC'&&meta.contract){ if(!S.lcFiles) await loadLcFiles(); const f=((S.lcFiles&&S.lcFiles[DOC.up(meta.contract)])||[])[0]; if(f){ try{ const t=await spText(DOC.SRC.lc+'/'+f.name); const j=t?JSON.parse(t):null; if(j&&j.schema==='lc_read/1') lc=j; else meta.lcError='保管所の形が違う'; }catch(e){ meta.lcError=String(e.message||e); } } }
   return {ok:true, booking:b, bookings:bk.length, pol, pod, containers, sis, details, meta, lc};
 }
 const FWD = {};
@@ -2232,7 +2263,7 @@ function startPage(){
   P.getItem=function(k){ const v=orig.call(this,k); return this===window.localStorage&&k==='leenai_theme'&&v==null?'leenai':v; }; }catch(e){} })();
 LEENAI.addHeaderButton({label:'⚙ 設定', title:'設定 (API キー · 範囲 · マスター)', onClick:()=>openSettings()});
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.9', date:'2026-11-22',
+  sys:'D-00', name:'書類ツール', version:'0.10', date:'2026-11-23',
   desc:'今日やること (Invoice ごとに いまの段階 1 つ) · 書類担当の進み具合 (Invoice 別 · 契約別) · ACL 照合 · S/I 推薦 — D-01 · D-03 · D-04 をまとめる試験運用版',
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下だけ (履歴 · S/I 控え — DOC.guardOut)
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

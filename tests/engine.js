@@ -14,4 +14,6 @@ function bytes(html){
   return cache[P.commit]=b;
 }
 function engine(html){ return new Function('module',bytes(html).toString('utf8').match(/<script id="acl-core">([\s\S]*?)<\/script>/)[1]+';return ACL;')(undefined); }
-module.exports={pin, bytes, engine};
+/* v0.10: 版の大小 (「0.10」 > 「0.9」 — 数字の + では 0.1 になる) */
+const vnum=v=>String(v).split('.').map(Number).reduce((s,x)=>s*1000+(x||0),0);
+module.exports={pin, bytes, engine, vnum};

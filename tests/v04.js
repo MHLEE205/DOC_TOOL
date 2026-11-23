@@ -11,7 +11,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 
 (async()=>{
 /* 엔진 고정 */
-ok(+P.ver>=0.6&&typeof E.finalView==='function'&&typeof E.finalCheck==='function','엔진 고정 = acl_bench v'+P.ver+' (v0.6 이상 — 最終確認 있음 · 커밋 '+P.commit.slice(0,7)+' · sha256 확인 — engine.js 가 다르면 멈춤)',P);
+ok(ENG.vnum(P.ver)>=ENG.vnum('0.6')&&typeof E.finalView==='function'&&typeof E.finalCheck==='function','엔진 고정 = acl_bench v'+P.ver+' (v0.6 이상 — 最終確認 있음 · 커밋 '+P.commit.slice(0,7)+' · sha256 확인 — engine.js 가 다르면 멈춤)',P);
 /* 상태 규칙 표 */
 eq(DOC.ACL_RULE.map(r=>r[1]),['待ち','相違','確認','済'],'ACL 상태 표 4줄 (待ち · 相違 · 確認 · 済) — 규칙은 doc-core 표 1곳');
 /* aclJudge */

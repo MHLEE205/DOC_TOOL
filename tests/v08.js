@@ -10,7 +10,7 @@ let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.lo
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const qa=(w,s)=>[...w.document.querySelectorAll(s)];
 (async()=>{
-ok(P.ver==='0.9'&&typeof E.lcItems==='function'&&typeof E.mailKindOf==='function','엔진 고정 = acl_bench v0.9 (커밋 '+P.commit.slice(0,7)+' · sha256)',P);
+ok(/^0\.(9|1\d)$/.test(P.ver)&&typeof E.lcItems==='function'&&typeof E.mailKindOf==='function','엔진 고정 = acl_bench v0.9 (커밋 '+P.commit.slice(0,7)+' · sha256)',P);
 
 console.log('6 메일 초안');
 { const it=(o)=>Object.assign({group:'S/I 文面', key:'x', label:'X', status:'MATCH', expected:'', actual:'', detail:'', kind:''},o);
@@ -59,7 +59,9 @@ console.log('7 이름 · 補助 · FD 本日');
   const c=row({blDate:'2026-11-18'},{bl:at('2026-11-18','18:00')},now); ok(c.group==='late','마감 지남 → 期限切れ',c);
   ok(DOC.TODO_RULES.GROUPS.map(g=>g[0]).slice(0,2).join()==='late,fdtoday','묶음 순서: 期限切れ 다음 = 本日 FD'); }
 console.log('7 원본 통수 (엔진과 같은 함수)');
-eq([DOC.lcOriginals({docs46A:['FULL SET OF CLEAN ON BOARD B/L']}),DOC.lcOriginals({docs46A:['B/L TELEX RELEASED OR SURRENDERED']}),DOC.lcOriginals({docs46A:['COPY']})],[3,1,null],'L/C 46A → 원본 통수 (TELEX / SURRENDER 1 · FULL SET 3)');
-ok(DOC.lcOriginals({docs46A:['FULL SET']})===E.lcOriginals({docs46A:['FULL SET']}),'書類ツール 의 함수 = 엔진 v0.9 lcOriginals');
+/* v0.10: 保管所の判読 (lc_read/1) は エンジン lcOriginalsText で出した bl.originals を持つ → 書類ツールはそれを読む (같은 규칙 · 한 곳) */
+const RO=t=>({bl:{originals:E.lcOriginalsText(t)}});
+eq([DOC.lcOriginals(RO('FULL SET OF CLEAN ON BOARD B/L')),DOC.lcOriginals(RO('B/L TELEX RELEASED OR SURRENDERED')),DOC.lcOriginals(RO('COPY'))],[3,1,null],'L/C 46A → 원본 통수 (TELEX / SURRENDER 1 · FULL SET 3)');
+ok(DOC.lcOriginals(RO('FULL SET'))===E.lcOriginalsText('FULL SET')&&DOC.lcOriginals(null)===null,'書類ツール 의 값 = 엔진 lcOriginalsText (v0.10)');
 console.log((fail?'FAIL':'PASS')+' v08 — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
 })().catch(e=>{ console.log('FAIL v08 예외',e.stack); process.exitCode=1; });

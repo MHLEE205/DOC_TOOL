@@ -9,7 +9,7 @@ const P=ENG.pin(HTML), E=ENG.engine(HTML); DOC.useAclEngine(E);
 const TIMES={}; let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.log('FAIL',m,info===undefined?'':JSON.stringify(info).slice(0,600));} };
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 (async()=>{
-ok(+P.ver>=0.7&&typeof E.cntrListed==='function'&&typeof E.jpSplit==='function','엔진 고정 = acl_bench v0.7 이상 (v0.6: v0.8 · 커밋 '+P.commit.slice(0,7)+' · sha256)',P);
+ok(ENG.vnum(P.ver)>=ENG.vnum('0.7')&&typeof E.cntrListed==='function'&&typeof E.jpSplit==='function','엔진 고정 = acl_bench v0.7 이상 (v0.6: v0.8 · 커밋 '+P.commit.slice(0,7)+' · sha256)',P);
 /* B3 → aclJudge */
 const fin=o=>Object.assign({total:20, found:20, missing:[], aclOnly:[], moved:[], sets:{total:3, ok:3, diff:[], read:[], aclOnly:[], cpOnly:[], allOk:true}, unread:[], instr:{list:[], cntr:null}},o||{});
 const it=(key,status,label)=>({group:'x', key, label:label||key, status, expected:'', actual:'', detail:'', kind:''});
