@@ -37,12 +37,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.14 = 2026-11-23)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
 5. **쓰기 문지기**
    - SharePoint 쓰기 = `spPut` 하나 → `DOC.guardOut` (`古紙/-. AI 活用/D-00/doc_tool/` 아래만 · `conflictBehavior=fail` · 덮어쓰지 않음).
+   - **v0.15 상태 기억** = `doc_tool/state/{fd|fname|si_lc}/{키}_{UTC}[_rand].json` (`DOC.statePath` · 문지기 `V15.STATE_RE` · 새 파일만) — 今日やること 코드의 SharePoint 쓰기는 `stateWrite` 한 곳.
    - COMPASS 쓰기 = `dvWrite` 하나 → `DOC.guardDv` (S/I · S/I 명세 · 이 계약 · 정해진 칸 · PATCH(`If-Match:*`)/POST 만 · DELETE 없음). S/I 탭 「COMPASS に書き込む」 만 쓴다.
    - **v0.9 ACL 保存** = 같은 `spPut` 에 `save={iv, folder, test}` → `DOC.guardSave` — 시험 = `doc_tool/save_test/{IV}/` · 본번 = 그 Invoice 폴더 (書類作成中 · _OLD_DOC) · 이름은 `{IV}_ACL.pdf` / `{IV}_ACL REV.pdf` / `REV2` … 만 (v0.12: B/L Draft 는 `save.kind='BL'` → `{IV}_FRT MEMO.pdf` / `… REV.pdf` / `REV2` 만). 새 파일만 (`conflictBehavior=fail` · 409 → 다음 이름을 다시 확인).
    - MASTER (`master_*.json`) 는 쓰지 않는다. confirm / alert 쓰지 않는다.
@@ -102,6 +103,14 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 保存の入口: `SAVE_RULES.OPEN_RE` (펼치는 판단) · `REMEMBER` (取消 · 重複 · 同じ内容 → save_log 에 기록 → 다음엔 그 첨부를 건너뜀) · 이름 + 크기가 폴더 파일과 같으면 안 내려받음 (=重複) · **保存済み 파일을 못 읽으면 「再確認」** (v0.13 까지는 새 판으로 잘못 봄 · 429 때 실제로 생김) · 할 일 0 = 한 줄.
   - 속도: COMPASS 뒤 바로 할 일 화면 (`PERF.mark('first')`) → 폴더 = `graphBatch` (Graph `$batch` · 안은 GET 고정 · 20 개씩 · 4 묶음 동시 · 실패 → 1 건씩) · 폴더 내용 기억 = localStorage `doc_tool_folders_v14` (폴더의 변경 시각 · 크기 · 개수가 같고 24 시간 안이면 안 읽음) · 메일은 첫 화면 직후 (今日やること 35 일 동시 3 · 保存の入口 첨부 2 — 메일함 동시 4 넘으면 429) · `PERF` (longtask) = 할 일 화면 맨 아래 한 줄.
   - `check.js`: `$batch` 줄 1 개 · 안 GET 고정이면 쓰기로 세지 않음. 가짜 세계 (`fake.js`) 도 `$batch` 를 GET 으로 풀어 처리.
+- **v0.15 수정 묶음 (지시서 `MAC-THOR_5_지시서_D00_書類ツール_v0.15`)** — 규칙 · 낱말 · 표는 doc-core `DOC.V15` **한 곳**.
+  - A1 `TODO_OPEN_DEF.zone_wait:false` (待ち 구역 처음 접힘 · 펼침 = localStorage `doc_tool_todo_open_v14`) · A2 `SAVE_RULES.REMEMBER` 에 `対象外`.
+  - L/C 도착 = 보관소 (`_READ`) 또는 `古紙/LC/{年}/` (`loadLcOrig` · 연도 = 계약 번호 · 아니면 계약일 · `DOC.lcArrival` 'na' · 'yes' · 'no' · '?' — 못 읽으면 '?' 로 「未着」 이라 하지 않음). 未着 → 「推薦を作る」 끔 · 안내 `DOC.lcGuide` · 待ち 이유 「L/C 未着 · PO 着 m/d」 (`loadPo` = 바이어 폴더 · ★LC/{cr49f_buyer} 의 `PO…{계약}` 파일 · 뒤에서).
+  - 仮 S/I = `DOC.ttRecommend({…, lcTent:true})` (T/T 부품 그대로 · L/C 칸 `XXX` · L/C 로만 정해지는 문장 `V15.LC_ONLY_RE` 는 그대로 + 「仮 — L/C 着で確認」) → 지금의 쓰기 경로. **S/I L/C 번호 = `XXX` (공백 · 대소문자 무시 · XXX 만) = 仮 S/I** (`siLcTent` · `siTentAny` — （仮） 와 같은 취급).
+  - 仮 S/I + L/C 도착 → S/I 칸 相違 「L/C 着 · S/I 未更新」 + 今日やること `si` 그룹 빨강 · 推薦 뒤 `siLcOrder` (L/C 칸 먼저 · 빨강) · XXX 가 없어지면 `state/si_lc/{계약}` → 그 계약 Invoice 의 ACL 이 그보다 옛 照合이면 「ACL 再確認」.
+  - B7 FD 메일 검색 = `fdSearchRun` (현황판 FD 칸 済 아님 · ETD 지남 · 통관 뒤 · 최대 40 · 동시 2 · 같은 Invoice 6 시간에 1 번 = localStorage `doc_tool_fdsearch_v15` · 모든 메일 읽기가 끝난 뒤) → `DOC.fdMailFound` → `state/fd/{IV}` → `x.fdState` (현황판 FD 済 · 今日やること 신호). `?asof` 시험에서는 안 씀.
+  - B10 `DOC.fnameCheck` (선사 · 乙仲 이름 = `V15.FNAME_REF` 参考) · 판단 `state/fname` (`this` = 그 Invoice 이름으로 읽음 `fnameFix` · `other` · 메일 `ack`) · B11 `DOC.fdMailBad` (첨부 번호가 **제목의 어느 Invoice 번호와도** 다를 때 · `subjIvs` 가 `NA2610-03/04/06` 줄임 번호를 펼침 — 실자료 헛경보 15 → 0) · `DOC.fdDraftCheck` (FD 메일 초안 기능이 생기면 쓸 검사 · 지금은 초안 없음).
+  - 今日やること 의 덧붙임 줄 = `DOC.todoExtra` (Invoice 의 단계 줄과 따로 · `fname` · `si` 그룹 · `red` = 빨강).
 - **v0.10 L/C 보관소** — L/C 는 SharePoint `古紙/LC/_READ/{계약}.json` (schema `lc_read/1` · A1 R2 2 회 판독을 코드로 정리 · 계약마다 1 개 · Amend 오면 다시 판독 → 옛 판은 `_old/`) 에서만 읽는다. **D-01 폴더 (`D-01-LC_FD_CHECKER`) 는 읽지 않는다.**
   - `DOC.SRC.lc` · `loadLcFiles` (`_` 로 시작하는 파일 · 폴더는 건너뜀) · `readLcJson` · 「LC 読み取り」 = `{계약}.md` 를 `DOC.mdHtml` 로 (글자는 전부 escape) · `aclFetchCompass` 의 부킹 `$select` 에 `cr49f_etd,crcf9_bl_etd` (엔진 v0.10 의 船積期限 照合).
   - 보관소 만들기 · 새 L/C 1 건 판독 = CONTRACT_SEND `tools/lc_read_build.mjs` · `tools/lc_read_one.mjs` (토르 · 리나이가 PC 에서 실행 · 이 TOOL 은 읽기만).

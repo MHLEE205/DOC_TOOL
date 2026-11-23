@@ -113,7 +113,7 @@ console.log('5 화면');
   ok(w.document.getElementById('dtBTodo').classList.contains('on')&&w.document.getElementById('dtTodoBox').style.display==='flex'&&w.document.getElementById('dtTable').style.display==='none','5 첫 화면 = 今日やること (현황판 표 숨김)');
   eq(qa(w,'.dt-seg button').map(b=>b.textContent),['今日やること','契約別（LC · S/I）','Invoice 別（船積）'],'5 탭 순서 今日やること · 契約別 · Invoice 別');
   const who=qa(w,'#dtWho button').map(b=>b.textContent); ok(who[0].indexOf('自分の担当')===0&&who.indexOf(R.ASSIST_LABEL)>=0&&who.indexOf('全員')>who.indexOf(R.ASSIST_LABEL),'5 담당 버튼 (自分 · 담당자 · 補助 · 全員)',who);
-  eq(qa(w,'.tl-zh').map(e=>e.textContent.replace(/\s*\d+ 件$/,'')),['やること（自分の番）','待ち（相手の番）'],'v0.14 세 구역 — やること · 待ち (+ 今日終わったもの 접힘)');
+  eq(qa(w,'.tl-zh').map(e=>e.textContent.replace(/^[▼▶] /,'').replace(/\s*\d+ 件.*$/,'')),['やること（自分の番）','待ち（相手の番）'],'v0.14 세 구역 — やること · 待ち (+ 今日終わったもの 접힘) · v0.15 待ち = 누르면 펼침');
   ok(/締切 14:30/.test(w.document.querySelector('.tl-now').textContent),'오늘 마감 한 줄');
   const rowsN=()=>qa(w,'.tl-z-do .tl-row, .tl-z-wait .tl-row').length, iv=qa(w,'.tl-z-do .tl-row button.dt-link, .tl-z-wait .tl-row button.dt-link').map(b=>b.textContent);
   ok(iv.indexOf('NAA2611-01')>=0&&iv.length===new Set(iv).size,'5 1 Invoice = 1 줄 (같은 Invoice 두 줄 없음)',iv);
@@ -141,7 +141,9 @@ console.log('5 화면');
   eq([DOC.parseAsof('2026-11-20T09:00'),DOC.parseAsof('2026-11-20 09:00'),DOC.parseAsof('x')],[at('2026-11-20','09:00'),null,null],'asof 모양'); }
 console.log('7 메일 쓰기 0');
 { const app=HTML.split('<script id="doc-app">')[1]||''; const todo=app.slice(app.indexOf('v0.7 今日やること'), app.indexOf('v0.9 保存の入口')>0?app.indexOf('v0.9 保存の入口'):app.indexOf('function startPage'));
-  ok(todo.length>1000&&!/method\s*:\s*['"](?:POST|PATCH|PUT|DELETE)/.test(todo)&&!/sendMail|createReply|\/send\b|isRead|\/move\b|spPut|dvWrite/.test(todo),'今日やること 코드: 메일 보내기 · 초안 · 읽음 · 이동 · SharePoint 쓰기 · COMPASS 쓰기 0');
+  ok(todo.length>1000&&!/method\s*:\s*['"](?:POST|PATCH|PUT|DELETE)/.test(todo)&&!/sendMail|createReply|\/send\b|isRead|\/move\b|dvWrite/.test(todo),'今日やること 코드: 메일 보내기 · 초안 · 읽음 · 이동 · COMPASS 쓰기 0');
+  /* v0.15 (B7 · B10): SharePoint 쓰기는 stateWrite 한 곳 (doc_tool/state/ · DOC.statePath · 문지기) 뿐 */
+  ok((todo.match(/spPut\(/g)||[]).length===1&&/async function stateWrite[^\n]*spPut\(DOC\.statePath\(/.test(todo),'v0.15 今日やること 의 SharePoint 쓰기 = stateWrite (doc_tool/state/) 한 곳');
   ok(HTML.toLowerCase().indexOf('photo'+'_rcp')<0,'공유 메일함 주소는 코드에 없음'); }
 console.log((fail?'FAIL':'PASS')+' v07 — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
 })().catch(e=>{ console.log('FAIL v07 예외',e.stack); process.exitCode=1; });

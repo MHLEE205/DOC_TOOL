@@ -34,7 +34,10 @@ const HEAD=['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','
   const SETS={cr49f_s_i:'cr49f_s_is',crcf9_s_i_detail:'crcf9_s_i_details',cr49f_sale_contract:'cr49f_sale_contracts',cr49f_sale_detail:'cr49f_sale_details',cr49f_item:'cr49f_items'};
   const ifMatch=[]; let newN=0;
 
+  const DOC_lcYear=no=>{ const m=String(no).match(/^[A-Z]+-(\d{2})\d{2}/); return m?'20'+m[1]:''; };
   const htmlPath=path.join(require('os').tmpdir(),'doc_tool_si_test.html'); fs.writeFileSync(htmlPath,HTML);
+  /* v0.15 (B1): 古紙/LC/{年}/ の L/C は 最初の読み込みで読む (L/C 未着 の判断) — 前の版はあとから差し込んでいた */
+  ['2025','2026'].forEach(y=>{ W.sp['古紙/LC/'+y]=FX.NOS.filter(no=>DOC_lcYear(no)===y).map(no=>({id:'lc'+no,name:no+'_'+FX.LCS[no].lcNo+'.pdf',size:1000,file:{}})); });
   const w=await X.page(W,{html:htmlPath,ls:{doc_tool_who:'all',leenai_apikey_v1:'TEST-KEY'}});
   const inner=w.fetch, R=(st,body,h)=>({ok:st>=200&&st<300,status:st,statusText:String(st),headers:{get:k=>(h||{})[k]||null},json:async()=>clone(body),text:async()=>JSON.stringify(body)});
   w.fetch=async(url,init)=>{

@@ -62,8 +62,8 @@ console.log('1-4 乙仲 ACL 訂正依頼');
   ok(DOC.todoRow(X0(),s4,NOW,null).gkey==='acl','폴더에 새 ACL (REV) 이 訂正依頼 뒤에 들어옴 → ACL 確認',s4); }
 
 console.log('2 그룹 · 정렬 · 기한 색');
-{ eq(R.TGROUPS.map(g=>g[0]),['acl','depo','draft','blreq','insrr','fd','fdlc','w_otsu','w_carrier','w_buyer'],'그룹 순서 = 일의 순서 · 待ち = 乙仲 · 船社 · バイヤー');
-  eq(R.TGROUPS.map(g=>g[1]).join(''),'dododododododowaitwaitwait','구역 (do 7 · wait 3)');
+{ eq(R.TGROUPS.map(g=>g[0]),['si','fname','acl','depo','draft','blreq','insrr','fd','fdlc','w_otsu','w_carrier','w_buyer'],'그룹 순서 = 일의 순서 · 待ち = 乙仲 · 船社 · バイヤー (v0.15: 앞에 si · fname)');
+  eq(R.TGROUPS.map(g=>g[1]).join(''),'dododododododododowaitwaitwait','구역 (do 9 · wait 3)');
   ok(R.TGROUPS.every(g=>g[3]&&g[2])&&R.TGROUPS.filter(g=>g[4]).map(g=>g[0]).join()==='acl,draft'&&/^https:\/\/claude\.ai\/artifact\//.test(R.MANUAL),'그룹마다 한 줄 안내 · 매뉴얼 장 (있는 것만) · 링크만');
   const bl=at('2026-11-19','18:00');
   eq([row({blDate:'2026-11-19',term:'CIF'},{bl}).gkey,row({blDate:'2026-11-19',country:'KOREA'},{bl}).gkey,row({blDate:'2026-11-19'},{bl}).gkey,row({blDate:'2026-11-19',pay:'LC'},{bl}).gkey],['insrr','insrr','fd','fdlc'],'B/L 뒤: 保険 · RR → FD / L/C 원본');
@@ -81,10 +81,12 @@ console.log('3 화면');
   await X.until(()=>!!w.document.querySelector('.tl-zone'));
   eq(qa(w,'.tl-zone').map(z=>z.className.match(/tl-z-(\w+)/)[1]),['do','wait','done'],'세 구역 순서 やること → 待ち → 今日終わったもの');
   eq(qa(w,'.tl-z-do .tl-gt').map(b=>b.textContent.replace(/^[▼▶·] /,'')),R.TGROUPS.filter(g=>g[1]==='do').map(g=>g[2]),'やること 그룹 이름 = 표 순서');
-  eq(qa(w,'.tl-z-wait .tl-gt').map(b=>b.textContent.replace(/^[▼▶·] /,'')),['乙仲','船社','バイヤー'],'待ち = 상대별');
+  /* v0.15 (A1): 待ち 는 처음에 접혀 있음 → 눌러 펼친 뒤 */
+  ok(!w.document.querySelector('.tl-z-wait .tl-grp'),'v0.15 待ち 처음 = 접힘'); w.document.querySelector('[data-tdtoggle="zone_wait"]').click(); await X.sleep(20);
+  eq(qa(w,'.tl-z-wait .tl-gt').map(b=>b.textContent.replace(/^[▼▶·] /,'')).slice(1),['乙仲','船社','バイヤー'],'待ち = 상대별');
   const empty=qa(w,'.tl-grp.tl-empty'); ok(empty.length>0&&empty.every(g=>!g.querySelector('.tl-row')&&g.querySelector('.tl-gt').disabled),'0 건 그룹 = 한 줄 (줄 없음 · 못 펼침)');
   const help=qa(w,'.tl-help'); ok(help.length===R.TGROUPS.length&&help.every(a=>a.getAttribute('href')===R.MANUAL&&a.target==='_blank'),'그룹마다 「？」 = 매뉴얼 링크 (새 창)');
-  ok(/「3\. ACL が届いたら」/.test(help[0].title),'「？」 제목 = 그 장 이름',help[0].title);
+  ok(/「3\. ACL が届いたら」/.test(help[R.TGROUPS.findIndex(g=>g[0]==='acl')].title),'「？」 제목 = 그 장 이름',help.map(h=>h.title));
   const rows=qa(w,'.tl-z-do .tl-row, .tl-z-wait .tl-row'), ivs=rows.map(r=>r.querySelector('button.dt-link').textContent);
   ok(rows.length>0&&ivs.length===new Set(ivs).size,'한 건 = 한 줄',ivs);
   ok(rows.every(r=>r.children.length===5&&!r.querySelector('.td-stg')),'줄 = 기한 | Invoice · 船社 · 国 | 次にやること | 理由 | 버튼 (진행 칩 없음)');

@@ -98,6 +98,8 @@ function fakeFetch(W){
     if(url.indexOf('https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/')===0&&/bl_bench\.html$/.test(url)){ const b=W.blEngine; if(!b) return res(404,{}); return {ok:true,status:200,headers:{get:()=>null},arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.length)}; }
     if(url.indexOf('https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/')===0&&/acl_bench\.html$/.test(url)){ const b=W.aclEngine; if(!b) return res(404,{}); return {ok:true,status:200,headers:{get:()=>null},arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.length)}; }
     if(url.indexOf('https://graph.microsoft.com/v1.0/me/messages')===0){ W.mailReads=(W.mailReads||0)+1; if(W.mailErr) return res(W.mailErr,{error:{code:'ErrorAccessDenied'}});
+      /* v0.15 (B7): $search="{Invoice}" — 件名 · 添付名 · 本文に その語があるメール (W.searchMessages) */
+      { const sq=decodeURIComponent(url).match(/\$search="([^"]+)"/); if(sq&&W.searchMessages){ W.searches=(W.searches||[]).concat([sq[1]]); const q=sq[1].toUpperCase(); return res(200,{value:clone((W.searchMessages||[]).filter(m=>(String(m.subject)+' '+(m.attachments||[]).map(a=>a.name).join(' ')+' '+(m.bodyPreview||'')).toUpperCase().indexOf(q)>=0))}); } }
       /* v0.9: receivedDateTime ge … (保存の入口のメール) — 日付で絞る */
       const ge=decodeURIComponent(url).match(/receivedDateTime ge ([0-9T:.\-Z]+)/); return res(200,{value:clone((W.messages||[]).filter(m=>!ge||!m.receivedDateTime||m.receivedDateTime>=ge[1]))}); }
     if(url.indexOf(DV)===0){ const [st,b]=dvHandle(W,url); return res(st,b); }
