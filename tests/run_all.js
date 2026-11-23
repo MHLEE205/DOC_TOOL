@@ -1,7 +1,7 @@
 /* DOC_TOOL 시험 전부 — node run_all.js [html]. 마지막 줄 ✅ ALL PASS 면 통과. 네트워크 없음 · 가짜 데이터만 */
 const cp=require('child_process'),path=require('path');
 const html=process.argv[2]||path.join(__dirname,'../index.html');
-const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.13']],
+const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.14']],
   ['core.js','#1~#5 상태 규칙 · 대상 외 · 담당 · 정렬/범위 · B/L 파일 고르기',[html]],
   ['app.js','#3 기억 · #4 · #9 화면 흐름 (현황판 → 상세 → 탭 → 돌아가기 · 검색 → 상세 · 설정 · 쓰기 0)',[html]]];
 const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 결과 · DR 이름 · 관리자 버튼'],['si.js','#7 S/I 쓰기 — 쓰기 전 저장 → 쓰기 → 다시 읽기 · 취소 · S/I 済 지금 표 먼저'],
@@ -15,6 +15,7 @@ const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 
   ['v10.js','v0.10 L/C 保管所 — SRC · 목록 (_index · _old 건너뜀) · LC 読み取り = MD · MD → HTML (escape) · ACL 照合에 lc_read/1 · ETD · D-01 안 읽음 · 엔진 v0.10 고정'],
   ['v11.js','v0.11 チェックポイント — 규칙 (보고 이름 · 문지기 · 목록 · 거르기 · 새 체크 띠) · 직원/관리자 一覧 · 설명 · 見落とし報告 저장 · 배지 · 確認済み · ACL CP 번호 · 試験 줄 관리자만 · 엔진 v0.11 고정'],
   ['v13.js','v0.13 B/L 照合 결과 저장 (doc_tool/bl/ · 문지기 · 내용 · 前回の照合 · 試験モード 저장 없음) · 직원 화면 · 결과 JSON 한글 0'],
+  ['v14.js','v0.14 사용성 — 판단 1-1~1-4 · やること / 待ち 그룹 · 한 줄 · ？ 매뉴얼 · 保存の入口 접기 · 기억 (取消 · 重複 · 同じ内容) · 再確認 · $batch · 폴더 기억'],
   ['hangul.js','v0.13 한글 0 — 화면에 나갈 수 있는 문자열 · HTML 본문 (주석 · 정규식 제외)'],
   ['v12.js','v0.12 B/L Draft 탭 — 保存の入口 B/L Draft (FRT MEMO · N版目 · 문지기) · 메일 下書き 3 · 엔진 고정 (ACL v0.12 · bl_bench v0.2) · 照合 화면 · CP 번호 · 試験 줄 관리자만 · バイヤー用 확인 · 쓰기 0'],
   ['v09.js','v0.9 保存の入口 — 종류 · Invoice 정하기 · 중복 / 같은 내용 / 새 판 · 이름 · 문지기 · 메일 (읽기만 · ED 제외 · 기록 건너뜀) · 놓기 · 409 · 기록 · 스위치 · 쓰기 범위']];

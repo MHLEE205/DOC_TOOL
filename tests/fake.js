@@ -78,8 +78,13 @@ function dvHandle(W,url){
 }
 function fakeFetch(W){
   const res=(st,body,text)=>({ok:st>=200&&st<300,status:st,statusText:String(st),headers:{get:()=>null},json:async()=>clone(body),text:async()=>text!=null?text:JSON.stringify(body),arrayBuffer:async()=>Buffer.from(text||'')});
-  return async(url,init)=>{
+  const self=async(url,init)=>{
     init=init||{}; const method=(init.method||'GET').toUpperCase(); W.req.push(method+' '+url);
+    /* v0.14: Graph $batch — 中が GET だけなら 読む (1 件ずつ同じ処理) · 書くものが混じれば 書き込みとして記録 */
+    if(method==='POST'&&url==='https://graph.microsoft.com/v1.0/$batch'){ let b=null; try{ b=JSON.parse(init.body); }catch(e){}
+      const rq=(b&&b.requests)||[]; if(rq.length&&rq.length<=20&&rq.every(r=>String(r.method||'GET').toUpperCase()==='GET')){ W.batches=(W.batches||0)+1; const out=[];
+        for(const r of rq){ const x=await self('https://graph.microsoft.com/v1.0'+r.url); let body=null; try{ body=await x.json(); }catch(e){} out.push({id:r.id, status:x.status, headers:{}, body}); }
+        return res(200,{responses:out}); } }
     if(method!=='GET'){ W.writes.push({method,url,body:init.body});
       /* v0.9: 保存の入口 — 名前がもう使われている (409) の試験 */
       if(W.putFail){ const st=W.putFail(decodeURIComponent(url)); if(st) return res(st,{error:{code:'nameAlreadyExists',message:'already exists'}}); }
@@ -114,6 +119,7 @@ function fakeFetch(W){
     }
     return res(404,{});
   };
+  return self;
 }
 async function page(W, opt){
   opt=opt||{}; const HTML=fs.readFileSync(opt.html||path.join(__dirname,'../index.html'),'utf8');

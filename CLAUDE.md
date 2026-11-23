@@ -37,7 +37,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.13 = 2026-11-23)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.14 = 2026-11-23)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -96,6 +96,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - pdf.js `cmaps` = jsdelivr 3.11.174 (`CMAPS` · cdnjs 는 403).
 - **v0.13 일본어화** — 직원 화면 · 메일 下書き · 저장 JSON 에 **한글 0** (`tests/hangul.js` 가 index.html 의 문자열 · HTML 을 봄 · 주석 · 정규식 제외). bl-core v0.3 의 판정 = 영문 코드 (class `SAME` · `DIFF` … / L/C `SAME` · `DIFF_ABBR` · `NA_…` …) · 칸 이름 = 코드 (`Consignee bank` · `Vessel/Voyage` · `Container …`) — 화면 글자는 엔진의 표 (`CLASS_JA` · `LC_RES` · `FIELD_JA` · `LC_JA`) · 메일 칸 이름은 `DOC.BL_MAIL` 의 표 (코드가 열쇠).
   - `#dtModal` 은 `#app` 밖 — 공통 파일 init 이 붙이는 `display:none` 을 startPage 에서 뗀다 (v0.12 · 지우면 창이 안 보임).
+- **v0.14 사용성 (할 일 화면 · 판단 · 保存の入口 · 속도)** — 지시서 `MAC-THOR_1_지시서_D00_사용성개선_v1_0`.
+  - 판단 (doc-core `todoSignals` · `todoRow` — 나머지는 v0.13 그대로): 1-1 COMPASS 지불일이 들어 있으면 (앞날 포함) 송금 처리 끝 = `S.payPlan` → 「B/L 発行依頼」 (「送金 予定 m/d」 · asof 시험은 전과 같음) · 1-2 베트남 Draft + Deposit 회답 대기 = 待ち · バイヤー · 1-3 대기는 늘 「待ち」 (기준 넘으면 `nudge.over` → 催促メール) · 1-4 乙仲 ACL 訂正依頼 (`TODO_RULES.ACLFIX_HEAD` — 담당이 보낸 메일 제목 머리말) 뒤 새 ACL 없음 = 待ち · 乙仲 「訂正 ACL 待ち」 (`S.aclFix` · `S.aclLast`).
+  - 화면: `TODO_RULES.TGROUPS` (key · 구역 do/wait · 이름 · 한 줄 안내 · 매뉴얼 장) **한 곳** · `ZONES` · `MANUAL` (직원 매뉴얼 링크만 — 원본은 리나이) · `todoGroup` = 색 (late 빨강 · today 주황 · later 회색 · none / 待ち = chase · wait) · `todoDone` = 今日終わったもの. 줄 = `.tl-row` (기한 · Invoice · 船社 · 国 · 次にやること · 理由 · 버튼) · 진행 칩은 상세 (단계 탭) 에서만.
+  - 保存の入口: `SAVE_RULES.OPEN_RE` (펼치는 판단) · `REMEMBER` (取消 · 重複 · 同じ内容 → save_log 에 기록 → 다음엔 그 첨부를 건너뜀) · 이름 + 크기가 폴더 파일과 같으면 안 내려받음 (=重複) · **保存済み 파일을 못 읽으면 「再確認」** (v0.13 까지는 새 판으로 잘못 봄 · 429 때 실제로 생김) · 할 일 0 = 한 줄.
+  - 속도: COMPASS 뒤 바로 할 일 화면 (`PERF.mark('first')`) → 폴더 = `graphBatch` (Graph `$batch` · 안은 GET 고정 · 20 개씩 · 4 묶음 동시 · 실패 → 1 건씩) · 폴더 내용 기억 = localStorage `doc_tool_folders_v14` (폴더의 변경 시각 · 크기 · 개수가 같고 24 시간 안이면 안 읽음) · 메일은 첫 화면 직후 (今日やること 35 일 동시 3 · 保存の入口 첨부 2 — 메일함 동시 4 넘으면 429) · `PERF` (longtask) = 할 일 화면 맨 아래 한 줄.
+  - `check.js`: `$batch` 줄 1 개 · 안 GET 고정이면 쓰기로 세지 않음. 가짜 세계 (`fake.js`) 도 `$batch` 를 GET 으로 풀어 처리.
 - **v0.10 L/C 보관소** — L/C 는 SharePoint `古紙/LC/_READ/{계약}.json` (schema `lc_read/1` · A1 R2 2 회 판독을 코드로 정리 · 계약마다 1 개 · Amend 오면 다시 판독 → 옛 판은 `_old/`) 에서만 읽는다. **D-01 폴더 (`D-01-LC_FD_CHECKER`) 는 읽지 않는다.**
   - `DOC.SRC.lc` · `loadLcFiles` (`_` 로 시작하는 파일 · 폴더는 건너뜀) · `readLcJson` · 「LC 読み取り」 = `{계약}.md` 를 `DOC.mdHtml` 로 (글자는 전부 escape) · `aclFetchCompass` 의 부킹 `$select` 에 `cr49f_etd,crcf9_bl_etd` (엔진 v0.10 의 船積期限 照合).
   - 보관소 만들기 · 새 L/C 1 건 판독 = CONTRACT_SEND `tools/lc_read_build.mjs` · `tools/lc_read_one.mjs` (토르 · 리나이가 PC 에서 실행 · 이 TOOL 은 읽기만).

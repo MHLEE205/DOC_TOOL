@@ -69,6 +69,8 @@ ok(sha(PDF1)!==sha(PDF1b),'(준비) 같은 내용 · 다른 해시 PDF');
 function mkWorld(){
   const W=X.world(); W.itemBytes={}; W.attBytes={};
   const f=W.sp[WIP+'/NAA2611-01'].find(x=>x.name==='NAA2611-01_ACL.pdf'); W.itemBytes[f.id]=PDF1;
+  /* v0.14: 保存済みファイルを読めないと 再確認 — NBB2611-01 の ACL 家族にも中身を置く */
+  W.sp[WIP+'/NBB2611-01'].filter(x=>/_ACL/.test(x.name)).forEach((x,i)=>{ W.itemBytes[x.id]=[PDF2,PDF3b][i]; });
   const T=W.T, D=(n,h)=>X.addDays(T,n)+'T0'+(h||1)+':00:00Z';
   const msg=(id,from,subject,atts,day)=>({id,subject,from:{emailAddress:{address:from}},receivedDateTime:D(day||0),sentDateTime:D(day||0),hasAttachments:true,bodyPreview:'',
     attachments:atts.map(([aid,name])=>({id:aid,name,contentType:'application/pdf',size:10,isInline:false}))});
@@ -82,7 +84,10 @@ function mkWorld(){
 }
 const prep=w=>{ w.pdfjsLib=R.pdfjsForWindow(); };
 const SV=w=>w.eval('SAVE'), SS=w=>w.eval('S'), INIT={init:w=>{ w.pdfjsLib=R.pdfjsForWindow(); }};
-const rowsOf=w=>[...w.document.querySelectorAll('#dtInbox .sv-row')].map(r=>r.textContent);
+/* v0.14: 済み (重複 · 同じ内容 · 対象外 …) は 「済み n 件（開く）」 の下 — 시험은 열어서 본다 */
+const rowsOf=w=>{ const sv=SV(w); if(!sv.showRest){ sv.showRest=true; w.renderInbox(); } return [...w.document.querySelectorAll('#dtInbox .sv-row')].map(r=>r.textContent); };
+const bodyOf=async b=>typeof b==='string'?b:b&&b.text?await b.text():'';
+const onlyRemember=async ws=>{ for(const x of ws){ if(!/doc_tool\/save_log\//.test(decodeURIComponent(x.url))) return false; const j=JSON.parse(await bodyOf(x.body)); if(['重複','同じ内容'].indexOf(j.result)<0) return false; } return true; };
 const file=(name,b)=>({name, arrayBuffer:async()=>{ const u=new Uint8Array(b); return u.buffer.slice(u.byteOffset,u.byteOffset+u.length); }});
 
 console.log('6 메일 입구');
@@ -94,16 +99,17 @@ console.log('6 메일 입구');
   ok(rows.length===2,'ACL 첨부 2 건 (ED 첨부 · 담당자 (회사 도메인) 메일 = 빠짐)',rows);
   ok(rows.some(t=>/2版目/.test(t)&&/NAA2611-01 の ACL（2版目）として保存します: NAA2611-01_ACL REV\.pdf/.test(t)),'새 판 → 「{IV} の ACL（2版目）として保存します: {이름}」',rows);
   ok(rows.some(t=>/重複/.test(t)&&/同じファイルが保存済み: NAA2611-01_ACL\.pdf/.test(t)),'폴더에 있는 것과 같은 파일 → 重複 (저장 버튼 없음)',rows);
-  ok(/新着 ACL · B\/L Draft（未保存）1 件/.test(box)&&/すべて保存（新規・新しい版のみ 1）/.test(box)&&/試験モード/.test(box),'「新着 ACL（未保存）n 件」 · 「すべて保存」 · 시험 모드 표시',box.slice(0,300));
+  ok(/新着 1 件/.test(box)&&/済み 1 件/.test(box)&&/すべて保存（新規・新しい版のみ 1）/.test(box)&&/試験モード/.test(box),'「新着 ACL（未保存）n 件」 · 「すべて保存」 · 시험 모드 표시',box.slice(0,300));
   const mailUrls=W.req.filter(r=>/\/me\/messages/.test(r));
   ok(mailUrls.length&&mailUrls.every(r=>/^GET /.test(r))&&W.writes.slice(w0).every(x=>!/messages/.test(x.url)),'메일 = GET 만 (보내기 · 읽음 · 이동 0)',W.writes.slice(w0).map(x=>x.url));
   ok(mailUrls.some(r=>/attachments\/a1\/\$value/.test(r))&&!mailUrls.some(r=>/attachments\/a2\/\$value/.test(r)),'ED 첨부는 받지도 않음');
-  ok(W.writes.length===w0,'확인만 → 쓰기 0',W.writes.slice(w0));
+  ok(await onlyRemember(W.writes.slice(w0))&&W.writes.length===w0+1,'확인만 → 쓰기 = 重複 기억 1 건 (save_log) 뿐 (v0.14 3-2)',W.writes.slice(w0).map(x=>x.url));
+  const w1=W.writes.length;
 
   console.log('8 확인 → 저장 (시험 폴더)');
   const btn=w.document.querySelector('#dtInbox [data-svsave]'); btn.click();
   await X.until(()=>rowsOf(w).some(t=>/保存しました/.test(t)),20000);
-  const puts=W.writes.slice(w0).map(x=>({m:x.method,u:decodeURIComponent(x.url),b:x.body}));
+  const puts=W.writes.slice(w1).map(x=>({m:x.method,u:decodeURIComponent(x.url),b:x.body}));
   ok(puts[0]&&puts[0].m==='PUT'&&puts[0].u.indexOf(OUT+'save_test/NAA2611-01/NAA2611-01_ACL REV.pdf:/content?@microsoft.graph.conflictBehavior=fail')>0,'시험 모드 → doc_tool/save_test/{IV}/ 에 새 파일 (conflictBehavior=fail)',puts.map(p=>p.u));
   ok(puts.every(p=>p.u.indexOf(WIP)<0),'Invoice 폴더 (書類作成中) 쓰기 0',puts.map(p=>p.u));
   const log=puts.find(p=>/doc_tool\/save_log\/\d{8}\/\d{8}-\d{6}_NAA2611-01_[a-z0-9]+\.json/.test(p.u)); ok(!!log,'저장 기록 = save_log/{날짜}/ 새 파일 1 개',puts.map(p=>p.u));
@@ -126,17 +132,19 @@ console.log('7 끌어다 놓기');
   await X.until(()=>SV(w).mailSt==='ok'||SV(w).mailSt==='error',20000); await X.until(()=>rowsOf(w).every(t=>!/判断中/.test(t)),20000);
   SV(w).rows=[]; const w0=W.writes.length;
   await w.saveDrop([file('memo.txt',Buffer.from('x')), file('TEST_RR.pdf',OTHER), file('scan.pdf',PDF1b), file('acl.pdf',PDF1), file('x.pdf',PDF3)]);
-  const rows=rowsOf(w);
-  ok(/PDF だけ対応/.test(rows[0]),'PDF 아님 → 「PDF だけ対応」',rows[0]);
-  ok(/この書類はまだ対応していません（RR）/.test(rows[1]),'다른 서류 → 「この書類はまだ対応していません（{종류}）」',rows[1]);
-  ok(/同じ内容/.test(rows[2])&&/同じ内容のファイルが保存済み: NAA2611-01_ACL\.pdf/.test(rows[2]),'같은 글자 · 다른 파일 → 同じ内容',rows[2]);
-  ok(/重複/.test(rows[3]),'같은 파일 → 重複',rows[3]);
-  ok(/Invoice 不明/.test(rows[4])&&!!w.document.querySelectorAll('#dtInbox [data-svsel]').length,'Invoice 를 못 정함 → 不明 + 고르기',rows[4]);
-  ok(W.writes.length===w0,'놓기만 → 쓰기 0');
+  const rows=rowsOf(w), fr=re=>rows.find(t=>re.test(t))||'';
+  ok(/Invoice 不明/.test(rows[0]),'v0.14: やること (Invoice 不明) 가 맨 위 · 나머지는 済み 아래',rows);
+  ok(/PDF だけ対応/.test(fr(/memo\.txt/)),'PDF 아님 → 「PDF だけ対応」',rows);
+  ok(/この書類はまだ対応していません（RR）/.test(fr(/TEST_RR/)),'다른 서류 → 「この書類はまだ対応していません（{종류}）」',rows);
+  ok(/同じ内容のファイルが保存済み: NAA2611-01_ACL\.pdf/.test(fr(/scan\.pdf/)),'같은 글자 · 다른 파일 → 同じ内容',rows);
+  ok(/重複/.test(fr(/acl\.pdf/)),'같은 파일 → 重複',rows);
+  ok(/Invoice 不明/.test(fr(/x\.pdf/))&&!!w.document.querySelectorAll('#dtInbox [data-svsel]').length,'Invoice 를 못 정함 → 不明 + 고르기',rows[4]);
+  ok(W.writes.length===w0,'놓기만 → 쓰기 0 (놓은 PDF 는 메일이 아니라 기억하지 않음)');
   /* 고르기 → 판단 다시 */
-  const sel=[...w.document.querySelectorAll('#dtInbox [data-svsel]')].pop(); sel.value='NBB2611-01'; sel.dispatchEvent(new w.Event('change'));
-  await X.until(()=>rowsOf(w)[4]&&/NBB2611-01 の ACL（3版目）として保存します: NBB2611-01_ACL REV2\.pdf/.test(rowsOf(w)[4]),20000).catch(()=>{});
-  ok(/NBB2611-01_ACL REV2\.pdf/.test(rowsOf(w)[4]),'Invoice 고름 → 그 폴더 기준 판단 (ACL · ACL REV 있음 → 3版目 REV2)',rowsOf(w)[4]);
+  const sel=[...w.document.querySelectorAll('#dtInbox .sv-row')].find(r=>/x\.pdf/.test(r.textContent)).querySelector('[data-svsel]'); sel.value='NBB2611-01'; sel.dispatchEvent(new w.Event('change'));
+  const fx=()=>rowsOf(w).find(t=>/x\.pdf/.test(t))||'';
+  await X.until(()=>/NBB2611-01 の ACL（3版目）として保存します: NBB2611-01_ACL REV2\.pdf/.test(fx()),20000).catch(()=>{});
+  ok(/NBB2611-01_ACL REV2\.pdf/.test(fx()),'Invoice 고름 → 그 폴더 기준 판단 (ACL · ACL REV 있음 → 3版目 REV2)',fx());
   /* ACL 탭에서 놓기 — Booking 다르면 경고 */
   SV(w).rows=[]; SS(w).view='iv'; SS(w).cur={type:'iv',iv:'NBB2611-01'}; SS(w).curTab='acl';
   await w.saveDrop([file('acl2.pdf',PDF2)]);
@@ -164,17 +172,17 @@ console.log('8 409 → 다음 이름 다시 제안');
   w.document.querySelector('#dtInbox [data-svsave]').click();
   await X.until(()=>rowsOf(w).some(t=>/その名前はもう使われていました/.test(t)),20000).catch(()=>{});
   ok(rowsOf(w).some(t=>/その名前はもう使われていました — 次の名前で確認してください: NAA2611-01_ACL REV2\.pdf/.test(t)),'409 → 덮어쓰지 않고 다음 이름으로 다시 확인',rowsOf(w));
-  ok(!W.writes.some(x=>/save_log/.test(decodeURIComponent(x.url))),'409 → 기록 안 씀 (저장 안 됨)'); }
+  { let saved=0; for(const x of W.writes.filter(x=>/save_log/.test(decodeURIComponent(x.url)))) if(JSON.parse(await bodyOf(x.body)).result==='保存') saved++; ok(!saved,'409 → 「保存」 기록 안 씀 (저장 안 됨)'); } }
 
 console.log('10 자동 저장 · 관리자 · 補助');
 { const W=mkWorld(), w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all', doc_tool_save_auto:'1', doc_tool_save_test:'1'}}); prep(w);
   await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>rowsOf(w).every(t=>!/判断中/.test(t)),20000);
-  ok(!w.eval('saveAuto()')&&!w.eval('saveTest()')&&!W.writes.length,'관리자 아님 → 자동 저장 · 시험 모드 스위치 안 먹음 (쓰기 0)',W.writes);
+  ok(!w.eval('saveAuto()')&&!w.eval('saveTest()')&&await onlyRemember(W.writes),'관리자 아님 → 자동 저장 · 시험 모드 스위치 안 먹음 (쓰기 0)',W.writes);
   w.openSettings(); ok(!w.document.getElementById('dtSvAuto'),'설정 — 관리자 아니면 스위치 없음'); }
 { const W=mkWorld(), w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all'}}); prep(w);
   await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>rowsOf(w).every(t=>!/判断中/.test(t)),20000);
   w.openSettings(); ok(w.document.getElementById('dtSvAuto')&&!w.document.getElementById('dtSvAuto').checked&&!w.document.getElementById('dtSvTest').checked,'관리자 설정 — 「確実なら確認なしで保存」 · 시험 모드 기본 끔');
-  ok(!W.writes.length,'기본 (확인 필요) → 메일 확인만으로는 쓰기 0',W.writes);
+  ok(await onlyRemember(W.writes),'기본 (확인 필요) → 메일 확인만으로는 저장 0 (重複 · 同じ内容 기억만)',W.writes.map(x=>x.url));
   ok(DOC.TODO_RULES.ASSIST_ROLE==='書類補助','補助 = master staff doc_role 「書類補助」 (v0.8 코드 · 마스터 값은 형님 확인)'); }
 
 console.log('11 쓰기 범위 grep');

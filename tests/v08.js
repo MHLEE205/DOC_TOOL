@@ -54,10 +54,10 @@ console.log('7 이름 · 補助 · FD 本日');
   const X0=o=>Object.assign({iv:'NTE2699-01', country:'INDONESIA', term:'CFR', pay:'LC', carrier:'ONE', blDate:''},o);
   const row=(x,s,now)=>{ const r=DOC.todoRow(X0(x),S0(s),now,null); r.group=DOC.todoGroup(r,now); r.when=DOC.whenLabel(r,now); return r; };
   const now=at('2026-11-24','10:00');
-  const a=row({blDate:'2026-11-24'},{bl:at('2026-11-24','09:30')},now); ok(a.group==='fdtoday'&&a.when==='本日'&&DOC.dayOf(a.due)==='2026-11-26','B/L 오늘 받음 → 「本日」 · 맨 위 묶음 (마감 B/L+2 는 따로)',a);
-  const b=row({blDate:'2026-11-20'},{bl:at('2026-11-20','18:00')},now); ok(b.group==='fdtoday'&&b.when==='昨日 B/L 受領','다음 영업일 (11/20 금 → 11/24 화 · 주말 · 11/23 건너뜀) → 「昨日 B/L 受領」',b);
+  const a=row({blDate:'2026-11-24'},{bl:at('2026-11-24','09:30')},now); ok(a.group==='today'&&a.gkey==='fdlc'&&a.when==='本日'&&DOC.dayOf(a.due)==='2026-11-26','B/L 오늘 받음 → 「本日」 · 맨 위 묶음 (마감 B/L+2 는 따로)',a);
+  const b=row({blDate:'2026-11-20'},{bl:at('2026-11-20','18:00')},now); ok(b.group==='today'&&b.when==='昨日 B/L 受領','다음 영업일 (11/20 금 → 11/24 화 · 주말 · 11/23 건너뜀) → 「昨日 B/L 受領」',b);
   const c=row({blDate:'2026-11-18'},{bl:at('2026-11-18','18:00')},now); ok(c.group==='late','마감 지남 → 期限切れ',c);
-  ok(DOC.TODO_RULES.GROUPS.map(g=>g[0]).slice(0,2).join()==='late,fdtoday','묶음 순서: 期限切れ 다음 = 本日 FD'); }
+  ok(DOC.TODO_RULES.TGROUPS.filter(g=>g[1]==='do').map(g=>g[0]).join()==='acl,depo,draft,blreq,insrr,fd,fdlc','v0.14 묶음 순서 = 일의 순서 (ACL → Deposit → Draft → B/L 依頼 → 保険・RR → FD → L/C 原本)'); }
 console.log('7 원본 통수 (엔진과 같은 함수)');
 /* v0.10: 保管所の判読 (lc_read/1) は エンジン lcOriginalsText で出した bl.originals を持つ → 書類ツールはそれを読む (같은 규칙 · 한 곳) */
 const RO=t=>({bl:{originals:E.lcOriginalsText(t)}});
