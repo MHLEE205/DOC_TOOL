@@ -29,7 +29,9 @@ ok(PT.TEST_PATH===DOC.OUT_ROOT+'save_test/clearance_status_test.json','시험 �
   eq([DOC.ptStaff('NAA2611-01',items),DOC.ptStaff('NA2611-01',items),DOC.ptStaff('NAB2611-01',items),DOC.ptStaff('NAC2611-01',items),DOC.ptStaff('',items)],['S2','S1','S3','',''],'担当者 = PORTAL getShipStaff (긴 기호 먼저 · 뒤는 숫자)'); }
 ok(DOC.ptTsukan({tsukan_irai:true},null)&&DOC.ptTsukan(null,'2026-08-17T00:00:00Z')&&!DOC.ptTsukan(null,'2026-08-18T00:00:00Z')&&!DOC.ptTsukan({tsukan_irai:false},null),'通関 ✅ = 通関依頼済 · CY_CUT 8/17 이전');
 eq([DOC.ptPol({crcf9_pol:'TEST PORT, JAPAN'}),DOC.ptPol({crcf9_region_japan:'TEST AREA'}),DOC.ptPol(null)],['TEST PORT','TEST AREA','—'],'POL = crcf9_pol · 없으면 crcf9_region_japan · 「, JAPAN」 뺌');
-eq(DOC.ptDate('2026-11-05T00:00:00Z'),'2026/11/05','날짜 = PORTAL 모양');
+eq(DOC.ptDate('2026-11-05T00:00:00Z'),'2026/11/05','날짜 = PORTAL 모양 (title · 提案 설명)');
+eq([DOC.ptDateS('2026-12-01T00:00:00Z','2026-11-24'),DOC.ptDateS('2027-01-02','2026-11-24'),DOC.ptDateS('','2026-11-24')],['12/01','27/01/02','—'],'v0.16.1 표 날짜 = 올해 MM/DD · 다른 해 YY/MM/DD');
+eq(PT.FOLD,['f-eta','f-cntr','f-bkg'],'v0.16.1 접는 순서 = ETA → CNTR → BKG_NO');
 eq(DOC.ptDep({dep:'確認'},{s:'wait'},true),{sel:true,val:'確認',hint:''},'DEP — PORTAL 값 있으면 그것');
 eq(DOC.ptDep(null,{s:'done'},true),{sel:true,val:'未',hint:'済'},'DEP — 없으면 書類ツール 판정 (済)');
 eq(DOC.ptDep({dep:'未'},{s:'wait'},true).hint,'待ち','DEP — 未 면 판정 (待ち)');
@@ -88,12 +90,22 @@ const ivList=w=>qa(w,'#dtTable tbody tr').map(tr=>tr.cells[5].textContent.replac
   eq(qa(w,'#dtTable thead th').map(t=>t.textContent),PT.COLS.concat(['ACL','B/L Draft','保険','RR'],PT.INPUTS),'열 순서 = PORTAL 11 + 판정 4 + 입력 4');
   eq(ivList(w),['NBB2611-01','NAA2611-01','NAA2611-02','NCC2611-01','NAA2611-13'],'줄 = PORTAL 조건 (L · FD送付日 · -60 뺌 · ETD 범위 밖 +100 남김 · ETD 순)');
   { const tr=qa(w,'#dtTable tbody tr')[1], c=[...tr.cells].map(x=>x.textContent.trim());
-    eq([c[0],c[1],c[2],c[3],c[4],c[6],c[7],c[8],c[9]],[DOC.ptDate(D(3)),DOC.ptDate(D(13)),DOC.ptDate(D(1)),'✅','SAMPLE POL','2','VIETNAM','TEST LINE','TESTBK1'],'열 값 — ETD · ETA · CY_CUT · 通関 · POL · BKG本 · CNTR · SHIP · BKG_NO');
-    ok(/LRS-2611AA1/.test(c[5]),'IV_NO 아래 계약번호 (작은 글씨)');
+    eq([c[0],c[1],c[2],c[3],c[4],c[6],c[7],c[8],c[9]],[DOC.ptDateS(D(3),T),DOC.ptDateS(D(13),T),DOC.ptDateS(D(1),T),'✅','SAMPLE POL','2','VIETNAM','TEST LINE','TESTBK1'],'열 값 — ETD · ETA · CY_CUT · 通関 · POL · BKG本 · CNTR · SHIP · BKG_NO');
+    ok(/LRS-2611AA1/.test(tr.cells[5].querySelector('button').title)&&!/LRS/.test(c[5]),'계약번호 = IV_NO title (줄 아래 글씨 없음 · v0.16.1)');
     ok(sel(w,'NAA2611-01','dep').value==='確認'&&sel(w,'NAA2611-01','fd_note').value==='メモA','입력 칸 = PORTAL 값 (DEP 確認 · 備考)'); }
   ok(!sel(w,'NBB2611-01','dep')&&sel(w,'NBB2611-01','furikomi'),'DEP = 베트남만 선택 · 그 밖 —');
-  { const tr=qa(w,'#dtTable tbody tr').find(t=>/NCC2611-01/.test(t.textContent)); ok(/PORTAL: —/.test(tr.cells[10].textContent),'担当者 다르면 표시만 (書類ツール 마스터 기준 · PORTAL: …)',tr.cells[10].textContent); }
+  { const tr=qa(w,'#dtTable tbody tr').find(t=>/NCC2611-01/.test(t.textContent)); ok(/PORTAL の担当者.*: —$/.test((tr.cells[10].querySelector('.pt-mk')||{}).title||''),'担当者 다르면 ＊ 표시만 (title = PORTAL 担当者 · v0.16.1)',tr.cells[10].innerHTML); }
   { const tr=qa(w,'#dtTable tbody tr').find(t=>/NAA2611-13/.test(t.textContent)); ok(tr&&!/読み込み中/.test(tr.textContent),'ETD 범위 밖 줄도 폴더 · 판정 칩 (읽기 끝)',tr&&tr.textContent); }
+  /* v0.16.1 한 화면 — 창 폭 전체 · 1 줄 (줄 안에 div · br 없음) · 접는 열 표시 · 열 머리 고정 CSS */
+  ok(w.document.getElementById('dtMain').classList.contains('pt-full')&&w.document.getElementById('dtTable').classList.contains('pt-wide'),'PORTAL 표 = 창 폭 전체 (pt-full · pt-wide)');
+  ok(qa(w,'#dtTable tbody div, #dtTable tbody br').length===0,'모든 줄 = 1 줄 (칸 안 줄바꿈 0)');
+  ok(!/min-width:1500px/.test(w.document.getElementById('dtTable').innerHTML)&&w.document.querySelector('#dtTable table').classList.contains('pt-t'),'표 최소폭 강제 없음');
+  { const th=qa(w,'#dtTable thead th'); ok(th[1].classList.contains('c-eta')&&th[7].classList.contains('c-cntr')&&th[9].classList.contains('c-bkg'),'접는 열 표시 (ETA · CNTR · BKG_NO)'); }
+  { const css=[...w.document.querySelectorAll('style')].map(x=>x.textContent).join(''); ok(/\.dt-t\.pt-t thead th\{position:sticky/.test(css)&&/\.dt-main\.pt-full\{max-width:none/.test(css)&&/\.pt-t \.pt-note\{width:120px\}/.test(css),'CSS — 열 머리 sticky · 창 폭 · 備考 120px'); }
+  /* 접기 — jsdom 은 폭 계산이 없으므로 폭을 흉내: 표 1,400 px · 접을 때마다 -60 · 틀 1,335 px → ETA · CNTR 접음 (BKG_NO 는 남음) */
+  { const t=w.document.getElementById('dtTable'), tb=t.querySelector('table'); Object.defineProperty(t,'clientWidth',{configurable:true,get:()=>1335}); Object.defineProperty(tb,'offsetWidth',{configurable:true,get:()=>1400-60*PT.FOLD.filter(c=>t.classList.contains(c)).length});
+    w.eval('ptFit()'); ok(t.classList.contains('f-eta')&&t.classList.contains('f-cntr')&&!t.classList.contains('f-bkg'),'좁은 폭 → ETA → CNTR 순서로 접음 (넘침 없어지면 멈춤)',t.className);
+    Object.defineProperty(t,'clientWidth',{configurable:true,get:()=>1900}); w.eval('ptFit()'); ok(!PT.FOLD.some(c=>t.classList.contains(c)),'넓은 폭 (1,920) → 아무것도 접지 않음'); delete t.clientWidth; delete tb.offsetWidth; }
   /* 提案 — NBB2611-01 = 폴더에 FD · FD送付日 빈칸 → 흐린 提案 · 쓰기 0 */
   { const b=w.document.querySelector('button[data-pt-prop="NBB2611-01"]'); ok(b&&/提案/.test(b.parentNode.textContent),'提案 표시 (TOOL 이 FD 를 찾음 · FD送付日 빈칸)');
     ok(W.writes.length===0,'열기만 = 쓰기 0 (提案 은 자동 저장 안 함)',W.writes.map(x=>x.method+' '+decodeURIComponent(x.url)));
@@ -118,7 +130,7 @@ const ivList=w=>qa(w,'#dtTable tbody tr').map(tr=>tr.cells[5].textContent.replac
   ok(W.writes.every(x=>x.method==='PUT'&&decodeURIComponent(x.url).indexOf(PT.PATH)>0&&x.url.indexOf('/content')>0),'쓰기 = PORTAL 파일 PUT 뿐',W.writes.map(x=>decodeURIComponent(x.url)));
   /* ETD 범위 버튼 = v0.15 표 */
   w.document.getElementById('dtIvEtd').click(); await X.sleep(30);
-  ok(/^ETDInvoice契約国担当/.test(qa(w,'#dtTable thead th').map(t=>t.textContent).join(''))&&w.document.getElementById('dtEtdBox').style.display===''&&w.localStorage.getItem('doc_tool_iv_mode_v16')==='etd','「ETD 範囲で見る」 = v0.15 표 · 기억');
+  ok(/^ETDInvoice契約国担当/.test(qa(w,'#dtTable thead th').map(t=>t.textContent).join(''))&&!w.document.getElementById('dtMain').classList.contains('pt-full')&&w.document.getElementById('dtEtdBox').style.display===''&&w.localStorage.getItem('doc_tool_iv_mode_v16')==='etd','「ETD 範囲で見る」 = v0.15 표 · 기억');
   w.document.getElementById('dtIvPortal').click(); await X.sleep(30); ok(qa(w,'#dtTable thead th').length===19,'다시 「PORTAL と同じ」');
   /* 담당 칩 — 자기 담당 (STAFF_A = AA) 만 */
   w.document.querySelector('#dtWho button[data-who="me"]').click(); await X.sleep(30);

@@ -152,4 +152,4 @@ async function page(W, opt){
 }
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(f,ms){ const t0=Date.now(); while(!f()){ if(Date.now()-t0>(ms||10000)) throw new Error('시간 초과'); await sleep(10); } }
-module.exports={world,page,until,sleep,todayIso,addDays,g,DV,GR};
+module.exports={world,page,until,sleep,todayIso,addDays,g,DV,GR,fakeFetchOf:fakeFetch};   // v0.16.1: width.js (Chrome) も同じ 가짜 세계

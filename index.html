@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.16</title>
+<title>LEENAI D-00 書類ツール v0.16.1</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -46,6 +46,24 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui
 .dt-range{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--text2)}
 .dt-range input{height:34px;border:1px solid var(--border);border-radius:8px;padding:0 8px;font-family:inherit;font-size:13px;color-scheme:light dark}
 .dt-tablewrap{overflow-x:auto}
+/* v0.16.1 Invoice 別 (PORTAL と同じ表) — 窓の幅いっぱい · 1 行 · 横スクロールなし · 列名の行は固定 */
+.dt-main.pt-full{max-width:none;padding-left:16px;padding-right:16px}
+.dt-tablewrap.pt-wide{overflow:visible}
+.dt-t.pt-t{font-size:12px}
+.dt-t.pt-t th,.dt-t.pt-t td{padding:4px 5px;height:24px;white-space:nowrap;vertical-align:middle}
+.dt-t.pt-t th.c,.dt-t.pt-t td.c{padding:4px 3px}
+.dt-t.pt-t thead th{position:sticky;top:var(--pt-top,46px);z-index:3;background:var(--surface2)}
+.pt-t .dt-link{padding:0;font-size:12px}
+.pt-t .st{min-width:0;padding:0 5px;font-size:11px}
+.pt-t .dt-in{width:auto;height:24px;padding:0 4px;font-size:12px;border-radius:4px}
+.dt-t.pt-t td.pt-ship{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.dt-t.pt-t td.pt-nt{position:relative;min-width:124px}
+.pt-t .pt-note{width:120px}
+.pt-t .pt-note:focus{position:absolute;right:6px;top:3px;width:320px;z-index:4;background:var(--surface)}
+.pt-t .pt-prop{border:1px dashed var(--border);background:transparent;color:var(--text3);font-family:inherit;font-size:11px;padding:0 4px;margin-left:4px;cursor:pointer;border-radius:4px}
+.pt-t .pt-mk{color:var(--st-todo-fg);margin-left:2px;cursor:help}
+.pt-t .pt-hint{font-size:11px;color:var(--text3);margin-left:4px}
+.pt-wide.f-eta .c-eta,.pt-wide.f-cntr .c-cntr,.pt-wide.f-bkg .c-bkg{display:none}
 .dt-t{width:100%;border-collapse:collapse;font-size:14px}
 .dt-t thead tr{background:var(--surface2);color:var(--text2);font-size:12px;text-align:left}
 .dt-t th{padding:10px 14px;font-weight:500;white-space:nowrap}
@@ -251,6 +269,7 @@ button.st:hover{border-color:currentColor}
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
+   v0.16.1 (2026-11-24 追加指示書 THOR_8 v0.16.1 一画面): Invoice 別 (PORTAL と同じ表) = 窓の幅いっぱい · 1 行の高さ · 短い日付 · 横スクロールなし (狭い画面は ETA → CNTR → BKG_NO の順に畳む · IV_NO の title に出す) · 列の名前の行は上に固定
    v0.16 (2026-11-24 指示書 THOR_8 D00 書類ツール v0.16 PORTAL 同一表): Invoice 別 = PORTAL 「船積書類」 と同じ表 (行の条件 · 列の名前と順 · DEP / 振込 / FD送付日 / 備考 を
      PORTAL と同じファイル clearance_status.json に同じ形で保存 — その Invoice のその欄だけ · 読み直し → eTag 条件 PUT) · 判定チップ ACL · B/L Draft · 保険 · RR · FD 送付の 「提案」 (自動保存なし)
      · 「ETD 範囲で見る」 = v0.15 の表そのまま — 規則は DOC.PT の表 1 か所
@@ -1337,7 +1356,7 @@ const DOC = (()=>{
     COLS:['ETD(E)','ETA(E)','CY_CUT','通関','POL','IV_NO','BKG本','CNTR','SHIP','BKG_NO','担当者'], CHIPS:[['acl','ACL'],['bl','B/L Draft'],['ins','保険'],['rr','RR']], INPUTS:['DEP','振込','FD送付日','備考'],
     FROM:-90, TO:180, RECENT:-30, TOP:500, TSUKAN_OLD:'2026-08-17',
     DEP_OPTS:['未','依頼中','確認'], FURI_OPTS:['未','確認済'], FIELDS:['dep','furikomi','fd_date','fd_note'], NOTE_MAX:500,
-    DEF:{dep:'未',furikomi:'未',fd_date:'',fd_note:''}, CONFLICT:'他の人が更新しました — もう一度', PORTAL_FD:'PORTAL FD送付日'};
+    FOLD:['f-eta','f-cntr','f-bkg'], DEF:{dep:'未',furikomi:'未',fd_date:'',fd_note:''}, CONFLICT:'他の人が更新しました — もう一度', PORTAL_FD:'PORTAL FD送付日'};
   const ptEtd = b => isoDay((b&&(b.crcf9_bl_etd||b.cr49f_etd))||'');
   function ptRows(bookings, shipping, today){
     const sh=shipping||{}, since=addDays(today,PT.RECENT);
@@ -1351,6 +1370,8 @@ const DOC = (()=>{
     for(const r of L){ if(r.code&&body.startsWith(r.code)&&/\d/.test(body[r.code.length]||'')) return r.staff; } return ''; }
   const ptTsukan = (rec, cut) => !!((rec&&rec.tsukan_irai)||(cut&&isoDay(cut)<=PT.TSUKAN_OLD));
   const ptPol = r => String((r&&(r.crcf9_pol||r.crcf9_region_japan))||'—').replace(', JAPAN','').trim();
+  /* v0.16.1: 表の日付 = 今年は MM/DD · 他の年は YY/MM/DD */
+  const ptDateS = (iso, today) => { if(!iso) return '—'; const p=String(iso).slice(0,10).split('-'); return p[0]===String(today||'').slice(0,4)?p[1]+'/'+p[2]:p[0].slice(2)+'/'+p[1]+'/'+p[2]; };
   const ptDate = iso => { if(!iso) return '—'; const p=String(iso).slice(0,10).split('-'); return p[0]+'/'+p[1]+'/'+p[2]; };
   /* DEP = PORTAL の選択 (ベトナム向けだけ) · まだ 「未」 なら 書類ツール の判定を添える (済 · 待ち · —) */
   function ptDep(sp, depo, vietnam){ if(!vietnam) return {sel:false};
@@ -1378,7 +1399,7 @@ const DOC = (()=>{
   function guardPortal(p, save){ if(p!==PT.PATH&&p!==PT.TEST_PATH) throw new Error('書き込み禁止の場所: '+p); if(!save||!save.ifMatch) throw new Error('eTag なしの上書きはしません: '+p); return true; }
 
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
-    /* v0.16 */ PT, ptEtd, ptRows, ptStaff, ptTsukan, ptPol, ptDate, ptDep, ptPropose, ptValid, ptMerge, guardPortal,
+    /* v0.16 */ PT, ptEtd, ptRows, ptStaff, ptTsukan, ptPol, ptDate, ptDateS, ptDep, ptPropose, ptValid, ptMerge, guardPortal,
     /* v0.15 */ V15, siLcTent, siTentAny, lcOrigOf, lcArrival, lcYear, lcGuide, poFile, lcOnlyText, siLcOrder, fnameCheck, fnameFix, subjIvs, fdMailBad, fdMailFound, fdDraftCheck, statePath, stateKey, todoExtra,
     /* v0.11 */ CP_REPORT_DIR, CP_REPORT_RE, CP_ACK_RE, CP_NEW_DAYS, CP_STAGE_JA, CP_SCOPE_JA, CP_REPORT_STAGES, cpReportName, cpReportPath, cpAckPath, cpReportBody, cpReportsState, cpVisible, cpFilter, cpNewFor,
     /* v0.9 */ SAVE_RULES, saveKind, textKeyOf, saveCands, saveJudge, saveBump, guardSave, /* v0.12 */ BL_MAIL, blMailDraft, blLabelA, /* v0.13 */ BL_RESULT_DIR, BL_RESULT_RE, blResultPath,
@@ -1755,23 +1776,33 @@ function renderPortal(meNote){
   $('dtTodo').textContent='要対応のみ '+todo.length; $('dtAll').textContent='すべて '+all.length;
   if(!shown.length){ $('dtTable').innerHTML='<div class="dt-empty">表示する船積はありません（担当 · 要対応 の選択を確認）</div>'; return; }
   const sel=(x,f,opts,val)=>'<select class="dt-in" data-pt="'+esc(x.ivRaw)+'" data-f="'+f+'">'+opts.map(o=>'<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
-  const head='<tr>'+P.COLS.map((c,i)=>'<th'+(i===3||i===6?' class="c"':'')+'>'+esc(c)+'</th>').join('')+P.CHIPS.map(c=>'<th class="c">'+esc(c[1])+'</th>').join('')+P.INPUTS.map(c=>'<th class="c">'+esc(c)+'</th>').join('')+'</tr>';
+  /* v0.16.1: 1 行 — 契約番号 · 畳んだ列 (ETA · CNTR · BKG_NO) は IV_NO の title · 担当の違いは ＊ (title) · DEP の判定 · 提案 は 同じ行 */
+  const FCLS={1:' c-eta',7:' c-cntr',9:' c-bkg'}, dS=v=>DOC.ptDateS(v,S.today);
+  const head='<tr>'+P.COLS.map((c,i)=>'<th class="'+(i===3||i===6?'c':'')+(FCLS[i]||'')+'">'+esc(c)+'</th>').join('')+P.CHIPS.map(c=>'<th class="c">'+esc(c[1])+'</th>').join('')+P.INPUTS.map(c=>'<th class="c">'+esc(c)+'</th>').join('')+'</tr>';
   const body=shown.map(x=>{ const sp=x.sp||P.DEF, dep=DOC.ptDep(x.sp, x.r&&x.r.cells.depo, x.vn), noIv=!x.ivRaw;
-    const stf=esc(x.staff?staffName(x.staff):'—')+(x.pstaff!==x.staff?'<div class="dt-note" title="PORTAL の担当者 (共通マスター doc_staff)">PORTAL: '+esc(x.pstaff?staffName(x.pstaff):'—')+'</div>':'');
+    const ivTitle=['契約 '+(x.ct||'—'),'ETA(E) '+DOC.ptDate(x.eta),'CNTR '+x.cntr,'BKG_NO '+x.bkg].join('\n');
+    const stf=esc(x.staff?staffName(x.staff):'—')+(x.pstaff!==x.staff?'<span class="pt-mk" title="'+esc('PORTAL の担当者 (共通マスター doc_staff): '+(x.pstaff?staffName(x.pstaff):'—'))+'">＊</span>':'');
     const chips=P.CHIPS.map(([k])=>'<td class="c">'+(x.r&&x.r.cells[k]?pill(x.r.cells[k],x.iv,k):'—')+'</td>').join('');
     const fd=noIv?'—':'<input type="date" class="dt-in" data-pt="'+esc(x.ivRaw)+'" data-f="fd_date" value="'+esc(sp.fd_date||'')+'">'+
-      (x.prop?'<div class="dt-note" style="opacity:.6" title="'+esc('TOOL が見つけた FD 送付 ('+x.prop.src+') — 押すと入力します')+'">提案 '+esc(DOC.ptDate(x.prop.date))+' <button class="dt-btn ghost sm" data-pt-prop="'+esc(x.ivRaw)+'" data-date="'+esc(x.prop.date)+'">入力</button></div>':'');
-    return '<tr><td class="e">'+esc(DOC.ptDate(x.etd))+'</td><td class="e">'+esc(DOC.ptDate(x.eta))+'</td><td class="e">'+esc(DOC.ptDate(x.cut))+'</td><td class="c">'+(x.ts?'✅':'未')+'</td><td>'+esc(x.pol)+'</td>'+
-      '<td style="padding:6px 10px">'+(x.iv?'<button class="dt-link" data-iv="'+esc(x.iv)+'">'+esc(x.ivRaw)+'</button>':'—')+(x.ct?'<div class="dt-note">'+esc(x.ct)+'</div>':'')+'</td>'+
-      '<td class="c">'+esc(x.cnt)+'</td><td>'+esc(x.cntr)+'</td><td>'+esc(x.ship)+'</td><td>'+esc(x.bkg)+'</td><td>'+stf+'</td>'+chips+
-      '<td class="c">'+(dep.sel&&!noIv?sel(x,'dep',P.DEP_OPTS,dep.val)+(dep.hint?'<div class="dt-note" title="書類ツール の判定">'+esc(dep.hint)+'</div>':''):'—')+'</td>'+
+      (x.prop?'<button class="pt-prop" data-pt-prop="'+esc(x.ivRaw)+'" data-date="'+esc(x.prop.date)+'" title="'+esc('TOOL が見つけた FD 送付 ('+x.prop.src+') '+DOC.ptDate(x.prop.date)+' — 押すと入力します')+'">提案 '+esc(dS(x.prop.date))+'</button>':'');
+    return '<tr><td class="e">'+esc(dS(x.etd))+'</td><td class="e c-eta">'+esc(dS(x.eta))+'</td><td class="e">'+esc(dS(x.cut))+'</td><td class="c">'+(x.ts?'✅':'未')+'</td><td>'+esc(x.pol)+'</td>'+
+      '<td>'+(x.iv?'<button class="dt-link" data-iv="'+esc(x.iv)+'" title="'+esc(ivTitle)+'">'+esc(x.ivRaw)+'</button>':'—')+'</td>'+
+      '<td class="c">'+esc(x.cnt)+'</td><td class="c-cntr">'+esc(x.cntr)+'</td><td class="pt-ship" title="'+esc(x.ship)+'">'+esc(x.ship)+'</td><td class="c-bkg">'+esc(x.bkg)+'</td><td>'+stf+'</td>'+chips+
+      '<td class="c">'+(dep.sel&&!noIv?sel(x,'dep',P.DEP_OPTS,dep.val)+(dep.hint?'<span class="pt-hint" title="書類ツール の判定">'+esc(dep.hint)+'</span>':''):'—')+'</td>'+
       '<td class="c">'+(noIv?'—':sel(x,'furikomi',P.FURI_OPTS,P.FURI_OPTS.indexOf(sp.furikomi)>=0?sp.furikomi:'未'))+'</td><td>'+fd+'</td>'+
-      '<td>'+(noIv?'—':'<input type="text" class="dt-in" data-pt="'+esc(x.ivRaw)+'" data-f="fd_note" value="'+esc(sp.fd_note||'')+'" placeholder="メモ" maxlength="'+P.NOTE_MAX+'">')+'</td></tr>'; }).join('');
-  $('dtTable').innerHTML='<table class="dt-t" style="min-width:1500px"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>'+(S.pCntErr?'<div class="dt-note">⚠ BKG本 を読めない: '+esc(S.pCntErr)+'</div>':'');
+      '<td class="pt-nt">'+(noIv?'—':'<input type="text" class="dt-in pt-note" data-pt="'+esc(x.ivRaw)+'" data-f="fd_note" value="'+esc(sp.fd_note||'')+'" placeholder="メモ" maxlength="'+P.NOTE_MAX+'">')+'</td></tr>'; }).join('');
+  $('dtTable').innerHTML='<table class="dt-t pt-t"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>'+(S.pCntErr?'<div class="dt-note">⚠ BKG本 を読めない: '+esc(S.pCntErr)+'</div>':'');
   $('dtTable').querySelectorAll('button[data-iv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.iv, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
   $('dtTable').querySelectorAll('[data-pt]').forEach(el=>{ el.onchange=()=>ptSaveUi(el, el.dataset.pt, el.dataset.f, el.value); });
   $('dtTable').querySelectorAll('button[data-pt-prop]').forEach(b=>{ b.onclick=()=>ptSaveUi(b, b.dataset.ptProp, 'fd_date', b.dataset.date); });
+  ptFit();
 }
+/* v0.16.1: Invoice 別 (PORTAL と同じ表) のときだけ 窓の幅いっぱい */
+function ptWideUi(){ const on=S.view==='list'&&S.board==='iv'&&S.ivMode==='portal', m=$('dtMain'), t=$('dtTable'); if(m) m.classList.toggle('pt-full',on); if(t){ t.classList.toggle('pt-wide',on); if(!on) t.classList.remove(...DOC.PT.FOLD); } }
+/* 表が枠より広ければ ETA → CNTR → BKG_NO の順に畳む (値は IV_NO の title) · 列名の行は ヘッダーの下に固定 */
+function ptFit(){ const t=$('dtTable'); if(!t||!t.classList.contains('pt-wide')) return; const h=document.querySelector('.ln-header'); t.style.setProperty('--pt-top',(h?h.offsetHeight:0)+'px');
+  t.classList.remove(...DOC.PT.FOLD); const tb=t.querySelector('table.pt-t'); if(!tb) return;
+  for(const c of DOC.PT.FOLD){ if(tb.offsetWidth<=t.clientWidth) break; t.classList.add(c); } }
 /* 保存 — 直前に読み直し → その Invoice のその欄だけ → eTag 条件 PUT (412 → 読み直して 1 回だけやり直し · それでも → 「他の人が更新しました」) */
 const PTSAVE = {busy:{}, n:0};
 async function ptSave(ivRaw, field, value){
@@ -1819,6 +1850,7 @@ function renderWho(){
   $('dtWho').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.who=b.dataset.who; lsSet(LS.who,S.who); renderWho(); render(); }; });
 }
 function render(){
+  ptWideUi();   // v0.16.1
   if(S.view!=='list') return;
   $('dtBIv').classList.toggle('on',S.board==='iv'); $('dtBCt').classList.toggle('on',S.board==='ct'); $('dtBTodo').classList.toggle('on',S.board==='todo');
   const td=S.board==='todo'; $('dtTodoBox').style.display=td?'flex':'none'; $('dtTable').style.display=td?'none':''; $('dtLegend').style.display=td?'none':''; $('dtTodo').style.display=td?'none':''; $('dtAll').style.display=td?'none':''; $('dtTodoAll').style.display=td?'':'none';
@@ -1860,7 +1892,7 @@ function render(){
   if(S.doneMsg) prog(S.doneMsg+(S.hideFd&&hidden?' · FD済み '+hidden+' 件を非表示':''));
 }
 const shipTip = r => 'この契約のブッキング '+r.bks.length+' 件のうち、ETD (B/L ETD 優先) が過ぎたもの '+r.shipped+' 件';
-function show(view){ if(S.view==='list'&&view!=='list') S.prevBoard=S.board; S.view=view; $('dtList').style.display=view==='list'?'flex':'none'; $('dtIv').style.display=view==='iv'?'flex':'none'; $('dtCt').style.display=view==='ct'?'flex':'none'; if(view==='list') render(); window.scrollTo(0,0); }
+function show(view){ if(S.view==='list'&&view!=='list') S.prevBoard=S.board; S.view=view; ptWideUi(); $('dtList').style.display=view==='list'?'flex':'none'; $('dtIv').style.display=view==='iv'?'flex':'none'; $('dtCt').style.display=view==='ct'?'flex':'none'; if(view==='list') render(); window.scrollTo(0,0); }
 
 /* ── Invoice 詳細 ── */
 /* v0.5 (指示書 Step A): 詳細は 先に 「読み込み中…」 を出し、画面に 1 回ゆずってから 読み込み · 描画 (重い処理があっても押した直後に画面が変わる) ·
@@ -3072,6 +3104,7 @@ function startPage(){
   S.hideFd=lsGet(LS.hidefd,'1')!=='0';   // 既定 ON (형님 D2)
   S.ctDays=+lsGet(LS.ctdays,String(DOC.CT_DAYS_DEFAULT)); if(!DOC.CT_PERIODS.some(p=>p[0]===S.ctDays)) S.ctDays=DOC.CT_DAYS_DEFAULT;   // v0.3 既定 直近1ヶ月 · v0.6: 日で数える (PORTAL と同じ · 前の 「月」 の記憶は使わない)
   S.ivMode=lsGet(LS.ivMode,'portal')==='etd'?'etd':'portal';   // v0.16: 既定 = PORTAL と同じ
+  let ptRz=0; window.addEventListener('resize',()=>{ if(ptRz) return; ptRz=1; requestAnimationFrame(()=>{ ptRz=0; ptFit(); }); });   // v0.16.1: 窓の幅が変わったら畳み直す
   $('dtIvPortal').onclick=()=>{ S.ivMode='portal'; lsSet(LS.ivMode,'portal'); render(); }; $('dtIvEtd').onclick=()=>{ S.ivMode='etd'; lsSet(LS.ivMode,'etd'); render(); };
   $('dtHideFd').onchange=()=>{ S.hideFd=$('dtHideFd').checked; lsSet(LS.hidefd,S.hideFd?'1':'0'); render(); };
   $('dtBIv').onclick=()=>{ S.board='iv'; lsSet(LS.board,'iv'); render(); }; $('dtBCt').onclick=()=>{ S.board='ct'; lsSet(LS.board,'ct'); render(); }; $('dtBTodo').onclick=()=>{ S.board='todo'; lsSet(LS.board,'todo'); render(); };
@@ -3216,7 +3249,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.16', date:'2026-11-24',
+  sys:'D-00', name:'書類ツール', version:'0.16.1', date:'2026-11-24',
   desc:'今日やること (Invoice ごとに いまの段階 1 つ) · 書類担当の進み具合 (Invoice 別 · 契約別) · ACL 照合 · B/L Draft 照合 · S/I 推薦 — D-01 · D-03 · D-04 をまとめる試験運用版',
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

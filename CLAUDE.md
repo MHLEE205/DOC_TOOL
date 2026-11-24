@@ -37,7 +37,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 = 2026-11-24)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 = 2026-11-24)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -119,6 +119,8 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - **저장 = `ptSave`** — 직전에 `?$select=id,eTag` + 내용 다시 읽기 → `DOC.ptMerge` (그 Invoice 그 칸 + `updated_by` + `last_updated` 만 · `JSON.stringify(…,null,2)` = PORTAL 과 같은 문자 모양) → `spPut(path, text, type, {portal:true, ifMatch})` (같은 PUT 한 줄 · `DOC.guardOut` → `guardPortal` = `PT.PATH` · `PT.TEST_PATH` 만 · eTag 없으면 거부). 412 → 다시 읽고 1 번 · 그래도 → 「他の人が更新しました — もう一度」. 같은 값이면 쓰지 않음.
   - 試験モード (관리자 · 保存の入口 과 같은 스위치) = 저장 경로 `doc_tool/save_test/clearance_status_test.json` (사본 — 없으면 저장 안 함 · 실파일로 넘어가지 않음).
   - 提案 = FD送付日 빈칸 + TOOL 이 FD 송부를 찾음 (`todoSignals` 의 `fd` · `fdSrc` — 메일 · 폴더 · 메일 검색) → 흐린 「提案 날짜」 + 「入力」 (누를 때만 저장 · 자동 저장 0).
+  - **v0.16.1 한 화면** (추가지시서 `THOR_8_추가지시서_D00_書類ツール_v0.16.1_한화면`) — PORTAL 표일 때만 `#dtMain.pt-full` (max-width 없음 · 양옆 16px) · `#dtTable.pt-wide` (overflow visible → 열 머리 `position:sticky` 가 헤더 (`.ln-header`) 바로 아래 · `--pt-top` = 헤더 높이) · 표 `.dt-t.pt-t` (12px · 칸 여백 4/5px · 줄 높이 약 33px · **CSS 는 `.dt-t.pt-t` 로 써야 `.dt-t th/td` 를 이김**). 날짜 `DOC.ptDateS` (올해 MM/DD · 다른 해 YY/MM/DD). 1 줄: 계약번호 · ETA · CNTR · BKG_NO = IV_NO title · 担当 차이 = ＊ (title) · DEP 판정 · 提案 = 같은 줄. 備考 120px · 누르면 320px (표 폭 그대로).
+    · 넘치면 `ptFit` 가 `PT.FOLD` 순서 (ETA → CNTR → BKG_NO · class `f-eta` …) 로 접음 (resize 때 다시). ETD 範囲 · 상세 화면은 원래 폭 (`ptWideUi`). 폭 시험 = `tests/width.js` (실제 Chrome · `npm i --no-save puppeteer-core@23.11.1` · 없으면 SKIP) — 1,920 · 1,905 접기 0 · 1,366 · 1,351 넘침 0.
   - ⚠ PORTAL (v4.8) 은 지금도 **파일 전체를 eTag 없이** 덮어쓴다 — PORTAL 을 열어 둔 채 오래 있다가 저장하면 그 사이 書類ツール 이 저장한 값이 지워질 수 있다 (PORTAL 코드는 이번에 고치지 않음).
 - **v0.10 L/C 보관소** — L/C 는 SharePoint `古紙/LC/_READ/{계약}.json` (schema `lc_read/1` · A1 R2 2 회 판독을 코드로 정리 · 계약마다 1 개 · Amend 오면 다시 판독 → 옛 판은 `_old/`) 에서만 읽는다. **D-01 폴더 (`D-01-LC_FD_CHECKER`) 는 읽지 않는다.**
   - `DOC.SRC.lc` · `loadLcFiles` (`_` 로 시작하는 파일 · 폴더는 건너뜀) · `readLcJson` · 「LC 読み取り」 = `{계약}.md` 를 `DOC.mdHtml` 로 (글자는 전부 escape) · `aclFetchCompass` 의 부킹 `$select` 에 `cr49f_etd,crcf9_bl_etd` (엔진 v0.10 의 船積期限 照合).
