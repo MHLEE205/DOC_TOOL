@@ -32,14 +32,14 @@ README.md
 cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 통과
 ```
 
-- **Windows 는 `git clone -c core.autocrlf=false`** (줄 끝이 바뀌면 sha256 시험이 깨짐 — v0.16 토르_8). **CONTRACT_SEND 는 고정 커밋으로 시험** — 클론을 아래 §5 의 ACL 엔진 커밋 (`git checkout 4b2d99c`) 에 맞춘 뒤 `node run_all.js` (v0.19).
+- **Windows 는 `git clone -c core.autocrlf=false`** (줄 끝이 바뀌면 sha256 시험이 깨짐 — v0.16 토르_8). **CONTRACT_SEND 는 고정 커밋으로 시험** — 클론을 아래 §5 의 ACL 엔진 커밋 (`git checkout 4b2d99c`) 에 맞춘 뒤 `node run_all.js` (v0.20).
 
 - 필요: node 18 이상. `acl.js` · `si.js` 는 엔진 원문을 `../../CONTRACT_SEND` 클론에서 `git show` 로 읽고, 없으면 raw 주소에서 받는다 (`ACL_REPO=경로` 로 바꿀 수 있음).
 - `theme.js` 는 `../../LEENAI_COMMON` 클론이 있으면 `theme_fx.css` 가 지금 공통 파일과 같은지도 본다 (없으면 생략).
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 = 2026-11-24)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -137,6 +137,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - **문지기 `DOC.guardMail`** — 허용 = POST `me/messages` · POST `me/messages/{id}/createReply(All)` · POST `me/messages/{id}/attachments` · PATCH `me/messages/{id}` 만. send · sendMail · forward · reply · move · copy · DELETE = 예외. 화면의 Graph 메일 호출은 `graphMail` 하나 (첫 줄이 guardMail). **보내는 버튼 · 코드 없음.**
   - 권한 없음 (401 / 403) = 「Outlook に下書きを作る権限がありません — 「コピー」 を使ってください」. 만들면 `doc_tool/mail_draft/{IV}_{type}_{UTC}.json` 기록 → 「下書き作成済 HH:MM」.
   - 버튼 — 今日やること 줄 (`mailKindOf`: acl · depo · fd/fdlc/insrr) · ACL 탭 · DEPO 탭 · FD 탭. 시험 = `tests/v19.js` (가짜 Outlook = `fake.js` `W.drafts` · `W.mailDeny`).
+- **v0.20 (지시서 `THOR_14_지시서_D00_書類ツール_v0.20_메일고치기` · 형님 R2 ~ R5)** — 규칙 = doc-core `DOC.MAIL20` · `DOC.mailSubjTpl`. 엔진은 그대로 (`4b2d99c`).
+  - 받는 사람 (R4) — `master_sales_mail` 의 **`doc_to` · `doc_cc` (書類メール To / CC · 書類ツール 만 씀 · Shipping Schedule 은 `to` · `cc` 만 읽음 — `SHIPPING_SCHEDULE/index.html` `buildMailMapFromMaster`)** → 비면 `to` · `cc` → 없으면 「宛先が分かりません」. 前のメール 候補는 없앰. **마스터에 새 칸을 더할 때 Shipping Schedule 이 그 칸을 읽지 않는지 먼저 확인.**
+  - 제목 (R2) — `mailPastSubj`: 그 바이어 (계약의 buyer id) 의 선적에 담당이 같은 종류 (Deposit Request · Shipping docs 언어별 표시) 로 보낸 **가장 최근** 메일 (읽어 둔 `TODO.byBk`) → `mailSubjTpl` 이 Re: · FW: · [RE] · 뒤 스레드를 떼고 그 선적의 Invoice · 계약 · PO (`-`→`_` 도) · B/L · MT 를 `{IV}` … 로. 번호가 남거나 이번 값이 비면 기본 모양 + 「件名を確認してください」.
+  - zip (R3) — Shipping docs 에서 `{IV}_FD.pdf` 가 없으면 이름에 그 Invoice 만 든 `.zip` (다른 번호가 든 zip = 빨강 · 안 만듦). 첨부 contentType = application/zip.
+  - 일본어 본문 (R5) — 실제 보낸 원문 2 모양: 짧은 형 (`MAIL19.SHIP.ja`) · 목록 형 (`MAIL20.JA_LIST` — 지난 메일 본문에 `-Invoice# :` 가 있으면). 빈 칸 (仕入先 등) = 「本文の空欄を確認してください」. 본문 · 제목에 빈 `{ORDER}` 같은 글자가 남지 않음 (v0.19 버그).
+  - 마스터 줄 찾기 (`mailSalesRow`) = Shipping Schedule `buildBuyerData` 와 같음 — 계약의 AGENT (下書き 만들 때 그 계약만 COMPASS 에서 읽음 · 숫자 = 없음) → `AGENT::BUYER` → `AGENT::` · 없으면 `::BUYER`. (v0.19 는 BUYER 이름으로만 찾아 FORESTRY · FOUR SEASONS 같은 에이전트 줄을 못 찾았음.)
+  - 시험 = `tests/v20.js`.
 - **v0.17 수정 묶음 (지시서 `THOR_9_지시서_D00_書類ツール_v0.17` · 묶음 v0.5 B9 · D · E1 · F · G + 11/24 형님 결정 H)** — 규칙 · 낱말은 doc-core `DOC.V17` **한 곳** (+ `SAVE_RULES.DOCS`).
   - H1 Invoice 別 (PORTAL と同じ) 줄 = **通関依頼済 만** (`DOC.ptRows(…, records)` · `ptTsukan` = `records[IV].tsukan_irai` 또는 CY_CUT ≤ 2026-08-17) — PORTAL 은 안 고침 → 줄 수가 PORTAL 과 다른 것은 의도. 제목 「船積書類（通関依頼済 / FD送付日未入力）」.
   - H2 저장 = 바로 저장 그대로 + 칸 옆 「✓ 保存」 1.5 초 (`ptMark` · `PTSAVE.marks` — 표를 다시 그려도 `ptMarksApply` 가 붙임) · 실패 = 빨강 「保存できません」. H4 부킹 = `dvAll` (`$top` 없음 · nextLink 끝까지 · PORTAL 은 그대로 500).

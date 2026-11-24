@@ -26,7 +26,7 @@ console.log('1 틀');
   const en=S('en'), ko=S('ko'), ja=S('ja'), xx=S('');
   ok(en.subject==='[Shipping docs for NAA2699-01]'&&!/for for/.test(en.subject)&&/shipping documents of NAA2699-01 for order #2699\/1126\./.test(en.body),'en — [Shipping docs for {IV}] (for for 없음)',en);
   ok(ko.subject==='[선적서류안내]#LRS-2699AA1_NAA2699-01_91.96MT'&&/1건 출항완료되어 선적서류 첨부로 안내드립니다\./.test(ko.body),'ko — [선적서류안내]#{계약}_{IV}_{MT}MT · 大場 원문',ko);
-  ok(ja.subject==='船積書類送付_NAA2699-01'&&/船積書類を添付いたしますので/.test(ja.body),'ja — 船積書類送付_{IV}',ja);
+  ok(ja.subject==='船積書類送付_NAA2699-01'&&/船積書類を添付にて送付いたします/.test(ja.body),'ja — 船積書類送付_{IV} (v0.20: 본문 = 실제 원문)',ja);
   ok(xx.subject===en.subject,'언어 없음 = en');
   eq(en.att.map(a=>a.as),['NAA2699-01_FD.pdf','NAA2699-01_RR.pdf'],'첨부 = {IV}_FD · {IV}_RR (있으면)'); }
 { const res={invoice:'NAA2699-01', items:[{group:'当事者',key:'consignee',label:'Consignee',status:'MATCH'}]}, h=DOC.mailDraft19('acl', Object.assign({}, base, {aclRes:res, srcSubj:'【通関書類送付_NAA2699-01】Re: 新規通関依頼', srcId:'m1', toSrc:'thread'}));
@@ -37,7 +37,7 @@ console.log('1 틀');
 console.log('2 받는 사람');
 { const m=DOC.mailDraft19('ship', Object.assign({}, base, {lang:'en', files:F('NAA2699-01_FD.pdf'), to:['A@x.test'], cc:['c@x.test','rcp@example.test'], toSrc:'master'}));
   eq([m.to, m.cc],[['a@x.test'],['c@x.test','rcp@example.test']],'마스터 To · CC (작은 글자) · rcp@ 하나만');
-  const c=DOC.mailDraft19('ship', Object.assign({}, base, {lang:'en', files:F('NAA2699-01_FD.pdf'), to:['p@x.test'], toSrc:'mail'})); ok(c.warn.indexOf(DOC.MAIL19.CHECK)>=0&&c.cc.indexOf('rcp@example.test')>=0,'마스터 없음 = 지난 메일의 받는 사람 (候補 · 「確認してください」) · CC rcp@',c.warn);
+  const c=DOC.mailDraft19('ship', Object.assign({}, base, {lang:'en', files:F('NAA2699-01_FD.pdf'), to:['p@x.test'], toSrc:'mail'})); ok(c.warn.indexOf(DOC.MAIL19.CHECK)<0&&c.cc.indexOf('rcp@example.test')>=0,'v0.20: 候補 「確認してください」 없앰 (R4) · CC rcp@',c.warn);
   const n=DOC.mailDraft19('ship', Object.assign({}, base, {lang:'en', files:F('NAA2699-01_FD.pdf'), to:[], toSrc:''})); ok(n.warn.indexOf(DOC.MAIL19.NO_TO)>=0,'모르면 「宛先が分かりません」'); }
 
 console.log('3 첨부 검사');
