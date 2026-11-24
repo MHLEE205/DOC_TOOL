@@ -32,14 +32,14 @@ README.md
 cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 통과
 ```
 
-- **Windows 는 `git clone -c core.autocrlf=false`** (줄 끝이 바뀌면 sha256 시험이 깨짐 — v0.16 토르_8). **CONTRACT_SEND 는 고정 커밋으로 시험** — 클론을 아래 §5 의 ACL 엔진 커밋 (`git checkout 6d57a01`) 에 맞춘 뒤 `node run_all.js` (v0.17).
+- **Windows 는 `git clone -c core.autocrlf=false`** (줄 끝이 바뀌면 sha256 시험이 깨짐 — v0.16 토르_8). **CONTRACT_SEND 는 고정 커밋으로 시험** — 클론을 아래 §5 의 ACL 엔진 커밋 (`git checkout 980b6f4`) 에 맞춘 뒤 `node run_all.js` (v0.17).
 
 - 필요: node 18 이상. `acl.js` · `si.js` 는 엔진 원문을 `../../CONTRACT_SEND` 클론에서 `git show` 로 읽고, 없으면 raw 주소에서 받는다 (`ACL_REPO=경로` 로 바꿀 수 있음).
 - `theme.js` 는 `../../LEENAI_COMMON` 클론이 있으면 `theme_fx.css` 가 지금 공통 파일과 같은지도 본다 (없으면 생략).
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 = 2026-11-24)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 = 2026-11-24)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -60,8 +60,8 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.14 · v0.17 G10) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `6d57a01a465ce4f18c7110a2ee2160230a38624c` | `10d7a91c9e3a18f526100eb8936ed3e1caa0f1cb150c01224cbcf27a31b334b7` |
-| B/L Draft 대조 (bl_bench v0.3) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `e18253ad9e32b79c3bd2c5d357acfd7f31c0b8ab` | `df29d87bade9e705b34378f1ccb6e5547cf4215fb32d16e34262228323654608` |
+| ACL 대조 (acl_bench v0.16 · v0.18 T-1) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `980b6f46cd64766cf914d0edaa7caad8695cbb24` | `5ea7f23aa2c3957d2af9eee7e81c1b290d16a14406798f32f06fc1c6fe25048f` |
+| B/L Draft 대조 (bl_bench v0.4 · v0.18 T-4) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `980b6f46cd64766cf914d0edaa7caad8695cbb24` | `1b650b00eff5a912af021236cade2244363fbe67ad93591edbe912a9ff34f5c6` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -124,6 +124,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - **v0.16.1 한 화면** (추가지시서 `THOR_8_추가지시서_D00_書類ツール_v0.16.1_한화면`) — PORTAL 표일 때만 `#dtMain.pt-full` (max-width 없음 · 양옆 16px) · `#dtTable.pt-wide` (overflow visible → 열 머리 `position:sticky` 가 헤더 (`.ln-header`) 바로 아래 · `--pt-top` = 헤더 높이) · 표 `.dt-t.pt-t` (12px · 칸 여백 4/5px · 줄 높이 약 33px · **CSS 는 `.dt-t.pt-t` 로 써야 `.dt-t th/td` 를 이김**). 날짜 `DOC.ptDateS` (올해 MM/DD · 다른 해 YY/MM/DD). 1 줄: 계약번호 · ETA · CNTR · BKG_NO = IV_NO title · 担当 차이 = ＊ (title) · DEP 판정 · 提案 = 같은 줄. 備考 120px · 누르면 320px (표 폭 그대로).
     · 넘치면 `ptFit` 가 `PT.FOLD` 순서 (ETA → CNTR → BKG_NO · class `f-eta` …) 로 접음 (resize 때 다시). ETD 範囲 · 상세 화면은 원래 폭 (`ptWideUi`). 폭 시험 = `tests/width.js` (실제 Chrome · `npm i --no-save puppeteer-core@23.11.1` · 없으면 SKIP) — 1,920 · 1,905 접기 0 · 1,366 · 1,351 넘침 0.
   - ⚠ PORTAL (v4.8) 은 지금도 **파일 전체를 eTag 없이** 덮어쓴다 — PORTAL 을 열어 둔 채 오래 있다가 저장하면 그 사이 書類ツール 이 저장한 값이 지워질 수 있다 (PORTAL 코드는 이번에 고치지 않음).
+- **v0.18 (지시서 `THOR_11_지시서_D00_엔진v0.16_書類ツールv0.18` · 형님 D1 ~ D7)** — 엔진 먼저 (CONTRACT_SEND `980b6f4` · acl_bench v0.16 · bl_bench v0.4) → 그 커밋을 고정. 규칙 · 낱말 = doc-core `DOC.V18`.
+  - T-1 乙仲様式 ACL — `scanAiFor(E, raw, fmt)`: 스캔 = `{sha256}.json` (NACCS) → 아니면 `{sha256}.other.json` · 글자 있는 OTHER = `.other.json` 만 (모두 acl_bench 가 만든 저장본 · 書類ツール 은 AI 0) → 「AI 判読 (乙仲様式) · 様式 … · この様式にない欄 n（対象外）」.
+  - T-2 FD 까지 끝난 계약 (`ctFdDone` = 읽은 그 계약 선적이 모두 FD 済) 의 仮 S/I = 参考 (`judgeCt({fdDone})` → S/I 칸 済 + 「参考 — FD まで済んだ契約の 仮 S/I」 · 「L/C 着 · S/I 未更新」 안 띄움).
+  - T-3 保存の入口 — 담당 (회사 주소) 이 보낸 메일의 **FD · TO BANK 첨부만** (`V18.STAFF_KINDS`) · Invoice = 제목 (묶음 번호 포함) → 첨부 이름 (`DOC.staffDoc`) · 첨부 번호가 제목의 어느 것과도 다르면 저장 안 함: 5 영업일 안 = 빨강 「添付名が違う」 (FD 済여도 · 今日やること 의 「送付済み · 添付名が違う」 도 5 영업일 안이면 FD 済여도 빨강) · 그 전 = 「参考（添付名が違う）」.
+  - T-4 bl_bench v0.4 의 `res.otherCt` (Draft 의 다른 계약번호) → B/L 탭 (엔진 화면) · 今日やること 빨강 (`blLatestLoad` = 저장된 최신 B/L 결과 · 이 화면의 照合).
+  - T-5 ACL 탭 = 엔진 `pastMistakes` (`ACL_bench/otsunaka_mistakes.json` · 읽기만 · `loadPast`) → 「この乙仲の過去の誤記 n 件（参考）」 + 목록 (乙仲 이름 · 번호 · 양식 이름으로 찾음).
 - **v0.17 수정 묶음 (지시서 `THOR_9_지시서_D00_書類ツール_v0.17` · 묶음 v0.5 B9 · D · E1 · F · G + 11/24 형님 결정 H)** — 규칙 · 낱말은 doc-core `DOC.V17` **한 곳** (+ `SAVE_RULES.DOCS`).
   - H1 Invoice 別 (PORTAL と同じ) 줄 = **通関依頼済 만** (`DOC.ptRows(…, records)` · `ptTsukan` = `records[IV].tsukan_irai` 또는 CY_CUT ≤ 2026-08-17) — PORTAL 은 안 고침 → 줄 수가 PORTAL 과 다른 것은 의도. 제목 「船積書類（通関依頼済 / FD送付日未入力）」.
   - H2 저장 = 바로 저장 그대로 + 칸 옆 「✓ 保存」 1.5 초 (`ptMark` · `PTSAVE.marks` — 표를 다시 그려도 `ptMarksApply` 가 붙임) · 실패 = 빨강 「保存できません」. H4 부킹 = `dvAll` (`$top` 없음 · nextLink 끝까지 · PORTAL 은 그대로 500).

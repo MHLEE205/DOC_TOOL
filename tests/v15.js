@@ -141,7 +141,7 @@ console.log('화면 — A1 · B1 · B2 · B3 · B7 · B10 · B11');
   const stj=JSON.parse(await st[0].body.text()); ok(stj.invoice==='NAA2611-03'&&stj.bad[0]==='NAA2610-03_FD.pdf'&&/선적서류/.test(stj.subject),'기억 내용 (Invoice · 메일 시각 · 제목 · 다른 첨부)',stj);
   /* v0.17 (G3): FD 済 (메일 검색) 인 Invoice 의 「ファイル名の番号違い」 · 「添付名が違う」 = 参考 → 今日やること 에 안 띄움 · Invoice 상세에만 (B10 「この Invoice のファイル」 흐름은 v17.js 에서 FD 전 Invoice 로) */
   await X.sleep(50); const rows=qa(w,'.tl-row').filter(r=>/NAA2611-03/.test(r.textContent)), whats=rows.map(r=>r.querySelector('.tl-what').textContent);
-  ok(!whats.length,'v0.17 G3: FD 済 → 今日やること 줄 없음 (번호 違い · 添付名 · 진행 줄 모두)',whats);
+  ok(JSON.stringify(whats)===JSON.stringify(['送付済み · 添付名が違う']),'v0.17 G3 + v0.18 T-3: FD 済 → 번호 違い · 진행 줄 없음 · 5 영업일 안에 보낸 添付名 違い 메일만 빨강',whats);
   ok(w.eval("DOC.judgeIv(ivRow(S.bk.find(b=>b.cr49f_invoice_no==='NAA2611-03')).x).fd.s")==='done','현황판 FD = 済');
   w.eval("openIv('NAA2611-03')"); await X.until(()=>/NAA2611-03/.test(txt(w,'dtIvSum')),5000); await X.sleep(20);
   ok(/参考/.test(txt(w,'dtIvSum'))&&/ファイル名の番号違い: NAA2610-03_FD\.pdf/.test(txt(w,'dtIvSum'))&&/送付済み · 添付名が違う/.test(txt(w,'dtIvSum')),'v0.17 G3: Invoice 상세에 参考 (번호 違い · 添付名)',txt(w,'dtIvSum'));
