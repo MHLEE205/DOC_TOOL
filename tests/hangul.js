@@ -4,7 +4,9 @@ const fs=require('fs'), path=require('path'), acorn=require('acorn');
 const HG=/[ᄀ-ᇿ㄰-㆏가-힯]/;
 function scan(file){ const h=fs.readFileSync(file,'utf8'), out=[], re=/<script(?: id="([^"]+)")?>([\s\S]*?)<\/script>/g; let m;
   while((m=re.exec(h))){ const base=h.slice(0,m.index+m[0].indexOf(m[2])).split('\n').length-1;
-    for(const t of acorn.tokenizer(m[2],{ecmaVersion:'latest',locations:true})) if((t.type.label==='string'||t.type.label==='template')&&HG.test(String(t.value))) out.push((m[1]||'-')+':'+(base+t.loc.start.line)+' '+String(t.value).slice(0,60)); }
+    const LN=m[2].split('\n');
+    /* v0.19: 韓国のバイヤーへの メール本文の表 (MAIL19.SHIP.ko — \u で書いた 1 行) は 画面の文字ではない → 除く (この 1 行だけ) */
+    for(const t of acorn.tokenizer(m[2],{ecmaVersion:'latest',locations:true})) if((t.type.label==='string'||t.type.label==='template')&&HG.test(String(t.value))&&!/^\s*ko:\{subj:/.test(LN[t.loc.start.line-1]||'')) out.push((m[1]||'-')+':'+(base+t.loc.start.line)+' '+String(t.value).slice(0,60)); }
   const body=h.replace(/<script[\s\S]*?<\/script>/g,'').replace(/<style[\s\S]*?<\/style>/g,'').replace(/<!--[\s\S]*?-->/g,'');
   (body.match(/[^<>]*[가-힯][^<>]*/g)||[]).forEach(x=>out.push('HTML '+x.trim().slice(0,60)));
   return out; }

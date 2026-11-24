@@ -32,14 +32,14 @@ README.md
 cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 통과
 ```
 
-- **Windows 는 `git clone -c core.autocrlf=false`** (줄 끝이 바뀌면 sha256 시험이 깨짐 — v0.16 토르_8). **CONTRACT_SEND 는 고정 커밋으로 시험** — 클론을 아래 §5 의 ACL 엔진 커밋 (`git checkout 980b6f4`) 에 맞춘 뒤 `node run_all.js` (v0.17).
+- **Windows 는 `git clone -c core.autocrlf=false`** (줄 끝이 바뀌면 sha256 시험이 깨짐 — v0.16 토르_8). **CONTRACT_SEND 는 고정 커밋으로 시험** — 클론을 아래 §5 의 ACL 엔진 커밋 (`git checkout 4b2d99c`) 에 맞춘 뒤 `node run_all.js` (v0.19).
 
 - 필요: node 18 이상. `acl.js` · `si.js` 는 엔진 원문을 `../../CONTRACT_SEND` 클론에서 `git show` 로 읽고, 없으면 raw 주소에서 받는다 (`ACL_REPO=경로` 로 바꿀 수 있음).
 - `theme.js` 는 `../../LEENAI_COMMON` 클론이 있으면 `theme_fx.css` 가 지금 공통 파일과 같은지도 본다 (없으면 생략).
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 = 2026-11-24)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 = 2026-11-24)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -60,8 +60,8 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.16 · v0.18 T-1) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `980b6f46cd64766cf914d0edaa7caad8695cbb24` | `5ea7f23aa2c3957d2af9eee7e81c1b290d16a14406798f32f06fc1c6fe25048f` |
-| B/L Draft 대조 (bl_bench v0.4 · v0.18 T-4) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `980b6f46cd64766cf914d0edaa7caad8695cbb24` | `1b650b00eff5a912af021236cade2244363fbe67ad93591edbe912a9ff34f5c6` |
+| ACL 대조 (acl_bench v0.17 · v0.19 — 40HCR = 45R · otsunaka_full) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `4b2d99c033c0d40790046e9c3ded711957972b08` | `675f7b8dff1d1d04eab7bb6109b0f827699cb0a9b48717beb206276cda830077` |
+| B/L Draft 대조 (bl_bench v0.4 · v0.19 = 같은 커밋 · 파일은 그대로) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `4b2d99c033c0d40790046e9c3ded711957972b08` | `1b650b00eff5a912af021236cade2244363fbe67ad93591edbe912a9ff34f5c6` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -130,6 +130,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - T-3 保存の入口 — 담당 (회사 주소) 이 보낸 메일의 **FD · TO BANK 첨부만** (`V18.STAFF_KINDS`) · Invoice = 제목 (묶음 번호 포함) → 첨부 이름 (`DOC.staffDoc`) · 첨부 번호가 제목의 어느 것과도 다르면 저장 안 함: 5 영업일 안 = 빨강 「添付名が違う」 (FD 済여도 · 今日やること 의 「送付済み · 添付名が違う」 도 5 영업일 안이면 FD 済여도 빨강) · 그 전 = 「参考（添付名が違う）」.
   - T-4 bl_bench v0.4 의 `res.otherCt` (Draft 의 다른 계약번호) → B/L 탭 (엔진 화면) · 今日やること 빨강 (`blLatestLoad` = 저장된 최신 B/L 결과 · 이 화면의 照合).
   - T-5 ACL 탭 = 엔진 `pastMistakes` (`ACL_bench/otsunaka_mistakes.json` · 읽기만 · `loadPast`) → 「この乙仲の過去の誤記 n 件（参考）」 + 목록 (乙仲 이름 · 번호 · 양식 이름으로 찾음).
+- **v0.19 (지시서 `THOR_12_지시서_D00_書類ツール_v0.19_메일下書き` · 형님 M1 大場 방식 · M2 lang 열 · M3 通関書類送付 제외)** — 엔진 = CONTRACT_SEND `4b2d99c` (acl_bench v0.17 · 40HCR → 45R · 乙仲 정식 이름 `otsunaka_full`). 업체 메일 下書き 4 종. 규칙 · 틀 = doc-core `DOC.MAIL19`.
+  - 종류 — 本登録依頼 (`[本登録依頼] Re: {스레드}` · 원 스레드에 createReplyAll) · ACL訂正依頼 (`[ACL訂正依頼] Re:` · 相違 목록) · Deposit Request (`[Deposit Request for {IV}] #{PO}_{BUYER}` · 첨부 `{IV}_DRAFT DOC.pdf`) · Shipping docs (마스터 `master_sales_mail.lang` — en `[Shipping docs for {IV}]` · ko `[선적서류안내]#{계약}_{IV}_{MT}MT` · ja `船積書類送付_{IV}` · 첨부 `{IV}_FD.pdf` + `{IV}_RR.pdf`). 오타 바로잡음 (`DRAFT D0C` → `DRAFT DOC` · `for for`).
+  - 받는 사람 — `master_sales_mail` (buyer / agent) → 없으면 지난 메일의 To/CC = 候補 + 「確認してください」 · CC `rcp@` 늘. 本登録 · 訂正 = 원 스레드 (없으면 COMPASS 乙仲).
+  - 첨부 검사 (`DOC.mailAtt`) — 폴더에 그 Invoice 번호 파일이 없고 다른 번호 파일만 = 빨강 「添付名が違う」 · 下書き 안 만듦. 3 MB 넘으면 붙이지 않고 안내.
+  - **문지기 `DOC.guardMail`** — 허용 = POST `me/messages` · POST `me/messages/{id}/createReply(All)` · POST `me/messages/{id}/attachments` · PATCH `me/messages/{id}` 만. send · sendMail · forward · reply · move · copy · DELETE = 예외. 화면의 Graph 메일 호출은 `graphMail` 하나 (첫 줄이 guardMail). **보내는 버튼 · 코드 없음.**
+  - 권한 없음 (401 / 403) = 「Outlook に下書きを作る権限がありません — 「コピー」 を使ってください」. 만들면 `doc_tool/mail_draft/{IV}_{type}_{UTC}.json` 기록 → 「下書き作成済 HH:MM」.
+  - 버튼 — 今日やること 줄 (`mailKindOf`: acl · depo · fd/fdlc/insrr) · ACL 탭 · DEPO 탭 · FD 탭. 시험 = `tests/v19.js` (가짜 Outlook = `fake.js` `W.drafts` · `W.mailDeny`).
 - **v0.17 수정 묶음 (지시서 `THOR_9_지시서_D00_書類ツール_v0.17` · 묶음 v0.5 B9 · D · E1 · F · G + 11/24 형님 결정 H)** — 규칙 · 낱말은 doc-core `DOC.V17` **한 곳** (+ `SAVE_RULES.DOCS`).
   - H1 Invoice 別 (PORTAL と同じ) 줄 = **通関依頼済 만** (`DOC.ptRows(…, records)` · `ptTsukan` = `records[IV].tsukan_irai` 또는 CY_CUT ≤ 2026-08-17) — PORTAL 은 안 고침 → 줄 수가 PORTAL 과 다른 것은 의도. 제목 「船積書類（通関依頼済 / FD送付日未入力）」.
   - H2 저장 = 바로 저장 그대로 + 칸 옆 「✓ 保存」 1.5 초 (`ptMark` · `PTSAVE.marks` — 표를 다시 그려도 `ptMarksApply` 가 붙임) · 실패 = 빨강 「保存できません」. H4 부킹 = `dvAll` (`$top` 없음 · nextLink 끝까지 · PORTAL 은 그대로 500).

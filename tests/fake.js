@@ -88,6 +88,14 @@ function fakeFetch(W){
       const rq=(b&&b.requests)||[]; if(rq.length&&rq.length<=20&&rq.every(r=>String(r.method||'GET').toUpperCase()==='GET')){ W.batches=(W.batches||0)+1; const out=[];
         for(const r of rq){ const x=await self('https://graph.microsoft.com/v1.0'+r.url); let body=null; try{ body=await x.json(); }catch(e){} out.push({id:r.id, status:x.status, headers:{}, body}); }
         return res(200,{responses:out}); } }
+    /* v0.19: Outlook の下書き (me/messages · createReply(All) · attachments · PATCH) — W.mailDeny = 権限なし (403) · 下書きは W.drafts に */
+    if(method!=='GET'&&/^https:\/\/graph\.microsoft\.com\/v1\.0\/me\/messages/.test(url)){ W.mailWrites=(W.mailWrites||[]).concat([{method,url,body:init.body}]); if(W.mailDeny) return res(403,{error:{code:'ErrorAccessDenied'}});
+      W.drafts=W.drafts||{}; const b=init.body?JSON.parse(init.body):{}; let m;
+      if(/\/me\/messages$/.test(url)){ m=Object.assign({id:'draft'+(Object.keys(W.drafts).length+1), isDraft:true, attachments:[]}, b); W.drafts[m.id]=m; return res(201,m); }
+      if((m=url.match(/\/me\/messages\/([^/]+)\/(createReplyAll|createReply)$/))){ const src=(W.messages||[]).find(x=>x.id===m[1])||{}; const d={id:'draft'+(Object.keys(W.drafts).length+1), isDraft:true, subject:'RE: '+(src.subject||''), comment:b.comment, toRecipients:[src.from||{emailAddress:{address:'x@example.test'}}], ccRecipients:src.ccRecipients||[], attachments:[]}; W.drafts[d.id]=d; return res(201,d); }
+      if((m=url.match(/\/me\/messages\/([^/]+)\/attachments$/))){ const d=W.drafts[m[1]]; if(!d) return res(404,{}); d.attachments.push({name:b.name, size:(b.contentBytes||'').length}); return res(201,{id:'att'}); }
+      if((m=url.match(/\/me\/messages\/([^/]+)$/))&&method==='PATCH'){ const d=W.drafts[m[1]]; if(!d) return res(404,{}); Object.assign(d,b); return res(200,d); }
+      return res(400,{}); }
     if(method!=='GET'){ W.writes.push({method,url,body:init.body});
       /* v0.16: PORTAL clearance_status.json — If-Match (eTag) の上書き · 違えば 412 · W.beforePut = 同時に誰かが保存した 흉내 */
       const IM=init.headers&&init.headers['If-Match'];

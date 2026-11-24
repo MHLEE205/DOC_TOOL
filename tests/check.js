@@ -11,7 +11,8 @@ const sp=code.match(/async function spPut\([^)]*\)\{\s*\/?\/?[^\n]*\n?\s*DOC\.gu
 const putCalls=(code.match(/method:'PUT'/g)||[]).length;
 /* v0.14: Graph $batch (읽기 묶음) 는 쓰기가 아님 — 1 줄만 · 안의 요청은 method:'GET' 고정 */
 const batchLines=code.split('\n').filter(l=>/[fF]etch\(GRAPH\+'\$batch'/.test(l)), batchGetOnly=/requests:todo\.map\(x=>\(\{id:x\.id, method:'GET', url:x\.url\}\)\)/.test(code);
-const sendLines=code.split('\n').filter(l=>/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)&&batchLines.indexOf(l)<0), dvWrites=sendLines.filter(l=>!/method:'PUT'/.test(l)).length;   // 보내는 요청 (fetch 에 method) 줄
+const mailLines=code.split('\n').filter(l=>/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)&&/DOC\.guardMail\(/.test(l));   // v0.19: Outlook 下書き (門番 guardMail を同じ行で通る) — 送る API は門番が止める
+const sendLines=code.split('\n').filter(l=>/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)&&batchLines.indexOf(l)<0&&mailLines.indexOf(l)<0), dvWrites=sendLines.filter(l=>!/method:'PUT'/.test(l)).length;   // 보내는 요청 (fetch 에 method) 줄
 const dvWriteFns=(code.match(/async function dvWrite\(/g)||[]).length;
 const dvGuarded=/async function dvWrite\([^)]*\)\{[^\n]*\n\s*DOC\.guardDv\(method, set, id, body, ctx\);/.test(code);
 const deletes=(code.match(/'DELETE'/g)||[]).length;
@@ -22,8 +23,8 @@ const res={scripts:n, syntaxFail:fail,
   confirmAlertCalls:(code.match(/\b(?:window\.)?(?:confirm|alert|prompt)\s*\(/g)||[]).length,
   secrets:(html.match(/ghp_|github_pat_|sk-ant|client_secret|AKIA[0-9A-Z]{12}/g)||[]).length,
   footer:/✦ Powered by LEENAI Automation System/.test(html),
-  spPutGuarded:!!sp, putCalls, batchLines:batchLines.length, batchGetOnly, sendLines:sendLines.length, dvWrites, dvWriteFns, dvGuarded, deletes};   // 실제 거래 값 점검은 레포 밖 목록으로 (실제 이름을 공개 레포에 두지 않음)
+  spPutGuarded:!!sp, putCalls, batchLines:batchLines.length, batchGetOnly, sendLines:sendLines.length, mailLines:mailLines.length, dvWrites, dvWriteFns, dvGuarded, deletes};   // 실제 거래 값 점검은 레포 밖 목록으로 (실제 이름을 공개 레포에 두지 않음)
 console.log(JSON.stringify(res));
 const ok=!fail&&batchLines.length<=1&&(batchLines.length===0||batchGetOnly)&&res.versionTarget===1&&res.versionAny===1&&res.commonJs===1&&!res.confirmAlertCalls&&!res.secrets&&res.footer&&res.spPutGuarded&&putCalls===1&&
-  sendLines.length===1+dvWrites&&dvWrites===dvWriteFns&&dvWriteFns<=1&&(dvWriteFns===0||dvGuarded)&&!deletes;
+  sendLines.length===1+dvWrites&&mailLines.length<=1&&dvWrites===dvWriteFns&&dvWriteFns<=1&&(dvWriteFns===0||dvGuarded)&&!deletes;
 console.log(ok?'CHECK PASS':'CHECK FAIL'); process.exitCode=ok?0:1;

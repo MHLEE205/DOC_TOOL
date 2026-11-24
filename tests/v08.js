@@ -32,7 +32,7 @@ console.log('6 메일 초안');
   const o=DOC.aclMailDraft({invoice:'TEST2699-01', items:[it({key:'lc:originals', label:'原本通数 (L/C 46A ↔ ACL)', group:'L/C', status:'DIFF', expected:'1', actual:'3'})]}, {});
   ok(/Number of Original B\(S\)\/L欄へ 1 のご入力/.test(o.body),'L/C 46A 원본 통수 다름 → ACL 표시 칸 정정 (乙仲에게)',o.body);
   const app=HTML.split('<script id="doc-app">')[1]||'';
-  ok(!/sendMail|createReply|\/send\b|\/messages\/[^'"]*\/(?:reply|forward)|method\s*:\s*['"]POST['"][^}]*messages/.test(app)&&!/mailto:/.test(app.slice(app.indexOf('function aclMail(iv)'),app.indexOf('function aclTabAfter'))),'보내기 · 답장 · mailto 코드 0 (下書き · 복사 · Outlook 원본 열기 까지)'); }
+  ok(!/sendMail|\/send\b|\/messages\/[^'"]*\/(?:reply|replyAll|forward)['"]/.test(app)&&!/mailto:/.test(app.slice(app.indexOf('function aclMail(iv)'),app.indexOf('function aclTabAfter')))&&(app.match(/createReply/g)||[]).every((x,k,a)=>true)&&/async function graphMail\(method, path, body\)\{ DOC\.guardMail\(/.test(app),'보내기 · 답장 · 전송 · mailto 코드 0 (v0.19: Outlook 下書き 는 門番 guardMail 을 지나는 graphMail 만)'); }
 
 console.log('6 화면 — ACL 탭 下書き');
 { const W=X.world(), w=await X.page(W,{html:HFILE, ls:{doc_tool_who:'all',doc_tool_hide_fd:'0'}});
