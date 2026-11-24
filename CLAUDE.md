@@ -32,12 +32,14 @@ README.md
 cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 통과
 ```
 
+- **Windows 는 `git clone -c core.autocrlf=false`** (줄 끝이 바뀌면 sha256 시험이 깨짐 — v0.16 토르_8). **CONTRACT_SEND 는 고정 커밋으로 시험** — 클론을 아래 §5 의 ACL 엔진 커밋 (`git checkout 6d57a01`) 에 맞춘 뒤 `node run_all.js` (v0.17).
+
 - 필요: node 18 이상. `acl.js` · `si.js` 는 엔진 원문을 `../../CONTRACT_SEND` 클론에서 `git show` 로 읽고, 없으면 raw 주소에서 받는다 (`ACL_REPO=경로` 로 바꿀 수 있음).
 - `theme.js` 는 `../../LEENAI_COMMON` 클론이 있으면 `theme_fx.css` 가 지금 공통 파일과 같은지도 본다 (없으면 생략).
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 = 2026-11-24)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 = 2026-11-24)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -58,7 +60,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.13) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `f063889e3d8dd746d72696d43197cd1e360c5a53` | `be8130aeddc1e44eb935bb8df6476ce3494e9ce2034f9c7265bc43e2e9540068` |
+| ACL 대조 (acl_bench v0.14 · v0.17 G10) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `6d57a01a465ce4f18c7110a2ee2160230a38624c` | `10d7a91c9e3a18f526100eb8936ed3e1caa0f1cb150c01224cbcf27a31b334b7` |
 | B/L Draft 대조 (bl_bench v0.3) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `e18253ad9e32b79c3bd2c5d357acfd7f31c0b8ab` | `df29d87bade9e705b34378f1ccb6e5547cf4215fb32d16e34262228323654608` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
@@ -122,6 +124,18 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - **v0.16.1 한 화면** (추가지시서 `THOR_8_추가지시서_D00_書類ツール_v0.16.1_한화면`) — PORTAL 표일 때만 `#dtMain.pt-full` (max-width 없음 · 양옆 16px) · `#dtTable.pt-wide` (overflow visible → 열 머리 `position:sticky` 가 헤더 (`.ln-header`) 바로 아래 · `--pt-top` = 헤더 높이) · 표 `.dt-t.pt-t` (12px · 칸 여백 4/5px · 줄 높이 약 33px · **CSS 는 `.dt-t.pt-t` 로 써야 `.dt-t th/td` 를 이김**). 날짜 `DOC.ptDateS` (올해 MM/DD · 다른 해 YY/MM/DD). 1 줄: 계약번호 · ETA · CNTR · BKG_NO = IV_NO title · 担当 차이 = ＊ (title) · DEP 판정 · 提案 = 같은 줄. 備考 120px · 누르면 320px (표 폭 그대로).
     · 넘치면 `ptFit` 가 `PT.FOLD` 순서 (ETA → CNTR → BKG_NO · class `f-eta` …) 로 접음 (resize 때 다시). ETD 範囲 · 상세 화면은 원래 폭 (`ptWideUi`). 폭 시험 = `tests/width.js` (실제 Chrome · `npm i --no-save puppeteer-core@23.11.1` · 없으면 SKIP) — 1,920 · 1,905 접기 0 · 1,366 · 1,351 넘침 0.
   - ⚠ PORTAL (v4.8) 은 지금도 **파일 전체를 eTag 없이** 덮어쓴다 — PORTAL 을 열어 둔 채 오래 있다가 저장하면 그 사이 書類ツール 이 저장한 값이 지워질 수 있다 (PORTAL 코드는 이번에 고치지 않음).
+- **v0.17 수정 묶음 (지시서 `THOR_9_지시서_D00_書類ツール_v0.17` · 묶음 v0.5 B9 · D · E1 · F · G + 11/24 형님 결정 H)** — 규칙 · 낱말은 doc-core `DOC.V17` **한 곳** (+ `SAVE_RULES.DOCS`).
+  - H1 Invoice 別 (PORTAL と同じ) 줄 = **通関依頼済 만** (`DOC.ptRows(…, records)` · `ptTsukan` = `records[IV].tsukan_irai` 또는 CY_CUT ≤ 2026-08-17) — PORTAL 은 안 고침 → 줄 수가 PORTAL 과 다른 것은 의도. 제목 「船積書類（通関依頼済 / FD送付日未入力）」.
+  - H2 저장 = 바로 저장 그대로 + 칸 옆 「✓ 保存」 1.5 초 (`ptMark` · `PTSAVE.marks` — 표를 다시 그려도 `ptMarksApply` 가 붙임) · 실패 = 빨강 「保存できません」. H4 부킹 = `dvAll` (`$top` 없음 · nextLink 끝까지 · PORTAL 은 그대로 500).
+  - G3 FD 済 (FD送付日 · FD 메일 · 폴더 FD · 메일 검색 = `ivFdDone`) Invoice 의 「ファイル名の番号違い」 · 「添付名が違う」 = 参考 → 今日やること 에 안 띄움 (`todoExtra` 의 `x.fdDone`) · Invoice 요약에 「参考」 한 줄 (`ivRefLines`).
+  - G4 仮 S/I = L/C 번호에 `X` 2 개 이상 연속 (`V17.LC_TENT_XX` · 공백 그대로의 모양) 또는 공백 뺀 `XXX` (v0.15) · 「LC No 未確定 (XX)」 는 仮 S/I 로 합침.
+  - E1 S/I · ACL (읽은 칸) 에 이 계약과 다른 `LRS-\d{4}[A-Z]+\d+` → 빨강 「別の契約番号: …」 (`DOC.otherCts` · `judgeCt` 에 `ct` · S/I 탭 · 今日やること `si` 그룹 · ACL 탭 맨 위). B/L Draft 는 아직 (엔진 결과에 글자 없음).
+  - G10 ACL 엔진 = acl_bench v0.14 `6d57a01` · **스캔 ACL** = `ACL_bench/_scan_ai/{sha256}.json` (acl_bench 가 AI 2 회로 만든 저장본) 을 읽어 `E.scanMerge` → NACCS 와 같은 대조 (`scanAiFor` · 「AI 判読 (スキャン)」 · 書類ツール 은 AI 를 부르지 않음 · 저장본 없으면 読取対象外 「AI 判読なし」). 토르_10 이 끝나면 그 커밋으로 다시.
+  - B9 保存の入口 = ACL · B/L Draft + **FD · TO BANK · IV · PL** (`SAVE_RULES.KINDS` · `DOCS` · `docKind` · 이름 `{IV}_FD.pdf` · `{IV}_TO BANK.pdf` · `{IV}_IV.pdf` · `{IV}_PL.pdf` → `REV` · `REV2` · 덮어쓰기 0 · 문지기 `guardSave` 가 이름 확인). 종류는 이름으로 (FD PDF 에 B/L 쪽이 있어도 FD) · IV+PL 묶음 · 운임 청구서 (`DOC_NOT`) = 저장 안 함. Invoice = 이름 · 제목 → PDF 안 글자 (`saveCands(…, {doc:true})`) → 목록에서 고르기.
+  - F1 Invoice 別 칩: 「待ち」 = 상대 차례만 (`turnFix` — ACL = 通関書類 보낸 뒤 · B/L Draft = 本登録 뒤 · DEPO 번호 · LG 뒤) · 나머지 = 「未」 (`ST.not` · 회색 `.st-not`). F2 保険 = 「未（B/L 受領後に申込）」 / B/L 받은 뒤 「確認」.
+  - F4 화면 시각 = 일본 시간 `jstHM` (「11/23 21:56」) · 履歴 = `logLabel` · L/C MD 의 ISO 시각도. F6 계약 L/C 탭 = 요약 표 (`DOC.lcSummary` · Amend n (날짜) 反映済み) + Amend PDF (`古紙/LC/{年}/…_AMEND{n}.pdf`). F8 チェックポイント 「実例」 = 마스터 `example` (근거 Invoice · 한글 부분은 안 보임 · `DOC.cpExample`).
+  - 1-2 문구 표 = 지시서 일본어 그대로 (D1 ~ D15 · F3 · F5 · F7 · F9 · F10 · B1). 개발 정보 (읽기 완료 내용 · 메일 통수 · 初回表示 · 「表示中」 · L/C 읽기 창 머리 · a1_bench · D-01 버튼 · S/I 추천 엔진 · 비용) = **관리자만** (`S.me.admin`). D15 띄어쓰기: 일본어 글자 사이 공백 없음 (영숫자 앞뒤 · 「·」 · 「＋」 는 그대로) · 엔진 결과 화면은 `uiFix`.
+  - 今日やること 왼쪽 칸 = 항상 기한 (`whenLabel` 「期限 11/25」 · 「期限切れ 11/21」 · 「期限なし」) · 시각 · 사건 날짜 = 둘째 줄 (`whenSub`) · 待ち = 「70 時間待ち（いつもは 2 時間）」.
 - **v0.10 L/C 보관소** — L/C 는 SharePoint `古紙/LC/_READ/{계약}.json` (schema `lc_read/1` · A1 R2 2 회 판독을 코드로 정리 · 계약마다 1 개 · Amend 오면 다시 판독 → 옛 판은 `_old/`) 에서만 읽는다. **D-01 폴더 (`D-01-LC_FD_CHECKER`) 는 읽지 않는다.**
   - `DOC.SRC.lc` · `loadLcFiles` (`_` 로 시작하는 파일 · 폴더는 건너뜀) · `readLcJson` · 「LC 読み取り」 = `{계약}.md` 를 `DOC.mdHtml` 로 (글자는 전부 escape) · `aclFetchCompass` 의 부킹 `$select` 에 `cr49f_etd,crcf9_bl_etd` (엔진 v0.10 의 船積期限 照合).
   - 보관소 만들기 · 새 L/C 1 건 판독 = CONTRACT_SEND `tools/lc_read_build.mjs` · `tools/lc_read_one.mjs` (토르 · 리나이가 PC 에서 실행 · 이 TOOL 은 읽기만).

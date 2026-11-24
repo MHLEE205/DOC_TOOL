@@ -15,43 +15,43 @@ const S=(o,k)=>J(o)[k].s;
 // 通関
 eq(S({folder:F(IV+'_ED.pdf')},'customs'),'done','通関 ED → 済');
 eq(S({folder:F(IV+'_ED REV2.pdf')},'customs'),'done','通関 ED REV2 → 済');
-eq(S({folder:F(IV+'_再輸入ED.pdf')},'customs'),'wait','通関 再輸入ED 는 輸出許可 아님 → 待ち');
+eq(S({folder:F(IV+'_再輸入ED.pdf')},'customs'),'not','通関 再輸入ED 는 輸出許可 아님 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 eq(S({folder:F({name:IV+'_IV_PL_SI.pdf',sub:'通関'})},'customs'),'done','通関 通関/ 에 서류 → 済 (送付)');
 ok(/輸出許可はまだ/.test(J({folder:F({name:IV+'_IV_PL_SI.pdf',sub:'通関'})}).customs.why),'通関 送付만 → 이유에 輸出許可はまだ');
-eq(S({folder:F(IV+'_DRAFT.pdf')},'customs'),'wait','通関 서류 없음 → 待ち');
+eq(S({folder:F(IV+'_DRAFT.pdf')},'customs'),'not','通関 서류 없음 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 eq(S({folder:undefined},'customs'),'load','폴더 읽는 중 → …');
-eq(S({folder:'missing',etdPast:false},'customs'),'wait','폴더 없음 · ETD 앞 → 待ち (未作成)');
+eq(S({folder:'missing',etdPast:false},'customs'),'not','폴더 없음 · ETD 앞 → 待ち (未作成) (v0.17 F1: 自分の番 · まだ = 未)');
 eq(S({folder:'missing',etdPast:true},'customs'),'unk','폴더 없음 · ETD 지남 → ?');
 eq(S({folder:{error:'Graph 500'}},'fd'),'unk','폴더 읽기 실패 → ?');
 // ACL
 const R=(verdict,file,mod)=>({result:{invoice:IV,verdict,file:'/x/'+(file||IV+'_ACL.pdf'),fileModified:mod||'2026-11-10T00:00:00Z',aclVersion:'初版',items:[]},runId:'ACL_20261120-000000'});
-eq(S({folder:F(IV+'_DRAFT.pdf')},'acl'),'wait','ACL 없음 → 待ち');
+eq(S({folder:F(IV+'_DRAFT.pdf')},'acl'),'not','ACL 없음 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 /* v0.3 (형님 D3): 仮ACL = ACL · 済 = 本登録 메일 (rcp@ CC) 이 있을 때만 — 표 (待ち · 確認 · 相違 · 済) */
 const HON=[{at:'2026-11-18T01:00:00Z', name:'山田', src:'mail'}];
 eq([S({folder:F('仮ACL.pdf')},'acl'),J({folder:F('仮ACL.pdf')}).acl.label],['todo','仮'],'v0.3 仮ACL 만 → ACL 있음 (판 仮) · 本登録 없음 → 確認');
 eq(S({folder:F(IV+'_ACL.pdf')},'acl'),'todo','ACL 있음 · 照合結果 없음 → 確認');
 eq(S({folder:F(IV+'_ACL.pdf'),acl:R('相違あり')},'acl'),'diff','ACL 相違あり · 本登録 없음 → 相違');
 eq(S({folder:F(IV+'_ACL.pdf'),acl:R('表記差のみ')},'acl'),'todo','v0.3 ACL 表記差のみ · 本登録 없음 → 確認 (v0.2 는 済)');
-eq([S({folder:F(IV+'_ACL.pdf'),acl:R('完全一致')},'acl'),/本登録 まだ/.test(J({folder:F(IV+'_ACL.pdf'),acl:R('完全一致')}).acl.why)],['todo',true],'v0.3 ACL 完全一致 · 本登録 없음 → 確認 「本登録 まだ」');
+eq([S({folder:F(IV+'_ACL.pdf'),acl:R('完全一致')},'acl'),/本登録まだ/.test(J({folder:F(IV+'_ACL.pdf'),acl:R('完全一致')}).acl.why)],['todo',true],'v0.3 ACL 完全一致 · 本登録 없음 → 確認 「本登録まだ」');
 eq(S({folder:F(IV+'_ACL.pdf'),acl:R('読取対象外')},'acl'),'todo','ACL 読取対象外 (스캔) → 確認');
 eq(S({folder:F(IV+'_ACL.pdf',IV+'_ACL REV.pdf'),acl:R('相違あり')},'acl'),'todo','照合 뒤 REV 가 들어옴 → 確認');
 eq(S({folder:F({name:IV+'_ACL.pdf',lastModified:'2026-11-15T00:00:00Z'}),acl:R('完全一致')},'acl'),'todo','照合 뒤 같은 이름 갱신 → 確認');
 eq(S({folder:F(IV+'_ACL.pdf',IV+'_ACL REV.pdf'),acl:R('完全一致',IV+'_ACL REV.pdf'),hon:HON},'acl'),'done','REV 를 照合 + 本登録 → 済');
 { const a=J({folder:F(IV+'_ACL.pdf'),acl:R('完全一致'),hon:HON}).acl, b=J({folder:F(IV+'_ACL.pdf'),acl:R('相違あり'),hon:HON}).acl, c=J({folder:F(IV+'_ACL.pdf'),hon:HON}).acl, d=J({folder:F(IV+'_DRAFT.pdf'),hon:HON}).acl;
-  eq([a.s,/^本登録 済 \(11\/18 山田\)/.test(a.why)],['done',true],'v0.3 本登록 메일 있음 → 済 「本登録 済 (11/18 山田)」 (UTC → 일본 날짜)');
-  eq([b.s,/相違のまま本登録/.test(b.why),b.diffHon],['done',true,true],'v0.3 相違 + 本登録 → 済 + 「相違のまま本登録」');
+  eq([a.s,/^本登録済 \(11\/18 山田\)/.test(a.why)],['done',true],'v0.3 本登록 메일 있음 → 済 「本登録済 (11/18 山田)」 (UTC → 일본 날짜)');
+  eq([b.s,/相違ありで本登録済み（要確認）/.test(b.why),b.diffHon],['done',true,true],'v0.3 相違 + 本登録 → 済 + 「相違ありで本登録済み（要確認）」 (v0.17 D11)');
   eq(c.s,'done','v0.3 照合 전이라도 本登録 메일 있음 → 済');
   eq([d.s,/ACL ファイルがフォルダにない/.test(d.why)],['todo',true],'v0.3 本登録 메일은 있는데 ACL 파일 없음 → 確認 (⚠️ 토르 판단)'); }
 { const D2=new Function('module',HTML.match(/<script id="doc-core">([\s\S]*?)<\/script>/)[1]+';return DOC;')(undefined), q=o=>D2.judgeIv(base(o)).acl;
   eq([q({folder:F(IV+'_ACL.pdf')}).s,q({folder:F(IV+'_ACL.pdf'),engineErr:true}).s],['load','unk'],'v0.3 엔진 읽는 중 → … · 엔진 못 읽음 → ? (추측 안 함)'); }
-eq(S({folder:F('NBB2611-09_ACL.pdf')},'acl'),'wait','다른 Invoice 의 ACL 은 안 셈');
+eq(S({folder:F('NBB2611-09_ACL.pdf')},'acl'),'not','다른 Invoice 의 ACL 은 안 셈 (v0.17 F1: 自分の番 · まだ = 未)');
 // B/L Draft
-eq(S({folder:F(IV+'_ED.pdf')},'bl'),'wait','B/L 없음 → 待ち');
+eq(S({folder:F(IV+'_ED.pdf')},'bl'),'not','B/L 없음 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 eq(S({folder:F(IV+'_DRAFT.pdf')},'bl'),'todo','DRAFT → 確認');
 eq(S({folder:F(IV+'_FRT MEMO.pdf')},'bl'),'todo','FRT MEMO → 確認');
 eq(S({folder:F(IV+'_DRAFT.pdf',IV+'_SWB.pdf')},'bl'),'done','SWB → 済');
 eq(S({folder:F(IV+'_DRAFT.pdf',IV+'_FD.pdf')},'bl'),'done','FD 작성 → B/L 済');
-eq(S({folder:F(IV+'_DRAFT DOC.pdf')},'bl'),'wait','DRAFT DOC 만 → 待ち');
+eq(S({folder:F(IV+'_DRAFT DOC.pdf')},'bl'),'not','DRAFT DOC 만 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 // DEPO
 eq(S({folder:F(IV+'_DRAFT.pdf')},'depo'),'wait','DEPO 初版만 → 待ち');
 eq(S({folder:F(IV+'_DRAFT.pdf',IV+'_DRAFT REV.pdf')},'depo'),'done','DEPO REV → 済');
@@ -61,21 +61,21 @@ eq(S({folder:F(IV+'_IV_PL.pdf')},'customs'),'todo','通関 폴더 바로 아래 
 eq(DOC.judgeCt({pay:'TT',lcFiles:[],sis:[{crcf9_sino:1,crcf9_consignee:'A',crcf9_notify_party:'N',crcf9_po_vo:'PO NO: XXXX',crcf9_place_of_delivery_1:'P'}]}).si.s,'todo','S/I PO NO: XXXX → 確認');
 eq(S({folder:F(IV+'_DRAFT LG.pdf')},'depo'),'done','DEPO DRAFT LG → 済');
 ok(/LG 作成済/.test(J({folder:F(IV+'_DRAFT.pdf','LG(TEST0000001).xlsx')}).depo.why),'DEPO LG xlsx 만 → 待ち (LG 作成済)');
-eq(S({folder:F()},'depo'),'wait','DEPO B/L 없음 → 待ち');
+eq(S({folder:F()},'depo'),'not','DEPO B/L 없음 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 // 保険
 eq(S({premium:12000},'ins'),'done','保険料 있음 → 済');
-eq(S({premium:null},'ins'),'wait','保険料 빈칸 → 待ち');
-eq(S({premium:0},'ins'),'wait','保険料 0 → 待ち');
+eq(S({premium:null},'ins'),'not','保険料 빈칸 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
+eq(S({premium:0},'ins'),'not','保険料 0 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 eq(S({premium:undefined},'ins'),'unk','保険料 못 읽음 → ?');
 // RR
 eq(S({country:'KOREA',folder:F(IV+'_RR.pdf')},'rr'),'done','RR pdf → 済');
 eq(S({country:'KOREA',folder:F({name:'IMG_0001.JPG',sub:'_RR'})},'rr'),'todo','RR 사진만 → 確認');
-eq(S({country:'KOREA',folder:F(IV+'_FD.pdf')},'rr'),'wait','RR 없음 → 待ち');
+eq(S({country:'KOREA',folder:F(IV+'_FD.pdf')},'rr'),'not','RR 없음 → 待ち (v0.17 F1: 自分の番 · まだ = 未)');
 // FD
 eq(S({folder:F(IV+'_FD.pdf')},'fd'),'done','FD → 済');
 eq(S({folder:F(IV+'_FD2.pdf')},'fd'),'done','FD2 → 済');
 eq(S({folder:F(IV+'_FD REV.pdf')},'fd'),'done','FD REV → 済');
-eq(S({folder:F(IV+'_FRT MEMO.pdf')},'fd'),'wait','FRT MEMO 는 FD 아님');
+eq(S({folder:F(IV+'_FRT MEMO.pdf')},'fd'),'not','FRT MEMO 는 FD 아님 (v0.17 F1: 自分の番 · まだ = 未)');
 // 計 6 상태가 다 나옴
 const seen=new Set(); [{folder:F(IV+'_ED.pdf')},{folder:F(IV+'_ACL.pdf')},{folder:F(IV+'_ACL.pdf'),acl:R('相違あり')},{folder:F()},{country:'JAPAN'},{premium:undefined}].forEach(o=>Object.values(J(o)).forEach(c=>seen.add(c.s)));
 ok(['done','todo','diff','wait','na','unk'].every(s=>seen.has(s)),'6 상태 (済 確認 相違 待ち — ?) 가 모두 나옴',[...seen]);
@@ -165,7 +165,7 @@ ok(/^古紙\/-\. AI 活用\/D-00\/doc_tool\/acl\/NAA2611-01_\d{8}-\d{6}\.json$/.
 const RES={invoice:'NAA2611-01',items:[{status:'DIFF',label:'Seal',actual:'SL1',expected:'SL2'},{status:'DROP',label:'Notify',actual:'A',expected:'A\nB'},{status:'NOTATION',label:'C'},{status:'MATCH',label:'D'},{status:'READ_CHECK',label:'E'},{status:'INFO',group:'NACCS 表示欄',label:'Way Bill'}]};
 const G=DOC.aclGroups(RES); eq([G.diff.length,G.note.length,G.match.length,G.check.length,G.disp.length],[2,1,1,1,1],'ACL 묶음 (相違 · 表記差 · 一致 · 読取確認 · 表示欄)');
 const MD=DOC.mailDraft(RES,{booking:'TESTBK1',company:'SAMPLE FWD',to:'a@example.test',cc:'b@example.test;c@example.test'});
-ok(MD.subject==='[ACL訂正依頼] NAA2611-01 / BKG TESTBK1'&&/SAMPLE FWD ご担当者 様/.test(MD.body)&&/■ 1\. Seal 欄/.test(MD.body)&&/→ 正: SL2/.test(MD.body)&&/■ 2\. Notify 欄/.test(MD.body)&&!/■ 3/.test(MD.body)&&/✦ Powered by LEENAI Automation System$/.test(MD.body)&&MD.n===2,'訂正依頼メール (相違만 · 일본어 · 푸터)',MD);
+ok(MD.subject==='[ACL訂正依頼] NAA2611-01 / BKG TESTBK1'&&/SAMPLE FWD ご担当者様/.test(MD.body)&&/■ 1\. Seal 欄/.test(MD.body)&&/→ 正: SL2/.test(MD.body)&&/■ 2\. Notify 欄/.test(MD.body)&&!/■ 3/.test(MD.body)&&/✦ Powered by LEENAI Automation System$/.test(MD.body)&&MD.n===2,'訂正依頼メール (相違만 · 일본어 · 푸터)',MD);
 const MU=DOC.mailtoUrl(MD); ok(!MU.cut&&/^mailto:a@example\.test\?subject=/.test(MU.url)&&/&cc=b%40example\.test%2Cc%40example\.test/.test(MU.url)&&/&body=/.test(MU.url),'mailto (To · Cc · 본문)',MU.url.slice(0,120));
 const MU2=DOC.mailtoUrl(Object.assign({},MD,{body:'X'.repeat(5000)})); ok(MU2.cut&&MU2.url.length<600,'본문이 길면 잘라서 (복사 안내)');
 

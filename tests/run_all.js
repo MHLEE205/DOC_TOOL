@@ -1,7 +1,7 @@
 /* DOC_TOOL 시험 전부 — node run_all.js [html]. 마지막 줄 ✅ ALL PASS 면 통과. 네트워크 없음 · 가짜 데이터만 */
 const cp=require('child_process'),path=require('path');
 const html=process.argv[2]||path.join(__dirname,'../index.html');
-const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.16.1']],
+const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.17']],
   ['core.js','#1~#5 상태 규칙 · 대상 외 · 담당 · 정렬/범위 · B/L 파일 고르기',[html]],
   ['app.js','#3 기억 · #4 · #9 화면 흐름 (현황판 → 상세 → 탭 → 돌아가기 · 검색 → 상세 · 설정 · 쓰기 0)',[html]]];
 const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 결과 · DR 이름 · 관리자 버튼'],['si.js','#7 S/I 쓰기 — 쓰기 전 저장 → 쓰기 → 다시 읽기 · 취소 · S/I 済 지금 표 먼저'],
@@ -18,6 +18,7 @@ const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 
   ['v14.js','v0.14 사용성 — 판단 1-1~1-4 · やること / 待ち 그룹 · 한 줄 · ？ 매뉴얼 · 保存の入口 접기 · 기억 (取消 · 重複 · 同じ内容) · 再確認 · $batch · 폴더 기억'],
   ['v15.js','v0.15 수정 묶음 — A1 待ち 접기 · A2 対象外 기억 · B1~B6 L/C 未着 · 仮 S/I (XXX) · L/C 도착 갱신 · B7 FD 메일 검색 · B8 선적서류 · B10 · B11 파일 이름 번호 · B12 試験 줄'],
   ['v16.js','v0.16 Invoice 別 = PORTAL 船積書類 — 열 순서 · 줄 조건 · DEP 우선순위 · 저장 = 그 칸만 · eTag 충돌 재시도 · 提案 자동 저장 없음 · 문지기 · ETD 범위 버튼'],
+  ['v17.js','v0.17 수정 묶음 — H1 通関依頼済 · H2 ✓ 保存 · H4 nextLink · G3 参考 · G4 XX = 仮 · E1 別の契約番号 · G10 엔진 6d57a01 + 스캔 ACL · B9 FD · TO BANK · IV · PL · F1 待ち/未 · F2 · F4 일본 시간 · F6 L/C 요약 · F8 実例 · 1-2 문구 표'],
   ['width.js','v0.16.1 한 화면 — 실제 Chrome (headless) 1,920 · 1,366 폭에서 Invoice 別 가로 넘침 0 · 1 줄 높이 · 열 머리 고정 (Chrome · puppeteer-core 없으면 SKIP)'],
   ['hangul.js','v0.13 한글 0 — 화면에 나갈 수 있는 문자열 · HTML 본문 (주석 · 정규식 제외)'],
   ['v12.js','v0.12 B/L Draft 탭 — 保存の入口 B/L Draft (FRT MEMO · N版目 · 문지기) · 메일 下書き 3 · 엔진 고정 (ACL v0.12 · bl_bench v0.2) · 照合 화면 · CP 번호 · 試験 줄 관리자만 · バイヤー用 확인 · 쓰기 0'],

@@ -74,6 +74,9 @@ function dvHandle(W,url){
   else if(/cr49f_sale_contract_date ge/.test(filt)){ const d=filt.match(/\d{4}-\d{2}-\d{2}/)[0]; rows=T.filter(r=>r.cr49f_sale_contract_date>=d); }
   else if(/contains\(cr49f_lc_no,'([^']*)'\)/.test(filt)){ const q=filt.match(/contains\(cr49f_lc_no,'([^']*)'\)/)[1]; rows=T.filter(r=>String(r.cr49f_lc_no||'').indexOf(q)>=0); }
   else if(filt){ const c=parseFilter(filt); rows=T.filter(r=>c.some(([k,v])=>String(r[k])===v)); }
+  /* v0.17 (H4): ページ送り — W.dvPage があれば ブッキングを その数ずつ返し @odata.nextLink ($skiptoken) で続き */
+  if(W.dvPage&&ent==='cr49f_bookings'){ const sk=+((qs.match(/\$skiptoken=(\d+)/)||[])[1]||0), out=rows.slice(sk,sk+W.dvPage); W.dvPages=(W.dvPages||0)+1;
+    return [200,Object.assign({value:clone(out)},sk+W.dvPage<rows.length?{'@odata.nextLink':DV+ent+'?'+qs.replace(/&\$skiptoken=\d+/,'')+'&$skiptoken='+(sk+W.dvPage)}:{})]; }
   return [200,{value:clone(rows)}];
 }
 function fakeFetch(W){

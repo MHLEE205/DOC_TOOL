@@ -40,12 +40,12 @@ async function simplePdf(t){ const d=await PDFDocument.create(), p=d.addPage([40
 (async()=>{
 console.log('B4 L/C 번호 XXX = 仮 S/I');
 { const si=(lc,o)=>Object.assign({crcf9_sino:1,cr49f_lc_no:lc,crcf9_consignee:'C',crcf9_notify_party:'N',crcf9_po_vo:'PO',crcf9_place_of_delivery_1:'P'},o||{});
-  eq(['XXX',' x x x ','xxx','TESTLC825XXX DATED ON NOV 19, 2026','XXXX','XXX-1','XX','TESTLC66XX DATED ON JUN XX, 2026','TESTLC1',''].map(v=>DOC.siLcTent([si(v)])),[true,true,true,true,true,true,false,false,false,false],'XXX 가 들어 있으면 (일부만 · 공백 · 대소문자 무시) 仮 S/I — XX 만은 아님 (B4 추가 지시)');
+  eq(['XXX',' x x x ','xxx','TESTLC825XXX DATED ON NOV 19, 2026','XXXX','XXX-1','XX','TESTLC66XX DATED ON JUN XX, 2026','TESTLC1',''].map(v=>DOC.siLcTent([si(v)])),[true,true,true,true,true,true,true,true,false,false],'XXX 가 들어 있으면 (일부만 · 공백 · 대소문자 무시) 仮 S/I — v0.17 (G4): XX (2 글자 이상) 도 仮');
   { const c2=DOC.judgeCt({pay:'LC', lcFiles:[], lcOrig:[], sis:[si('TESTLC825XXX DATED ON NOV 19, 2026')]}); ok(c2.si.tent&&c2.si.lcTent&&!/LC No 未確定/.test(c2.si.why),'일부 XXX → 仮 S/I (L/C 未着 이면 確認)',c2.si);
-    const c3=DOC.judgeCt({pay:'LC', lcFiles:[], lcOrig:[], sis:[si('TESTLC66XX DATED ON JUN XX, 2026')]}); ok(!c3.si.tent&&/LC No 未確定 \(XX\)/.test(c3.si.why),'XX 만 → 전과 같음 (LC No 未確定 (XX))',c3.si); }
+    const c3=DOC.judgeCt({pay:'LC', lcFiles:[], lcOrig:[], sis:[si('TESTLC66XX DATED ON JUN XX, 2026')]}); ok(c3.si.tent&&c3.si.lcTent&&!/LC No 未確定/.test(c3.si.why),'v0.17 (G4): XX 도 仮 S/I · 「LC No 未確定 (XX)」 표시는 仮 S/I 로 합침',c3.si); }
   ok(!DOC.siLcTent([si('TESTLC1',{crcf9_weight:'XX'})])&&!DOC.siLcTent([si('TESTLC1',{crcf9_remark:'XX BALES'})]),'중량 · Bales 의 XX 는 해당 없음');
   const c=DOC.judgeCt({pay:'LC', lcFiles:[], lcOrig:[], sis:[si('XXX')]});
-  ok(c.si.s==='todo'&&c.si.tent&&c.si.lcTent&&/仮 S\/I（L\/C 番号 XXX）/.test(c.si.why)&&!/LC No 未確定/.test(c.si.why),'S/I 칸 = 確認 · 「仮 S/I（L/C 番号 XXX）」 (（仮） 와 같은 취급)',c.si);
+  ok(c.si.s==='todo'&&c.si.tent&&c.si.lcTent&&/仮 S\/I（L\/C 番号 XX）/.test(c.si.why)&&!/LC No 未確定/.test(c.si.why),'S/I 칸 = 確認 · 「仮 S/I（L/C 番号 XX）」 (（仮） 와 같은 취급 · v0.17 G4 문구)',c.si);
   const x={iv:'NAA2699-01', country:'VIETNAM', term:'CIF', premium:1, etdPast:false, folder:{files:[{name:'NAA2699-01_ACL.pdf'}]}, acl:null, mailRules:[], hon:[], siTent:DOC.siTentAny([si('XXX')])};
   ok(/参考/.test(DOC.judgeIv(x).acl.why)&&DOC.judgeIv(x).acl.tent,'ACL = 「参考」 (S/I 未確定)',DOC.judgeIv(x).acl.why);
   ok(DOC.siTentAny([si('TESTLC1',{crcf9_consignee:'（仮）TO ORDER'})])&&!DOC.siTentAny([si('TESTLC1')]),'（仮） 도 그대로'); }
@@ -139,20 +139,17 @@ console.log('화면 — A1 · B1 · B2 · B3 · B7 · B10 · B11');
   const st=W.writes.filter(x=>/doc_tool\/state\/fd\/NAA2611-03_\d{8}-\d{6}\.json/.test(dec(x))&&/conflictBehavior=fail/.test(x.url));
   ok(st.length===1,'찾은 「済」 → doc_tool/state/fd/{IV}_{UTC}.json (새 파일)',W.writes.map(dec));
   const stj=JSON.parse(await st[0].body.text()); ok(stj.invoice==='NAA2611-03'&&stj.bad[0]==='NAA2610-03_FD.pdf'&&/선적서류/.test(stj.subject),'기억 내용 (Invoice · 메일 시각 · 제목 · 다른 첨부)',stj);
-  await X.until(()=>/送付済み · 添付名が違う/.test(txt(w,'dtTodoBox')),5000);
-  const rows=qa(w,'.tl-row').filter(r=>/NAA2611-03/.test(r.textContent)), whats=rows.map(r=>r.querySelector('.tl-what').textContent);
-  ok(whats.indexOf('送付済み · 添付名が違う')>=0&&whats.indexOf('ファイル名の番号違い')>=0&&whats.indexOf('ファイル名の番号違い（参考）')>=0,'B10 · B11 줄 (번호 違い 빨강 · DR FORM 参考 · 添付名)',whats);
-  ok(!whats.some(t=>/FD|保険|B\/L/.test(t)&&!/添付名/.test(t)),'FD 済 → 진행 줄 없음 (뒤 단계 끝)',whats);
-  ok(rows.filter(r=>/送付済み · 添付名/.test(r.textContent)).every(r=>r.querySelector('.tl-d-late')),'添付名 줄 = 빨강');
-  const r10=rows.find(r=>r.querySelector('.tl-what').textContent==='ファイル名の番号違い'), wr=W.writes.length;
-  r10.querySelector('[data-tdfn="this"]').click(); await X.until(()=>W.writes.length>wr,5000); await X.sleep(20);
-  const fn=W.writes.slice(wr).map(dec); ok(fn.length===1&&/doc_tool\/state\/fname\/NAA2611-03_\d{8}-\d{6}_[a-z0-9]+\.json/.test(fn[0]),'「この Invoice のファイル」 1 회 → state/fname 기억',fn);
-  ok(!qa(w,'.tl-row').some(r=>r.querySelector('.tl-what').textContent==='ファイル名の番号違い'&&/NAA2611-03/.test(r.textContent)),'그 줄은 사라짐');
+  /* v0.17 (G3): FD 済 (메일 검색) 인 Invoice 의 「ファイル名の番号違い」 · 「添付名が違う」 = 参考 → 今日やること 에 안 띄움 · Invoice 상세에만 (B10 「この Invoice のファイル」 흐름은 v17.js 에서 FD 전 Invoice 로) */
+  await X.sleep(50); const rows=qa(w,'.tl-row').filter(r=>/NAA2611-03/.test(r.textContent)), whats=rows.map(r=>r.querySelector('.tl-what').textContent);
+  ok(!whats.length,'v0.17 G3: FD 済 → 今日やること 줄 없음 (번호 違い · 添付名 · 진행 줄 모두)',whats);
   ok(w.eval("DOC.judgeIv(ivRow(S.bk.find(b=>b.cr49f_invoice_no==='NAA2611-03')).x).fd.s")==='done','현황판 FD = 済');
+  w.eval("openIv('NAA2611-03')"); await X.until(()=>/NAA2611-03/.test(txt(w,'dtIvSum')),5000); await X.sleep(20);
+  ok(/参考/.test(txt(w,'dtIvSum'))&&/ファイル名の番号違い: NAA2610-03_FD\.pdf/.test(txt(w,'dtIvSum'))&&/送付済み · 添付名が違う/.test(txt(w,'dtIvSum')),'v0.17 G3: Invoice 상세에 参考 (번호 違い · 添付名)',txt(w,'dtIvSum'));
+  w.document.querySelector('[data-back]').click(); await X.sleep(10);
   /* 다시 열기 — 기억 읽음 · 다시 검색 안 함 */
   await flushState(W); const W2=Object.assign(world15(),{sp:W.sp, content:W.content}); W2.writes=[]; W2.searches=[];
   const w2=await X.page(W2,{html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>w2.eval('TODO.fdSearch.st')==='ok',15000);
-  ok(!(W2.searches||[]).filter(q=>/\d{4}-\d{2}/.test(q)).length&&w2.eval("!!TODO.fdState['NAA2611-03']")&&w2.eval("TODO.fnameDec['NAA2611-03']['NAA2610-03_FD.pdf']")==='this','다시 열면 기억을 읽음 · 다시 찾지 않음',W2.searches);
+  ok(!(W2.searches||[]).filter(q=>/\d{4}-\d{2}/.test(q)).length&&w2.eval("!!TODO.fdState['NAA2611-03']"),'다시 열면 기억을 읽음 · 다시 찾지 않음',W2.searches);
   ok(W2.writes.every(x=>!/doc_tool\/state\//.test(dec(x))),'두 번째는 state 쓰기 0');
   /* B1 · B2 · B3 — L/C 없는 계약 */
   const $=id=>w.document.getElementById(id);

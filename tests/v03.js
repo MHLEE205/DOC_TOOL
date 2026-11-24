@@ -27,9 +27,9 @@ const b1=J(sub(IV+'_IV.pdf',IV+'_PL.xlsx',IV+'_SWB.pdf'));
 eq([b1.s,b1.why,b1.files.length],['done','IV · PL · B/L まとめ済 (フォルダ '+IV+'/)',3],'하위 폴더 '+IV+'/ 에 IV · PL · B/L (SWB) → FD 済 「IV · PL · B/L まとめ済」');
 eq([J(sub(IV+'_IV.pdf',IV+'_PL.xlsx','SAMPLEWAYBILL.pdf')).s,J(sub(IV+'_IV.pdf',IV+'_PL.xlsx','ONEY'+'TESTBK0001_NONCOPY.pdf')).s,J(sub(IV+'_IV.pdf',IV+'_PL.xlsx','TESTBL00001.pdf')).s],['done','done','done'],
   'B/L = 이름에 WAYBILL · 부킹 번호 · B/L 번호');
-const b2=J(sub(IV+'_IV.pdf',IV+'_PL.xlsx')); eq([b2.s,/B\/L がない/.test(b2.why)],['wait',true],'하나 빠짐 (B/L) → 済 아님 · 무엇이 없는지');
-eq(J(sub(IV+'_IV.pdf','OTHER.pdf',IV+'_SWB.pdf')).s,'wait','PL 없음 → 済 아님');
-eq(J([f(IV+'_IV.pdf','NZZ2699-02'),f(IV+'_PL.xlsx','NZZ2699-02'),f(IV+'_SWB.pdf','NZZ2699-02')]).s,'wait','다른 Invoice 번호 폴더 → 안 셈');
+const b2=J(sub(IV+'_IV.pdf',IV+'_PL.xlsx')); eq([b2.s,/B\/L がない/.test(b2.why)],['not',true],'하나 빠짐 (B/L) → 済 아님 · 무엇이 없는지');
+eq(J(sub(IV+'_IV.pdf','OTHER.pdf',IV+'_SWB.pdf')).s,'not','PL 없음 → 済 아님');
+eq(J([f(IV+'_IV.pdf','NZZ2699-02'),f(IV+'_PL.xlsx','NZZ2699-02'),f(IV+'_SWB.pdf','NZZ2699-02')]).s,'not','다른 Invoice 번호 폴더 → 안 셈');
 eq(J([f(IV+'_FD.pdf')].concat(sub(IV+'_IV.pdf'))).s,'done','FD 파일이 있으면 FD (묶음은 안 봄)');
 /* #5 本登録 연결 */
 const ships=[{iv:'NZZ2699-01',bk:'TESTBK0001',bl:'TESTBL0001'},{iv:'NZZ2699-02',bk:'TESTBK0002',bl:''}];
@@ -51,16 +51,16 @@ const CSV_H='発信者,発信日時(JST),月,件名,返信/転送,件名規則,�
   const W=X.world(); W.messages.push({subject:'Re: NAA2611-02 本登録',from:{emailAddress:{address:'fwd@forwarder.test'}},sentDateTime:X.addDays(W.T,-1)+'T00:00:00Z',uniqueBody:{content:'本登録お願いします'}});   // 다른 회사 (乙仲) 가 보낸 것 → 안 셈
   const w=await X.page(W,{ls:{doc_tool_who:'all',doc_tool_hide_fd:'0'}});
   const cell=iv=>{ const tr=$$(w,'#dtTable tbody tr').find(t=>t.textContent.indexOf(iv)>=0); return tr?tr.querySelectorAll('td.c .st')[1]:null; };
-  eq([cell('NBB2611-01').textContent,/本登録 済 \(\d+\/\d+ 佐藤\)/.test(cell('NBB2611-01').getAttribute('title'))],['済',true],'#5 本登録 메일 (회사 사람) → ACL 済 「本登録 済 (날짜 佐藤)」');
-  eq([cell('NAA2611-01').textContent,cell('NAA2611-02').textContent],['相違','待ち'],'#5 本登録 없음 → 相違 그대로 · 다른 회사가 보낸 本登録 메일은 안 셈');
-  ok(/本登録メール 1 通/.test(txt(w,'dtProg')),'읽기 완료 줄에 本登録 메일 수',txt(w,'dtProg'));
+  eq([cell('NBB2611-01').textContent,/本登録済 \(\d+\/\d+ 佐藤\)/.test(cell('NBB2611-01').getAttribute('title'))],['済',true],'#5 本登録 메일 (회사 사람) → ACL 済 「本登録済 (날짜 佐藤)」');
+  eq([cell('NAA2611-01').textContent,cell('NAA2611-02').textContent],['相違','未'],'#5 本登録 없음 → 相違 그대로 · 다른 회사가 보낸 本登録 메일은 안 셈');
+  ok(/本登録メール 1 通/.test(w.eval('S.doneMsg')),'읽기 완료 줄에 本登録 메일 수',w.eval('S.doneMsg'));
   ok(W.req.filter(r=>/\/me\/messages/.test(r)).every(r=>/^GET /.test(r))&&!W.writes.length,'#5 메일은 읽기만 (GET · 보내기 · PATCH · move 0)',W.req.filter(r=>/me\/messages/.test(r)));
   /* #4 ACL 화면 */
   w.document.getElementById('dtQ').value='NAA2611-01'; w.document.getElementById('dtGo').click();
   await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&/NAA2611-01/.test(txt(w,'dtIvSum')));
   w.document.querySelector('#dtIvTabs button[data-tab="acl"]').click();
   const B=w.document.getElementById('dtIvBody'), concl=B.querySelector('.av-concl');
-  ok(concl&&/^直すところ 1 か所/.test(concl.textContent)&&/本登録: まだ/.test(concl.textContent),'#4 ① 결론 1줄 「直すところ 1 か所」 + 「本登録: まだ」',concl&&concl.textContent);
+  ok(concl&&/^直すところ 1 か所/.test(concl.textContent)&&/本登録: まだ/.test(B.textContent),'#4 ① 결론 1줄 「直すところ 1 か所」 + 「本登録: まだ」',concl&&concl.textContent);
   const items=JSON.parse(w.eval('JSON.stringify(ivRow(S.cur.b).x.acl.result.items)'));
   ok(B.querySelectorAll('.av-list tr:not(.av-g)').length===items.length,'#4 ② 확인한 항목 전부 — 한 항목 한 줄 ('+items.length+')');
   ok(B.querySelectorAll('.av-diff').length>=1&&B.querySelector('.av-diff .av-hl')&&!/追加「|脱落「/.test(B.textContent),'#4 ③ 相違만 펼침 — ACL · S/I（正） 나란히 · 다른 글자만 색 · 글자 단위 문장 없음');
@@ -77,14 +77,14 @@ const CSV_H='発信者,発信日時(JST),月,件名,返信/転送,件名規則,�
   W.messages.push({subject:'[本登録依頼] NAA2611-01',from:{emailAddress:{address:'tester@example.test'}},sentDateTime:X.addDays(W.T,-2)+'T03:00:00Z',uniqueBody:{content:'ご訂正ありがとうございます。本登録をお願いします。'}});
   w.document.querySelector('#dtIv [data-back]').click(); w.document.getElementById('dtReload').click();
   await X.until(()=>/読み込み完了/.test(txt(w,'dtProg'))&&cell('NAA2611-01')&&cell('NAA2611-01').textContent==='済');
-  ok(/相違のまま本登録/.test(cell('NAA2611-01').getAttribute('title'))&&/山田/.test(cell('NAA2611-01').getAttribute('title')),'#5 相違 + 本登録 메일 → 済 · 툴팁 「相違のまま本登録」',cell('NAA2611-01').getAttribute('title'));
+  ok(/相違ありで本登録済み（要確認）/.test(cell('NAA2611-01').getAttribute('title'))&&/山田/.test(cell('NAA2611-01').getAttribute('title')),'#5 相違 + 本登録 메일 → 済 · 툴팁 「相違ありで本登録済み（要確認）」 (v0.17 D11)',cell('NAA2611-01').getAttribute('title'));
 }
 { /* #5 메일을 읽지 못함 → CSV 로 대체 + 표시 */
   const W=X.world(); W.mailErr=403; W.messages=[];
   W.mailCsv='﻿'+CSV_H+'\r\n'+csvRow('2026-11-10 10:00:00','本登録依頼','NBB2611-01','D/Rを確認致しました。本登録お願いします。','佐藤 花子')+'\r\n'+csvRow('2026-11-10 11:00:00','本船変更','NAA2611-02','本船変更のお知らせ')+'\r\n';
   const w=await X.page(W,{ls:{doc_tool_who:'all',doc_tool_hide_fd:'0'}});
   const tr=$$(w,'#dtTable tbody tr').find(t=>/NBB2611-01/.test(t.textContent)), c=tr.querySelectorAll('td.c .st')[1];
-  ok(c.textContent==='済'&&/佐藤/.test(c.getAttribute('title'))&&/⚠ メールを読めない \(403\)/.test(txt(w,'dtProg'))&&/CSV 1 通/.test(txt(w,'dtProg')),'#5 메일 읽기 실패 (403) → メール一覧 CSV (本登録依頼) 로 대체 · 읽기 줄에 표시',[c.textContent,c.getAttribute('title'),txt(w,'dtProg')]);
+  ok(c.textContent==='済'&&/佐藤/.test(c.getAttribute('title'))&&/⚠ メールを読めない \(403\)/.test(w.eval('S.doneMsg'))&&/CSV 1 通/.test(w.eval('S.doneMsg')),'#5 메일 읽기 실패 (403) → メール一覧 CSV (本登録依頼) 로 대체 · 읽기 줄에 표시',[c.textContent,c.getAttribute('title'),w.eval('S.doneMsg')]);
   ok(/本船変更/.test($$(w,'#dtTable tbody tr').find(t=>/NAA2611-02/.test(t.textContent)).textContent),'CSV 의 本船変更 꼬리표는 그대로');
 }
 { /* #6 대만향 — 하위 폴더 읽기 (FD 가 없을 때만) */
@@ -119,7 +119,7 @@ const CSV_H='発信者,発信日時(JST),月,件名,返信/転送,件名規則,�
   const W2=X.world(), w2=await X.page(W2,{ls:{leenai_theme:'light',doc_tool_who:'all'}}); ok(w2.localStorage.getItem('leenai_theme')==='light','#8 이미 고른 사람은 그대로 (light)');
   const W3=X.world(); W3.aclEngine=null; const w3=await X.page(W3,{ls:{doc_tool_who:'all',doc_tool_hide_fd:'0'}});
   const c3=$$(w3,'#dtTable tbody tr').find(t=>/NAA2611-01/.test(t.textContent)).querySelectorAll('td.c .st')[1];
-  ok(c3.textContent==='?'&&/エンジン/.test(c3.getAttribute('title'))&&/⚠ ACL エンジンを読めない/.test(txt(w3,'dtProg')),'엔진을 못 읽으면 ACL 칸 = ? (추측 안 함) · 읽기 줄에 표시',[c3.textContent,txt(w3,'dtProg')]);
+  ok(c3.textContent==='?'&&/エンジン/.test(c3.getAttribute('title'))&&/⚠ ACL エンジンを読めない/.test(w3.eval('S.doneMsg')),'엔진을 못 읽으면 ACL 칸 = ? (추측 안 함) · 읽기 줄에 표시',[c3.textContent,w3.eval('S.doneMsg')]);
 }
 console.log((fail?'FAIL':'PASS')+' v03 — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
 })().catch(e=>{ console.log('FAIL v03 예외',e.stack); process.exitCode=1; });

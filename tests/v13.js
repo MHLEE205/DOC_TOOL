@@ -40,7 +40,7 @@ let saved=null;
   ok(/照合しました \(相違\) · 保存しました/.test(txt(w,'dtIvBody')),'照合 → 「保存しました」',txt(w,'dtIvBody').slice(0,300));
   const ws=W.writes.slice(w0); ok(ws.length===1&&/doc_tool\/bl\/NAA2611-01_\d{8}-\d{6}\.json:\/content\?@microsoft\.graph\.conflictBehavior=fail$/.test(decodeURIComponent(ws[0].url))&&ws[0].method==='PUT','쓰기 1 = doc_tool/bl/ 새 파일 (conflictBehavior=fail)',ws.map(x=>x.url));
   const body=ws[0]&&ws[0].body; const t=body&&typeof body.text==='function'?await body.text():String(body||''); saved=JSON.parse(t);
-  eq([saved.kind,saved.invoice,saved.contract,saved.file,saved.edition,saved.verdict,saved.user,!!saved.at,/^書類ツール v0\.1[3-9](\.\d+)?$/.test(saved.engine.doc_tool),/^v0\.3 @[0-9a-f]{40}$/.test(saved.engine.bl_bench),/^v0\.13 @[0-9a-f]{40}$/.test(saved.engine.acl_bench),saved.masters.checkpoint,saved.masters.port_alias],
+  eq([saved.kind,saved.invoice,saved.contract,saved.file,saved.edition,saved.verdict,saved.user,!!saved.at,/^書類ツール v0\.1[3-9](\.\d+)?$/.test(saved.engine.doc_tool),/^v0\.3 @[0-9a-f]{40}$/.test(saved.engine.bl_bench),/^v0\.1[34] @[0-9a-f]{40}$/.test(saved.engine.acl_bench),saved.masters.checkpoint,saved.masters.port_alias],
      ['B/L Draft 照合','NAA2611-01','LRS-2611AA1','NAA2611-01_DRAFT.pdf','1版目','相違','tester@example.test',true,true,true,true,'6.0','2.0'],'저장 내용 — Invoice · 계약 · 파일 · 판 · 판정 · 사람 · 시각 · 엔진 (書類ツール · bl_bench · ACL 커밋) · 마스터 판');
   const A=saved.result.A||[], B=saved.result.B||[];
   ok(A.length>10&&B.length>=7&&A.every(r=>['SAME','NOTATION','REF','UNKNOWN','DIFF','SI_BLANK'].indexOf(r.class)>=0)&&B.some(r=>r.item==='Consignee bank'&&/^DIFF/.test(r.result))&&A.some(r=>r.cp==='CP-B56'),'결과 전부 — A · B (판정 = 코드 · CP 번호)',{A:A.slice(0,3),B:B.slice(0,2)});
@@ -61,7 +61,7 @@ console.log('3 前回の照合');
   W.content[BLD+'/NAA2611-01_20261120-010000.json']=JSON.stringify(Object.assign({},saved,{at:'2026-11-20T01:00:00.000Z', verdict:'一致'}));
   const w=await X.page(W,{...INIT, html:HFILE}); await X.until(()=>w.eval('CPS.state')==='ok',20000); await openBl(w,'NAA2611-01');
   await X.until(()=>/前回の照合: 11\/23/.test(txt(w,'dtIvBody')),10000);
-  ok(/前回の照合: 11\/23 09:30 UTC · 相違 · /.test(txt(w,'dtIvBody')),'「前回の照合」 = 가장 새 저장 (11/23 · 相違)',txt(w,'dtIvBody').slice(0,300));
+  ok(/前回の照合: 11\/23 18:30 · 相違 · /.test(txt(w,'dtIvBody'))&&!/UTC/.test(txt(w,'dtIvBody')),'「前回の照合」 = 가장 새 저장 (11/23 · 相違) · v0.17 (F4) 일본 시간 (09:30 UTC → 18:30)',txt(w,'dtIvBody').slice(0,300));
   const w0=W.writes.length; w.document.getElementById('dtBlPrevShow').click(); await X.until(()=>!!w.document.querySelector('#dtIvBody .av'),10000);
   ok(/前回の結果を表示しています/.test(txt(w,'dtIvBody'))&&/確認した項目/.test(txt(w,'dtIvBody'))&&!w.document.getElementById('dtBlBuyer'),'「前回の結果を表示」 → 결과 화면 (Draft 를 읽지 않아 バイヤー用 버튼 없음)');
   eq(W.writes.length-w0,0,'前回 보기 = 쓰기 0'); }

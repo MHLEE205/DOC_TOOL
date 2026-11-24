@@ -73,8 +73,9 @@ function world16(){
   W.bookings.push(Object.assign({},b0,{cr49f_bookingid:X.g('e',12),cr49f_invoice_no:'NAA2611-12',cr49f_booking_no:'TESTBK12',cr49f_etd:D(6),crcf9_bl_etd:D(6)}));   // FD送付日 있음
   W.bookings.push(Object.assign({},b0,{cr49f_bookingid:X.g('e',13),cr49f_invoice_no:'NAA2611-13',cr49f_booking_no:'TESTBK13',cr49f_etd:D(100),crcf9_bl_etd:null}));   // ETD 범위 밖 (+100)
   W.bookings.push(Object.assign({},b0,{cr49f_bookingid:X.g('e',14),cr49f_invoice_no:'NAA2611-14',cr49f_booking_no:'TESTBK14',cr49f_etd:D(-60),crcf9_bl_etd:D(-60)}));   // -60 = 안 보임
+  W.bookings.push(Object.assign({},b0,{cr49f_bookingid:X.g('e',15),cr49f_invoice_no:'NAA2611-15',cr49f_booking_no:'TESTBK15',cr49f_etd:D(9),crcf9_bl_etd:D(9),cr49f_cy_cut:D(7)}));   // v0.17 (H1): 通関依頼 前 = 안 보임
   W.docStaff.push({iv_code:'cc',importer:'BUYER-C',staff:'STAFF_B'});   // 書類ツール = CC → STAFF_B · PORTAL = 대소문자 그대로 → 없음 (다르면 표시)
-  W.content[PT.PATH]=JSON.stringify({last_updated:'2026-11-20T00:00:00.000Z',records:{'NAA2611-01':{tsukan_irai:true,tsukan_status:'ED未'}},cotecna:{},
+  W.content[PT.PATH]=JSON.stringify({last_updated:'2026-11-20T00:00:00.000Z',records:{'NAA2611-01':{tsukan_irai:true,tsukan_status:'ED未'},'NBB2611-01':{tsukan_irai:true},'NAA2611-02':{tsukan_irai:true},'NCC2611-01':{tsukan_irai:true},'NAA2611-13':{tsukan_irai:true},'NAA2611-15':{tsukan_irai:false}},cotecna:{},
     shipping:{'NAA2611-01':{dep:'確認',furikomi:'未',fd_date:'',fd_note:'メモA',updated_by:'PORTAL USER'},'NAA2611-12':{dep:'未',furikomi:'確認済',fd_date:X.addDays(T,-1),fd_note:''},'NOTHER-01':{dep:'未',furikomi:'未',fd_date:'2026-10-01',fd_note:'そのまま'}}},null,2);
   W.etag={}; W.etag[PT.PATH]='"e0"';
   return W;
@@ -88,7 +89,7 @@ const ivList=w=>qa(w,'#dtTable tbody tr').map(tr=>tr.cells[5].textContent.replac
   let W=world16(), w=await X.page(W,{ls:{doc_tool_iv_mode_v16:'',doc_tool_who:'all'}});
   ok(w.document.getElementById('dtIvPortal').classList.contains('on')&&w.document.getElementById('dtEtdBox').style.display==='none'&&w.document.getElementById('dtHideFdBox').style.display==='none','기본 = 「PORTAL と同じ」 · ETD 범위 · FD済み 숨김');
   eq(qa(w,'#dtTable thead th').map(t=>t.textContent),PT.COLS.concat(['ACL','B/L Draft','保険','RR'],PT.INPUTS),'열 순서 = PORTAL 11 + 판정 4 + 입력 4');
-  eq(ivList(w),['NBB2611-01','NAA2611-01','NAA2611-02','NCC2611-01','NAA2611-13'],'줄 = PORTAL 조건 (L · FD送付日 · -60 뺌 · ETD 범위 밖 +100 남김 · ETD 순)');
+  eq(ivList(w),['NBB2611-01','NAA2611-01','NAA2611-02','NCC2611-01','NAA2611-13'],'줄 = PORTAL 조건 (L · FD送付日 · -60 뺌 · ETD 범위 밖 +100 남김 · ETD 순) + v0.17 H1 通関依頼済 만 (NAA2611-15 = 통관 전 → 없음)');
   { const tr=qa(w,'#dtTable tbody tr')[1], c=[...tr.cells].map(x=>x.textContent.trim());
     eq([c[0],c[1],c[2],c[3],c[4],c[6],c[7],c[8],c[9]],[DOC.ptDateS(D(3),T),DOC.ptDateS(D(13),T),DOC.ptDateS(D(1),T),'✅','SAMPLE POL','2','VIETNAM','TEST LINE','TESTBK1'],'열 값 — ETD · ETA · CY_CUT · 通関 · POL · BKG本 · CNTR · SHIP · BKG_NO');
     ok(/LRS-2611AA1/.test(tr.cells[5].querySelector('button').title)&&!/LRS/.test(c[5]),'계약번호 = IV_NO title (줄 아래 글씨 없음 · v0.16.1)');

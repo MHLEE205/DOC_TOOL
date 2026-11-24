@@ -47,8 +47,8 @@ eq(DOC.aclFiles([f(IV+'_ACL REV2.pdf')],IV)[0].version,'REV2','판 이름 REV2')
 /* 상태 — 仮 만 → 確認 · 없음 → 待ち · 정식 → 照合結果なし 確認 */
 const J=files=>DOC.judgeIv({iv:IV,country:'VIETNAM',term:'CIF',premium:1,etdPast:false,folder:{files:files.map(n=>f(n))},acl:null,mailRules:[],bookingNo:'TESTBK0001',otherBookings:['TESTBK0002']}).acl;
 eq([J(['仮ACL.pdf']).s,J(['仮ACL.pdf']).pick.f.name,J(['仮ACL.pdf']).label],['todo','仮ACL.pdf','仮'],'仮 만 → 確認 (v0.3: 仮 = ACL 로 照合 대상 · 판 「仮」 — 형님 D3)');
-eq(J([]).s,'wait','ACL 없음 → 待ち');
-eq(J(['DR_TESTBK0002.pdf']).s,'wait','다른 부킹의 DR 만 → 待ち (제외)');
+eq(J([]).s,'not','ACL 없음 → 未 (v0.17 F1: 通関書類 送付 前)');
+eq(J(['DR_TESTBK0002.pdf']).s,'not','다른 부킹의 DR 만 → 未 (제외 · v0.17 F1)');
 ok(J(['DR TEST001.pdf','仮ACL.pdf']).s==='todo'&&J(['DR TEST001.pdf','仮ACL.pdf']).pick.f.name==='DR TEST001.pdf','정식이 있으면 仮 는 안 씀');
 ok(/照合結果なし/.test(J(['DR TEST001.pdf']).why)&&/DR TEST001\.pdf \(初版 · DR_ · DR 番号\)/.test(J(['DR TEST001.pdf']).files[0]),'고른 파일 · 판 · 모양을 툴팁에',J(['DR TEST001.pdf']).files);
 
@@ -186,7 +186,7 @@ ok(!w.document.querySelector('#dtCtBody [data-open="a1"]'),'T/T 에는 a1_bench 
 const w0=W.writes.length; $('dtSiRun').click(); await X.until(()=>/ほか \d+ 項目/.test(txt(w,'dtCtBody'))||/推薦できません/.test(txt(w,'dtCtBody')),8000).catch(e=>{ console.log('DEBUG',txt(w,'dtCtBody').slice(0,700)); throw e; });
 ok(/ほか \d+ 項目/.test(txt(w,'dtCtBody')),'T/T 추천 완료',txt(w,'dtSiSt'));
 ok(!W.req.some(r=>/^AI\/ENGINE/.test(r)),'AI · 엔진 호출 0');
-ok(/前回 S\/I LRS-2609BB1/.test(txt(w,'dtCtBody'))&&/費用 0/.test(txt(w,'dtCtBody'))&&/LRS-2609BB1 · LRS-2608BB1 · LRS-2607BB1/.test(txt(w,'dtCtBody')),'직전 S/I = 앞선 계약 중 최근 (뒤 계약 제외) · 費用 0 · PO 비교 3건',txt(w,'dtCtBody').slice(-300));
+ok(/前回 S\/I LRS-2609BB1/.test(txt(w,'dtCtBody'))&&/LRS-2609BB1 · LRS-2608BB1 · LRS-2607BB1/.test(txt(w,'dtCtBody')),'직전 S/I = 앞선 계약 중 최근 (뒤 계약 제외) · 費用 0 · PO 비교 3건',txt(w,'dtCtBody').slice(-300));
 const val=(sn,col)=>{ const e=w.document.querySelector('#dtCtBody [data-sn="'+sn+'"][data-col="'+col+'"]'); return e?e.value:null; };
 w.document.getElementById('dtSiAll').click(); await X.sleep(20);
 eq([val(1,'crcf9_consignee'),val(1,'crcf9_po_vo'),val(1,'crcf9_vo_no'),val('明細1','crcf9_productname'),val('明細2','crcf9_productname')],['SAMPLE CONSIGNEE (PREV)','','VO-SAME','SAMPLE ITEM A (S/I)','SAMPLE ITEM B'],'추천 값 (머리 = 前回 · PO 빈칸 · VO 복사 · 명세 = 판매 명세)');

@@ -18,7 +18,7 @@ console.log('1 종류');
 { const k=n=>DOC.saveKind(n,'');
   eq([k('NAA2611-01_ACL.pdf').key,k('ACL_TESTBK1.pdf').ok,k('仮ACL TESTBK1.pdf').sub,k('TESTBK1 DR.pdf').sub,k('本登録 TESTBK1.pdf').key],['ACL',true,'仮ACL','DR','ACL'],'ACL 가족 (ACL · 仮 · DR · 本登録) = 저장 대상 · sub (仮/DR/ACL)');
   ok(k('NAA2611-01_ED.pdf').skip&&!k('NAA2611-01_ED.pdf').ok&&k('輸出許可通知書.pdf').skip,'輸出許可 (ED) = 이 입구에 안 냄 (C-01)');
-  eq(['TEST_DRAFT.pdf','TEST_FD.pdf','TEST_SWB.pdf','TEST_RR.pdf','TEST IV.pdf','memo.pdf'].map(n=>k(n).ok?'ok':k(n).label),['ok','FD','B/L (SWB · 原本)','RR','IV · PL','その他'],'나머지 = 저장 안 함 · 종류 이름 (「まだ対応していません（…）」) · v0.12: B/L Draft 는 保存');
+  eq(['TEST_DRAFT.pdf','TEST_FD.pdf','TEST_SWB.pdf','TEST_RR.pdf','TEST IV.pdf','memo.pdf'].map(n=>k(n).ok?'ok':k(n).label),['ok','ok','B/L (SWB · 原本)','RR','ok','その他'],'나머지 = 저장 안 함 · 종류 이름 (「まだ対応していません（…）」) · v0.12: B/L Draft 는 保存 · v0.17 (B9): FD · IV 도 保存');
   ok(DOC.saveKind('scan001.pdf','NACCS').ok,'이름이 달라도 내용이 NACCS 양식이면 ACL'); }
 
 console.log('2 Invoice 정하기');
@@ -99,7 +99,7 @@ console.log('6 메일 입구');
   ok(rows.length===2,'ACL 첨부 2 건 (ED 첨부 · 담당자 (회사 도메인) 메일 = 빠짐)',rows);
   ok(rows.some(t=>/2版目/.test(t)&&/NAA2611-01 の ACL（2版目）として保存します: NAA2611-01_ACL REV\.pdf/.test(t)),'새 판 → 「{IV} の ACL（2版目）として保存します: {이름}」',rows);
   ok(rows.some(t=>/重複/.test(t)&&/同じファイルが保存済み: NAA2611-01_ACL\.pdf/.test(t)),'폴더에 있는 것과 같은 파일 → 重複 (저장 버튼 없음)',rows);
-  ok(/新着 1 件/.test(box)&&/済み 1 件/.test(box)&&/すべて保存（新規・新しい版のみ 1）/.test(box)&&/試験モード/.test(box),'「新着 ACL（未保存）n 件」 · 「すべて保存」 · 시험 모드 표시',box.slice(0,300));
+  ok(/新しい書類 1 件/.test(box)&&/済み 1 件/.test(box)&&/すべて保存（新規・新しい版のみ 1）/.test(box)&&/試験モード/.test(box),'「新着 ACL（未保存）n 件」 · 「すべて保存」 · 시험 모드 표시',box.slice(0,300));
   const mailUrls=W.req.filter(r=>/\/me\/messages/.test(r));
   ok(mailUrls.length&&mailUrls.every(r=>/^GET /.test(r))&&W.writes.slice(w0).every(x=>!/messages/.test(x.url)),'메일 = GET 만 (보내기 · 읽음 · 이동 0)',W.writes.slice(w0).map(x=>x.url));
   ok(mailUrls.some(r=>/attachments\/a1\/\$value/.test(r))&&!mailUrls.some(r=>/attachments\/a2\/\$value/.test(r)),'ED 첨부는 받지도 않음');

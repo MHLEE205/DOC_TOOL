@@ -100,7 +100,7 @@ async function engineText(){
   const row=[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>/NFK2601-02/.test(t.textContent));
   ok(row&&row.querySelectorAll('td.c .st')[1].textContent==='相違','현황판 ACL 칸 = 새 결과 (相違)');
   const row1=[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>/NFK2601-01/.test(t.textContent));
-  ok(row1&&row1.querySelectorAll('td.c .st')[1].textContent==='確認'&&/本登録 まだ/.test(row1.querySelectorAll('td.c .st')[1].getAttribute('title')),'현황판 ACL 칸 = 새 결과 (完全一致 · v0.3: 本登録 메일 없음 → 確認 「本登録 まだ」)');
+  ok(row1&&row1.querySelectorAll('td.c .st')[1].textContent==='確認'&&/本登録まだ/.test(row1.querySelectorAll('td.c .st')[1].getAttribute('title')),'현황판 ACL 칸 = 새 결과 (完全一致 · v0.3: 本登録 메일 없음 → 確認 「本登録まだ」)');
 
   /* ── v0.2 #3 DR 이름 파일도 같은 엔진으로 — 엔진은 이름을 보지 않음 (같은 PDF → 같은 판정 · 항목) ── */
   { const iv='NFK2601-01', before=W.writes.length;

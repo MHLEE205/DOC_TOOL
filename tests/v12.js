@@ -31,7 +31,7 @@ console.log('1 규칙');
   const f=DOC.blMailDraft(res,'fix',{carrier:'SAMPLE LINE', person:'Taro Sample', to:'cs@carrier.test', blNo:'TESTBL1', subject:'RE: B/L Draft TESTBK1'});
   ok(f.subject==='[訂正依頼BL#TESTBL1] Re: B/L Draft TESTBK1'&&f.to==='cs@carrier.test'&&f.blocks===3,'訂正 — 件名 [訂正依頼BL#{B/L 番号}] Re: · 宛先 · 相違 3 (A · B · 有効 CP — 試験 CP · 같음 은 넣지 않음)',f);
   ok(/^SAMPLE LINE Taro Sample 様/.test(f.body)&&/■ Consignee\n（現在）TO THE ORDER OF OTHER BANK\n（訂正後）TO THE ORDER OF SAMPLE BANK/.test(f.body)&&/■ L\/C 番号の記載 \(L\/C 47A\)/.test(f.body)&&f.read===1,'訂正 — 본문 (欄 · 現在 · 訂正後) · 읽지 못한 곳 수',f.body);
-  const o=DOC.blMailDraft(res,'ok',{subject:'FW: B/L Draft TESTBK1', person:'cs@carrier.test'}); ok(o.subject==='Re: B/L Draft TESTBK1'&&/^ご担当者 様/.test(o.body)&&/問題ございません/.test(o.body)&&o.to==='','Draft OK — Re: 원 제목 · 이름 모르면 「ご担当者 様」 · 宛先 없으면 빈칸',o);
+  const o=DOC.blMailDraft(res,'ok',{subject:'FW: B/L Draft TESTBK1', person:'cs@carrier.test'}); ok(o.subject==='Re: B/L Draft TESTBK1'&&/^ご担当者様/.test(o.body)&&/問題ございません/.test(o.body)&&o.to==='','Draft OK — Re: 원 제목 · 이름 모르면 「ご担当者様」 · 宛先 없으면 빈칸',o);
   const b=DOC.blMailDraft(res,'buyer',{buyer:'BUYER A', vessel:'SAMPLE VESSEL 001', vietnam:true}), b2=DOC.blMailDraft(res,'buyer',{});
   ok(b.subject==='[B/L Draft for NAA2611-01]'&&/Dear BUYER A,/.test(b.body)&&/SAMPLE VESSEL 001/.test(b.body)&&/Deposit number/.test(b.body)&&!/Deposit/.test(b2.body)&&b2.to===''&&/Dear Sir or Madam/.test(b2.body),'バイヤー宛 — 件名 · 본선 · 베트남만 Deposit · 宛先 없으면 빈칸',[b,b2]); }
 
@@ -94,7 +94,7 @@ console.log('3 화면 — 직원');
   W2.itemBytes.dnb=await BF.mkPdf([BF.draftItems({booking:'TESTBK3',vessel:'SAMPLE VESSEL 003',consignee:['TO ORDER OF SAMPLE BANK'],desc:['TEST ITEM OCC'],freight:false})]);
   W2.messages=W2.messages.concat([{id:'d3',subject:'B/L Draft TESTBK3',from:{emailAddress:{address:'desk@one-line.example.test',name:'Carrier Desk'}},receivedDateTime:X.addDays(W2.T,-1)+'T02:00:00Z',sentDateTime:X.addDays(W2.T,-1)+'T02:00:00Z',hasAttachments:true,bodyPreview:'TESTBK3',webLink:'https://example.test/mail/d3',attachments:[{name:'TESTBK3_DRAFT.pdf'}]}]);
   const w2=await X.page(W2,{...INIT, html:HFILE, first:true}); await X.until(()=>w2.eval('CPS.state')==='ok'&&w2.eval('TODO.mailSt')!=='load',20000); await openBl(w2,'NBB2611-01');
-  w2.document.getElementById('dtBlRun').click(); await X.until(()=>/照合しました|照合できません/.test(txt(w2,'dtIvBody')),30000);
+  w2.document.getElementById('dtBlRun').click(); await X.until(()=>/照合しました|照合できません|読めない所があります/.test(txt(w2,'dtIvBody')),30000);
   const v2=(w2.eval("S.blRes&&S.blRes['NBB2611-01']")||{res:{verdict:txt(w2,'dtIvBody').slice(0,300)}}).res.verdict; ok(v2!=='相違','L/C 와 같은 Draft → 相違 아님 ('+v2+')',txt(w2,'dtIvBody').slice(0,300));
   if(w2.document.getElementById('dtBlOk')){ w2.document.getElementById('dtBlOk').click(); await X.until(()=>!!w2.document.querySelector('#dtBlDraft textarea'));
     ok(/^Re: B\/L Draft TESTBK3$/.test(w2.document.querySelectorAll('#dtBlDraft input')[1].value)&&/問題ございません/.test(w2.document.querySelector('#dtBlDraft textarea').value),'「Draft OK」 返信 — Re: 원 제목'); }

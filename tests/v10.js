@@ -15,7 +15,7 @@ const P=(W,o)=>X.page(W,Object.assign({},o,{ls:Object.assign({doc_tool_hide_fd:'
 (async()=>{
 console.log('1 규칙 · MD');
 eq(DOC.SRC.lc,'古紙/LC/_READ','L/C 는 보관소에서 (D-01 폴더 아님)');
-eq([DOC.judgeCt({pay:'LC',lcFiles:['LRS-2611AA1.json'],sis:[]}).lc.why,DOC.judgeCt({pay:'LC',lcFiles:[],sis:[]}).lc.why],['L/C 判読 (保管所) あり','L/C 判読 (保管所) なし (LC 未着 · 未登録)'],'契約行 문구 = 「L/C 判読 (保管所)」');
+eq([DOC.judgeCt({pay:'LC',lcFiles:['LRS-2611AA1.json'],sis:[]}).lc.why,DOC.judgeCt({pay:'LC',lcFiles:[],sis:[]}).lc.why],['L/C の読み取り結果あり','L/C の読み取り結果なし（L/C 未着 · 未登録）'],'契約行 문구 = 「L/C の読み取り結果」 (v0.17 D9)');
 { const h=DOC.mdHtml('# T <x>\n\n> note\n\n| 項目 | 値 |\n|---|---|\n| **船積期限** | **2026-12-15** |\n| A \\| B | <script>alert(1)</script> |\n\n- `f` — r\n\n---\n✦ Powered by LEENAI Automation System');
   ok(/<table class="dt-md-t"><tr><th>項目<\/th><th>値<\/th><\/tr><tr><td><b>船積期限<\/b><\/td><td><b>2026-12-15<\/b><\/td><\/tr>/.test(h),'표 (머리 · 굵게)',h);
   ok(h.indexOf('<script>')<0&&/&lt;script&gt;/.test(h)&&/&lt;x&gt;/.test(h),'글자는 전부 escape (HTML 주입 없음)');
@@ -27,9 +27,9 @@ await X.until(()=>w.document.querySelector('#dtTable button[data-iv="NAA2611-01"
 ok(W.req.some(r=>/GET .*%E5%8F%A4%E7%B4%99\/LC\/_READ:\/children|GET .*古紙\/LC\/_READ:\/children/.test(decodeURIComponent(r))),'보관소 목록 읽음');
 const S=w.eval('S'); eq(Object.keys(S.lcFiles),['LRS-2611AA1'],'목록 = 계약 파일만 (_index.json · _old 건너뜀)'); ok(/LRS-2611AA1\.md/.test(S.lcFiles['LRS-2611AA1'][0].mdUrl),'MD 의 주소도 기억');
 click(w,'#dtTable button[data-iv="NAA2611-01"]'); await X.until(()=>w.document.querySelector('#dtIvSum button[data-lcjson]'));
-ok(w.document.querySelector('#dtIvSum button[data-lcjson]').textContent==='LC 読み取り','버튼 이름 「LC 読み取り」');
+ok(w.document.querySelector('#dtIvSum button[data-lcjson]').textContent==='L/C の読み取り結果','버튼 이름 「L/C の読み取り結果」 (v0.17 D9)');
 click(w,'#dtIvSum button[data-lcjson]'); await X.until(()=>!w.document.getElementById('dtModal').hidden);
-const mt=txt(w,'dtModalBox'); ok(/LC 読み取り — L\/C 判読 \(保管所\)/.test(mt)&&/船積期限/.test(mt)&&/2026-12-15/.test(mt)&&/有効期限/.test(mt)&&/2026-12-31/.test(mt)&&/SAMPLE BANK/.test(mt),'「LC 読み取り」 = 보관소 MD (선적기한 · 유효기한 보임)',mt.slice(0,300));
+const mt=txt(w,'dtModalBox'); ok(/^L\/C の読み取り結果/.test(mt)&&!/_READ|lc_read\//.test(mt)&&/船積期限/.test(mt)&&/2026-12-15/.test(mt)&&/有効期限/.test(mt)&&/2026-12-31/.test(mt)&&/SAMPLE BANK/.test(mt),'「LC 読み取り」 = 보관소 MD (선적기한 · 유효기한 보임)',mt.slice(0,300));
 ok(!!w.document.querySelector('#dtModalBox table.dt-md-t')&&!/D-01/.test(mt),'MD 표가 표로 · 「D-01」 문구 없음');
 click(w,'#dtModalBox button[data-close]');
 click(w,'#dtIvSum button[data-lcorig]'); await X.until(()=>W.opened.length); ok(/TESTLC001\.pdf/.test(W.opened.pop()),'LC 原本を開く = source.lc_pdf 의 이름으로 찾음');

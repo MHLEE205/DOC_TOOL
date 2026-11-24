@@ -34,8 +34,8 @@ const J=(files,acl,hon)=>DOC.judgeIv({iv:IV,country:'VIETNAM',term:'CFR',premium
 const res=(v,items,final)=>({runId:'ACL_T', result:Object.assign({file:'x/'+IV+'_ACL.pdf', fileModified:'2026-11-10T00:00:00Z', aclVersion:'初版'}, R(v,items,final))});
 const c1=J([f('X.pdf')],null), c2=J([f(IV+'_ACL.pdf')],res('相違あり',[it('description','DIFF')],fin({missing:[{text:'A'}]}))), c3=J([f(IV+'_ACL.pdf')],res('相違あり',[it('description','DIFF')],fin()));
 const c4=J([f(IV+'_ACL.pdf')],res('相違あり',[it('description','DIFF')],fin({missing:[{text:'A'}]})),[{at:'2026-11-18T00:00:00Z',name:'佐藤'}]);
-eq([c1.s,c2.s,c3.s,c4.s],['wait','diff','todo','done'],'현황판 4 경우 — ACL 없음 = 待ち · 足りない = 相違 · 내용 다 있음 (Description 줄만 다름) = 確認 · 本登録 메일 = 済');
-ok(/^最終確認 ✗ 1 \(足りない内容 1\)/.test(c2.why)&&/^最終確認 ✓ · 照合 相違あり/.test(c3.why)&&/相違のまま本登録/.test(c4.why)&&/本登録 まだ/.test(c3.why),'툴팁 = 「最終確認 ✓ / ✗ n (이유)」 · 済 는 「相違のまま本登録」',[c2.why,c3.why,c4.why]);
+eq([c1.s,c2.s,c3.s,c4.s],['not','diff','todo','done'],'현황판 4 경우 — ACL 없음 = 未 (v0.17 F1 · 通関書類 前) · 足りない = 相違 · 내용 다 있음 (Description 줄만 다름) = 確認 · 本登録 메일 = 済');
+ok(/^最終確認 ✗ 1 \(足りない内容 1\)/.test(c2.why)&&/^最終確認 ✓ · 照合 相違あり/.test(c3.why)&&/相違ありで本登録済み（要確認）/.test(c4.why)&&/本登録まだ/.test(c3.why),'툴팁 = 「最終確認 ✓ / ✗ n (이유)」 · 済 는 「相違のまま本登録」',[c2.why,c3.why,c4.why]);
 eq([c2.final&&c2.final.short, c3.final&&c3.final.short],['最終確認 ✗ 1','最終確認 ✓'],'셀에 final (ACL 탭 머리에 씀)');
 
 /* 화면 (jsdom) — 결과에 final 이 있는 run → ACL 탭 맨 위 最終確認 · 현황판 칸 */
@@ -50,8 +50,8 @@ eq([c2.final&&c2.final.short, c3.final&&c3.final.short],['最終確認 ✗ 1','�
   w.document.querySelector('#dtIvTabs button[data-tab="acl"]').click();
   const B=w.document.getElementById('dtIvBody'), F=B.querySelector('.av-final'), html=B.innerHTML;
   ok(F&&html.indexOf('av-final')<html.indexOf('項目ごとの確認')&&/✗ 足りない内容 1 項目/.test(F.textContent)&&/SAMPLE ROAD 9/.test(F.textContent)&&/本登録: まだ/.test(F.textContent),'ACL 탭 맨 위 = 最終確認 (✗ 足りない内容 1 項目 · 항목 · 本登録) → 그 아래 項目ごとの確認',F&&F.textContent);
-  ok(/✓ コンテナ 1 セット一致/.test(F.textContent),'最終確認 — コンテナ セット 줄');
-  ok(/最終確認 ✗ 1/.test(B.querySelector('.dt-note').textContent),'ACL 탭 머리에 「最終確認 ✗ 1」',B.querySelector('.dt-note').textContent);
+  ok(/コンテナ 1 セット一致/.test(F.textContent)&&!/✓/.test(F.textContent),'最終確認 — コンテナ セット 줄 (v0.17 D11: 相違가 있으면 ✓ 없음)',F.textContent);
+  ok(!/最終確認 ✗ 1|表示中/.test(B.querySelector('.dt-note').textContent),'v0.17 (D2): ACL 탭 머리의 「表示中 · 最終確認 ✗ 1」 = 관리자만',B.querySelector('.dt-note').textContent);
   ok(!/crcf9_/.test(html),'직원 화면: 내부 이름 없음');
   w.eval('S.me.admin=true; renderIv()'); ok(/crcf9_notify_party/.test(w.document.getElementById('dtIvBody').innerHTML),'관리자: 내부 이름은 title');
 }

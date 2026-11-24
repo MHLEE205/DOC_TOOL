@@ -15,7 +15,7 @@ const R=DOC.TODO_RULES, at=DOC.at;
 const S0=o=>Object.assign({sub:null, subKnown:false, acl:null, hon:null, vchg:false, depoReq:null, depoRep:null, bmail:null, drafts:[], cmail:null, pay:null, bl:null, ins:null, rr:null, fd:null},o||{});
 const X0=o=>Object.assign({iv:'NTE2699-01', country:'INDONESIA', term:'CFR', pay:'TT', carrier:'ONE', otsu:'', buyer:'', cut:'2026-11-18', cutAm:false, blDate:''},o||{});
 const NOW=at('2026-11-20','09:00');   // 금 09:00
-const row=(x,s,now)=>{ const r=DOC.todoRow(X0(x),S0(s),now||NOW,null); if(r){ r.group=DOC.todoGroup(r,now||NOW); r.when=DOC.whenLabel(r,now||NOW); } return r; };
+const row=(x,s,now)=>{ const r=DOC.todoRow(X0(x),S0(s),now||NOW,null); if(r){ r.group=DOC.todoGroup(r,now||NOW); r.when=DOC.whenLabel(r,now||NOW); r.whenSub=DOC.whenSub(r,now||NOW); } return r; };
 (async()=>{
 console.log('3 영업일 · 영업시간');
 ok(DOC.bday('2026-11-20')&&!DOC.bday('2026-11-21')&&!DOC.bday('2026-11-22')&&!DOC.bday('2026-11-23')&&DOC.bday('2026-11-24'),'금 영업일 · 토 · 일 · 11/23 (근로감사의 날) 쉼');
@@ -30,23 +30,23 @@ ok(row({}, {})===null,'통관 서류 전 → 書類 담당 일 없음 (T1 = 통�
 { const r=row({country:'VIETNAM'}, {sub:at('2026-11-19','10:00')});
   ok(r&&r.stage===1&&/^Deposit 依頼 ＋ ACL 待ち/.test(r.what)&&r.group==='late','베트남 통관 서류 뒤 → 「Deposit 依頼 ＋ ACL 待ち」 한 줄 (같은 단계 합침) · 그날 18:00 지남 = 期限切れ',r); }
 { const r=row({}, {sub:at('2026-11-19','17:00')}); ok(r&&r.zone==='wait'&&r.gkey==='w_otsu'&&r.group==='wait'&&r.what==='ACL 待ち'&&r.action===null,'베트남 아님 → Deposit 없음 · ACL 아직 보통 시간 안 (1h < 4.9h) → v0.14 (1-3): 待ち · 乙仲 에 늘 보임 (催促 버튼 없음)',r); }
-{ const r=row({}, {sub:at('2026-11-18','10:00')}); ok(r&&r.group==='chase'&&r.gkey==='w_otsu'&&r.what==='ACL 待ち'&&/^ACL \d+h \/ 5h$/.test(r.when)&&r.action[0]==='催促メール','ACL 재촉 (75% 지점 넘음) → 待ち · 乙仲 + 催促メール',r); }
+{ const r=row({}, {sub:at('2026-11-18','10:00')}); ok(r&&r.group==='chase'&&r.gkey==='w_otsu'&&r.what==='ACL 待ち'&&/^\d+ 時間待ち（いつもは 5 時間）$/.test(r.when)&&r.action[0]==='催促メール','ACL 재촉 (75% 지점 넘음) → 待ち · 乙仲 + 催促メール',r); }
 { const r=row({}, {sub:at('2026-11-18','10:00'), acl:at('2026-11-19','10:00'), cut:'2026-11-20'}); ok(r&&r.stage===2&&r.what==='ACL 確認 → 本登録依頼'&&r.action[1]==='acl','ACL 도착 → 「ACL 確認 → 本登録依頼」 (ACL 재촉은 끝) · 버튼 ACL 照合',r); }
-{ const r=row({cut:'2026-11-20'}, {sub:1, acl:at('2026-11-19','10:00')}); ok(r.group==='today'&&r.when==='今日 18:00 CY_CUT'&&r.gkey==='acl','CY_CUT 오늘 · cut_am 아님 → 今日 18:00 (주황)',r);
-  const r2=row({cut:'2026-11-20', cutAm:true}, {sub:1, acl:at('2026-11-19','10:00')}); ok(r2.group==='today'&&r2.when==='今日 12:00 CY_CUT','cut_am → 今日 12:00',r2);
+{ const r=row({cut:'2026-11-20'}, {sub:1, acl:at('2026-11-19','10:00')}); ok(r.group==='today'&&r.when==='期限 11/20'&&r.whenSub==='18:00 CY_CUT'&&r.gkey==='acl','CY_CUT 오늘 · cut_am 아님 → 期限 11/20 · 2 행 18:00 CY_CUT (주황 · v0.17 D4)',r);
+  const r2=row({cut:'2026-11-20', cutAm:true}, {sub:1, acl:at('2026-11-19','10:00')}); ok(r2.group==='today'&&r2.when==='期限 11/20'&&r2.whenSub==='12:00 CY_CUT','cut_am → 期限 11/20 · 12:00 CY_CUT (v0.17 D4)',r2);
   const r3=row({cut:'2026-11-19'}, {sub:1, acl:at('2026-11-18','10:00')}); ok(r3.group==='late','CY_CUT 지남 → 期限切れ',r3);
   const r4=row({cut:'2026-11-19'}, {sub:1, acl:at('2026-11-18','10:00'), vchg:true}); ok(r4.group!=='late'&&/本船変更/.test(r4.why),'本船変更 건 → 늦음으로 안 셈 (참고 표시)',r4); }
 { const r=row({}, {sub:1, acl:1, hon:at('2026-11-17','10:00')}); ok(r&&r.group==='chase'&&r.gkey==='w_carrier'&&r.what==='Draft 待ち','本登録 뒤 Draft 없음 → Draft 재촉 (ONE 21.6h 넘음) · 待ち · 船社',r);
   { const r2=row({}, {sub:1, acl:1, hon:at('2026-11-19','15:00')}); ok(r2&&r2.gkey==='w_carrier'&&r2.group==='wait'&&!r2.action,'本登録 뒤 아직 보통 시간 안 → 待ち · 船社 (催促 없음)',r2); } }
 { const r=row({country:'VIETNAM'}, {sub:at('2026-11-17','10:00'), acl:1, hon:at('2026-11-19','15:00')}); ok(r&&/^Deposit 依頼 ＋ Draft 待ち/.test(r.what)&&r.group==='late','베트남 本登録 뒤 Deposit 의뢰 없음 → 「Deposit 依頼 ＋ Draft 待ち」',r); }
 /* ③ Draft */
-{ const r=row({}, {sub:1, acl:1, hon:1, drafts:[at('2026-11-20','08:00')]}); ok(r.stage===3&&r.what==='B/L Draft 確認 → 運賃送金'&&r.group==='today'&&r.when==='今日 14:30 → 15:00'&&r.action[1]==='bl'&&r.gkey==='draft','선불 Draft 도착 (오전) → 그날 14:30 → 15:00 · Draft 照合',r);
+{ const r=row({}, {sub:1, acl:1, hon:1, drafts:[at('2026-11-20','08:00')]}); ok(r.stage===3&&r.what==='B/L Draft 確認 → 運賃送金'&&r.group==='today'&&r.when==='期限 11/20'&&r.whenSub==='14:30 → 15:00'&&r.action[1]==='bl'&&r.gkey==='draft','선불 Draft 도착 (오전) → 그날 14:30 → 15:00 · Draft 照合',r);
   const r2=row({}, {drafts:[at('2026-11-19','16:00')]}); ok(r2.group==='today','Draft 가 14:30 뒤 → 다음 영업일 14:30 (11/19 16:00 → 11/20)',r2);
   const r3=row({}, {drafts:[at('2026-11-18','10:00')]}); ok(r3.group==='late','어제 Draft → 15:00 지남 = 期限切れ',r3);
   const r4=row({}, {drafts:[at('2026-11-19','10:00'),at('2026-11-20','08:00')]}); ok(/（2回目）/.test(r4.what)&&r4.group==='today','다음 Draft = 새 Draft 기준 (2回目 · 대체됨)',r4); }
-{ const r=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-17','10:00'), drafts:[at('2026-11-20','08:00')]}); ok(r.gkey==='w_buyer'&&r.group==='chase'&&r.what==='Deposit 番号待ち'&&/^Deposit \d+h \/ 17h$/.test(r.when),'베트남 1번째 Draft · Deposit 回答 없음 (75% 넘음) → v0.14 (1-2): 待ち · バイヤー + 催促',r);
+{ const r=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-17','10:00'), drafts:[at('2026-11-20','08:00')]}); ok(r.gkey==='w_buyer'&&r.group==='chase'&&r.what==='Deposit 番号待ち'&&/^\d+ 時間待ち（いつもは 17 時間）$/.test(r.when),'베트남 1번째 Draft · Deposit 回答 없음 (75% 넘음) → v0.14 (1-2): 待ち · バイヤー + 催促',r);
   const r2=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-19','17:00'), drafts:[at('2026-11-20','08:00')]}); ok(r2.gkey==='w_buyer'&&r2.group==='wait'&&r2.due==null,'베트남 1번째 Draft · Deposit 아직 보통 시간 안 → v0.14 (1-2): 待ち · バイヤー (送金 기한으로 세지 않음)',r2);
-  const r3=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-10','10:00'), drafts:[at('2026-11-18','10:00'),at('2026-11-20','08:00')]}); ok(!/Deposit 催促|Deposit 依頼/.test(r3.what)&&/LG 済 = Deposit 済/.test(r3.why),'베트남 2번째 Draft (LG 뒤) → Deposit 끝',r3);
+  const r3=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-10','10:00'), drafts:[at('2026-11-18','10:00'),at('2026-11-20','08:00')]}); ok(!/Deposit 催促|Deposit 依頼/.test(r3.what)&&/2 回目の Draft（Deposit 番号 反映済み）/.test(r3.why),'베트남 2번째 Draft (LG 뒤) → Deposit 끝',r3);
   const r4=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-10','10:00'), depoRep:at('2026-11-12','10:00'), drafts:[at('2026-11-20','08:00')]}); ok(!/Deposit/.test(r4.what+r4.why),'Deposit 회신 있음 → Deposit 없음',r4); }
 { const r=row({carrier:'SINOKOR'}, {drafts:[at('2026-11-19','10:00')]}); ok(r.gkey==='draft'&&r.group==='none'&&r.what==='B/L Draft 確認 → B/L 発行依頼'&&r.when==='期限なし','후불 선사 → 송금 없음 · Draft 뒤 바로 B/L 의뢰 · 後払い 묶음',r);
   const r2=row({term:'FOB'}, {drafts:[at('2026-11-19','10:00')], pay:at('2026-11-19','15:00')}); ok(r2.gkey==='draft'&&r2.group==='none'&&/FOB/.test(r2.why)&&r2.stage===3,'FOB → 송금 없음 (지불일이 있어도 송금 단계 아님)',r2);
@@ -58,12 +58,12 @@ ok(row({}, {})===null,'통관 서류 전 → 書類 담당 일 없음 (T1 = 통�
   { const r1=row({}, {pay:at('2026-11-19','15:00'), bmail:at('2026-11-19','15:10')}); ok(r1&&r1.gkey==='w_carrier'&&r1.group==='wait'&&r1.what==='B/L 待ち','B/L 의뢰 뒤 아직 보통 시간 안 → 待ち · 船社',r1); }
   const r2=row({}, {pay:1, bmail:at('2026-11-17','15:10')}); ok(r2&&r2.group==='chase'&&r2.stage===6&&r2.what==='B/L 待ち'&&r2.action[0]==='催促メール','B/L 의뢰 뒤 오래 → B/L 재촉',r2); }
 { const bl=at('2026-11-19','18:00');
-  const r=row({blDate:'2026-11-19', term:'CIF', pay:'LC'}, {bl}); ok(r.stage===7&&r.what==='保険 → FD 送付（L/C 原本）'&&DOC.dayOf(r.due)==='2026-11-24'&&DOC.hmOf(r.due)==='18:00'&&r.action[1]==='fd','CIF · L/C → 「保険 → FD 送付（L/C 原本）」 · FD 기한 = B/L date + 영업일 2일 (주말 · 11/23 건너뜀) 18:00',r);
+  const r=row({blDate:'2026-11-19', term:'CIF', pay:'LC'}, {bl}); ok(r.stage===7&&r.what==='保険'&&r.gkey==='insrr'&&DOC.dayOf(r.due)==='2026-11-24'&&DOC.hmOf(r.due)==='18:00'&&r.action[1]==='fd','CIF · L/C → 「保険」 (保険・RR 準備 · v0.17 D8) · FD 기한 = B/L date + 영업일 2일 (주말 · 11/23 건너뜀) 18:00',r);
   const r2=row({blDate:'2026-11-19', term:'CIF'}, {bl, ins:'known'}); ok(r2.stage===8&&r2.what==='FD 送付','보험 끝 → FD 만',r2);
   const r3=row({blDate:'2026-11-19', country:'KOREA'}, {bl}); ok(r3.stage===7&&/RR 送付/.test(r3.what)&&r3.action[1]==='rr','한국 → RR · RR を開く',r3);
-  const r4=row({blDate:'2026-11-19', carrier:'HEUNG A'}, {bl}); ok(DOC.dayOf(r4.due)==='2026-11-20'&&/後払い船社は 営業日1日/.test(r4.why),'후불 (베트남 아님) → FD = B/L date + 영업일 1일',r4);
+  const r4=row({blDate:'2026-11-19', carrier:'HEUNG A'}, {bl}); ok(DOC.dayOf(r4.due)==='2026-11-20'&&/FD 期限：B\/L date の翌営業日（後払い船社）/.test(r4.why),'후불 (베트남 아님) → FD = B/L date + 영업일 1일',r4);
   const r5=row({blDate:'2026-11-19', carrier:'HEUNG A', country:'VIETNAM'}, {bl}); ok(DOC.dayOf(r5.due)==='2026-11-24','후불이라도 베트남 → +2 일',r5);
-  const r6=row({blDate:'2026-11-18', pay:'LC'}, {bl:at('2026-11-18','18:00')}); ok(r6.group==='today'&&r6.gkey==='fdlc'&&r6.when==='11/18 B/L 受領'&&DOC.hmOf(r6.due)==='18:00','오늘이 FD 기한 · L/C → v0.8: B/L 받은 건은 「本日 FD」 묶음 (기한 18:00 은 그대로)',r6);
+  const r6=row({blDate:'2026-11-18', pay:'LC'}, {bl:at('2026-11-18','18:00')}); ok(r6.group==='today'&&r6.gkey==='fdlc'&&r6.when==='期限 11/20'&&r6.whenSub==='B/L 受領 11/18 · 18:00 宅配'&&DOC.hmOf(r6.due)==='18:00','오늘이 FD 기한 · L/C → v0.8: B/L 받은 건은 「本日 FD」 묶음 (기한 18:00 은 그대로)',r6);
   const rb=row({}, {bl:at('2026-11-19','15:00')}); ok(rb&&rb.stage===8&&DOC.dayOf(rb.due)==='2026-11-24','B/L date 가 비어도 (선사 B/L 메일만) → 그날 기준 FD 기한',rb);
   ok(row({term:'CIF',country:'KOREA',blDate:'2026-11-19'}, {bl, ins:'known', rr:at('2026-11-19','10:00')}).stage===8,'보험 · RR 끝 → FD'); }
 console.log('4 재촉 75%');
@@ -93,7 +93,7 @@ console.log('메일 분류 · 건 연결 · 신호');
   const s=DOC.todoSignals(Object.assign({},base,{mails}));
   ok(s.sub===T('2026-11-17','10:00')&&s.acl===T('2026-11-17','12:00')&&s.hon===T('2026-11-17','13:00')&&s.drafts.length===2,'신호: 통관 → ACL → 本登録 → Draft (1시간 안의 Draft 메일 = 1번)',s);
   const s2=DOC.todoSignals(Object.assign({},base,{mails, asof:T('2026-11-18','10:30')})); ok(s2.drafts.length===1&&s2.hon!=null,'asof → 그 시각 전 신호만',s2);
-  const s3=DOC.todoSignals(Object.assign({},base,{mails, payDate:'2026-11-24'})); ok(s3.pay===T('2026-11-24','15:00')&&s3.payPlan===true&&s3.bl===null,'앞날 지불일 → v0.14 (1-1 社長 D1): 「送金 予定」 (처리 끝 · B/L 받음은 아님)',s3);
+  const s3=DOC.todoSignals(Object.assign({},base,{mails, payDate:'2026-11-24'})); ok(s3.pay===T('2026-11-24','15:00')&&s3.payPlan===true&&s3.bl===null,'앞날 지불일 → v0.14 (1-1 社長 D1): 「送金予定」 (처리 끝 · B/L 받음은 아님)',s3);
   { const s3a=DOC.todoSignals(Object.assign({},base,{mails, payDate:'2026-11-24', asof:T('2026-11-20','09:00')})); ok(s3a.pay===null,'asof (시험) 에서는 앞날 지불일 = 그 시각에 모름 → 안 씀',s3a); }
   const s4=DOC.todoSignals(Object.assign({},base,{mails, blDate:'2026-11-19'})); ok(s4.bl===null,'B/L date 만 (송금 없음 · 선불) → B/L 받음 아님 (B/L date 는 미리 들어 있는 일이 많음)',s4);
   const s5=DOC.todoSignals(Object.assign({},base,{mails, blDate:'2026-11-19', payDate:'2026-11-19'})); ok(s5.bl===T('2026-11-19','18:00')&&/送金/.test(s5.blSrc),'B/L date 지남 + 송금 → B/L 받음 (B/L date 18:00)',s5);

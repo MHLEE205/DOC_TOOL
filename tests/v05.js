@@ -27,7 +27,7 @@ ok(/コンテナ別記載の指示/.test(DOC.ACL_RULE[1][2]),'상태 표 (ACL_RU
   run.results=run.results.concat(extra); W.content[key]=JSON.stringify(run,null,1);
   const MB=W.content[key].length/1e6; ok(MB>22,'가짜 results.json '+MB.toFixed(1)+' MB (v0.6 실제 23.3 MB 규모)');
   const t0=Date.now(), w=await X.page(W,{html:HFILE, ls:{doc_tool_who:'all',doc_tool_hide_fd:'0'}}); const tb=Date.now()-t0; TIMES.boardMs=tb; TIMES.resultMB=+MB.toFixed(1);
-  ok(/ACL 照合結果 ACL_20261120-000000/.test(w.document.getElementById('dtProg').textContent),'큰 결과로 현황판 읽기 끝 ('+tb+' ms)',w.document.getElementById('dtProg').textContent);
+  ok(/ACL 照合結果 ACL_20261120-000000/.test(w.eval('S.doneMsg')),'큰 결과로 현황판 읽기 끝 ('+tb+' ms)',w.eval('S.doneMsg'));
   const btn=w.document.querySelector('#dtTable button[data-iv="NAA2611-01"]'), t1=Date.now(); btn.click();
   const body0=w.document.getElementById('dtIvBody').textContent, vis0=w.document.getElementById('dtIv').style.display;
   ok(vis0==='flex'&&/読み込み中/.test(body0)&&!w.document.querySelector('#dtIvTabs button'),'누른 순간 상세 화면 + 「読み込み中…」 (탭은 아직)',[vis0,body0]);

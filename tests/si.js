@@ -79,7 +79,7 @@ const HEAD=['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','
   ok(/ほか \d+ 項目/.test(txt('dtCtBody')),'추천 완료 → 표 (나머지 접기)',txt('dtCtBody').slice(0,300));
   const kinds=FX.prompts.map(p=>p.kind); ok(W.req.filter(r=>r==='AI').length-ai0===3&&kinds.filter(x=>x==='r2_extract').length===2&&kinds.filter(x=>x==='r2_assemble').length===1,'AI 3번 (L/C 판독 ×2 · 조립 ×1 = a1_bench R2)',kinds);
   ok(FX.prompts.every(p=>p.lcNo==='ILC0003'),'대상 계약의 LC 로 (ILC0003)');
-  ok(/a1_bench v0\.12 @435799c/.test(txt('dtCtBody'))&&/US\$ \d+\.\d\d/.test(txt('dtCtBody')),'엔진 출처 · 이번 비용 표시');
+  ok(!/a1_bench/.test(txt('dtCtBody'))&&!/US\$ \d+\.\d\d/.test(txt('dtCtBody'))&&/\d{1,2}\/\d\d \d\d:\d\d/.test(txt('dtCtBody')),'v0.17 (B1 · D10): 직원 = 엔진 출처 · 비용 없음 · 시각 = 일본 시간');
   ok(/根拠あり \d+/.test(txt('dtSiPills'))&&/要確認 \d+/.test(txt('dtSiPills')),'S/I 없음 → 根拠あり · 要確認 수',txt('dtSiPills'));
   ok(/直前 S\/I LRS-2604SG1/.test(txt('dtCtBody')),'직전 S/I = 같은 바이어 앞 계약 (2604SG1)');
   const recPut=writesAfter(wr0); ok(recPut.length===1&&/D-00\/doc_tool\/si_rec\/LRS-2605SG1_\d{8}-\d{6}\.json/.test(decodeURIComponent(recPut[0].url))&&/conflictBehavior=fail/.test(recPut[0].url),'추천 저장 (doc_tool/si_rec · 덮어쓰지 않음)',recPut.map(x=>x.url));

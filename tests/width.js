@@ -23,7 +23,8 @@ function worldW(){
       _cr49f_region_id_value:X.g('a',1+(n%4)),_cr49f_carrier_id_value:X.g('5',1+(n%2))}));
     sh[iv]={dep:n%5?'未':'確認',furikomi:n%2?'未':'確認済',fd_date:'',fd_note:n%7?'':'メモ メモ メモ メモ メモ メモ メモ メモ'}; }
   W.bookings.forEach(b=>{ if(!b._cr49f_carrier_id_value) b._cr49f_carrier_id_value=X.g('5',1); });
-  W.content[PT_PATH]=JSON.stringify({last_updated:'2026-11-20T00:00:00.000Z',records:{},cotecna:{},shipping:sh},null,2);
+  const rec={}; W.bookings.forEach(b=>{ rec[b.cr49f_invoice_no]={tsukan_irai:true}; });   // v0.17 (H1): 通関依頼済 だけ表に出る → 全部 済
+  W.content[PT_PATH]=JSON.stringify({last_updated:'2026-11-20T00:00:00.000Z',records:rec,cotecna:{},shipping:sh},null,2);
   return W;
 }
 

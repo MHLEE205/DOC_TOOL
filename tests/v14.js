@@ -1,5 +1,5 @@
 /* v0.14 시험 (지시서 D00 사용성 개선 · Step 5) — 가짜 데이터만 · 네트워크 없음. node v14.js [html]
-   1 판단 규칙 1-1 (지불일 = 송금 처리 끝 · 앞날 = 送金 予定) · 1-2 (베트남 Deposit 회답 대기 = 待ち · バイヤー) · 1-3 (대기는 늘 보임 · 기준 넘으면 催促) · 1-4 (乙仲 ACL 訂正依頼 → 待ち · 訂正 ACL)
+   1 판단 규칙 1-1 (지불일 = 송금 처리 끝 · 앞날 = 送金予定) · 1-2 (베트남 Deposit 회답 대기 = 待ち · バイヤー) · 1-3 (대기는 늘 보임 · 기준 넘으면 催促) · 1-4 (乙仲 ACL 訂正依頼 → 待ち · 訂正 ACL)
    2 그룹 (やること = 일의 순서 · 待ち = 상대별 · 今日終わったもの) · 정렬 · 기한 색
    3 화면 (세 구역 · 한 줄 · 그룹 머리 안내 · ？ = 매뉴얼 링크 · 0 건 = 한 줄 · 今日終わったもの 접힘 · 폴더 전 COMPASS 만으로 먼저)
    4 保存の入口 (할 일만 펼침 · 済み n 件 · 0 건 = 한 줄 · 取消 / 重複 / 同じ内容 기억 → 다시 열면 안 나옴 · 이름 · 크기 같으면 안 내려받음 · 못 읽으면 再確認)
@@ -25,7 +25,7 @@ console.log('1-1 지불일 = 송금 처리 끝 (앞날 포함)');
   const s=DOC.todoSignals(Object.assign({},base,{mails, payDate:'2026-11-24'}));
   ok(s.payPlan===true&&s.pay===at('2026-11-24','15:00')&&s.bl===null,'앞날 지불일 → payPlan (B/L 받음은 아님)',s);
   const r=DOC.todoRow(X0(),s,NOW,null); r.group=DOC.todoGroup(r,NOW); r.when=DOC.whenLabel(r,NOW);
-  ok(r.gkey==='blreq'&&/^送金 予定 11\/24/.test(r.why)&&r.group==='later'&&r.zone==='do','→ 「B/L 発行依頼」 · 「送金 予定 11/24」 · 期限切れ 아님 (11/24 18:00)',r);
+  ok(r.gkey==='blreq'&&/^送金予定 11\/24/.test(r.why)&&r.group==='later'&&r.zone==='do','→ 「B/L 発行依頼」 · 「送金予定 11/24」 · 期限切れ 아님 (11/24 18:00)',r);
   const s2=DOC.todoSignals(Object.assign({},base,{mails, payDate:'2026-11-19'})), r2=row({},{drafts:s2.drafts, pay:s2.pay, payPlan:s2.payPlan});
   ok(r2.gkey==='blreq'&&/^送金 11\/19/.test(r2.why)&&r2.group==='late','지난 지불일 → 「送金 11/19」 · 그날 18:00 지나면 期限切れ (전과 같음)',r2);
   const s3=DOC.todoSignals(Object.assign({},base,{mails, payDate:'2026-11-24', asof:NOW})); ok(s3.pay===null&&!s3.payPlan,'asof (시험 · 재현) 은 전과 같음 — 그 시각 뒤 지불일은 안 씀',s3);
@@ -129,7 +129,7 @@ const flush=async W=>{ for(const x of W.writes){ const u=decodeURIComponent(x.ur
   w.document.querySelector('#dtInbox [data-svno]').click(); await X.until(()=>W.writes.filter(x=>/save_log/.test(decodeURIComponent(x.url))).length===2);
   ok(/"result":"取消"/.test(await W.writes.filter(x=>/save_log/.test(decodeURIComponent(x.url)))[1].body.text()),'保存しない → 取消 기억');
   ok(W.writes.every(x=>x.method==='PUT'&&/doc_tool\/save_log\//.test(decodeURIComponent(x.url))&&/conflictBehavior=fail/.test(x.url)),'쓰기 = save_log 새 파일만',W.writes.map(x=>x.url));
-  const box=w.document.getElementById('dtInbox').textContent; ok(/新着 0 件/.test(box)&&/メール 5 営業日を確認済み \d\d:\d\d/.test(box)&&!w.document.querySelector('#dtInbox .sv-row'),'할 일 0 → 한 줄 「新着 0 件 · メール 5 営業日を確認済み HH:MM」',box.slice(0,200));
+  const box=w.document.getElementById('dtInbox').textContent; ok(/新しい書類 0 件（直近 5 営業日のメールを確認 · \d\d:\d\d）/.test(box)&&!w.document.querySelector('#dtInbox .sv-row'),'할 일 0 → 한 줄 「新しい書類 0 件（直近 5 営業日のメールを確認 · HH:MM）」 (v0.17 F10)',box.slice(0,200));
   /* 다시 열기 — 기억한 2 건은 안 나옴 · 첨부도 안 내려받음 */
   await flush(W); const W2=Object.assign(mkWorld(),{sp:W.sp, content:W.content}); W2.writes=[]; W2.req=[];
   const w2=await X.page(W2,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>SV(w2).mailSt==='ok',20000); await X.sleep(30);
@@ -158,9 +158,9 @@ console.log('5 속도 — $batch · 기억');
   const w2=await X.page(W2,{html:HFILE, first:true, ls});
   const ch2=W2.req.filter(r=>/:\/children/.test(r)&&/▲ 書類作成中\/N/.test(decodeURIComponent(r))).map(r=>decodeURIComponent(r).match(/作成中\/([^:/]+)/)[1]);
   eq([...new Set(ch2)],['NBB2611-01'],'두 번째 열기 → 바뀐 폴더 (NBB2611-01) 만 다시 읽음');
-  ok(/前回のまま 1/.test(w2.document.getElementById('dtProg').textContent),'완료 줄에 「前回のまま n」',w2.document.getElementById('dtProg').textContent);
+  ok(/前回のまま 1/.test(w2.eval('S.doneMsg')),'완료 줄에 「前回のまま n」',w2.eval('S.doneMsg'));
   eq(JSON.stringify(w2.eval('S.folders["NAA2611-01"].files.map(f=>f.name).sort()')),JSON.stringify(w.eval('S.folders["NAA2611-01"].files.map(f=>f.name).sort()')),'기억한 폴더 = 읽은 것과 같음');
-  const W3=X.world(), w3=await X.page(W3,{html:HFILE, first:true, ls:{doc_tool_who:'all', doc_tool_folders_v14:'{broken'}}); ok(/前回のまま 0/.test(w3.document.getElementById('dtProg').textContent),'기억이 깨져 있으면 → 전부 읽음 (오류 없음)'); }
+  const W3=X.world(), w3=await X.page(W3,{html:HFILE, first:true, ls:{doc_tool_who:'all', doc_tool_folders_v14:'{broken'}}); ok(/前回のまま 0/.test(w3.eval('S.doneMsg')),'기억이 깨져 있으면 → 전부 읽음 (오류 없음)'); }
 { /* $batch 실패 → 1 건씩 (지금처럼) */
   const W=X.world(); const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}, init:win=>{ const f0=win.fetch; win.fetch=async(u,o)=>/\$batch/.test(u)?{ok:false,status:400,headers:{get:()=>null},json:async()=>({})}:f0(u,o); }});
   ok(w.eval('typeof S.folders["NAA2611-01"]==="object"&&S.folders["NAA2611-01"].files.length>=3'),'$batch 안 되면 → 1 건씩 읽어서 같은 결과'); }
