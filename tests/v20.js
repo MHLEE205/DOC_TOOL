@@ -26,6 +26,8 @@ eq(DOC.mailSubjTpl('  船積書類送付_NAA2601-01: 株式会社サンプル】
 eq(DOC.mailSubjTpl('[Shipping docs for for NAA2601-01]', T.en, {IV:'NAA2601-01'}), '[Shipping docs for {IV}]', '오타 for for 바로잡음');
 eq(DOC.mailSubjTpl('[船積書類送付_NAA2601-01  #80981', T.ja, {IV:'NAA2601-01', PO:'11111'}), null, '모르는 번호가 남음 → null');
 eq(DOC.mailSubjTpl('[Shipping docs for NAA2601-01 & NAA2601-02]', T.en, {IV:'NAA2601-01'}), null, '다른 Invoice 가 남음 → null');
+eq(DOC.mailSubjTpl('[Shipping docs for  NAA2601-01/10/12]', T.en, {IV:'NAA2601-01'}), null, '묶음 (IV/10/12) → null');
+eq(DOC.mailSubjTpl('Re: [Shipping docs for for NAA2601-02/03 ]Re: x', T.en, {IV:'NAA2601-02'}), null, '묶음 (IV/03) → null');
 eq(DOC.mailSubjTpl('REQ EXTRA FREETIME [Shipping docs for NAA2601-01]', T.en, {IV:'NAA2601-01'}), null, '종류 표시가 맨 앞이 아님 → null');
 eq(DOC.mailSubjTpl('[Deposit Request for NAA2601-01]', T.en, {IV:'NAA2601-01'}), null, '종류가 다름 → null');
 
@@ -69,10 +71,10 @@ function world20(docTo){ const W=X.world();
   W.sis[0].crcf9_po_vo='2699/1126'; W.itemBytes={dd1:Buffer.from('%PDF-1.4 dd'), zz1:Buffer.from('PK zip')}; return W; }
 const PAST="(()=>{ const b=S.bk.find(x=>x.cr49f_invoice_no==='NAA2611-01'); TODO.byBk=TODO.byBk||{}; const c=S.ct[b._cr49f_sale_contract_id_value];"+
   " TODO.byBk[b.cr49f_bookingid]=(TODO.byBk[b.cr49f_bookingid]||[]).concat([{t:Date.now()-86400000, subj:'Re: [Deposit Request for NAA2611-01] #'+c.cr49f_sale_contract_no+'_2699/1126', skind:'staff', uses:['DEPO'], att:[], body:'Dear'},"+
-  " {t:Date.now()-2*86400000, subj:'[Deposit Request for NAA2611-01] #OLD', skind:'staff', uses:['DEPO'], att:[], body:''}]); return c.cr49f_sale_contract_no; })()";
+  " {t:Date.now()-2*86400000, subj:'[Deposit Request for NAA2611-01] #OLD', skind:'staff', uses:['DEPO'], att:[], body:''}, {t:Date.now(), subj:'[Shipping docs for NAA2611-01]Re: [Deposit Request for NAA2611-01] #ZZZ', skind:'staff', uses:['FD','DEPO'], att:[], body:''}]); return c.cr49f_sale_contract_no; })()";
 { const W=world20(true); const w=await X.page(W,{html:HFILE, ls:{doc_tool_who:'all'}}); await X.until(()=>w.eval('typeof TODO!=="undefined"&&TODO.mailSt&&TODO.mailSt!=="load"'),10000).catch(()=>0);
   const ct=w.eval(PAST); w.eval("mailDraftModal('NAA2611-01','depo')"); await X.until(()=>!!w.document.getElementById('dtMdSubj'),5000);
-  ok(w.document.getElementById('dtMdSubj').value==='[Deposit Request for NAA2611-01] #'+ct+'_2699/1126','제목 = 가장 최근 지난 제목의 형 (Re: 뗌 · 오래된 것 아님)',w.document.getElementById('dtMdSubj').value);
+  ok(w.document.getElementById('dtMdSubj').value==='[Deposit Request for NAA2611-01] #'+ct+'_2699/1126','제목 = 가장 최근 지난 Deposit 제목의 형 (Re: 뗌 · 오래된 것 아님 · 더 새 Shipping docs 메일 안의 Deposit 표시는 아님)',w.document.getElementById('dtMdSubj').value);
   ok(/前回の件名の形: Re: \[Deposit Request for NAA2611-01\]/.test(w.document.body.textContent),'확인 창에 「前回の件名の形」');
   ok(/To: d1@buyer-a\.example\.test; d2@buyer-a\.example\.test/.test(txt(w,'dtMdTo'))&&/d3@buyer-a\.example\.test/.test(txt(w,'dtMdTo'))&&/rcp@example\.test/.test(txt(w,'dtMdTo'))&&!/a@buyer-a/.test(txt(w,'dtMdTo'))&&/書類メール To/.test(w.document.body.textContent),'받는 사람 = doc_to · doc_cc (+ rcp@) · to 아님',txt(w,'dtMdTo'));
   w.eval('closeModal()'); w.eval("mailDraftModal('NAA2611-01','ship')"); await X.until(()=>!!w.document.getElementById('dtMdMake'),5000);

@@ -1460,16 +1460,18 @@ const DOC = (()=>{
   };
   /* 前の件名 → 形 (純粋) — Re: · FW: · [RE] を取る · 後ろの別のスレッドの件名を取る · 誤字 (for for · D0C) を直す · 前の Invoice · 契約 · PO (- → _ も) · B/L · MT を {IV} … に
      old = {IV, CT, PO, BL} (前の船積の値) · 形にできない (種類の印なし · {IV} なし · 番号らしいものが残る) = null */
-  function mailSubjTpl(subj, tag, old){ let s=String(subj||'').replace(/\s+/g,' ').trim(), k=0;
+  /* 前の件名の頭 (Re: · FW: · [RE] を取ったもの) と 種類の印の位置 — 印が頭 (0 · [ の次 1) でなければ その種類のメールではない */
+  function mailSubjHead(subj, tag){ let s=String(subj||'').replace(/\s+/g,' ').trim(), k=0;
     while(k++<6){ const t=s.replace(/^(?:(?:RE|FW|FWD)\s*[:：]|\[(?:RE|FW|FWD)\])\s*/i,''); if(t===s) break; s=t; }
-    const at=s.search(tag); if(at<0||at>1) return null;
+    const at=s.search(tag); return at<0||at>1?null:{s, at}; }
+  function mailSubjTpl(subj, tag, old){ const h=mailSubjHead(subj, tag); if(!h) return null; let s=h.s; const at=h.at;
     const cut=s.slice(at+1).search(/\s*(?:RE|FW|FWD)\s*[:：]/i); if(cut>=0) s=s.slice(0,at+1+cut).trim();
     s=s.replace(/\bfor for\b/gi,'for').replace(/D0C/g,'DOC');
     const o=old||{}, po=String(o.PO||'').trim(), V=[['IV',up(o.IV||'')],['CT',String(o.CT||'').trim()],['PO',po],['PO_',po.replace(/-/g,'_')],['BL',String(o.BL||'').trim()]]
       .filter((x,i,a)=>x[1].length>=3&&a.findIndex(y=>y[1]===x[1])===i).sort((a,b)=>b[1].length-a[1].length);
     V.forEach(([key,val])=>{ s=s.replace(new RegExp(val.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&'),'gi'),'\u0001'+key+'\u0002'); });
     s=s.replace(/\d+(?:\.\d+)?\s*MT\b/gi,'\u0001MT\u0002MT').replace(/\u0001([A-Z_]+)\u0002/g,'{$1}');
-    if(s.indexOf('{IV}')<0) return null; const rest=s.replace(/\{[A-Z_]+\}/g,''); if(/[A-Z]{2,4}\d{4}-\d{2}/i.test(rest)||/\d{3,}/.test(rest)) return null;
+    if(s.indexOf('{IV}')<0||/\{IV\}\s*[\/&,・]\s*[A-Z]*\d/i.test(s)) return null; const rest=s.replace(/\{[A-Z_]+\}/g,''); if(/[A-Z]{2,4}\d{4}-\d{2}/i.test(rest)||/\d{3,}/.test(rest)) return null;
     return s; }
   /* 添付 — その Invoice フォルダ直下の名前で選ぶ · 名前の Invoice 番号が違う (= 別の Invoice の書類が混じった) → bad (下書きを作らない) */
   function mailAtt(kind, iv, files){ const IV=up(iv), T=MAIL19[kind==='depo'?'DEPO':'SHIP'], top=(files||[]).filter(f=>!f.sub&&/\.pdf$/i.test(f.name||'')), att=[], bad=[], miss=[], zips=kind==='ship'?(files||[]).filter(f=>!f.sub&&MAIL20.ZIP_RE.test(f.name||'')):[];
@@ -1570,7 +1572,7 @@ const DOC = (()=>{
 
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     /* v0.19 */ MAIL19, mailAtt, mailDraft19, guardMail, mailDraftPath,
-    /* v0.20 */ MAIL20, mailSubjTpl,
+    /* v0.20 */ MAIL20, mailSubjTpl, mailSubjHead,
     /* v0.18 */ V18, staffDoc,
     /* v0.17 */ V17, turnFix, otherCts, siTexts, lcSummary, cpExample,
     /* v0.16 */ PT, ptEtd, ptRows, ptStaff, ptTsukan, ptPol, ptDate, ptDateS, ptDep, ptPropose, ptValid, ptMerge, guardPortal,
@@ -2559,10 +2561,12 @@ async function mailSalesRow(b, buyer){ const L=MAILD.sales||[], B=DOC.up(buyer),
 /* v0.20 (R2): そのバイヤー (契約のバイヤー) に 担当が同じ種類で送った いちばん新しいメール (読み込んだメールの中) → 件名の形 · 本文 (日本語の形を決める) */
 function mailPastSubj(b, kind, lang){ const c0=S.ct[b._cr49f_sale_contract_id_value]||{}, bid=c0._cr49f_buyer_id_value; if(!bid||!TODO.byBk) return null;
   const tag=kind==='depo'?DOC.MAIL20.TAG.depo:(DOC.MAIL20.TAG[lang]||DOC.MAIL20.TAG.en), L=[];
-  S.bk.concat(S.extraBk||[]).forEach(x=>{ const c=S.ct[x._cr49f_sale_contract_id_value]||{}; if(c._cr49f_buyer_id_value!==bid) return; (TODO.byBk[x.cr49f_bookingid]||[]).forEach(m=>{ if(m.skind==='staff'&&tag.test(m.subj||'')) L.push({m, x, c}); }); });
+  const same=S.bk.concat(S.extraBk||[]).filter(x=>(S.ct[x._cr49f_sale_contract_id_value]||{})._cr49f_buyer_id_value===bid);
+  same.forEach(x=>{ (TODO.byBk[x.cr49f_bookingid]||[]).forEach(m=>{ if(m.skind==='staff'&&DOC.mailSubjHead(m.subj, tag)) L.push({m, x}); }); });   // 頭がその種類の印のメールだけ
   L.sort((p,q)=>(q.m.t||0)-(p.m.t||0)); const p=L[0]; if(!p) return null;
-  const sis=S.sis[p.x._cr49f_sale_contract_id_value]||[], s1=sis.find(s=>+s.crcf9_sino===1)||sis[0]||{};
-  return {subj:p.m.subj, body:p.m.body||'', tpl:DOC.mailSubjTpl(p.m.subj, tag, {IV:p.x.cr49f_invoice_no, CT:p.c.cr49f_sale_contract_no||'', PO:String(s1.crcf9_po_vo||'').trim(), BL:p.x.cr49f_bl_number||''})}; }
+  const U=DOC.up(DOC.mailSubjHead(p.m.subj, tag).s), x=same.find(y=>y.cr49f_invoice_no&&U.indexOf(DOC.up(y.cr49f_invoice_no))>=0)||p.x, c=S.ct[x._cr49f_sale_contract_id_value]||{};   // 前の値 = 件名に書いてある Invoice の船積
+  const sis=S.sis[x._cr49f_sale_contract_id_value]||[], s1=sis.find(s=>+s.crcf9_sino===1)||sis[0]||{};
+  return {subj:p.m.subj, body:p.m.body||'', tpl:DOC.mailSubjTpl(p.m.subj, tag, {IV:x.cr49f_invoice_no, CT:c.cr49f_sale_contract_no||'', PO:String(s1.crcf9_po_vo||'').trim(), BL:x.cr49f_bl_number||''})}; }
 /* Outlook の下書き — 返信 (元の ACL メール · 全員に返信) か 新しい下書き · 添付 (3 MB まで) · CC に rcp@ — 送らない */
 async function graphMail(method, path, body){ DOC.guardMail(method, GRAPH+path); const r=await graphFetch(GRAPH+path,{method, headers:{'Content-Type':'application/json'}, body:body?JSON.stringify(body):undefined}); if(!r.ok){ const e=new Error('Outlook '+r.status); e.status=r.status; throw e; } return r.status===204?null:r.json(); }
 async function mailDraftCreate(d, body){
