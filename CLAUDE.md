@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -145,6 +145,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 일본어 본문 (R5) — 실제 보낸 원문 2 모양: 짧은 형 (`MAIL19.SHIP.ja`) · 목록 형 (`MAIL20.JA_LIST` — 지난 메일 본문에 `-Invoice# :` 가 있으면). 빈 칸 (仕入先 등) = 「本文の空欄を確認してください」. 본문 · 제목에 빈 `{ORDER}` 같은 글자가 남지 않음 (v0.19 버그).
   - 마스터 줄 찾기 (`mailSalesRow`) = Shipping Schedule `buildBuyerData` 와 같음 — 계약의 AGENT (下書き 만들 때 그 계약만 COMPASS 에서 읽음 · 숫자 = 없음) → `AGENT::BUYER` → `AGENT::` · 없으면 `::BUYER`. (v0.19 는 BUYER 이름으로만 찾아 FORESTRY · FOUR SEASONS 같은 에이전트 줄을 못 찾았음.)
   - 시험 = `tests/v20.js`.
+- **v0.25 (지시서 `MAC-THOR_23_지시서_D00_書類ツールv0.25_LG` · 형님 L1 「선사별 패턴 · 엑셀 형태」)** — 엔진 그대로 (CONTRACT_SEND `cedc448`). 규칙 · 낱말 = doc-core `DOC.V25`.
+  - **설정은 SharePoint** `古紙/-. AI 活用/D-00/lg/` (읽기만): `patterns.json` (선사별 status auto/hold/list · 양식 계열 · 메일 mode new/reply · to/cc 실적 · 제목 · 본문 · 첨부 이름) · `templates/{KEY}/{KEY}.xlsx` (실제 보낸 가장 최근 LG · xls 는 Mac Excel 로 xlsx 변환) · `cells.json` (값 칸 지도) · `原本_…` (원본 사본). **받는 사람 주소는 코드에 넣지 않는다.** 선사를 더할 때는 이 폴더만.
+  - Excel 작성 = JSZip 3.10.1 (cdnjs) 으로 **시트 XML 의 그 셀만** 바꿈 (`DOC.xlsxCellSet` · `xlsxFill`) — 선 · 병합 · 열 폭 · 글꼴 · 인감/서명 이미지 그대로. 날짜 칸 `=TODAY()` 식은 남기고 값만 오늘. calcChain 삭제 + `fullCalcOnLoad`. 訂正前/後 = 인라인 서식 문자 (見出し 굵게 · 바뀐 말 빨강 = 실제 LG 방식 · 셀 글꼴 `xlsxFontOf` 그대로). 직원이 고친 칸 = 그 글 그대로.
+  - 訂正の欄 `DOC.lgBlocks` — 상대 칸 (Consignee · Notify · Description · Marks) = 엔진 `miss` (S/I 에 있는데 Draft 에 없는 줄) 를 가장 가까운 Draft 줄 (`lgNear`) 과 짝 · Deposit (베트남) = Draft 의 `#DEPOSIT` · `DEPOSIT NUMBER:XX` 줄 → 번호 (`lgDepoApply`) · Draft 줄의 칸은 S/I 로 다시 정함 (`lgAssign`) · B/L 용지 설명 문구 제거 (`V25.BOILER`) · Shipper (당사) 는 쓰지 않음 · Consignee=Notify 같은 정정 → `<CONSIGNEE/NOTIFY>`. Draft 줄 = bl-core 공개 부품 (`mergeRows` · `labels` · `fieldOf`) 만 (엔진 수정 0).
+  - Deposit 번호 = 이 선적 메일 (今日やること 의 buyer/other · DEPOSIT 글자) 의 `uniqueBody` GET → `DOC.lgDepoFind` (실자료 42 건 중 37 일치) · **늘 確認 (노랑)** · 메일 읽는 중 = `DEPO_WAIT`.
+  - 화면: B/L Draft 탭 (照合 相違) · Deposit 탭 (② 番号の受け取り · LG) 의 「LG を作る」 → 모달 (`lg-wide` · 왼쪽 머리 칸 · 오른쪽 訂正前/後 · 모르는 칸 노랑 「確認」) → 「LG を保存」 (`{IV}_LG.xlsx` → `REV` … · `guardSave` kind `LG` · 試験モード = save_test · save_log) → 「LG 訂正依頼の下書き」 (`DOC.lgMailDraft` · reply 선사 = 원 Draft 메일에 createReplyAll · 제목에 번호 없으면 「 BL#번호」 · 첨부 이름 = 선사 모양 `LG({BL}).xlsx` … · `lgAttCheck` · 기록 `mail_draft/{IV}_lg_{UTC}.json`). 보류 (COSCO) · 양식 없음 · 別の件 · Draft なし = 만들지 않음 (이유 한 줄).
+  - `NAME.LG` 가 `{IV}_LG.xlsx` · `{IV}_LG REV.xlsx` 도 (Deposit 칸 「LG 作成済」). 시험 `tests/v25.js` (jszip 3.10.1 devDependency).
 - **v0.24 (지시서 `THOR_22_지시서_D00_書類ツールv0.24` · 수정 묶음 v0.8 N15 · N11 · N12)** — 엔진 = CONTRACT_SEND `cedc448` (acl v0.21 · bl v0.6 · fd v0.3) · PORTAL (CLEARANCE_COMPASS) v4.10 `98ff7fe`.
   - N15 — 「通関」 · Deposit 依頼 = **메일로 판단하지 않음**: `todoSignals` 의 `S.tsk` = PORTAL `clearance_status.json` records 의 `tsukan_irai` + **`tsukan_irai_at`** (PORTAL v4.10 이 체크할 때 저장 · 해제하면 지움) · 通関/ 폴더 서류 (`S.subDoc`) · 輸出許可 (ED). 영업 `新規通関依頼` 메일 (CUSTREQ) = 送付 아님 (삭제). Deposit 依頼 기한 = 그날 + 1 영업일 (`badd` · 공휴일 표 그대로) · 날짜 없는 지난 체크 · ED 만 = CY_CUT + 1 · 체크 전 베트남 = 「Deposit 依頼（通関待ち）」 (기한 없음 · 빨강 0 · CY_CUT 10 일 전부터 `DEPO_SHOW_DAYS`). 현황판 通関 칸도 PORTAL 체크 = 「通関依頼済 m/d · 輸出許可はまだ」 (ACL = 待ち). 書類ツール 에는 「通関依頼済」 체크 칸이 없음 (체크는 PORTAL 通関 탭).
   - N11 — `DOC.lc42` = 엔진 `payTerm` (42C 의 결제 조건 부분만 · 앞 「… WILL BE PAID AT」 · 뒤 「AGAINST THE PRESENTATION …」 「DRAFTS DRAWN ON …」 뗌 · 안은 L/C 글자 그대로). `siDeadlineApply` 가 엔진을 먼저 읽음.
