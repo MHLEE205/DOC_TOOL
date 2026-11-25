@@ -27,8 +27,8 @@ eq(DOC.jst('2026-11-20T00:30:00Z'),at('2026-11-20','09:30'),'받은 시각 (UTC)
 console.log('1 단계 계산 · 2 대상 외');
 ok(row({}, {fd:at('2026-11-19','10:00'), bl:at('2026-11-18','18:00'), sub:1})===null,'FD 끝 → 목록에서 빠짐 (앞 신호가 있어도)');
 ok(row({}, {})===null,'통관 서류 전 → 書類 담당 일 없음 (T1 = 통관 담당)');
-{ const r=row({country:'VIETNAM'}, {sub:at('2026-11-19','10:00')});
-  ok(r&&r.stage===1&&/^Deposit 依頼 ＋ ACL 待ち/.test(r.what)&&r.group==='late','베트남 통관 서류 뒤 → 「Deposit 依頼 ＋ ACL 待ち」 한 줄 (같은 단계 합침) · 그날 18:00 지남 = 期限切れ',r); }
+{ const r=row({country:'VIETNAM'}, {sub:at('2026-11-19','10:00'), tsk:{on:true, at:at('2026-11-19','10:00'), day:'2026-11-19', src:'通関依頼済 11/19'}});
+  ok(r&&r.stage===1&&/^Deposit 依頼 ＋ ACL 待ち/.test(r.what)&&r.group==='today'&&r.due===at('2026-11-20','18:00'),'베트남 通関依頼済 (11/19) 뒤 → 「Deposit 依頼 ＋ ACL 待ち」 한 줄 · 기한 = 다음 영업일 18:00 (v0.24 N15)',r); }
 { const r=row({}, {sub:at('2026-11-19','17:00')}); ok(r&&r.zone==='wait'&&r.gkey==='w_otsu'&&r.group==='wait'&&r.what==='ACL 待ち'&&r.action===null,'베트남 아님 → Deposit 없음 · ACL 아직 보통 시간 안 (1h < 4.9h) → v0.14 (1-3): 待ち · 乙仲 에 늘 보임 (催促 버튼 없음)',r); }
 { const r=row({}, {sub:at('2026-11-18','10:00')}); ok(r&&r.group==='chase'&&r.gkey==='w_otsu'&&r.what==='ACL 待ち'&&/^\d+ 時間待ち（いつもは 5 時間）$/.test(r.when)&&r.action[0]==='催促メール','ACL 재촉 (75% 지점 넘음) → 待ち · 乙仲 + 催促メール',r); }
 { const r=row({}, {sub:at('2026-11-18','10:00'), acl:at('2026-11-19','10:00'), cut:'2026-11-20'}); ok(r&&r.stage===2&&r.what==='ACL 確認 → 本登録依頼'&&r.action[1]==='acl','ACL 도착 → 「ACL 確認 → 本登録依頼」 (ACL 재촉은 끝) · 버튼 ACL 照合',r); }
@@ -38,7 +38,7 @@ ok(row({}, {})===null,'통관 서류 전 → 書類 담당 일 없음 (T1 = 통�
   const r4=row({cut:'2026-11-19'}, {sub:1, acl:at('2026-11-18','10:00'), vchg:true}); ok(r4.group!=='late'&&/本船変更/.test(r4.why),'本船変更 건 → 늦음으로 안 셈 (참고 표시)',r4); }
 { const r=row({}, {sub:1, acl:1, hon:at('2026-11-17','10:00')}); ok(r&&r.group==='chase'&&r.gkey==='w_carrier'&&r.what==='Draft 待ち','本登録 뒤 Draft 없음 → Draft 재촉 (ONE 21.6h 넘음) · 待ち · 船社',r);
   { const r2=row({}, {sub:1, acl:1, hon:at('2026-11-19','15:00')}); ok(r2&&r2.gkey==='w_carrier'&&r2.group==='wait'&&!r2.action,'本登録 뒤 아직 보통 시간 안 → 待ち · 船社 (催促 없음)',r2); } }
-{ const r=row({country:'VIETNAM'}, {sub:at('2026-11-17','10:00'), acl:1, hon:at('2026-11-19','15:00')}); ok(r&&/^Deposit 依頼 ＋ Draft 待ち/.test(r.what)&&r.group==='late','베트남 本登録 뒤 Deposit 의뢰 없음 → 「Deposit 依頼 ＋ Draft 待ち」',r); }
+{ const r=row({country:'VIETNAM'}, {sub:at('2026-11-17','10:00'), tsk:{on:true, at:at('2026-11-17','10:00'), day:'2026-11-17', src:'通関依頼済 11/17'}, acl:1, hon:at('2026-11-19','15:00')}); ok(r&&/^Deposit 依頼 ＋ Draft 待ち/.test(r.what)&&r.group==='late','베트남 本登録 뒤 Deposit 의뢰 없음 → 「Deposit 依頼 ＋ Draft 待ち」',r); }
 /* ③ Draft */
 { const r=row({}, {sub:1, acl:1, hon:1, drafts:[at('2026-11-20','08:00')]}); ok(r.stage===3&&r.what==='B/L Draft 確認 → 運賃送金'&&r.group==='today'&&r.when==='期限 11/20'&&r.whenSub==='14:30 → 15:00'&&r.action[1]==='bl'&&r.gkey==='draft','선불 Draft 도착 (오전) → 그날 14:30 → 15:00 · Draft 照合',r);
   const r2=row({}, {drafts:[at('2026-11-19','16:00')]}); ok(r2.group==='today','Draft 가 14:30 뒤 → 다음 영업일 14:30 (11/19 16:00 → 11/20)',r2);
@@ -87,7 +87,7 @@ console.log('메일 분류 · 건 연결 · 신호');
   const I=DOC.linkIndex([{id:'B1', iv:'NTE2699-01', bkg:'TESTBK123456', bl:'TESTBL654321', ct:'LRS-2699TE1', cntrs:['TSTU0000001']},{id:'B2', iv:'NTE2699-02', bkg:'TESTBK777777'}]);
   eq([DOC.linkMail('[Deposit Request for NTE2699-01]',I),DOC.linkMail('BKG#TESTBK777777',I),DOC.linkMail('SWB ONEYTESTBL654321',I),DOC.linkMail('CNTR TSTU 0000001',I),DOC.linkMail('nothing',I)],[['B1'],['B2'],['B1'],['B1'],[]],'건 연결 (Invoice · BKG · 선사 접두 B/L · 컨테이너)'); }
 { const T=(d,hm)=>at(d,hm), M=(t,o)=>Object.assign({t, subj:'', att:[], hasAtt:false, body:'', skind:'other', uses:[], kind:''},o);
-  const base={iv:'NTE2699-01', country:'INDONESIA', term:'CFR', carrier:'ONE', cut:'2026-11-18', files:[], portal:{}, hon:[], now:T('2026-11-20','09:00')};
+  const base={iv:'NTE2699-01', country:'INDONESIA', term:'CFR', carrier:'ONE', cut:'2026-11-18', files:[], portal:{tsukan:true, tsukanAt:'2026-11-17T01:00:00Z'}, hon:[], now:T('2026-11-20','09:00')};   // v0.24 (N15): 通関 = PORTAL 通関依頼済 (チェックした時刻) · メールでは判断しない
   const mails=[M(T('2026-11-17','10:00'),{skind:'staff',uses:['CUSTREQ'],subj:'【通関書類送付_NTE2699-01】',hasAtt:true}),M(T('2026-11-17','12:00'),{skind:'otsu',uses:['ACL'],hasAtt:true}),
     M(T('2026-11-17','13:00'),{skind:'staff',uses:['HON']}),M(T('2026-11-18','10:00'),{skind:'carrier',uses:['BLDRAFT']}),M(T('2026-11-18','10:40'),{skind:'carrier',uses:['BLDRAFT']}),M(T('2026-11-19','10:00'),{skind:'carrier',uses:['BLDRAFT']})];
   const s=DOC.todoSignals(Object.assign({},base,{mails}));

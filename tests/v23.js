@@ -14,7 +14,7 @@ const INIT={init:w=>{ w.pdfjsLib=R.pdfjsForWindow(); }};
 const TR=DOC.TODO_RULES, at=DOC.at, T='2026-11-25';
 (async()=>{
 console.log('버전');
-ok(/<title>LEENAI D-00 書類ツール v0\.23<\/title>/.test(HTML)&&/version:'0\.23'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.23 (title · CFG) · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.2[34]<\/title>/.test(HTML)&&/version:'0\.2[34]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.23 (title · CFG) · 푸터');
 
 console.log('N9 B/L 번호로 연결');
 { const ships=[{id:'s1', iv:'NAA2611-01', bkg:'TYOGQ9000001', bl:'ONEYTYOGQ9000001'},{id:'s2', iv:'NAA2611-02', bkg:'TYOGN9000002', bl:'ONEYTYOGN9000002'},{id:'s3', iv:'NAA2611-03', bkg:'I990000003', bl:'I990000003'},

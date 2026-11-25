@@ -60,9 +60,9 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.20 · v0.22.1 — CP-A04 = L/C 42C 원문 그대로 (공백 · 대소문자만 表記差) · FAX 메일 칸 「?」 밖 같으면 一致 · v0.19 의 V6 · V3 · v22 화면) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `b4c4b882afc52ae176404dcc957acc59cdf39964` | `741935181889d595e05d856f8e370c807ad6dfa201306d12fb9e6bf323b98cf7` |
-| B/L Draft 대조 (bl_bench v0.6 · v0.22.1 = 같은 커밋 · ACL 고정만 새로) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `b4c4b882afc52ae176404dcc957acc59cdf39964` | `b3e912e2af6f4bbf8ef6c832321250f174d0f4b259dee53b90e18f1c14d40cfa` |
-| FD 확인 (fd_bench v0.3 · v0.22.1 = 같은 커밋 — 보험 표준 제외 특약 = 一致 · DESTINATION + 같은 나라 = 注意 · 보험증권 AI · 제출기한 = FD送付日) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `b4c4b882afc52ae176404dcc957acc59cdf39964` | `463bc7bbb44e9a8cbba4041ad1c79a7e11dfd966fb810950cedaa3357b7de846` |
+| ACL 대조 (acl_bench v0.21 · v0.24 — 42C 결제 조건 부분만 `payTerm` (N11) · CP-A04 = L/C 42C 원문 그대로 (공백 · 대소문자만 表記差) · FAX 메일 칸) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `cedc44849b025aef88f78de71552ae7c65cf391f` | `9d38893f16ec12c42ebf918ed6dabe38171b2ac146213c4392dfb1a3930d261e` |
+| B/L Draft 대조 (bl_bench v0.6 · v0.24 = 같은 커밋 · 내용 변화 없음) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `cedc44849b025aef88f78de71552ae7c65cf391f` | `b3e912e2af6f4bbf8ef6c832321250f174d0f4b259dee53b90e18f1c14d40cfa` |
+| FD 확인 (fd_bench v0.3 · v0.24 = 같은 커밋 · 내용 변화 없음) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `cedc44849b025aef88f78de71552ae7c65cf391f` | `463bc7bbb44e9a8cbba4041ad1c79a7e11dfd966fb810950cedaa3357b7de846` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -145,6 +145,10 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 일본어 본문 (R5) — 실제 보낸 원문 2 모양: 짧은 형 (`MAIL19.SHIP.ja`) · 목록 형 (`MAIL20.JA_LIST` — 지난 메일 본문에 `-Invoice# :` 가 있으면). 빈 칸 (仕入先 등) = 「本文の空欄を確認してください」. 본문 · 제목에 빈 `{ORDER}` 같은 글자가 남지 않음 (v0.19 버그).
   - 마스터 줄 찾기 (`mailSalesRow`) = Shipping Schedule `buildBuyerData` 와 같음 — 계약의 AGENT (下書き 만들 때 그 계약만 COMPASS 에서 읽음 · 숫자 = 없음) → `AGENT::BUYER` → `AGENT::` · 없으면 `::BUYER`. (v0.19 는 BUYER 이름으로만 찾아 FORESTRY · FOUR SEASONS 같은 에이전트 줄을 못 찾았음.)
   - 시험 = `tests/v20.js`.
+- **v0.24 (지시서 `THOR_22_지시서_D00_書類ツールv0.24` · 수정 묶음 v0.8 N15 · N11 · N12)** — 엔진 = CONTRACT_SEND `cedc448` (acl v0.21 · bl v0.6 · fd v0.3) · PORTAL (CLEARANCE_COMPASS) v4.10 `98ff7fe`.
+  - N15 — 「通関」 · Deposit 依頼 = **메일로 판단하지 않음**: `todoSignals` 의 `S.tsk` = PORTAL `clearance_status.json` records 의 `tsukan_irai` + **`tsukan_irai_at`** (PORTAL v4.10 이 체크할 때 저장 · 해제하면 지움) · 通関/ 폴더 서류 (`S.subDoc`) · 輸出許可 (ED). 영업 `新規通関依頼` 메일 (CUSTREQ) = 送付 아님 (삭제). Deposit 依頼 기한 = 그날 + 1 영업일 (`badd` · 공휴일 표 그대로) · 날짜 없는 지난 체크 · ED 만 = CY_CUT + 1 · 체크 전 베트남 = 「Deposit 依頼（通関待ち）」 (기한 없음 · 빨강 0 · CY_CUT 10 일 전부터 `DEPO_SHOW_DAYS`). 현황판 通関 칸도 PORTAL 체크 = 「通関依頼済 m/d · 輸出許可はまだ」 (ACL = 待ち). 書類ツール 에는 「通関依頼済」 체크 칸이 없음 (체크는 PORTAL 通関 탭).
+  - N11 — `DOC.lc42` = 엔진 `payTerm` (42C 의 결제 조건 부분만 · 앞 「… WILL BE PAID AT」 · 뒤 「AGAINST THE PRESENTATION …」 「DRAFTS DRAWN ON …」 뗌 · 안은 L/C 글자 그대로). `siDeadlineApply` 가 엔진을 먼저 읽음.
+  - N12 — L/C 에서 오는 칸 = L/C 보관소 원문: `DOC.lcExpect(col, value, ctx)` (값이 정해진 칸 `SI_LC_FIXED` = L/C 번호 · 결제 조건 / 글 칸 `SI_LC_TEXT` = 줄 (# · 줄바꿈) 마다 L/C 글과 공백 · 대소문자만 다르면 L/C 글자로 · L/C 줄바꿈 = 공백 1 개) · `DOC.siLcFix` (推薦 · 前回 · 仮 S/I · 저장한 추천 = `siDeadlineApply` 안) · COMPASS 쓰기 확인 (`siWrite`) · 「✏ 直す」 = 「L/C と違います」 + 「L/C の文言に戻す」 (쓰기는 막지 않음). `siLcCtx(id)` = L/C · L/C 글 · 42C.
 - **v0.23 (지시서 `THOR_20_지시서_D00_書類ツールv0.23` · 수정 묶음 v0.4 N1 ~ N4 · N8 ~ N10)** — 엔진 그대로 (CONTRACT_SEND `b4c4b88`).
   - N8 — 메일 (35 일 · 약 8,000 통 · 약 40 초) 을 다 읽기 전 · 못 읽은 구간이 있을 때 = 메일로 정하는 단계는 「メール確認中…」 / 「メール未確認」 (`todoMailPend` · 「〜メールなし」 「期限切れ」 「催促」 로 보이지 않게) · 띠 (`dtTodoBar`) 는 모두에게 (v0.17 부터 관리자만 · 맨 아래였음) · 구간마다 3 번 다시 읽기 (`MAIL_RETRY`) · 「もう一度 メールを読む」. 판 회귀는 아니었음 (v0.14 ↔ v0.22.1 같은 메일 = 같은 판단).
   - N9 — 메일 ↔ 선적 연결 `linkMails` · `linkMax`: 접두어 (영자 1 ~ 10 자 · `ONE-` · `YMJA` …) · 하이픈으로 붙은 번호 · 송금 · B/L 依頼 메일은 8 건까지 (넘으면 제목 · 첨부만). B/L 受領 = 폴더 발행 B/L (`NAME.BL_FINAL` · `BL_FILE2`) · 후불 / FOB 의 선사 B/L 사본 메일 (`BL_COPY`) · 선사 발행 메일 (`BL_ISSUED`). 「期限なし」 → `dueText` (후불 Draft = 「ETD 後に B/L 依頼」) · 없으면 「—」.
