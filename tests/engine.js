@@ -29,4 +29,17 @@ function blBytes(html){
   return cache[key]=b;
 }
 function blEngine(html){ const B=new Function('module',blBytes(html).toString('utf8').match(/<script id="bl-core">([\s\S]*?)<\/script>/)[1]+';return BL;')(undefined); B.useEngine(engine(html)); return B; }
-module.exports={pin, bytes, engine, vnum, blPin, blBytes, blEngine};
+/* v0.21: FD 確認エンジン (FD_ENGINE — fd_bench.html の fd-core) — 同じく CONTRACT_SEND 클론 → raw · sha256 確認 */
+function fdPin(html){ const m=String(html).match(/const FD_ENGINE = \{commit:'([0-9a-f]{40})', sha256:'([0-9a-f]{64})', ver:'([\d.]+)'\}/); if(!m) throw new Error('FD_ENGINE 고정이 없음'); return {commit:m[1], sha256:m[2], ver:m[3]}; }
+function fdBytes(html){
+  const P=fdPin(html), key='fd_'+P.commit; if(cache[key]) return cache[key];
+  const tmp=path.join(os.tmpdir(),'fd_engine_'+P.commit+'.html'); let b=null;
+  if(fs.existsSync(tmp)) b=fs.readFileSync(tmp);
+  if(!b){ try{ b=cp.execFileSync('git',['-C',process.env.ACL_REPO||path.join(__dirname,'../../CONTRACT_SEND'),'show',P.commit+':fd_bench.html'],{maxBuffer:1<<26,stdio:['ignore','pipe','ignore']}); }catch(e){ b=null; } }
+  if(!b){ b=cp.execFileSync(process.execPath,['-e',"fetch(process.argv[1]).then(r=>r.arrayBuffer()).then(x=>process.stdout.write(Buffer.from(x)))",'https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+P.commit+'/fd_bench.html'],{maxBuffer:1<<26}); }
+  const h=crypto.createHash('sha256').update(b).digest('hex'); if(h!==P.sha256) throw new Error('FD 엔진 원문 sha256 이 고정 값과 다름 ('+P.commit.slice(0,7)+')');
+  try{ fs.writeFileSync(tmp,b); }catch(e){}
+  return cache[key]=b;
+}
+function fdEngine(html){ return new Function('module',fdBytes(html).toString('utf8').match(/<script id="fd-core">([\s\S]*?)<\/script>/)[1]+';return FD;')(undefined); }
+module.exports={pin, bytes, engine, vnum, blPin, blBytes, blEngine, fdPin, fdBytes, fdEngine};

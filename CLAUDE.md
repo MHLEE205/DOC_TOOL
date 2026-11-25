@@ -60,8 +60,9 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.17 · v0.19 — 40HCR = 45R · otsunaka_full) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `4b2d99c033c0d40790046e9c3ded711957972b08` | `675f7b8dff1d1d04eab7bb6109b0f827699cb0a9b48717beb206276cda830077` |
-| B/L Draft 대조 (bl_bench v0.4 · v0.19 = 같은 커밋 · 파일은 그대로) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `4b2d99c033c0d40790046e9c3ded711957972b08` | `1b650b00eff5a912af021236cade2244363fbe67ad93591edbe912a9ff34f5c6` |
+| ACL 대조 (acl_bench v0.18 · v0.21 — 새 試験 줄 코드 판정 `CP_CODE` · S/I 단계 `siCheck`) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `521894ee0501155f1984f7b140718b468a977f05` | `aa23b0bcca956e307679bad1cd89da59dbca35ff64340b288702536ed48628c3` |
+| B/L Draft 대조 (bl_bench v0.5 · v0.21 = 같은 커밋) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `521894ee0501155f1984f7b140718b468a977f05` | `9c09d7b105631b500094106a75708f1b9bd8ec4939423ce5c373f66d3d5cf058` |
+| FD 확인 (fd_bench v0.1 · v0.21 = 같은 커밋) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `521894ee0501155f1984f7b140718b468a977f05` | `180c7af33eea4c5897377f1ecb9bb92094b467c1449968dda52b53348f99eb1d` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -144,6 +145,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 일본어 본문 (R5) — 실제 보낸 원문 2 모양: 짧은 형 (`MAIL19.SHIP.ja`) · 목록 형 (`MAIL20.JA_LIST` — 지난 메일 본문에 `-Invoice# :` 가 있으면). 빈 칸 (仕入先 등) = 「本文の空欄を確認してください」. 본문 · 제목에 빈 `{ORDER}` 같은 글자가 남지 않음 (v0.19 버그).
   - 마스터 줄 찾기 (`mailSalesRow`) = Shipping Schedule `buildBuyerData` 와 같음 — 계약의 AGENT (下書き 만들 때 그 계약만 COMPASS 에서 읽음 · 숫자 = 없음) → `AGENT::BUYER` → `AGENT::` · 없으면 `::BUYER`. (v0.19 는 BUYER 이름으로만 찾아 FORESTRY · FOUR SEASONS 같은 에이전트 줄을 못 찾았음.)
   - 시험 = `tests/v20.js`.
+- **v0.21 (지시서 `THOR_15_지시서_D00_FD확인_fd_bench_v0.1_書類ツールv0.21` · 형님 F1 ~ F3)** — 엔진 = CONTRACT_SEND `521894e` (acl v0.18 · bl v0.5 · fd v0.1).
+  - FD 탭 = `fdTabHtml` · `fdRun` — 부품 PDF (fd-core `fileTier`: `{IV}_FD_DATA.pdf` > `{IV}_.pdf` > DRAFT DOC > 단품 > 通関/) 글자 ↔ L/C 보관소 (+ L/C 본문 `source.lc_text` · 43P/43T/48). 탭을 열면 계산만 (쓰기 0) · 「確認して記録する」 를 누르거나 TO BANK AI 가 돈 때만 `doc_tool/fd/{IV}_{UTC}_d{試験相違数}.json`.
+  - TO BANK AI (F3 · 자동) = `fdTbAi` — 저장본 `ACL_bench/_fd_ai/{sha256}.json` (fd_ai/1 · 쪽마다 r1 · r2) 이 있으면 그것 (AI 0) · 없으면 설정의 API 키로 브라우저에서 (회색 150 dpi · 2 회 · 3 쪽씩) → 저장본 + `doc_tool/ai_cost/{yyyymmdd}/`. 키 없음 = 관리자에게만 「AI 未実行（キーなし）」. 쪽 그림 = `FD_PNG.fn` (시험은 바꿔 끼움).
+  - 새 체크포인트 61 줄 (CP-A03 ~ CP-A63 · 전부 試験) — FD · S/I (`siTrialAppend` · `ACL.siCheck`) · ACL · B/L 탭에 `trialRowsHtml` (회색 점선 테두리 · 相違/注意/読取確認 만 · FD 탭은 전부) + 「誤検知」 → `doc_tool/cp_trial_log/{yyyymmdd}/`. ACL · B/L 탭은 CP-A03 이후 (새 줄) 만 직원에게.
+  - 今日やること 「FD 作成・送付」 줄 = `fdTodoBadge` (「FD 確認 — 相違 n（試験）」 · `doc_tool/fd/` 이름만 읽음). 관리자: チェックポイント一覧 → 「試験チェックポイント実績」 (`cpTrialStatsModal` · 2026-11-25 이후 최신 결과 · CP 별 出た数 · 誤検知 · 割合 · S/I 는 안 셈).
+  - 문지기 = `DOC.V21` (fd/ · cp_trial_log/ · ai_cost/ · `_fd_ai/{sha256}.json` 만). AI 호출 1 줄 (`fdAsk`) = 데이터 쓰기 아님 (`tests/check.js` aiLines). 시험 = `tests/v21.js` (가짜 AI = `fake.js` `W.aiAnswer`).
 - **v0.17 수정 묶음 (지시서 `THOR_9_지시서_D00_書類ツール_v0.17` · 묶음 v0.5 B9 · D · E1 · F · G + 11/24 형님 결정 H)** — 규칙 · 낱말은 doc-core `DOC.V17` **한 곳** (+ `SAVE_RULES.DOCS`).
   - H1 Invoice 別 (PORTAL と同じ) 줄 = **通関依頼済 만** (`DOC.ptRows(…, records)` · `ptTsukan` = `records[IV].tsukan_irai` 또는 CY_CUT ≤ 2026-08-17) — PORTAL 은 안 고침 → 줄 수가 PORTAL 과 다른 것은 의도. 제목 「船積書類（通関依頼済 / FD送付日未入力）」.
   - H2 저장 = 바로 저장 그대로 + 칸 옆 「✓ 保存」 1.5 초 (`ptMark` · `PTSAVE.marks` — 표를 다시 그려도 `ptMarksApply` 가 붙임) · 실패 = 빨강 「保存できません」. H4 부킹 = `dvAll` (`$top` 없음 · nextLink 끝까지 · PORTAL 은 그대로 500).
