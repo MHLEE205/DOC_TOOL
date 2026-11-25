@@ -75,6 +75,19 @@ function worldW(){
     /* ETD 範囲 (v0.15 표) 로 가면 원래 폭 */
     await pg.click('#dtIvEtd'); await new Promise(r=>setTimeout(r,200));
     const mw=await pg.evaluate(()=>getComputedStyle(document.getElementById('dtMain')).maxWidth); ok(mw==='1240px','「ETD 範囲で見る」 = 원래 폭 (1240)',mw);
+    /* v0.22 (V1): 書類の表示を開いた状態 — ACL · B/L Draft · FD タブ = 左 書類 / 右 結果 · 가로 넘침 0 (1,920 · 1,366) · 좁으면 위/아래 */
+    for(const tab of ['acl','bl','fd']){
+      await pg.setViewport({width:1920,height:1080}); await pg.evaluate(t=>{ openIv('NAA2611-01', t); }, tab);
+      await pg.waitForFunction(()=>!!document.getElementById('dtDV'),{timeout:60000}); await new Promise(r=>setTimeout(r,800));
+      for(const [wd,ht] of [[1920,1080],[1366,768],[1024,768]]){
+        await pg.setViewport({width:wd,height:ht}); await new Promise(r=>setTimeout(r,300));
+        const m=await pg.evaluate(()=>{ const d=document.documentElement, L=document.querySelector('.dv-left'), R=document.querySelector('.dv-right'), l=L.getBoundingClientRect(), r=R.getBoundingClientRect(), bar=document.querySelector('.dv-bar');
+          return {docOver:d.scrollWidth-d.clientWidth, side:l.right<=r.left+1&&Math.abs(l.top-r.top)<4, stacked:r.top>=l.bottom-1, rOver:R.scrollWidth-R.clientWidth, lw:Math.round(l.width), rw:Math.round(r.width), bar:!!bar&&!!bar.querySelector('[data-dv="r180"]')&&!!bar.querySelector('[data-dv="next"]')}; });
+        ok(m.docOver<=0&&m.rOver<=0,'v0.22 '+tab+' '+wd+' px — 書類を開いた状態で 가로 넘침 0',m);
+        ok(wd>=1100?m.side:m.stacked, 'v0.22 '+tab+' '+wd+' px — '+(wd>=1100?'왼쪽 書類 · 오른쪽 結果':'좁으면 위 / 아래'),m);
+        ok(m.bar,'v0.22 '+tab+' 보기 막대 (← → · 확대 · ⟲ ⟳ 180°)',m);
+        if(SHOT) await pg.screenshot({path:path.join(SHOT,'v22_'+tab+'_'+wd+'.png')}); }
+      await pg.evaluate(()=>{ const b=document.querySelector('[data-back]'); if(b) b.click(); }); await new Promise(r=>setTimeout(r,300)); }
   } finally { await br.close(); }
   console.log((fail?'FAIL':'PASS')+' width — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
 })().catch(e=>{ console.log('FAIL width 예외',e.stack); process.exitCode=1; });

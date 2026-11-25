@@ -14,8 +14,8 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   /* ── 일반 담당자 (STAFF_A) ── */
   let W=X.world(), w=await P(W,{html});
   ok(/読み込み完了/.test(txt(w,'dtProg')),'읽기 완료',txt(w,'dtProg'));
-  ok(w.document.title==='LEENAI D-00 書類ツール v0.21','title · version 0.21');
-  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.21','LEENAI.init 설정 (redirectUri · sys · version)');
+  ok(w.document.title==='LEENAI D-00 書類ツール v0.22','title · version 0.22');
+  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.22','LEENAI.init 설정 (redirectUri · sys · version)');
   ok(/試験運用/.test(txt(w,'ln-hdr-right'))&&/山田/.test(txt(w,'ln-hdr-right')),'오른쪽 위 試験運用 · 내 이름',txt(w,'ln-hdr-right'));
   ok(!w.document.querySelector('#dtMain input[type=password]'),'평소 화면에 API 키 칸 없음');
   ok(JSON.stringify(ivs(w))===JSON.stringify(['NAA2611-01','NAA2611-02']),'自分の担当 = 내 Invoice 만 (ETD 순)',ivs(w));
@@ -72,6 +72,9 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   /* v0.3 (형님 D5): 계약별 = 계약일 直近1ヶ月 (기본) · 계약일 역순 — 가짜 계약일: AA1 · BB1 = 120 일 전 · CC1 = 10 일 전 */
   ok(JSON.stringify(cts)===JSON.stringify(['LRS-2611CC1']),'v0.3 계약별 — 直近1ヶ月 (기본) = 10 일 전 계약만',cts);
   click(w,'#dtCtPeriod button[data-days="180"]');
+  /* v0.22 (V7): L/C 済 (または —) + S/I 済 = 一番下 「完了 n 件（開く）」 (はじめは たたむ) → 開く */
+  ok(/完了 2 件（開く）/.test(txt(w,'dtTable'))&&![...w.document.querySelectorAll('#dtTable button.dt-link[data-ct]')].some(b=>/AA1|BB1/.test(b.textContent)),'v0.22 V7 完了 2 件 = たたむ (はじめ)',txt(w,'dtTable').slice(0,200));
+  click(w,'#dtCtDone'); ok(w.localStorage.getItem('dt_ct_done_open')==='1'&&/完了 2 件（閉じる）/.test(txt(w,'dtTable')),'v0.22 V7 開く = この PC に覚える');
   const cts6=[...w.document.querySelectorAll('#dtTable button.dt-link[data-ct]')].map(b=>b.textContent);
   ok(JSON.stringify(cts6)===JSON.stringify(['LRS-2611CC1','LRS-2611BB1','LRS-2611AA1'])&&w.localStorage.getItem('doc_tool_ct_days')==='180','v0.3 直近6ヶ月 (v0.6: 180 日) → 계약일 역순 (같은 날 = 번호 역순) · 기억',cts6);
   const ctCell=no=>[...[...w.document.querySelectorAll('#dtTable tbody tr')].find(t=>t.textContent.indexOf(no)>=0).querySelectorAll('td.c .st')].map(s=>s.textContent);
@@ -93,7 +96,8 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   ok(!/TEST-KEY-0000/.test(w.document.body.innerHTML),'키가 화면에 안 나옴');
   click(w,'#dtKeyDel'); ok(w.localStorage.getItem('leenai_apikey_v1')===null,'키 지우기');
   click(w,'#dtMaster'); ok(w.__master===1,'마스터 설정 열기');
-  ok(W.writes.length===0,'P1 은 아무것도 쓰지 않음 (PUT · PATCH · POST · DELETE 0)',W.writes);
+  /* v0.22 (리나이): FD タブを開くと 結果を doc_tool/fd/ に記録 (同じ結果なら書かない) — それ以外の書き込み 0 */
+  ok(W.writes.filter(x=>!(x.method==='PUT'&&/\/D-00\/doc_tool\/fd\/[A-Z0-9_\-]+_\d{8}-\d{6}_d\d+_h[0-9a-f]{8}\.json:\/content\?@microsoft\.graph\.conflictBehavior=fail$/.test(decodeURIComponent(x.url)))).length===0&&W.writes.length<=1,'P1 은 FD 결과 기록 (doc_tool/fd/ 1 개) 외에 쓰지 않음 (PUT · PATCH · POST · DELETE)',W.writes);
 
   /* ── 기억: 다시 열면 고른 담당 그대로 ── */
   W=X.world(); w=await P(W,{html,ls:{doc_tool_who:'STAFF_B',doc_tool_board:'ct'}});

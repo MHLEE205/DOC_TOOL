@@ -45,6 +45,7 @@ ok(String(DOC.SI_TENT)===String(E.TENT_RE)&&DOC.ACL_TENT_NOTE===E.TENT_NOTE,'（
   const r0=qa(w,'#dtTable tbody tr'); ok(r0[0].querySelectorAll('td.c .st').length===2&&r0[1].querySelectorAll('td.c .st').length===0&&!r0[1].querySelector('button.dt-link[data-ct]'),'3 계약번호 · LC · S/I 는 그 계약 첫 줄에만');
   ok(!r0[0].classList.contains('g2')&&!r0[1].classList.contains('g2')&&r0[2].classList.contains('g2')&&r0[1].classList.contains('cont'),'3 계약마다 바탕 번갈아 (PORTAL 처럼) · 이어진 줄 표시');
   ok(/試験などの契約 1 件/.test(txt(w,'dtTable')),'3 TEST01 제외');
+  w.localStorage.setItem('dt_ct_done_open','1');   // v0.22 (V7): 完了 を開いた状態で 並びを見る
   const pick=d=>{ w.document.querySelector('#dtCtPeriod button[data-days="'+d+'"]').click(); return qa(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent); };
   eq(pick(14),['LRS-2611CC1','LRS-2611DD1'],'3 直近2週間 = 14 일 (경계 포함 · 15 일 전 제외)');
   eq(pick(90),['LRS-2611CC1','LRS-2611DD1','LRS-2611EE1'],'3 直近3ヶ月');

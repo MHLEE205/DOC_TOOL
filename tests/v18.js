@@ -19,7 +19,7 @@ const INIT={init:w=>{ w.pdfjsLib=R.pdfjsForWindow(); }};
 (async()=>{
 console.log('T-1 엔진 고정');
 { const a=HTML.match(/const ACL_ENGINE = \{commit:'([0-9a-f]{40})', sha256:'([0-9a-f]{64})', ver:'([\d.]+)'\}/), b=HTML.match(/const BL_ENGINE = \{commit:'([0-9a-f]{40})', sha256:'([0-9a-f]{64})', ver:'([\d.]+)'\}/);
-  ok(a&&b&&a[1]===b[1]&&/^0\.1[6-9]$/.test(a[3])&&/^0\.[45]$/.test(b[3]),'acl_bench v0.16 이상 (v0.21 = v0.18) · bl_bench v0.4 이상 = 같은 커밋',[a&&a.slice(1),b&&b.slice(1)]);
+  ok(a&&b&&a[1]===b[1]&&/^0\.1[6-9]$/.test(a[3])&&/^0\.[4-9]$/.test(b[3]),'acl_bench v0.16 이상 (v0.22 = v0.19) · bl_bench v0.4 이상 = 같은 커밋',[a&&a.slice(1),b&&b.slice(1)]);
   ok(E.VERSION===undefined||true,'엔진 읽기'); ok(typeof E.pastMistakes==='function'&&typeof E.ctApply==='function'&&E.sameType('40HCD','45GP')===true,'엔진 v0.16 함수 (pastMistakes · ctApply · 형태 HC)'); }
 
 console.log('T-2 · T-3 규칙');

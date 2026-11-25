@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.21</title>
+<title>LEENAI D-00 書類ツール v0.22</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -15,10 +15,12 @@
    v0.6 (형님 D1): 待ち = 赤い太字 (背景はごく薄く) — 目立つ順 相違 (赤い背景) > 待ち (赤い字) > 確認 (黄) */
 html{--dt-on-accent:#FFFFFF;
   --st-done-bg:#E6F2EA;--st-done-fg:#1F4A36;--st-todo-bg:#FBEFD9;--st-todo-fg:#6B4508;--st-diff-bg:#FBE3DE;--st-diff-fg:#7A2416;
-  --st-wait-bg:#FFF7F5;--st-wait-fg:#B3261E;--st-unk-bg:#E4E5E2;--st-unk-fg:#454D48;--st-na-fg:#4F5751;--dt-dot-wait:#C62828;--dt-dot-unk:#6F7871;--td-late-bg:#7A2416;--td-late-fg:#FFFFFF;--td-chase-bg:#E6EEF8;--td-chase-fg:#24405E;--dt-hl:#FFF6E0;--dt-now:#E3F0E8}
+  --st-wait-bg:#FFF7F5;--st-wait-fg:#B3261E;--st-unk-bg:#E4E5E2;--st-unk-fg:#454D48;--st-na-fg:#4F5751;--dt-dot-wait:#C62828;--dt-dot-unk:#6F7871;--td-late-bg:#7A2416;--td-late-fg:#FFFFFF;--td-chase-bg:#E6EEF8;--td-chase-fg:#24405E;--dt-hl:#FFF6E0;--dt-now:#E3F0E8;
+  --rs-ok:#1E6B3A;--rs-note:#6E5A00;--rs-ng:#A3200F;--rs-read:#9A4300;--rs-na:#5F6763;--rs-note-bar:#C9A800;--rs-read-bar:#E07A1F;--dv-hl:rgba(255,214,0,.30);--dv-hl-line:#E0A800}   /* v0.22 (V5): 一致 緑 · 表記差 黄 · 相違 赤 (太字) · 読めず 橙 · 対象外 灰 */
 html:not([data-theme]),html[data-theme="dark"]{--dt-on-accent:#FFFFFF;
   --st-done-bg:#143A27;--st-done-fg:#8EE8AE;--st-todo-bg:#3D2C0C;--st-todo-fg:#F7CF6B;--st-diff-bg:#441A1A;--st-diff-fg:#FDA4A4;
-  --st-wait-bg:#1E1A24;--st-wait-fg:#FF8A80;--st-unk-bg:#2C3148;--st-unk-fg:#C2CAD8;--st-na-fg:#9AA3B5;--dt-dot-wait:#FF6F61;--dt-dot-unk:#8F98AB;--td-late-bg:#C8402F;--td-late-fg:#FFFFFF;--td-chase-bg:#1E2A3B;--td-chase-fg:#A9C7EE;--dt-hl:#2B2512;--dt-now:#1D3328}
+  --st-wait-bg:#1E1A24;--st-wait-fg:#FF8A80;--st-unk-bg:#2C3148;--st-unk-fg:#C2CAD8;--st-na-fg:#9AA3B5;--dt-dot-wait:#FF6F61;--dt-dot-unk:#8F98AB;--td-late-bg:#C8402F;--td-late-fg:#FFFFFF;--td-chase-bg:#1E2A3B;--td-chase-fg:#A9C7EE;--dt-hl:#2B2512;--dt-now:#1D3328;
+  --rs-ok:#8EE8AE;--rs-note:#F5DC5A;--rs-ng:#FF9C8F;--rs-read:#FFB26B;--rs-na:#A3ACBD;--rs-note-bar:#E8C930;--rs-read-bar:#FF9A3D;--dv-hl:rgba(255,214,0,.28);--dv-hl-line:#FFD600}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui,'Segoe UI',sans-serif}
 .ln-hdr-right button[title="マスター設定"]{display:none!important}
 .dt-main{max-width:1240px;margin:0 auto;padding:20px 24px 48px;display:flex;flex-direction:column;gap:16px}
@@ -147,7 +149,21 @@ button.st:hover{border-color:currentColor}
 .dt-md code{font-size:12px}
 .av{display:flex;flex-direction:column;gap:10px}
 .av-concl{font-size:16px;font-weight:500;padding:10px 14px;border-radius:10px;background:var(--surface2)}
-.av-ok{color:var(--st-done-fg)}.av-ng{color:var(--st-diff-fg)}.av-read,.av-note{color:var(--st-todo-fg)}.av-na{color:var(--st-na-fg)}
+.av-ok{color:var(--rs-ok)}.av-ng{color:var(--rs-ng);font-weight:700}.av-note{color:var(--rs-note)}.av-read{color:var(--rs-read)}.av-na{color:var(--rs-na)}   /* v0.22 (V5) */
+.av-list td.av-m{border-left:4px solid transparent}.av-list td.av-m.av-ok{border-left-color:var(--rs-ok)}.av-list td.av-m.av-note{border-left-color:var(--rs-note-bar)}.av-list td.av-m.av-ng{border-left-color:var(--rs-ng)}.av-list td.av-m.av-read{border-left-color:var(--rs-read-bar)}.av-list td.av-m.av-na{border-left-color:var(--rs-na)}
+.fd-w-MATCH{color:var(--rs-ok)}.fd-w-NOTATION{color:var(--rs-note)}.fd-w-DIFF{color:var(--rs-ng);font-weight:700}.fd-w-READ_CHECK{color:var(--rs-read)}.fd-w-INFO,.fd-w-NA{color:var(--rs-na)}
+.fd-tr{border-left:4px solid transparent}.fd-tr:has(.fd-w-MATCH){border-left-color:var(--rs-ok)}.fd-tr:has(.fd-w-NOTATION){border-left-color:var(--rs-note-bar)}.fd-tr:has(.fd-w-DIFF){border-left-color:var(--rs-ng)}.fd-tr:has(.fd-w-READ_CHECK){border-left-color:var(--rs-read-bar)}
+.av-r3{font-size:11px;padding:0 6px;border-radius:999px;background:var(--surface2);color:var(--rs-ok);margin-left:6px;white-space:nowrap}.av-r3box{display:flex;flex-direction:column;gap:4px;margin-top:4px}.av-crop{max-width:100%;max-height:140px;border:1px solid var(--border);border-radius:4px;background:#fff;object-fit:contain;align-self:flex-start}
+/* v0.22 (V1) 書類の表示 — 左 PDF · 右 結果 (一画面 · 横スクロール 0 · 狭い画面は 上 / 下) */
+.dv-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:start}.dv-left,.dv-right{min-width:0}.dv-right .dt-panel{min-width:0;overflow-wrap:anywhere}
+.dv{position:sticky;top:64px;display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px;min-width:0}
+.dv-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:12px;min-width:0}.dv-grp{display:inline-flex;align-items:center;gap:4px}.dv-name{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.dv-sel{height:28px;max-width:100%;font-size:12px}
+.dv-b{min-width:28px;height:26px;padding:0 6px;border:1px solid var(--border);border-radius:6px;background:var(--surface2);color:var(--text);cursor:pointer;font-family:inherit}.dv-b:hover{border-color:var(--accent)}.dv-pg,.dv-z{min-width:44px;text-align:center;color:var(--text2)}
+.dv-stage{position:relative;height:calc(100vh - 160px);min-height:360px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;background:var(--surface2);border-radius:6px;touch-action:none;cursor:default}.dv-stage.dv-drag{cursor:grabbing}
+.dv-pgbox{position:relative;transform-origin:0 0;box-shadow:0 1px 4px rgba(0,0,0,.25);background:#fff}.dv-cv{display:block;width:100%;height:100%}.dv-msg{padding:24px;color:var(--text2);font-size:13px}.dv-err{color:var(--rs-read)}
+.dv-hl{position:absolute;background:var(--dv-hl);outline:2px solid var(--dv-hl-line);border-radius:2px;pointer-events:none}.dv-click{cursor:pointer}.dv-click:hover{background:var(--surface2)}
+@media (max-width:1100px){.dv-split{grid-template-columns:minmax(0,1fr)}.dv{position:static}.dv-stage{height:60vh}}
+.ct-done{margin:8px 0;padding:6px 10px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);font-size:13px;cursor:pointer;color:var(--text);font-family:inherit}
 .av-hon{font-size:13px;font-weight:400;color:var(--text2);margin-left:8px}
 .av-h{font-size:14px;font-weight:500;margin-top:4px}
 .av-sub{font-size:12px;color:var(--text3);font-weight:400}
@@ -287,6 +303,10 @@ button.st:hover{border-color:currentColor}
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
+   v0.22 (2026-11-25 指示書 THOR_17 Part ② · 形さん V1 ~ V8 · K3 · K4 · 리나이 自動記録): 書類の表示 (DV — 左 PDF · 右 結果 · pdf.js 3.11.174 · 拡大 · 移動 · ⟲ ⟳ 180° この PC に覚える · 行を押すと その欄へ 黄色い枠) ·
+     保存の入口 「👁 見る」 · 読めず欄の 3 回目 (「3 回目で確定」 · 決まらない = 切り抜き画像 + 値) · ACL · B/L Draft の並び (結論 → 相違 → 読めない → 過去の誤記 · 表記差 → ボタン → チェックリスト (たたむ)) ·
+     結果の 5 色 (一致 緑 · 表記差 黄 · 相違 赤 · 読めず 橙 · 対象外 灰) · 契約別 = 完了をたたむ · 国内 (JAPAN · LS-) を出さない (isDomestic 1 か所) · FD タブを開いたら記録 (同じ結果なら書かない) ·
+     保険証券 AI (保存本 _fd_ai/{sha256}.ins.json) · 提出期限 = FD送付日 · エンジン acl v0.19 · bl v0.6 · fd v0.2 (CONTRACT_SEND 31c77e2)
    v0.21 (2026-11-25 指示書 THOR_15 Part ③ · 形さん F1 ~ F3): FD タブ = FD 確認 (fd_bench v0.1 の fd-core · コミット固定) — 部品 PDF の文字 ↔ L/C 保管所 · 読んだ PDF (FD_DATA / 文字版 / [通関版]) · 原本を開く ·
      TO BANK AI 自動 (保存本 ACL_bench/_fd_ai/{sha256}.json がなければ 開いた人のブラウザで · キーなし = 管理者に 「AI 未実行（キーなし）」 · 費用 doc_tool/ai_cost/) ·
      新しいチェックポイント 61 (全部 試験 · 判定に入れない · 灰色の枠) を FD · S/I · ACL · B/L タブに 「誤検知」 ボタンつきで (doc_tool/cp_trial_log/) · 今日やること 「FD 作成・送付」 に 「FD 確認 — 相違 n（試験）」 ·
@@ -610,12 +630,51 @@ const DOC = (()=>{
   /* v0.21 (指示書 THOR_15 ③): FD 確認の結果 · 試験の誤検知の記録 · AI の費用 · TO BANK の AI 保存本 — 決まった名前だけ */
   const V21 = {FD_DIR:OUT_ROOT+'fd/', FD_NAME_RE:/^([A-Za-z0-9_\-]+)_(\d{8}-\d{6})_d(\d+)\.json$/, LOG_DIR:OUT_ROOT+'cp_trial_log/', COST_DIR:OUT_ROOT+'ai_cost/', DAY_FILE_RE:/^\d{8}\/[A-Za-z0-9_\-]+_\d{8}-\d{6}\.json$/,
     FD_AI_DIR:'古紙/-. AI 活用/D-00/ACL_bench/_fd_ai/', FD_AI_RE:/^[0-9a-f]{64}\.json$/, SINCE:'20261125'};
+  /* ══════════ v0.22 (2026-11-25 指示書 THOR_17 Part ② · 形さん V1 ~ V8 · 리나이 「自動記録」) — 規則はこの表 1 か所 ══════════
+     ・国内 (JAPAN · 契約 LS- · Invoice L 始まり) = isDomestic — Invoice 別 · 契約別 · 担当チップの数 で同じ
+     ・契約別の 完了 (L/C 済 か L/C のない決済 「—」 + S/I 済 · 仮 · 相違 · 待ち なし) = ctDone → 表の一番下 「完了 n 件（開く）」
+     ・FD 確認の結果の 中身の鍵 (fdHash · 8 桁) — タブを開いたら記録 · 同じ結果なら書かない (doc_tool/fd/{IV}_{時刻}_d{n}_h{鍵}.json)
+     ・書類の中の文字を探す (dvFind) — 結果の行を押す → その欄のある頁 · 枠 (NACCS · Draft · FD の部品 = 文字の位置 · AI 判読 = 頁 + AI の枠)
+     ・結果の並び (V4): ACL = エンジン viewHtml(v22) の <!--av-list--> で分ける · B/L Draft = 「確認した項目」 の表を外して 一番下に たたむ */
+  const V22 = {ROT_KEY:'dt_rotmem_v1', CT_FOLD_KEY:'dt_ct_done_open', SPLIT_MIN:1100, VIEW_DPR:2, ZOOM_MAX:6,
+    FD_NAME_RE:/^([A-Za-z0-9_\-]+)_(\d{8}-\d{6})_d(\d+)(?:_h([0-9a-f]{8}))?\.json$/, FD_AI_RE:/^[0-9a-f]{64}(\.ins)?\.json$/,
+    DONE_LABEL:n=>'完了 '+n+' 件（開く）', DONE_LABEL_OPEN:n=>'完了 '+n+' 件（閉じる）', VIEW_BTN:'👁 見る', NO_DOC:'表示する書類がありません'};
+  const isDomestic = x => { x=x||{}; return /^L/i.test(String(x.iv||'').trim())||/^LS-/i.test(String(x.ct||'').trim())||up(x.country)==='JAPAN'; };
+  const ctDone = cells => { const l=cells&&cells.lc, s=cells&&cells.si; return !!(l&&s&&(l.s==='done'||l.s==='na')&&s.s==='done'&&!s.tent&&!s.lcStale); };
+  /* FNV-1a 32 bit → 8 桁 (結果の 項目 · 判定 · 期待 · 実際 · 読んだ PDF — 時刻は入れない) */
+  function fdHash(res){ const t=JSON.stringify([((res&&res.items)||[]).map(i=>[i.key, i.trial?i.would:i.status, i.expected, i.actual]), ((res&&res.read)||[]).map(r=>[r.type, r.file])]);
+    let h=0x811c9dc5; for(let i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return ('0000000'+h.toString(16)).slice(-8); }
+  /* 書類の文字 pages = [{page, w, h, items:[{s, x, y, w, h}]}] (PDF 座標 · 左下が 0) · text = 探す文 → {page, box:[x0,y0,x1,y1] (頁の割合 · 左上 0)} | null
+     英数字だけで比べる · 最初の行の 頭 24 字 (短ければ全部) · 1 つの文字片 or 続く 2 〜 3 片 */
+  function dvFind(pages, text){
+    const K=s=>String(s==null?'':s).normalize('NFKC').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const line=String(text==null?'':text).split(/\n/).map(x=>x.trim()).find(x=>K(x).length>=3)||''; const q=K(line).slice(0,24); if(q.length<3) return null;
+    for(const p of (pages||[])){ const it=(p.items||[]).filter(i=>K(i.s)); for(let i=0;i<it.length;i++){ let acc='', j=i;
+      while(j<it.length&&j<i+3){ acc+=K(it[j].s); if(acc.indexOf(q)>=0||(acc.length>=q.length&&q.indexOf(acc)===0&&acc.length>=q.length)){ const g=it.slice(i,j+1), W=p.w||612, H=p.h||792;
+          const x0=Math.min(...g.map(a=>a.x)), x1=Math.max(...g.map(a=>a.x+(a.w||0))), y0=Math.min(...g.map(a=>a.y)), y1=Math.max(...g.map(a=>a.y+(a.h||10)));
+          return {page:p.page, box:[Math.max(0,x0/W-0.005), Math.max(0,1-y1/H-0.005), Math.min(1,x1/W+0.005), Math.min(1,1-y0/H+0.005)]}; }
+        if(q.indexOf(acc)!==0) break; j++; } } }
+    return null; }
+  /* ACL の結果の行 (key) → 探す文 · 頁 · AI の枠 (res.read.fields · rows) */
+  function aclTarget(res, key){
+    const F=(res&&res.read&&res.read.fields)||{}, k=String(key||'').replace(/^disp:/,''), it=((res&&res.items)||[]).find(i=>i.key===key)||{};
+    if(/^set:|^aclOnly:/.test(key)){ const no=key.replace(/^(set|aclOnly):/,''), r=((res&&res.read&&res.read.rows)||[]).find(x=>String(x.container||'').replace(/\s/g,'')===no); return {text:no, page:r&&r.page||null, box:null}; }
+    const f=F[k]||F[{total:'totalContainers'}[k]]||null, tk=/^total:/.test(key)?{containers:'totalContainers', bales:'totalPkgs', weight:'totalWeight'}[key.slice(6)]:null, ff=tk?F[tk]:f;
+    return {text:(ff&&ff.text)||it.actual||'', page:(ff&&ff.page)||null, box:(ff&&ff.box)||null}; }
+  /* V4 — ACL: viewHtml(…,{v22:true}) の結果を 「上 (結論 → 相違 → 読めない → 過去の誤記 · 表記差)」 と 「一覧 (たたむ)」 に */
+  const aclSplit = h => { const i=String(h||'').indexOf('<!--av-list-->'); return i<0?[String(h||''), '']:[h.slice(0,i), h.slice(i+'<!--av-list-->'.length)]; };
+  /* V4 — B/L Draft: bl-core viewHtml の 「確認した項目 (n)」 の表を外す → {top, list, reads:[名前]} (読めない行 = av-read の行) */
+  function blSplit(h){ h=String(h||''); const a=h.indexOf('<div class="av-h">確認した項目 ('); if(a<0) return {top:h, list:'', reads:[]};
+    const b=h.indexOf('</table>', a); if(b<0) return {top:h, list:'', reads:[]}; const list=h.slice(a, b+8), reads=[];
+    list.replace(/<tr[^>]*><td class="av-m av-read">[^<]*<\/td><td>([^<]*)/g, (m, n)=>{ reads.push(n); return m; });
+    return {top:h.slice(0,a)+h.slice(b+8), list, reads}; }
   /* ── 書き込みの門番 — SharePoint は OUT_ROOT の下だけ ── */
   function guardOut(p, save){ if(save&&save.portal) return guardPortal(p, save);   // v0.16: PORTAL clearance_status.json (本番 · 試験の写し) だけ · eTag 条件
     if(save) return guardSave(p, save);   // v0.9: ACL の保存 (保存の入口) だけ Invoice フォルダ / 試験フォルダの 決まった名前
     const s=String(p||'');
-    if(s.indexOf(V21.FD_AI_DIR)===0){ if(V21.FD_AI_RE.test(s.slice(V21.FD_AI_DIR.length))) return true; throw new Error('書き込み禁止の名前: '+s); }   // v0.21: TO BANK の AI 保存本 (sha256 の名前だけ)
-    if(s.indexOf(V21.FD_DIR)===0&&!V21.FD_NAME_RE.test(s.slice(V21.FD_DIR.length))) throw new Error('書き込み禁止の名前: '+s);
+    if(s.indexOf(V21.FD_AI_DIR)===0){ if(V22.FD_AI_RE.test(s.slice(V21.FD_AI_DIR.length))) return true;   // v0.22: 保険証券 AI の保存本 {sha256}.ins.json も
+      throw new Error('書き込み禁止の名前: '+s); }   // v0.21: TO BANK の AI 保存本 (sha256 の名前だけ)
+    if(s.indexOf(V21.FD_DIR)===0&&!V22.FD_NAME_RE.test(s.slice(V21.FD_DIR.length))) throw new Error('書き込み禁止の名前: '+s);
     if((s.indexOf(V21.LOG_DIR)===0&&!V21.DAY_FILE_RE.test(s.slice(V21.LOG_DIR.length)))||(s.indexOf(V21.COST_DIR)===0&&!V21.DAY_FILE_RE.test(s.slice(V21.COST_DIR.length)))) throw new Error('書き込み禁止の名前: '+s);
     if(s.indexOf(BL_RESULT_DIR)===0&&!BL_RESULT_RE.test(s.slice(BL_RESULT_DIR.length))) throw new Error('書き込み禁止の名前: '+s);
     if(s.indexOf(OUT_ROOT+V15.STATE_DIR)===0&&!V15.STATE_RE.test(s.slice((OUT_ROOT+V15.STATE_DIR).length))) throw new Error('書き込み禁止の名前: '+s);   // v0.15: doc_tool/state/ = 決まった名前だけ   // v0.13: doc_tool/bl/ = 決まった名前だけ (下のフォルダも不可)
@@ -1553,7 +1612,7 @@ const DOC = (()=>{
   /* v0.17 (H1 형님 「통관전은 굳이 보일 필요는 없어」): records を渡すと 「通関依頼済」 の Invoice だけ (records[IV].tsukan_irai または CY_CUT ≤ 2026-08-17) — PORTAL は直さないので 行の数が PORTAL と違うのは意図 */
   function ptRows(bookings, shipping, today, records){
     const sh=shipping||{}, since=addDays(today,PT.RECENT), rc=records||null;
-    return (bookings||[]).filter(b=>{ const iv=String(b.cr49f_invoice_no||''); if(/^L/i.test(iv.trim())) return false;
+    return (bookings||[]).filter(b=>{ const iv=String(b.cr49f_invoice_no||''); if(isDomestic({iv})) return false;   // v0.22 (V8): 国内の規則 1 か所
         if(rc&&!ptTsukan(rc[iv], b.cr49f_cy_cut)) return false;
         const sp=sh[iv]; if(sp&&String(sp.fd_date||'').trim()) return false; const e=ptEtd(b); return !e||e>=since; })
       .map((b,i)=>({b,i,e:ptEtd(b)})).sort((a,c)=>a.e.localeCompare(c.e)||a.i-c.i).map(x=>x.b);
@@ -1606,7 +1665,7 @@ const DOC = (()=>{
     /* v0.6 */ SI_TENT, SI_TENT_WHY, ACL_TENT_NOTE, siTent, CT_DAYS_DEFAULT,
     /* v0.3 */ useAclEngine, aclReady, aclPick, FD_TENT, fdFiles, fdBundle, honIndex, jstDay, CT_REAL, CT_PERIODS, monthsAgo, sortCtDate,
     blKind, pickBl, aclScan, fdDone, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
-    utcStamp, aclResultPath, /* v0.21 */ V21, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
+    utcStamp, aclResultPath, /* v0.22 */ V22, isDomestic, ctDone, fdHash, dvFind, aclTarget, aclSplit, blSplit, /* v0.21 */ V21, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
     SI_HEAD_COLS, SI_DET_COLS, SI_LABEL, nv, siFieldState, siPlan, isGuid, guardDv, siVerify, siEdits};
 })();
 if(typeof module!=='undefined') module.exports=DOC;
@@ -1926,10 +1985,12 @@ function ctRow(id){
   return {id, ct:no, date, pod, buyer:by.cr49f_buyer||'', buyerName:by.cr49f_buyer_name||'', country:DOC.up(typeof by.crcf9_country==='string'?by.crcf9_country:FV(by,'crcf9_country')), latest:DOC.isoDay(c.cr49f_latest_shipment), lines, pay, term:DOC.up(c.cr49f_terms_conditions), code, staff, cells, bks, shipped, next};
 }
 /* v0.3 契約別 (형님 D5) — 契約日 直近 n ヶ月 · 実際の形の契約番号だけ (TEST01 などは外して数だけ出す) */
-function ctIdsForBoard(){ const since=DOC.addDays(S.today,-S.ctDays), ids=[], ex=[];   // v0.6: PORTAL と同じ — 今日から n 日前
+function ctIdsForBoard(){ const since=DOC.addDays(S.today,-S.ctDays), ids=[], ex=[]; let dom=0;   // v0.6: PORTAL と同じ — 今日から n 日前
   Object.keys(S.ct).forEach(id=>{ const c=S.ct[id], d=DOC.isoDay(c.cr49f_sale_contract_date); if(!d||d<since) return;
+    const by=S.buyers[c._cr49f_buyer_id_value]||{}, cty=DOC.up(typeof by.crcf9_country==='string'?by.crcf9_country:FV(by,'crcf9_country'));
+    if(DOC.isDomestic({ct:c.cr49f_sale_contract_no, country:cty})){ dom++; return; }   // v0.22 (V8 形さん 「国/JAPAN 은 LC,SI 둘다 없는 거라」): 国内 = 出さない (担当の数にも入れない)
     if(!DOC.CT_REAL.test(DOC.up(c.cr49f_sale_contract_no))){ ex.push(c.cr49f_sale_contract_no||'(番号なし)'); return; } ids.push(id); });
-  return {ids, ex}; }
+  return {ids, ex, dom}; }
 const staffName = code => { if(!code) return '担当未登録'; const s=S.staff.find(r=>r.code===code); return s?String(s.name_ja||'').trim()||code:code; };   // v0.8 (D6): 名前を全部 (大場 未由 · 朴 成旭 …)
 const assistStaff = () => S.staff.filter(r=>String(r[DOC.TODO_RULES.ASSIST_FIELD]||'').trim()===DOC.TODO_RULES.ASSIST_ROLE);   // v0.8: master_staff の doc_role = 書類補助
 
@@ -2097,14 +2158,16 @@ function render(){
     $('dtTodo').textContent='要対応のみ '+todo.length; $('dtAll').textContent='すべて '+rows.length;
     /* v0.6 (指示書 Step 3 · 형님 D1): PORTAL 「販売契約」 と同じ形 — 明細 1 行 = 1 行 (同じ契約が何行も) · POD は出さない · 契約番号 · LC · S/I はその契約の最初の行だけ (読みやすさ) · 契約ごとに 背景を交互に */
     const dash=v=>v==null||v===''?'—':v, qty=v=>v?Number(v).toFixed(2):'—', price=v=>v?'$'+Number(v).toLocaleString('en-US'):'—';
-    let gi=0; const body=shown.map(r=>{ gi++; const L=r.lines===null?[{item:'…',qty:0,price:0,load:true}]:r.lines.length?r.lines:[{item:'',qty:0,price:0}];
+    let gi=0; const rowsH=L0=>L0.map(r=>{ gi++; const L=r.lines===null?[{item:'…',qty:0,price:0,load:true}]:r.lines.length?r.lines:[{item:'',qty:0,price:0}];
       return L.map((d,i)=>'<tr class="'+(gi%2===0?'g2':'')+(i?' cont':'')+'">'+(i?'<td></td>':'<td style="padding:6px 10px"><button class="dt-link" data-ct="'+esc(r.id)+'">'+esc(r.ct)+'</button></td>')+
         '<td class="e">'+esc(dash(r.date))+'</td><td>'+esc(dash(r.country))+'</td><td>'+esc(dash(r.buyer))+'</td><td>'+esc(dash(d.item))+'</td><td class="n">'+esc(qty(d.qty))+'</td><td class="n">'+esc(price(d.price))+'</td><td>'+esc(dash(r.latest))+'</td><td>'+esc(staffName(r.staff))+'</td>'+
-        (i?'<td class="c"></td><td class="c"></td>':'<td class="c">'+pill(r.cells.lc,r.id,'lc','ct')+'</td><td class="c">'+pill(r.cells.si,r.id,'si','ct')+'</td>')+'</tr>').join(''); }).join('');
+        (i?'<td class="c"></td><td class="c"></td>':'<td class="c">'+pill(r.cells.lc,r.id,'lc','ct')+'</td><td class="c">'+pill(r.cells.si,r.id,'si','ct')+'</td>')+'</tr>').join(''); }).join(''), act=shown.filter(r=>!DOC.ctDone(r.cells)), done=shown.filter(r=>DOC.ctDone(r.cells)), op=lsGet(DOC.V22.CT_FOLD_KEY,'')==='1';   // v0.22 (V7)
+    const body=rowsH(act)+(done.length?'<tr class="ct-fold"><td colspan="11"><button class="ct-done" id="dtCtDone" aria-expanded="'+op+'">'+esc(op?DOC.V22.DONE_LABEL_OPEN(done.length):DOC.V22.DONE_LABEL(done.length))+'</button></td></tr>'+(op?rowsH(done):''):'');
     $('dtTable').innerHTML=(shown.length?'<table class="dt-t" style="min-width:1120px"><thead><tr><th>契約番号</th><th>契約日</th><th>国</th><th>バイヤー</th><th>ITEM</th><th style="text-align:right">QTY(MT)</th><th style="text-align:right">単価($/MT)</th><th>最終船積日</th><th>担当</th><th class="c">LC</th><th class="c">S/I</th></tr></thead><tbody>'+body+'</tbody></table>'
       :'<div class="dt-empty">表示する契約はありません（担当 · 要対応 · 期間の選択を確認）</div>')+
       (B.ex.length?'<div class="dt-note" style="padding:8px 14px" title="'+esc(B.ex.join('\n'))+'">試験などの契約 '+B.ex.length+' 件は出していません（契約番号の形が LRS-… · UCS-… などでない）</div>':'');
     $('dtTable').querySelectorAll('button[data-ct]').forEach(b=>{ b.onclick=()=>openCt(b.dataset.ct, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
+    const cd=$('dtCtDone'); if(cd) cd.onclick=()=>{ lsSet(DOC.V22.CT_FOLD_KEY, op?'':'1'); render(); };
   }
   if(S.doneMsg) prog(doneLine()+(S.hideFd&&hidden?' · FD済み '+hidden+' 件を非表示':''));   // v0.17 (D2)
 }
@@ -2179,11 +2242,12 @@ function renderIv(){
   if(!tabs.some(t=>t[0]===S.curTab)) S.curTab=tabs[0][0];
   $('dtIvTabs').innerHTML=tabsHtml(tabs, r.cells, DOC.nowTab(r.cells,DOC.STEPS));
   $('dtIvTabs').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.curTab=b.dataset.tab; renderIv(); }; });
-  $('dtIvBody').innerHTML=ivTabHtml(r, S.curTab); bindCommon($('dtIvBody'));
+  $('dtIvBody').innerHTML=dvWrap(S.curTab, ivTabHtml(r, S.curTab)); bindCommon($('dtIvBody'));   // v0.22 (V1): ACL · B/L Draft · FD = 左に書類
   if(S.curTab==='log') renderLog(r.iv,'dtLogBody');
   if(S.curTab==='acl'&&typeof aclTabAfter==='function') aclTabAfter(r);
   if(S.curTab==='bl'&&typeof blTabAfter==='function') blTabAfter(r);   // v0.12
   if(S.curTab==='fd') fdTabAfter(r);   // v0.21
+  dvAfter(r, S.curTab); cropLoad($('dtIvBody'));   // v0.22 (V1 · V3)
 }
 const statusLine = c => '<div class="dt-pills">'+pill(c)+' <span class="dt-p">'+esc(c.why||'')+'</span></div>'+(c.files&&c.files.length?'<div class="dt-files">'+c.files.map(esc).join('<br>')+'</div>':'');
 const toolBtn = (k, label) => '<button class="dt-btn'+(label?'':' ghost')+'" data-open="'+k+'">'+esc(label||TOOLS[k].name+' を開く')+'</button>';
@@ -2221,6 +2285,114 @@ function ivTabHtml(r, tab){
   }
   return '';
 }
+/* ══════════ v0.22 (指示書 THOR_17 V1 · 形さん 「(가) 가 좋을 것 같아.」) 書類の表示 — 同じ画面の 左に PDF · 右に 照合の結果 ══════════
+   HANNYU_TOOL (C-01) js/sidedoc.js · js/zoompan.js を本にした 1 か所 (後で LEENAI_COMMON に移せるよう この塊だけで動く · 外から使うのは DV.* だけ)
+   ・pdf.js 3.11.174 (この TOOL と同じ cdnjs) · 見ている頁だけ canvas に描く · ホイール = 拡大 (1 〜 6 倍 · カーソルの所) · 引っ張って移動 · ダブルクリック = 2.5 倍 ↔ 全体
+   ・⟲ 90° · ⟳ 90° · 180° = 画面だけ (原本は変えない) · 回した角度は この PC に覚える (localStorage · ファイル名 + 頁) · ← → = 頁
+   ・DV.target(i, {text, page, box}) = その欄のある頁へ (文字の PDF = 文字の位置に 黄色い枠 · AI 判読 = 頁 + AI の枠があれば 枠)
+   ・読むだけ (Graph GET) · 書き込み 0 */
+const DV = (function(){
+  const ST={}, BYTES={}, MAX=6, STEP=1.15, DBL=2.5;
+  const rk=(name,p)=>String(name||'')+'#'+(p||1);
+  const rotAll=()=>{ try{ return JSON.parse(localStorage.getItem(DOC.V22.ROT_KEY)||'{}')||{}; }catch(e){ return {}; } };
+  const rotGet=k=>(+rotAll()[k]||0);
+  const rotSet=(k,v)=>{ try{ const m=rotAll(); v=((v%360)+360)%360; if(v) m[k]=v; else delete m[k]; const ks=Object.keys(m); if(ks.length>500) ks.slice(0,ks.length-500).forEach(x=>{ delete m[x]; }); localStorage.setItem(DOC.V22.ROT_KEY, JSON.stringify(m)); }catch(e){} };
+  /* 頁の割合の枠 [x0,y0,x1,y1] (回す前) → 回した後 */
+  const rotBox=(b,r)=>!b?null:r===180?[1-b[2],1-b[3],1-b[0],1-b[1]]:r===90?[1-b[3],b[0],1-b[1],b[2]]:r===270?[b[1],1-b[2],b[3],1-b[0]]:b;
+  async function bytesOf(d){ if(d.id&&BYTES[d.id]) return BYTES[d.id]; const b=d.bytes?d.bytes:await d.load(); if(d.id) BYTES[d.id]=b; return b; }
+  async function pdfOf(s){ const d=s.docs[s.di]; if(s.pdf&&s.pdfFor===d) return s.pdf; if(s.pdf){ try{ await s.pdf.destroy(); }catch(e){} s.pdf=null; }
+    await ensurePdfJs(); const b=await bytesOf(d); s.pdf=await window.pdfjsLib.getDocument({data:new Uint8Array(b.slice(0)), cMapUrl:CMAPS, cMapPacked:true}).promise; s.pdfFor=d; s.n=s.pdf.numPages; s.text={}; return s.pdf; }
+  function bar(s){ const d=s.docs[s.di]||{}, r=rotGet(rk(d.name,s.page));
+    return '<div class="dv-bar">'+(s.docs.length>1?'<select class="dt-in dv-sel" data-dv="sel">'+s.docs.map((x,i)=>'<option value="'+i+'"'+(i===s.di?' selected':'')+'>'+esc(x.label||x.name)+'</option>').join('')+'</select>':'<span class="dv-name" title="'+esc(d.name||'')+'">'+esc(d.label||d.name||'')+'</span>')+
+      '<span class="dv-grp"><button class="dv-b" data-dv="prev" title="前の頁">←</button><span class="dv-pg">'+(s.n?s.page+' / '+s.n:'…')+'</span><button class="dv-b" data-dv="next" title="次の頁">→</button></span>'+
+      '<span class="dv-grp"><button class="dv-b" data-dv="out" title="縮小">−</button><span class="dv-z">'+Math.round(s.s*100)+'%</span><button class="dv-b" data-dv="in" title="拡大（ホイール · ダブルクリックでも）">＋</button><button class="dv-b" data-dv="fit" title="全体を表示">全体</button></span>'+
+      '<span class="dv-grp"><button class="dv-b" data-dv="l90" title="左に 90°（画面だけ · この PC に覚えます）">⟲</button><button class="dv-b" data-dv="r90" title="右に 90°（画面だけ）">⟳</button><button class="dv-b" data-dv="r180" title="180°（上下逆さまの時 · 画面だけ）">180°</button>'+(r?'<span class="dv-z">'+r+'°</span>':'')+'</span>'+
+      (d.webUrl?'<button class="dt-a" data-url="'+esc(d.webUrl)+'">開く</button>':'')+'</div>';
+  }
+  function apply(s){ const pg=s.el&&s.el.querySelector('.dv-pgbox'); if(!pg) return; s.s=Math.max(1,Math.min(MAX,s.s)); if(s.s<=1.0001){ s.s=1; s.fx=0; s.fy=0; }
+    s.fx=Math.min(0,Math.max(1-s.s,s.fx)); s.fy=Math.min(0,Math.max(1-s.s,s.fy));
+    pg.style.transform=s.s===1?'':'translate('+(s.fx*100).toFixed(3)+'%,'+(s.fy*100).toFixed(3)+'%) scale('+s.s.toFixed(4)+')'; const z=s.el.querySelector('.dv-z'); if(z) z.textContent=Math.round(s.s*100)+'%'; }
+  function zoomAt(s, ns, cx, cy){ const pg=s.el.querySelector('.dv-pgbox'); if(!pg) return; const r=pg.getBoundingClientRect(), w=r.width/s.s, h=r.height/s.s;
+    let px=w?(cx-r.left)/(w*s.s):0.5, py=h?(cy-r.top)/(h*s.s):0.5; px=Math.max(0,Math.min(1,px)); py=Math.max(0,Math.min(1,py)); ns=Math.max(1,Math.min(MAX,ns));
+    s.fx+=px*(s.s-ns); s.fy+=py*(s.s-ns); s.s=ns; apply(s); }
+  async function draw(s){
+    const tok=(s.tok=(s.tok||0)+1), stage=s.el.querySelector('.dv-stage'); if(!stage) return;
+    if(!s.docs.length){ stage.innerHTML='<div class="dv-msg">'+esc(DOC.V22.NO_DOC)+'</div>'; return; }
+    stage.innerHTML='<div class="dv-msg">読み込み中…</div>';
+    try{ const pdf=await pdfOf(s); if(tok!==s.tok) return; s.page=Math.min(Math.max(1,s.page||1),s.n);
+      const d=s.docs[s.di], page=await pdf.getPage(s.page), r=(rotGet(rk(d.name,s.page))+(page.rotate||0))%360, vp1=page.getViewport({scale:1, rotation:r});
+      const W=Math.max(200,stage.clientWidth-8), H=Math.max(240,stage.clientHeight-8), fit=Math.min(W/vp1.width, H/vp1.height), vp=page.getViewport({scale:fit*DOC.V22.VIEW_DPR, rotation:r});
+      const cv=document.createElement('canvas'); cv.width=Math.ceil(vp.width); cv.height=Math.ceil(vp.height); cv.className='dv-cv';
+      const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); await page.render({canvasContext:cx, viewport:vp}).promise; if(tok!==s.tok) return;
+      const box=document.createElement('div'); box.className='dv-pgbox'; box.style.width=Math.round(vp1.width*fit)+'px'; box.style.height=Math.round(vp1.height*fit)+'px'; box.appendChild(cv);
+      const hb=s.hl&&s.hl.page===s.page?rotBox(s.hl.box, rotGet(rk(d.name,s.page))):null;
+      if(hb){ const m=document.createElement('div'); m.className='dv-hl'; m.style.left=(hb[0]*100)+'%'; m.style.top=(hb[1]*100)+'%'; m.style.width=((hb[2]-hb[0])*100)+'%'; m.style.height=((hb[3]-hb[1])*100)+'%'; box.appendChild(m); }
+      stage.innerHTML=''; stage.appendChild(box); s.el.querySelector('.dv-bar').outerHTML=bar(s); bindBar(s); apply(s);
+    }catch(e){ if(tok===s.tok) stage.innerHTML='<div class="dv-msg dv-err">表示できません: '+esc(e.message)+'</div>'; }
+  }
+  /* 文字の PDF の 頁の文字片 (位置つき) — 探すとき 1 回だけ読む */
+  async function textOf(s, p){ if(s.text[p]) return s.text[p]; const pg=await s.pdf.getPage(p), vp=pg.getViewport({scale:1}), tc=await pg.getTextContent();
+    return (s.text[p]={page:p, w:vp.width, h:vp.height, items:tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({s:i.str, x:i.transform[4], y:i.transform[5], w:i.width||0, h:Math.abs(i.transform[3])||i.height||10}))}); }
+  function bindBar(s){ s.el.querySelectorAll('[data-dv]').forEach(b=>{ const a=b.dataset.dv, d=()=>s.docs[s.di]||{};
+    if(a==='sel'){ b.onchange=()=>{ s.di=+b.value; s.page=1; s.hl=null; s.s=1; draw(s); }; return; }
+    b.onclick=()=>{ if(a==='prev'&&s.page>1){ s.page--; s.s=1; draw(s); } else if(a==='next'&&s.page<(s.n||1)){ s.page++; s.s=1; draw(s); }
+      else if(a==='in'||a==='out'){ const r=s.el.querySelector('.dv-stage').getBoundingClientRect(); zoomAt(s, s.s*(a==='in'?1.5:1/1.5), r.left+r.width/2, r.top+r.height/2); }
+      else if(a==='fit'){ s.s=1; apply(s); }
+      else if(a==='l90'||a==='r90'||a==='r180'){ const k=rk(d().name,s.page); rotSet(k, rotGet(k)+({l90:-90,r90:90,r180:180})[a]); s.s=1; draw(s); } }; });
+    bindCommon(s.el.querySelector('.dv-bar')); }
+  function bindStage(s){ const st=s.el.querySelector('.dv-stage'); if(!st||st.__dv) return; st.__dv=true;
+    st.addEventListener('wheel',e=>{ if(e.ctrlKey||e.metaKey) return; e.preventDefault(); zoomAt(s, s.s*(e.deltaY<0?STEP:1/STEP), e.clientX, e.clientY); },{passive:false});
+    st.addEventListener('dblclick',e=>{ e.preventDefault(); if(s.s>1){ s.s=1; apply(s); } else zoomAt(s, DBL, e.clientX, e.clientY); });
+    st.addEventListener('pointerdown',e=>{ if(e.button!==0||s.s<=1) return; s.drag={x:e.clientX, y:e.clientY}; try{ st.setPointerCapture(e.pointerId); }catch(x){} st.classList.add('dv-drag'); });
+    st.addEventListener('pointermove',e=>{ if(!s.drag) return; const pg=st.querySelector('.dv-pgbox'); if(!pg) return; const r=pg.getBoundingClientRect(); s.fx+=(e.clientX-s.drag.x)/(r.width/s.s); s.fy+=(e.clientY-s.drag.y)/(r.height/s.s); s.drag={x:e.clientX, y:e.clientY}; apply(s); });
+    const up=()=>{ s.drag=null; st.classList.remove('dv-drag'); }; st.addEventListener('pointerup',up); st.addEventListener('pointercancel',up); }
+  /* host に置く — key = 画面の場所 (Invoice + タブ) · docs = [{id, name, label, webUrl, load:()=>ArrayBuffer}] · 同じ key は 頁 · 拡大 · 書類 を覚えている */
+  function mount(host, key, docs){ if(!host) return null; let s=ST[key]; const ids=(docs||[]).map(d=>d.id||d.name).join('|');
+    if(!s||s.ids!==ids){ s=ST[key]={key, ids, docs:docs||[], di:0, page:1, s:1, fx:0, fy:0, n:0, hl:null, text:{}}; }
+    s.docs=docs||[]; s.el=host; host.innerHTML=bar(s)+'<div class="dv-stage"></div>'; bindBar(s); bindStage(s); draw(s); return s; }
+  /* 結果の行 → その欄 — t = {doc (名前 · 省略 = 今の書類), text, page, box} */
+  async function target(key, t){ const s=ST[key]; if(!s||!s.el) return false; t=t||{};
+    if(t.doc!=null){ const i=s.docs.findIndex(d=>d.name===t.doc||d.id===t.doc); if(i>=0&&i!==s.di){ s.di=i; s.page=1; } }
+    try{ const pdf=await pdfOf(s); let hit=null;
+      if(t.text){ const order=[]; if(t.page) order.push(t.page); for(let p=1;p<=pdf.numPages&&p<=40;p++) if(p!==t.page) order.push(p);
+        for(const p of order){ const pg=await textOf(s,p); if(!pg.items.length) continue; const h=DOC.dvFind([pg], t.text); if(h){ hit=h; break; } } }
+      if(!hit&&t.page) hit={page:t.page, box:t.box||null};
+      if(!hit) return false; s.page=hit.page; s.hl={page:hit.page, box:hit.box}; s.s=1; await draw(s); return true; }
+    catch(e){ return false; } }
+  return {mount, target, rotBox, rotGet, rotSet, rk, _st:ST};
+})();
+/* 3 つのタブ (ACL · B/L Draft · FD) — 左 = 書類 · 右 = 結果 (狭い画面は 上 / 下) */
+const DV_TABS = {acl:1, bl:1, fd:1};
+const dvWrap = (tab, inner) => DV_TABS[tab]?'<div class="dv-split"><div class="dv-left"><div class="dv" id="dtDV"></div></div><div class="dv-right">'+inner+'</div></div>':inner;
+const dvItemDoc = f => ({id:f.id, name:f.name, label:f.name, webUrl:f.webUrl||'', load:async()=>{ const r=await graphFetch(drv()+'/items/'+f.id+'/content'); if(!r.ok) throw new Error('取得 '+r.status); return r.arrayBuffer(); }});
+/* そのタブの書類 — ACL = 照合に使った ACL · B/L = 照合した Draft · FD = 読んだ部品 PDF (+ TO BANK) */
+function dvDocsFor(r, tab){ const f=S.folders[r.iv], files=(f&&f.files)||[], byName=n=>files.find(x=>((x.sub?x.sub+'/':'')+x.name)===n||x.name===n);
+  if(tab==='acl'){ const p=r.cells.acl&&r.cells.acl.pick&&r.cells.acl.pick.f; return p&&p.id?[dvItemDoc(p)]:[]; }
+  if(tab==='bl'){ const X=S.blRes&&S.blRes[r.iv], res=X&&X.res, x=res&&res.fileId?files.find(y=>y.id===res.fileId)||{id:res.fileId, name:res.file||'Draft', webUrl:res.webUrl}:null; if(x) return [dvItemDoc(x)];
+    const pk=r.cells.bl&&r.cells.bl.pick&&r.cells.bl.pick.file; return pk&&pk.id?[dvItemDoc(pk)]:[]; }
+  if(tab==='fd'){ const X=S.fdRes[r.iv], out=[], seen=new Set(); ((X&&X.res&&X.res.read)||[]).forEach(d=>{ const x=byName(d.file); if(x&&!seen.has(x.id)){ seen.add(x.id); const o=dvItemDoc(x); o.name=d.file; o.label=((FDX&&FDX.TYPES[d.type])||d.type)+' · '+d.file; out.push(o); } });
+    const tb=files.filter(x=>!x.sub&&/TO ?BANK/i.test(x.name)&&/\.pdf$/i.test(x.name)).sort((a,b)=>String(b.lastModified||'').localeCompare(String(a.lastModified||'')))[0]; if(tb&&!seen.has(tb.id)){ const o=dvItemDoc(tb); o.label='TO BANK · '+tb.name; out.push(o); }
+    return out; }
+  return []; }
+/* 結果の行を押す → 書類のその場所 */
+function dvBindRows(r, tab){ const key=r.iv+'|'+tab, root=$('dtIvBody'); if(!root) return;
+  if(tab==='acl'){ const res=r.x.acl&&r.x.acl.result; if(!res) return; root.querySelectorAll('.dv-right [data-key]').forEach(el=>{ el.classList.add('dv-click'); el.onclick=e=>{ if(e.target.closest('button,a,summary,select,input')) return; const t=DOC.aclTarget(res, el.dataset.key); DV.target(key, t); }; }); }
+  if(tab==='bl'){ const res=S.blRes&&S.blRes[r.iv]&&S.blRes[r.iv].res; if(!res||!BLX) return; const fj=n=>(BLX.fieldJa?BLX.fieldJa(n):n);
+    root.querySelectorAll('.dv-right .av-diff .av-dn, .dv-right table.av-list tr:not(.av-g)').forEach(el=>{ const name=(el.tagName==='TR'?(el.children[1]||{}).textContent:el.textContent)||''; const row=(res.A||[]).find(x=>name.indexOf(fj(x.field))===0);
+      const lc=!row&&(res.B||[]).find(x=>name.indexOf(String((BLX.LC_JA||{})[x.item]||x.item))===0); const text=row?(row.draft||row.si||''):lc?(lc.draft||''):''; if(!text) return;
+      el.classList.add('dv-click'); el.onclick=e=>{ if(e.target.closest('button,a,summary')) return; DV.target(key, {text}); }; }); }
+  if(tab==='fd'){ const X=S.fdRes[r.iv]; if(!X) return; root.querySelectorAll('.dv-right [data-dvkey]').forEach(el=>{ const it=X.res.items.find(i=>i.key===el.dataset.dvkey); if(!it) return;
+      /* 保険証券 (AI) = AI が読んだ ファイル · 頁 · TO BANK の枚数 = その種類の 最初の頁 (TO BANK AI 判別) · ほか = 部品 PDF の文字 */
+      const ins=X.ins&&/^fd:ins:/.test(it.key)&&it.key!=='fd:ins:count'&&(X.ins.pages||[]).length?{doc:X.ins.file, page:X.ins.pages[0]}:null;
+      const tt=(/^fd:tb:count:([A-Z]+)$/.exec(it.key)||[])[1]||(it.key==='fd:ins:count'?'INS':''), tbA=tt&&S.fdAi[r.iv]&&S.fdAi[r.iv].ai, tbP=tbA&&(tbA.pages||[]).find(p=>p.r1&&p.r1.doc_type===tt);
+      const tb=tbP?{doc:it.file||(X.tbName||''), page:tbP.page}:null; if(!ins&&!tb&&!it.file) return;
+      const rd=(X.res.read||[]).find(d=>d.file===it.file); el.classList.add('dv-click'); el.onclick=e=>{ if(e.target.closest('button,a')) return; DV.target(key, ins||tb||{doc:it.file, text:String(it.actual||'').replace(/^\(.*\)$/,''), page:rd&&rd.pages&&rd.pages[0]||1}); }; }); }
+}
+function dvAfter(r, tab){ if(!DV_TABS[tab]) return; const host=$('dtDV'); if(!host) return; DV.mount(host, r.iv+'|'+tab, dvDocsFor(r, tab)); dvBindRows(r, tab); }
+/* V3: 切り抜き画像 (ACL_bench/_scan_ai/{名前}.png · 読むだけ) */
+const CROP_URL = {};
+async function cropLoad(root){ for(const im of (root||document).querySelectorAll('img[data-crop]')){ const n=im.dataset.crop; if(!/^[0-9a-f]{64}(\.other)?\.r3\.[A-Za-z]+\.png$/.test(n)) continue;
+  if(!CROP_URL[n]){ try{ const r=await graphFetch(drv()+'/root:/'+spEnc(SCAN_AI_DIR+'/'+n)+':/content'); if(!r.ok) continue; CROP_URL[n]=URL.createObjectURL(new Blob([await r.arrayBuffer()],{type:'image/png'})); }catch(e){ continue; } } im.src=CROP_URL[n]; } }
 /* ACL タブ (v0.3 · 형님 D2) — 上から 1 本の流れ: ① 結論 1 行 (+ 本登録) ② 確認した項目の全部 ③ 相違だけ開く ④ 表記差は 「中身を見る」
    見せ方は acl_bench エンジンの viewHtml (acl_bench の結果画面と同じもの) · 中の名前 (crcf9_… · 根拠の文) は 管理者だけ (マウスを乗せると)
    v0.4: エンジン v0.6 — 一番上に 最終確認 (S/I の内容が ACL にあるか · コンテナのセット · 本登録) → 項目ごとの確認 */
@@ -2247,8 +2419,9 @@ function aclTabHtml(r){
   let body=c.tent?'<div class="av-concl av-note" id="dtAclTent">'+esc(DOC.ACL_TENT_NOTE)+'</div>':'';   // v0.6 (D3): 結論の上に 1 行
   if(fresh&&res.ai) body+='<div class="av-concl av-note" id="dtAclScan">'+esc((res.ai.label||'AI 判読 (スキャン)')+(res.ai.other?' · 様式 '+(res.ai.form||'(名前なし)')+' · この様式にない欄 '+((res.ai.naFields||[]).length)+'（対象外）':' — スキャンの ACL を AI で 2 回読み、同じ値の欄だけ照合しています')+((res.ai.diffFields||[]).length+(res.ai.diffRows||[]).length?'（2 回で違う欄 = 読取確認要）':''))+'</div>';   // v0.17 (G10) · v0.18 (T-1): 乙仲様式
   if(S.engine==='error'||!DOC.aclReady()||!S.aclE) body+='<div class="dt-p">'+(S.engine==='error'?errHtml(S.engineErr,'ACL の判定ルールを読めません','acl_bench'):'読み込み中…')+'</div>';
-  else if(fresh) body+='<div class="av">'+aclViewFix(S.aclE.viewHtml(res,{admin:S.me.admin, hon:esc(honLine(c)), noTent:true, past:pastFor(res)}), res)+'</div>';   // v0.18 (T-5): この乙仲の過去の誤記   // v0.17 (D11)
-  else body+='<div class="av-concl av-'+(c.s==='done'?'ok':c.s==='wait'||c.s==='not'?'na':'read')+'">'+esc(c.s==='wait'||c.s==='not'?'ACL はまだ届いていません':c.s==='done'?'本登録が済んでいます':'まだ照合していません — 「照合する」を押してください')+' <span class="av-hon">'+esc(honLine(c))+'</span></div>'+statusLine(c);
+  let list='';   // v0.22 (V4): 項目ごとのチェックリスト = 一番下 (たたむ) · ボタンは その上
+  if(!(S.engine==='error'||!DOC.aclReady()||!S.aclE)&&fresh){ const sp=DOC.aclSplit(aclViewFix(S.aclE.viewHtml(res,{admin:S.me.admin, hon:esc(honLine(c)), noTent:true, past:pastFor(res), v22:true}), res)); body+='<div class="av">'+sp[0]+'</div>'; list=sp[1]?'<div class="av">'+sp[1]+'</div>':''; }   // v0.18 (T-5): この乙仲の過去の誤記   // v0.17 (D11)
+  else if(!(S.engine==='error'||!DOC.aclReady()||!S.aclE)) body+='<div class="av-concl av-'+(c.s==='done'?'ok':c.s==='wait'||c.s==='not'?'na':'read')+'">'+esc(c.s==='wait'||c.s==='not'?'ACL はまだ届いていません':c.s==='done'?'本登録が済んでいます':'まだ照合していません — 「照合する」を押してください')+' <span class="av-hon">'+esc(honLine(c))+'</span></div>'+statusLine(c);
   const sc=c.scan; if(sc){ const ex=sc.excluded.map(e=>e.name+' ('+e.why+')').concat(c.pick?sc.formal.concat(sc.temp).filter(a=>a!==c.pick).map(a=>a.f.name+(a.temp?' (仮)':'')):[]);
     body+=(c.pick?'<div class="dt-note">照合に使うファイル: '+esc(c.pick.f.name)+' — '+esc(c.label||c.pick.version)+(c.pick.temp?'（仮ACL も ACL として照合 · 社長 D3）':'（DR = ACL）')+'</div>':'')+(ex.length?'<div class="dt-note">ほかのファイル: '+esc(ex.join(' · '))+'</div>':''); }
   if(fresh&&res.why) body+='<div class="dt-note">'+esc(res.why)+'</div>';
@@ -2259,7 +2432,7 @@ function aclTabHtml(r){
     (can?'<button class="dt-btn ghost" id="dtAclRun">'+(fresh?'再照合':'照合する')+'</button>':'')+
     (fresh?'<button class="dt-btn" id="dtAclMail">'+(g.diff.length?'訂正依頼メールの下書き':'本登録メールの下書き')+'</button><button class="dt-btn" id="dtAclOutlook">下書きを作る</button>'+(mailDoneLabel(r.iv,'acl')?'<span class="dt-note">'+esc(mailDoneLabel(r.iv,'acl'))+'</span>':''):'')+   // v0.8: 下書きまで (送るのは人)
     '<button class="dt-btn ghost" id="dtAclMiss" title="この照合で見つけられなかった違いを報告">見落とし報告</button>'+   // v0.11
-    benchBtn('acl')+'</div></section>';
+    benchBtn('acl')+'</div>'+list+'</section>';
 }
 /* 履歴 (SharePoint D-00/doc_tool/log/{key}/) */
 /* v0.17 (F4): 履歴の名前 {yyyymmdd-hhmmss}_{種類}.json (この PC の時刻 = 日本時間) → 「11/23 21:56 · ACL 照合」 */
@@ -2404,7 +2577,7 @@ async function runSearch(){
    エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
    v0.3: ACL の名前の規則 (aclScan · aclPick) · 本登録の語 (mailKind) · 結果の見せ方 (viewHtml) もエンジンから — 現況板が始まるときに読む (loadAll)
    下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @903d923 (v0.4 から変わっていない) */
-const ACL_ENGINE = {commit:'521894ee0501155f1984f7b140718b468a977f05', sha256:'aa23b0bcca956e307679bad1cd89da59dbca35ff64340b288702536ed48628c3', ver:'0.18'};   // v0.21: エンジン v0.18 (新しい試験の行のコード判定 CP_CODE · S/I 段階 siCheck)   // v0.19: エンジン v0.17 (40HCR = 45R)   // v0.18 (T-1): エンジン v0.16 (形態 HC 表記 · 複合輸送の空欄 = 参考 · RECIEVED BY CARRIER = 対象外 · 乙仲の過去の誤記 · NACCS の判定は v0.15 と同じ)   // v0.17 (G10): エンジン v0.14 (スキャン ACL の AI 判読 2 回 · NACCS の判定は v0.13 と同じ) — 토르_10 が終わったら その版へ   // v0.13: エンジン v0.13 (画面の韓国語なし · 判定は v0.12 と同じ)   // v0.12: エンジン v0.12 (CP-A01 の 末尾の , ; : · B/L Draft と共通の部品)   // v0.11: エンジン v0.11 (チェックポイント · 港の別名)   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
+const ACL_ENGINE = {commit:'31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716', sha256:'9a6b005c2a34f601e1fbdfc1dd61b364aa51ce48e5bc796d89a54ced37c076e0', ver:'0.19'};   // v0.22: エンジン v0.19 (電話 · 郵便番号 = 表記差 · 読めず欄の 3 回目 · 結果の並び v22)   // v0.21: エンジン v0.18 (新しい試験の行のコード判定 CP_CODE · S/I 段階 siCheck)   // v0.19: エンジン v0.17 (40HCR = 45R)   // v0.18 (T-1): エンジン v0.16 (形態 HC 表記 · 複合輸送の空欄 = 参考 · RECIEVED BY CARRIER = 対象外 · 乙仲の過去の誤記 · NACCS の判定は v0.15 と同じ)   // v0.17 (G10): エンジン v0.14 (スキャン ACL の AI 判読 2 回 · NACCS の判定は v0.13 と同じ) — 토르_10 が終わったら その版へ   // v0.13: エンジン v0.13 (画面の韓国語なし · 判定は v0.12 と同じ)   // v0.12: エンジン v0.12 (CP-A01 の 末尾の , ; : · B/L Draft と共通の部品)   // v0.11: エンジン v0.11 (チェックポイント · 港の別名)   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
 ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 const CMAPS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/';   // v0.12: cdnjs は cmaps を出さない (403) — 同じ版の cmaps (sha256 同じ · acl_bench v0.12 · bl_bench v0.2 と同じ)
@@ -2484,10 +2657,13 @@ async function scanAiFor(E, raw, fmt){
   /* v0.18 (T-1): スキャン = {sha256}.json (NACCS) → NACCS でなければ {sha256}.other.json (乙仲様式) · 文字のある 乙仲様式 (OTHER) = {sha256}.other.json だけ — どれも acl_bench が保存 · この TOOL は AI を呼ばない */
   if(!raw) return {why:'AI 判読なし'};
   const sha=await sha256hex(raw), rd=async ext=>{ const t=await spText(SCAN_AI_DIR+'/'+sha+ext); const j=t?JSON.parse(t):null; return j&&j.schema==='acl_scan_ai/1'&&(j.reads||[]).length===2?j:null; };
-  const mg=(j,o)=>E.scanMerge(j.reads[0], j.reads[1], Object.assign({model:j.model, sha256:sha, cost_usd:j.cost_usd, at:j.at}, o?{other:true}:{}));
+  /* v0.22 (V3): 「読めず」 欄の 3 回目 (acl_bench v0.19 が保存 · 読むだけ) — あれば scanMerge に渡す · 3 回目の枠を その欄に (書類の表示で 枠) */
+  const rd3=async ext=>{ try{ const t=await spText(SCAN_AI_DIR+'/'+sha+ext); const j=t?JSON.parse(t):null; return j&&j.schema==='acl_scan_r3/1'?j:null; }catch(e){ return null; } };
+  const mg=async(j,o)=>{ const r3=E.scanApplyR3?await rd3(o?'.other.r3.json':'.r3.json'):null, m=E.scanMerge(j.reads[0], j.reads[1], Object.assign({model:j.model, sha256:sha, cost_usd:j.cost_usd, at:j.at}, o?{other:true}:{}, r3?{r3}:{}));
+    if(r3) Object.keys(r3.fields||{}).forEach(k=>{ if(m.fields[k]&&r3.fields[k]&&r3.fields[k].box) m.fields[k].box=r3.fields[k].box; }); return m; };
   let ai=null;
-  try{ if(fmt!=='OTHER'){ const j=await rd('.json'); if(j){ const m=mg(j,false); if(E.scanLayoutOk(m)) return {m}; ai=m.ai; } }
-    const o=await rd('.other.json'); if(o) return {m:mg(o,true)}; }catch(e){ return {why:'AI 判読を読めない'}; }
+  try{ if(fmt!=='OTHER'){ const j=await rd('.json'); if(j){ const m0=E.scanMerge(j.reads[0], j.reads[1], {model:j.model, sha256:sha}); if(E.scanLayoutOk(m0)) return {m:await mg(j,false)}; ai=m0.ai; } }
+    const o=await rd('.other.json'); if(o) return {m:await mg(o,true)}; }catch(e){ return {why:'AI 判読を読めない'}; }
   return ai?{why:E.SCAN_NOT_NACCS, ai}:{why:'AI 判読なし（acl_bench で読むと照合できます）'};
 }
 async function aclCompareOne(iv){
@@ -2638,8 +2814,8 @@ function aclTabAfter(r){
 /* ══════════ v0.12 P2b — B/L Draft タブ (指示書 D00 B/L Draft 2 段階 Step 3 · 原指示書 Step 3 · 5 · 형님 D1 ~ D8 · D2 ~ D4 (2 段階)) ══════════
    エンジン = CONTRACT_SEND/bl_bench.html の <script id="bl-core"> を コミット固定 + sha256 で読み込み、ACL エンジン (同じく固定) を BL.useEngine で渡す (コピーしない)
    基準 = COMPASS (S/I · ブッキング · コンテナ) + L/C 保管所 · ACL は参考 (D1) · 運賃の金額は比べない · チェックポイント (stage BL_DRAFT) は cpLoad のマスター (承認の安全装置つき)
-   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @521894e · v0.2 から変わっていない) */
-const BL_ENGINE = {commit:'521894ee0501155f1984f7b140718b468a977f05', sha256:'9c09d7b105631b500094106a75708f1b9bd8ec4939423ce5c373f66d3d5cf058', ver:'0.5'};   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
+   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @31c77e2 · v0.2 から変わっていない) */
+const BL_ENGINE = {commit:'31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716', sha256:'56b59ebc2aa1ee2101d0ec3d1905dab3c7138173563c7d065bbbe05e4e53efb6', ver:'0.6'};   // v0.22: bl_bench v0.6   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
 BL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+BL_ENGINE.commit+'/bl_bench.html';
 const JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';   // バイヤー用 Draft (画像 PDF) — bl_bench と同じ固定版
 const BL_DPI = 200;
@@ -2726,7 +2902,10 @@ function blTabHtml(r){
   const c=r.cells.bl, X=S.blRes&&S.blRes[r.iv], res=X&&X.res, f=S.folders[r.iv], can=!!(f&&f.files);
   const head='<div><div class="dt-h">B/L Draft 照合</div><div class="dt-note" style="font-size:13px">Invoice フォルダの B/L Draft（FRT MEMO）を COMPASS の S/I · ブッキング · コンテナと L/C に照合します（ACL は参考 · 運賃の金額は比べません）。'+(res&&S.me.admin?' 表示中: '+esc(res.file||'')+' · '+esc(DOC.fmtMD(DOC.jstDay(X.at))):'')+'</div></div>';
   let body='';
-  if(res&&BLX){ body+='<div class="av">'+uiFix(BLX.viewHtml(Object.assign({},res,{conclusion:blConcl(res)}),{admin:S.me.admin}).replace(/判断不可/g,'読めず'))+'</div>';   // v0.17 (F5)
+  let list='';   // v0.22 (V4)
+  if(res&&BLX){ const sp=DOC.blSplit(uiFix(BLX.viewHtml(Object.assign({},res,{conclusion:blConcl(res)}),{admin:S.me.admin}).replace(/判断不可/g,'読めず')));
+    body+='<div class="av">'+sp.top+(sp.reads.length?'<div class="av-h av-read">読めないところ '+sp.reads.length+' か所 — Draft を開いて目で確認</div>'+sp.reads.map(n=>'<div class="av-diff"><div class="av-dn">'+n+'</div></div>').join(''):'')+'</div>';
+    if(sp.list) list='<details class="av-more av-listbox"><summary>項目ごとのチェックリスト</summary><div class="av">'+sp.list+'</div></details>';   // v0.17 (F5)
     if((res.allEditions||[]).length>1) body+='<div class="dt-row" style="gap:8px"><span class="dt-note">版</span><select class="dt-in" id="dtBlEd" style="height:32px;width:auto">'+res.allEditions.map((e,i)=>'<option value="'+esc(e.id)+'"'+((res.upto?res.upto===e.id:i===res.allEditions.length-1)?' selected':'')+'>'+(i+1)+'. '+esc(e.name)+'</option>').join('')+'</select><span class="dt-note">（選んだ版を最新として照合 · 前の版との違いは「前の版との違い」）</span></div>';
     if(res.compass) body+='<div class="dt-note dt-c-diff">COMPASS: '+esc(res.compass)+'</div>'; }
   else body+='<div class="av-concl av-'+(c.s==='wait'||c.s==='not'?'na':'read')+'">'+esc(c.s==='wait'||c.s==='not'?'B/L Draft はまだ届いていません':'まだ照合していません — 「照合する」を押してください')+'</div>'+statusLine(c);
@@ -2738,7 +2917,7 @@ function blTabHtml(r){
     (can?'<button class="dt-btn ghost" id="dtBlRun">'+(res?'再照合':'照合する')+'</button>':'')+
     (fix?'<button class="dt-btn" id="dtBlFix">船社への訂正依頼メールの下書き</button>':'')+(okd?'<button class="dt-btn" id="dtBlOk">「Draft OK」返信の下書き</button>':'')+
     (res&&res.fileId?'<button class="dt-btn ghost" id="dtBlBuyerMail">バイヤー宛メールの下書き</button>'+(X&&X.saved?'':'<button class="dt-btn ghost" id="dtBlBuyer">バイヤー用 Draft 作成</button>'):'')+
-    copyBtn(r.iv)+(S.me.admin?toolBtn('d01'):'')+'<button class="dt-btn ghost" id="dtBlMiss" title="この照合で見つけられなかった違いを報告">見落とし報告</button>'+benchBtn('blb')+'</div><div id="dtBlBuyerSt" class="dt-note" style="font-size:13px"></div></section>';
+    copyBtn(r.iv)+(S.me.admin?toolBtn('d01'):'')+'<button class="dt-btn ghost" id="dtBlMiss" title="この照合で見つけられなかった違いを報告">見落とし報告</button>'+benchBtn('blb')+'</div><div id="dtBlBuyerSt" class="dt-note" style="font-size:13px"></div>'+list+'</section>';
 }
 /* 元の Draft メール (船社 → 自分のメールボックス) · バイヤーへ前に送ったメールの宛先 — 今日やること で読んだメールから */
 function blMailSource(b){ const ms=(TODO.byBk&&TODO.byBk[b.cr49f_bookingid]||[]).filter(m=>m.uses.indexOf('BLDRAFT')>=0&&m.skind==='carrier').sort((x,y)=>y.t-x.t); return ms[0]||null; }
@@ -2829,7 +3008,7 @@ function blTabAfter(r){
    TO BANK AI (F3 · 自動): TO BANK があり 保存本 (ACL_bench/_fd_ai/{sha256}.json) がなく 設定に API キー → この画面を開いた人のブラウザで 頁の判別 (枚数 · 原本/写し · 署名) を 2 回
      → 保存本を SharePoint に (他の人は 呼ばない) · 費用 = doc_tool/ai_cost/ · キーがない → 管理者に 「AI 未実行（キーなし）」
    新しい確認は 全部 試験 (判定に入れない · 赤にしない · 灰色の枠) · 試験の行に 「誤検知」 (doc_tool/cp_trial_log/) · 結果 = doc_tool/fd/{IV}_{UTC}_d{相違数}.json (新規だけ) */
-const FD_ENGINE = {commit:'521894ee0501155f1984f7b140718b468a977f05', sha256:'180c7af33eea4c5897377f1ecb9bb92094b467c1449968dda52b53348f99eb1d', ver:'0.1'};
+const FD_ENGINE = {commit:'31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716', sha256:'e08dc6073eeea2129061e3e5101030cb3ce0ecd35412ad42fa5b876c5e4a4aff', ver:'0.2'};   // v0.22: fd_bench v0.2 (保険証券 AI · 提出期限 = FD送付日)
 FD_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+FD_ENGINE.commit+'/fd_bench.html';
 let FDX=null, FDX_P=null;
 async function loadFdEngine(){
@@ -2846,7 +3025,7 @@ const FD_TRIAL_JA = {MATCH:'一致', NOTATION:'注意', DIFF:'相違', READ_CHEC
 async function lcTextOf(lc){ const p=lc&&lc.source&&lc.source.lc_text; if(!p) return ''; if(S.lcText[p]!==undefined) return S.lcText[p]; try{ S.lcText[p]=(await spText(p))||''; }catch(e){ S.lcText[p]=''; } return S.lcText[p]; }
 /* 結果ファイル (doc_tool/fd/) — 名前に 試験の相違の数 (今日やることは 名前だけ読む) */
 async function fdLatestLoad(){ if(S.fdLatest!==undefined&&S.fdLatest!==null) return S.fdLatest; S.fdLatest=null;
-  try{ const k=await spChildren(DOC.V21.FD_DIR.replace(/\/$/,'')); const out={}; (k||[]).forEach(x=>{ const m=String(x.name).match(DOC.V21.FD_NAME_RE); if(!m) return; const iv=DOC.up(m[1]); if(!out[iv]||out[iv].stamp<m[2]) out[iv]={stamp:m[2], diff:+m[3], name:x.name}; }); S.fdLatest=out; }
+  try{ const k=await spChildren(DOC.V21.FD_DIR.replace(/\/$/,'')); const out={}; (k||[]).forEach(x=>{ const m=String(x.name).match(DOC.V22.FD_NAME_RE); if(!m) return; const iv=DOC.up(m[1]); if(!out[iv]||out[iv].stamp<m[2]) out[iv]={stamp:m[2], diff:+m[3], name:x.name, hash:m[4]||""}; }); S.fdLatest=out; }
   catch(e){ S.fdLatest={}; } return S.fdLatest; }
 /* TO BANK の頁を 灰色 150 dpi の PNG に (pdf.js) */
 async function fdPagePng(pdf, n){ const pg=await pdf.getPage(n), vp=pg.getViewport({scale:150/72}), cv=document.createElement('canvas'); cv.width=Math.ceil(vp.width); cv.height=Math.ceil(vp.height);
@@ -2854,11 +3033,14 @@ async function fdPagePng(pdf, n){ const pg=await pdf.getPage(n), vp=pg.getViewpo
   const g=document.createElement('canvas'); g.width=cv.width; g.height=cv.height; const gx=g.getContext('2d'); gx.filter='grayscale(1)'; gx.drawImage(cv,0,0);
   return g.toDataURL('image/png').split(',')[1]; }
 const FD_PNG = {fn:fdPagePng};   // 頁 → PNG (試験では canvas のない環境のため 差し替える)
-async function fdAsk(F, key, b64){ const body={model:F.AI.model, max_tokens:2000, output_config:{effort:F.AI.effort}, messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/png',data:b64}},{type:'text',text:F.AI.prompt}]}]};
+/* v0.22: AI を呼ぶ所は ここ 1 か所 (TO BANK の頁の判別 · 保険証券) — 429 / 5xx は 待って やり直し · 戻り値 = 返事の JSON */
+async function aiPost(key, body){
   for(let i=0;i<4;i++){ const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify(body)});
-    if(r.status===429||r.status>=500){ await sleep(3000*(i+1)); continue; } const j=await r.json(); if(!r.ok) throw new Error('AI '+r.status+' '+String(j&&j.error&&j.error.type||''));
-    return {res:F.AI.parse((j.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('')), cost:F.AI.cost(j.usage)}; }
+    if(r.status===429||r.status>=500){ await sleep(3000*(i+1)); continue; } const j=await r.json(); if(!r.ok) throw new Error('AI '+r.status+' '+String(j&&j.error&&j.error.type||'')); return j; }
   throw new Error('AI が混んでいます (429)'); }
+const aiText = j => (j.content||[]).filter(x=>x.type==='text').map(x=>x.text).join('');
+async function fdAsk(F, key, b64){ const j=await aiPost(key, {model:F.AI.model, max_tokens:2000, output_config:{effort:F.AI.effort}, messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/png',data:b64}},{type:'text',text:F.AI.prompt}]}]});
+  return {res:F.AI.parse(aiText(j)), cost:F.AI.cost(j.usage)}; }
 /* TO BANK の AI 判別 — 保存本があれば それ (AI 0) · なければ キーがあれば 実行 → 保存本 + 費用の記録 */
 async function fdTbAi(F, iv, tb, onProg){
   const r=await graphFetch(drv()+'/items/'+tb.id+'/content'); if(!r.ok) throw new Error('TO BANK を読めない ('+r.status+')'); const buf=await r.arrayBuffer(), sha=await sha256hex(buf.slice(0));
@@ -2876,6 +3058,36 @@ async function fdTbAi(F, iv, tb, onProg){
     return {ai:C, sha, from:'run', cost:C.cost};
   }finally{ try{ await pdf.destroy(); }catch(e){} }
 }
+/* v0.22 (指示書 THOR_17 E-K3 · 形さん K3 「어 읽어줘」): 保険証券の表面 — 保存本 (ACL_bench/_fd_ai/{sha256}.ins.json) があれば それ (AI 0) · なければ キーがあれば この画面で読む
+   読む頁 = fd-core insPick (保険のファイル _1POL → 値のない様式なら TO BANK · TO BANK AI 判別の INS の頁 · なければ 縮小画像で探す) · 2 回読み 同じ値だけ (判定は fd-core) */
+async function insPagePng(pdf, n, dpi){ const pg=await pdf.getPage(n), vp=pg.getViewport({scale:dpi/72}), cv=document.createElement('canvas'); cv.width=Math.ceil(vp.width); cv.height=Math.ceil(vp.height);
+  const ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,cv.width,cv.height); await pg.render({canvasContext:ctx, viewport:vp}).promise;
+  const g=document.createElement('canvas'); g.width=cv.width; g.height=cv.height; const gx=g.getContext('2d'); gx.filter='grayscale(1)'; gx.drawImage(cv,0,0); return g.toDataURL('image/png').split(',')[1]; }
+const INS_PNG = {fn:insPagePng};   // 試験では canvas のない環境のため 差し替える
+async function insAsk(F, key, content){ const I=F.INS_AI, j=await aiPost(key, {model:I.model, max_tokens:I.maxTokens, output_config:{effort:I.effort}, messages:[{role:'user', content}]}); return {j:I.parse(aiText(j)), cost:I.cost(j.usage)}; }
+async function fdInsAi(F, iv, files, tbAi, tb, say){
+  if(!F.INS_AI||!F.insPick) return {ins:null, from:'none'};
+  const names=(files||[]).filter(x=>!x.sub).map(x=>({name:x.name, id:x.id}));
+  for(const noPol of [false,true]){
+    const p=F.insPick(names, tbAi, tb?tb.name:null, {noPol}), fx=p&&names.find(x=>x.name===p.file); if(!fx) return {ins:null, from:'none'};
+    const r=await graphFetch(drv()+'/items/'+fx.id+'/content'); if(!r.ok) throw new Error('保険の PDF を読めない ('+r.status+')'); const buf=await r.arrayBuffer(), sha=await sha256hex(buf.slice(0)), cp=F.INS_AI.cachePath(sha);
+    let cache=null; try{ const t=await spText(cp); cache=t?JSON.parse(t):null; }catch(e){ cache=null; }
+    if(F.INS_AI.usable(cache,sha)){ const mg=F.insMerge(cache); if(mg&&mg.blank&&!noPol) continue; return {ins:cache, from:'saved'}; }
+    const key=lsGet(LS.apikey,''); if(!key) return {ins:null, from:'nokey'};
+    await ensurePdfJs(); const pdf=await window.pdfjsLib.getDocument({data:new Uint8Array(buf), cMapUrl:CMAPS, cMapPacked:true}).promise, n=pdf.numPages;
+    try{ const C={schema:F.INS_AI.schema, sha256:sha, file:p.file, iv, by:p.by, model:F.INS_AI.model, effort:F.INS_AI.effort, dpi:F.INS_AI.dpi, gray:true, cost:0, who:S.me.code||'', at:''}; let pages=p.pages;
+      if(!pages){ if(say) say('保険証券の頁を探しています (AI)…'); const ct=[]; for(let i=1;i<=n;i++){ ct.push({type:'text', text:'Page '+i+':'}); ct.push({type:'image', source:{type:'base64', media_type:'image/png', data:await INS_PNG.fn(pdf,i,F.INS_AI.thumbDpi)}}); }
+        const L=await insAsk(F, key, ct.concat([{type:'text', text:F.INS_AI.locatePrompt(n)}])); C.cost+=L.cost; pages=((L.j&&L.j.pages)||[]).map(Number).filter(x=>x>=1&&x<=n).slice(0,F.INS_AI.maxPages); C.locate={pages, cost:Math.round(L.cost*10000)/10000}; }
+      pages=(pages||[]).filter(x=>x<=n).slice(0,F.INS_AI.maxPages); C.pages=pages;
+      if(!pages.length) C.reads=[{is_insurance:false},{is_insurance:false}];
+      else { if(say) say('保険証券を読んでいます (AI 2 回)…'); const im=[]; for(const g of pages) im.push({type:'image', source:{type:'base64', media_type:'image/png', data:await INS_PNG.fn(pdf,g,F.INS_AI.dpi)}});
+        const [a,b]=await Promise.all([1,2].map(()=>insAsk(F, key, im.concat([{type:'text', text:F.INS_AI.readPrompt}])))); C.cost+=a.cost+b.cost; C.reads=[a.j,b.j]; }
+      C.cost=Math.round(C.cost*10000)/10000; C.at=new Date().toISOString();
+      try{ await spPut(cp, JSON.stringify(C), 'application/json'); }catch(e){ /* 他の人が先に保存 (409) */ }
+      try{ const d=C.at.slice(0,10).replace(/-/g,''); await spPut(DOC.V21.COST_DIR+d+'/'+DOC.safeKey(iv)+'_ins_'+DOC.utcStamp()+'.json', JSON.stringify({iv, kind:'insurance', sha256:sha, file:p.file, pages:pages.length, usd:C.cost, model:C.model, by:C.who, at:C.at}), 'application/json'); }catch(e){}
+      const mg=F.insMerge(C); if(mg&&mg.blank&&!noPol) continue; return {ins:C, from:'run', cost:C.cost};
+    }finally{ try{ await pdf.destroy(); }catch(e){} } }
+  return {ins:null, from:'none'}; }
 async function fdRun(iv, opt){
   opt=opt||{}; if(S.fdBusy[iv]){ if(opt.save) S.fdSaveNext=Object.assign(S.fdSaveNext||{},{[iv]:true}); return; }   // 確認中に 「記録する」 → 終わったら もう一度 (記録つき)
   S.fdBusy[iv]=true; const here=()=>S.cur&&S.cur.iv===iv&&S.curTab==='fd', st=t=>{ const e=$('dtFdSt'); if(e&&here()) e.textContent=t; };
@@ -2890,14 +3102,21 @@ async function fdRun(iv, opt){
     if(tb){ st('TO BANK の頁の判別 (AI) を確認しています…'); try{ const A=await fdTbAi(F, iv, tb, (d,n)=>st('TO BANK の頁の判別 (AI) '+d+' / '+n+' 頁')); ai=A.ai; S.fdAi[iv]=A; aiRan=A.from==='run';
         aiNote=A.from==='saved'?'TO BANK: 保存した判別を使いました':A.from==='run'?'TO BANK: 判別しました ('+(S.me.admin?'US$'+(Math.round(A.cost*1000)/1000):'保存しました')+')':S.me.admin?'AI 未実行（キーなし）':''; }
       catch(e){ aiNote=S.me.admin?'TO BANK の判別ができません: '+e.message:''; } }
+    /* v0.22 (K3): 保険証券の表面 (AI · 保存本) · (K4): FD送付日 = Invoice 別 (PORTAL clearance_status.json の shipping · 読むだけ) */
+    let insAi=null, insNote=''; try{ const I=await fdInsAi(F, iv, f.files, ai, tb, st); insAi=I.ins; if(I.from==='run') aiRan=true;
+      insNote=I.from==='saved'?'保険証券: 保存した判読を使いました':I.from==='run'?'保険証券: 読みました ('+(S.me.admin?'US$'+I.cost:'保存しました')+')':I.from==='nokey'&&S.me.admin?'保険証券: AI 未実行（キーなし）':''; }catch(e){ insNote=S.me.admin?'保険証券を読めません: '+e.message:''; }
+    const sh=(TODO.portal&&TODO.portal.shipping)||{}, sk=Object.keys(sh).find(k=>DOC.up(k)===DOC.up(iv)), fdSent=(sk&&sh[sk]&&sh[sk].fd_date)||'';
+    if(insNote) aiNote=[aiNote, insNote].filter(Boolean).join(' · ');
     const today=new Date(Date.now()+9*3600e3).toISOString().slice(0,10);   // 日本の今日
-    const res=F.check({iv, files, lc, lcText, meta, ai, toBank:tb?{name:tb.name, modified:tb.lastModified||''}:null, today, cp:cpx&&cpx.rows.length?cpx:null});
+    const res=F.check({iv, files, lc, lcText, meta, ai, toBank:tb?{name:tb.name, modified:tb.lastModified||''}:null, today, cp:cpx&&cpx.rows.length?cpx:null, insAi, fdSent});
     const webs={}; files.forEach(x=>{ if(x.webUrl) webs[x.name]=x.webUrl; }); if(tb) webs[tb.name]=tb.webUrl||'';
-    S.fdRes[iv]={res, at:new Date().toISOString(), aiNote, webs};
-    if(S.fdLatest) S.fdLatest[DOC.up(iv)]={stamp:DOC.utcStamp(), diff:res.trialDiff, name:'', session:true};   // 今日やること (この画面の中)
-    /* 記録 (doc_tool/fd/) は 「確認して記録する」 を押した時 · TO BANK の AI を実行した時 だけ — タブを開いて見るだけでは 書かない (v0.1 から 「見るだけ = 書き込み 0」) */
-    if(opt.save||aiRan) try{ await spPut(DOC.V21.FD_DIR+DOC.safeKey(DOC.up(iv))+'_'+DOC.utcStamp()+'_d'+res.trialDiff+'.json', JSON.stringify({schema:'fd_result/1', iv, at:S.fdRes[iv].at, engine:'fd_bench v'+FD_ENGINE.ver+' @'+FD_ENGINE.commit.slice(0,7), by:S.me.code||'', result:res}), 'application/json');
-      if(S.fdLatest) S.fdLatest[DOC.up(iv)]={stamp:DOC.utcStamp(), diff:res.trialDiff, name:''}; }catch(e){}
+    S.fdRes[iv]={res, at:new Date().toISOString(), aiNote, webs, ins:insAi?{file:insAi.file, pages:insAi.pages||[]}:null, tbName:tb?tb.name:''};   // v0.22: 書類の表示 (保険 · TO BANK の頁へ)
+    if(S.fdLatest){ const o0=S.fdLatest[DOC.up(iv)]||{}; S.fdLatest[DOC.up(iv)]={stamp:DOC.utcStamp(), diff:res.trialDiff, name:o0.name||'', hash:o0.hash||'', session:true}; }   // v0.22: 前の記録の鍵は残す (同じ結果なら書かない)   // 今日やること (この画面の中)
+    /* v0.22 (리나이 · 토르_15 질문): タブを開いたら 記録 (doc_tool/fd/ = この TOOL の記録の場所 · 今日やること のバッジが いつも最新) — 前の記録と 同じ結果 (fdHash) なら 書かない · 門番そのまま */
+    try{ const h=DOC.fdHash(res), L0=(await fdLatestLoad())||{}, L=L0[DOC.up(iv)];
+      if(L&&L.hash===h){ S.fdRes[iv].saved='same'; }
+      else { const nm=DOC.safeKey(DOC.up(iv))+'_'+DOC.utcStamp()+'_d'+res.trialDiff+'_h'+h+'.json'; await spPut(DOC.V21.FD_DIR+nm, JSON.stringify({schema:'fd_result/1', iv, at:S.fdRes[iv].at, hash:h, engine:'fd_bench v'+FD_ENGINE.ver+' @'+FD_ENGINE.commit.slice(0,7), by:S.me.code||'', result:res}), 'application/json');
+        if(S.fdLatest) S.fdLatest[DOC.up(iv)]={stamp:DOC.utcStamp(), diff:res.trialDiff, name:nm, hash:h}; S.fdRes[iv].saved='new'; } }catch(e){ S.fdRes[iv].saved='err'; }
     S.fdBusy[iv]=false; if(here()) renderIv();   // 確認中を外してから 描き直す (ボタンを押せるように)
   }catch(e){ const el=$('dtFdSt'); if(el&&here()) el.innerHTML=errHtml(e,'FD を確認できません','fd_bench'); }
   finally{ S.fdBusy[iv]=false; if(S.fdSaveNext&&S.fdSaveNext[iv]){ delete S.fdSaveNext[iv]; fdRun(iv,{save:true}); } }
@@ -2907,7 +3126,7 @@ function trialRowsHtml(items, iv, stage, opt){
   opt=opt||{}; const list=(items||[]).filter(i=>i.trial&&(opt.all||['DIFF','NOTATION','READ_CHECK'].indexOf(i.would)>=0));
   if(!list.length) return opt.empty?'<div class="dt-note">'+esc(opt.empty)+'</div>':'';
   return '<div class="fd-trial"><div class="fd-th">試験中のチェック <span class="dt-note">（判定には入りません · 違う結果なら「誤検知」を押してください）</span></div>'+list.map(i=>{ const k=DOC.safeKey(iv)+'|'+(i.cp||i.key), done=S.faDone[k];
-    return '<div class="fd-tr"><span class="fd-cp">'+esc(i.cp||i.ref||'')+'</span><span class="fd-w fd-w-'+esc(i.would)+'">'+esc(FD_TRIAL_JA[i.would]||i.would)+'</span><span class="fd-l">'+esc(i.label)+(i.tsukan?' <span class="fd-tag">通関版</span>':'')+
+    return '<div class="fd-tr" data-dvkey="'+esc(i.key)+'"><span class="fd-cp">'+esc(i.cp||i.ref||'')+'</span><span class="fd-w fd-w-'+esc(i.would)+'">'+esc(FD_TRIAL_JA[i.would]||i.would)+'</span><span class="fd-l">'+esc(i.label)+(i.tsukan?' <span class="fd-tag">通関版</span>':'')+
       '<span class="dt-note"> '+esc(String(i.detail||'').replace(/^【[^】]*】\s*/,''))+(i.expected||i.actual?' — 基準 「'+esc(String(i.expected).slice(0,80))+'」 · 書類 「'+esc(String(i.actual).slice(0,80))+'」':'')+'</span></span>'+
       (done?'<span class="dt-note">記録しました</span>':'<button class="dt-btn ghost sm" data-fa="'+esc(k)+'" data-fastage="'+esc(stage)+'" data-facp="'+esc(i.cp||'')+'" data-fakey="'+esc(i.key)+'" data-fawould="'+esc(i.would)+'">誤検知</button>')+'</div>'; }).join('')+'</div>';
 }
@@ -2923,7 +3142,7 @@ function fdTabHtml(r){
   let body='';
   if(!res) body+='<div class="av-concl av-na">'+esc(busy?'確認中…':'読み込み中…')+'</div>';
   else { const read=res.read.map(x=>'<span class="fd-src">'+esc((FDX&&FDX.TYPES[x.type])||x.type)+': '+(X.webs[x.file]?'<button class="dt-a" data-url="'+esc(X.webs[x.file])+'">'+esc(x.file)+'</button>':esc(x.file))+' ('+esc(x.src)+')</span>').join(' ');
-    body+='<div class="av-concl av-'+(res.trialDiff?'note':'ok')+'">FD 確認 — 相違 '+res.trialDiff+'（試験）</div>'+(X.aiNote?'<div class="dt-note">'+esc(X.aiNote)+'</div>':'')+
+    body+='<div class="av-concl av-'+(res.trialDiff?'note':'ok')+'">FD 確認 — 相違 '+res.trialDiff+'（試験）</div>'+(X.aiNote?'<div class="dt-note">'+esc(X.aiNote)+'</div>':'')+(X.saved?'<div class="dt-note">'+esc(X.saved==='new'?'結果を記録しました（今日やること に反映）':X.saved==='same'?'前回の記録と同じ結果です（記録しません）':'記録できませんでした')+'</div>':'')+
       '<div class="dt-note">読んだ PDF: '+(read||'（なし）')+'</div>';
     const G=(FDX&&FDX.GROUPS)||[]; G.forEach(g=>{ const its=res.items.filter(i=>i.group===g); if(!its.length) return; const cnt={}; its.forEach(i=>{ const s=i.would||i.status; cnt[s]=(cnt[s]||0)+1; });
       body+='<details class="fd-g"'+(its.some(i=>i.would==='DIFF')?' open':'')+'><summary><b>'+esc(g)+'</b> <span class="dt-note">'+Object.keys(cnt).map(s=>esc(FD_TRIAL_JA[s]||s)+' '+cnt[s]).join(' · ')+'</span></summary>'+trialRowsHtml(its, r.iv, 'FD', {all:true})+'</details>'; }); }
@@ -2955,7 +3174,7 @@ async function cpTrialStatsModal(){
   const latestFiles=async(dir, re)=>{ const k=await spChildren(dir.replace(/\/$/,'')).catch(()=>null)||[]; const L={}; k.forEach(x=>{ const m=String(x.name).match(re); if(!m||m[2].slice(0,8)<since) return; const iv=DOC.up(m[1]); if(!L[iv]||L[iv].stamp<m[2]) L[iv]={stamp:m[2], name:x.name}; }); return Object.keys(L).map(iv=>({iv, path:dir+L[iv].name})); };
   const add=(iv, it)=>{ if(!it||!it.trial||!it.cp||!out[it.cp]) return; if(['DIFF','NOTATION','READ_CHECK'].indexOf(it.would)<0) return; out[it.cp].n++; out[it.cp].iv.add(iv); };
   const read=async p=>{ try{ return JSON.parse(await spText(p)); }catch(e){ return null; } };
-  const fdL=await latestFiles(DOC.V21.FD_DIR, DOC.V21.FD_NAME_RE), aclL=await latestFiles(DOC.OUT_ROOT+'acl/', /^(.+)_(\d{8}-\d{6})\.json$/), blL=await latestFiles(DOC.OUT_ROOT+'bl/', /^(.+)_(\d{8}-\d{6})\.json$/);
+  const fdL=await latestFiles(DOC.V21.FD_DIR, DOC.V22.FD_NAME_RE), aclL=await latestFiles(DOC.OUT_ROOT+'acl/', /^(.+)_(\d{8}-\d{6})\.json$/), blL=await latestFiles(DOC.OUT_ROOT+'bl/', /^(.+)_(\d{8}-\d{6})\.json$/);
   await mapLimit(fdL,6,async x=>{ const j=await read(x.path); ((j&&j.result&&j.result.items)||[]).forEach(i=>add(x.iv,i)); });
   await mapLimit(aclL,6,async x=>{ const j=await read(x.path); ((j&&(j.result||j).items)||[]).forEach(i=>add(x.iv,i)); });
   await mapLimit(blL,6,async x=>{ const j=await read(x.path); const R=j&&(j.result||j); ((R&&R.CP)||[]).forEach(i=>add(x.iv,i)); });
@@ -3621,7 +3840,7 @@ function renderInbox(){
   const row=r=>'<div class="sv-row"><div><span class="st st-'+(SAVE_CLS[r.res]||(/版目/.test(r.res)?'todo':'na'))+'">'+esc(r.res||'…')+'</span></div>'+
     '<div><div class="td-what">'+esc(r.iv||'—')+(r.kind&&r.kind.sub?' <span class="dt-note">'+esc(r.kind.sub)+'</span>':'')+'</div><div class="dt-note">'+esc(r.src+' · '+(r.attName||r.name)+(r.at?' · '+DOC.fmtMD(DOC.isoDay(r.at)):''))+'</div></div>'+
     '<div><div class="dt-p">'+esc(r.msg||'判断中…')+'</div>'+(r.note?'<div class="dt-note dt-c-todo">'+esc(r.note)+'</div>':'')+(r.verdict?'<div class="dt-note">照合: '+esc(r.verdict)+'</div>':'')+(r.after?'<div class="dt-note dt-c-diff">'+esc(r.after)+'</div>':'')+'</div>'+
-    '<div class="td-act">'+(r.busy?'<span class="dt-note">保存中…</span>':/^(新規|\d+版目)$/.test(r.res)?'<button class="dt-btn sm" data-svsave="'+r.id+'">保存する</button> ':'')+
+    '<div class="td-act">'+(/\.pdf$/i.test(r.attName||r.name||'')&&(r.bytes||(r.mailId&&r.attId))?'<button class="dt-btn ghost sm" data-svview="'+r.id+'">'+esc(DOC.V22.VIEW_BTN)+'</button> ':'')+(r.busy?'<span class="dt-note">保存中…</span>':/^(新規|\d+版目)$/.test(r.res)?'<button class="dt-btn sm" data-svsave="'+r.id+'">保存する</button> ':'')+
       (r.bytes&&r.res!=='保存済'&&r.res!=='対象外'&&r.res!=='取消'?ivOpts(r)+' ':'')+(act(r)&&r.res!=='保存済'?'<button class="dt-btn ghost sm" data-svno="'+r.id+'">保存しない</button>':'')+'</div></div>';
   const hm=SAVE.mailAt?String(SAVE.mailAt.getHours()).padStart(2,'0')+':'+String(SAVE.mailAt.getMinutes()).padStart(2,'0'):'';
   const st=SAVE.mailSt==='load'?'メールを確認中…':SAVE.mailSt==='error'?'⚠ '+SAVE.mailErr:'';
@@ -3636,10 +3855,15 @@ function renderInbox(){
   const rb=$('dtSvRest'); if(rb) rb.onclick=()=>{ SAVE.showRest=!SAVE.showRest; renderInbox(); };
   const all=$('dtSvAll'); if(all) all.onclick=async()=>{ for(const r of canAll) await saveDo(r); };
   box.querySelectorAll('[data-svsave]').forEach(b=>{ b.onclick=()=>saveDo(SAVE.rows.find(r=>r.id===+b.dataset.svsave)); });
+  box.querySelectorAll('[data-svview]').forEach(b=>{ b.onclick=()=>saveView(SAVE.rows.find(r=>r.id===+b.dataset.svview)); });   // v0.22 (V2)
   box.querySelectorAll('[data-svno]').forEach(b=>{ b.onclick=async()=>{ const r=SAVE.rows.find(x=>x.id===+b.dataset.svno); r.res='取消'; r.remembered=true; await saveLog(r,'取消'); renderInbox(); }; });
   box.querySelectorAll('[data-svsel]').forEach(s=>{ s.onchange=async()=>{ const r=SAVE.rows.find(x=>x.id===+s.dataset.svsel); r.iv=s.value; r.res=''; r.msg='判断中…'; renderInbox(); await saveJudgeRow(r); await saveRemember(r); renderInbox(); }; });
 }
 
+/* v0.22 (V2): 保存の入口の 1 行 → 書類の表示 (モーダル · 読むだけ) */
+function saveView(r){ if(!r) return; const name=r.attName||r.name||'';
+  modal('<div class="dt-between"><div class="dt-h">'+esc(name)+'</div><button class="dt-btn ghost sm" data-close>閉じる</button></div><div class="dt-note">'+esc((r.iv||'Invoice 不明')+' · '+(r.src||'')+(r.subject?' · '+r.subject:''))+'</div><div class="dv" id="dtDVm"></div>'); bindClose();
+  DV.mount($('dtDVm'), 'inbox|'+r.id, [{id:'sv'+r.id, name, label:name, load:async()=>{ if(r.bytes) return r.bytes; const x=await graphFetch(GRAPH+'me/messages/'+r.mailId+'/attachments/'+r.attId+'/$value'); if(!x.ok) throw new Error('添付を読めない ('+x.status+')'); r.bytes=await x.arrayBuffer(); return r.bytes; }}]); }
 function startPage(){
   $('dtMain').style.display='';
   /* v0.12: 確認の窓 (#dtModal) は #app の外 — 共通ファイルの起動が body の子に付ける display:none を外す (付いたままだと hidden を外しても見えない — 実 Chrome で確認) */
@@ -3797,7 +4021,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.21', date:'2026-11-25',
+  sys:'D-00', name:'書類ツール', version:'0.22', date:'2026-11-25',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

@@ -129,7 +129,8 @@ console.log('5 화면');
   await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&!!w.document.querySelector('#dtIvTabs button.on'));
   ok(w.document.querySelector('#dtIvTabs button.on').dataset.tab===(tab||w.document.querySelector('#dtIvTabs button.on').dataset.tab)&&/NAA2611-01/.test(txt(w,'dtIvSum')),'5 버튼 → 그 Invoice 상세 · 그 탭 ('+(tab||'いまここ')+')');
   w.document.querySelector('#dtIv [data-back]').click(); ok(w.document.getElementById('dtBTodo').classList.contains('on'),'← 一覧へ = 今日やること 로 돌아옴');
-  ok(!W.writes.length,'쓰기 0 (메일 보내기 · 초안 · 읽음 표시 · SharePoint · COMPASS)',W.writes);
+  /* v0.22 (리나이): FD タブを開いたときの 結果の記録 (doc_tool/fd/ · 同じ結果なら書かない) だけは書く — メール · COMPASS · その他 0 */
+  ok(!W.writes.filter(x=>!(x.method==='PUT'&&/\/D-00\/doc_tool\/fd\/[A-Z0-9_\-]+_\d{8}-\d{6}_d\d+_h[0-9a-f]{8}\.json:/.test(decodeURIComponent(x.url)))).length,'쓰기 0 (메일 보내기 · 초안 · 읽음 표시 · SharePoint · COMPASS) — FD 결과 기록 (doc_tool/fd/) 만 예외',W.writes);
   ok(W.req.some(r=>/me\/messages\?\$filter=/.test(decodeURIComponent(r))&&/receivedDateTime ge/.test(decodeURIComponent(r))),'메일은 GET (receivedDateTime 범위) 만'); }
 { /* asof — 관리자만 */
   const W=X.world(), w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}, url:'?asof=2026-11-20T09:00'});

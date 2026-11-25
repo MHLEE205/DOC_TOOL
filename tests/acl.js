@@ -86,7 +86,7 @@ async function engineText(){
   /* 02 = 相違 → 화면 · 메일 */
   const body=txt('dtIvBody');
   ok(/直してもらうところ/.test(body)&&/SL999999/.test(body)&&/相違 1/.test(body),'相違 화면 (直してもらうところ · ACL 값)',body.slice(0,400));
-  ok(/表示欄/.test(body)&&/Received B\/L/.test(body),'표시 칸 줄');
+  ok(/表示欄/.test(body)&&/Received B\/L|RECEIVED B\/L（チェック）/.test(body),'표시 칸 줄 (v0.22: 사람 말 이름)');
   /* v0.8: 메일은 下書き 만 (mailto 도 열지 않음 · 보내기 0) — 제목 태그 자동 · 정정 A 블록 · 복사 */
   const op0=W.opened.length; $('dtAclMail').click(); await X.sleep(20);
   const dr=w.document.getElementById('dtAclDraft'), subj=dr.querySelector('input').value, bodyT=dr.querySelector('textarea').value;

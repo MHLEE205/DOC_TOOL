@@ -60,9 +60,9 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.18 · v0.21 — 새 試験 줄 코드 판정 `CP_CODE` · S/I 단계 `siCheck`) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `521894ee0501155f1984f7b140718b468a977f05` | `aa23b0bcca956e307679bad1cd89da59dbca35ff64340b288702536ed48628c3` |
-| B/L Draft 대조 (bl_bench v0.5 · v0.21 = 같은 커밋) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `521894ee0501155f1984f7b140718b468a977f05` | `9c09d7b105631b500094106a75708f1b9bd8ec4939423ce5c373f66d3d5cf058` |
-| FD 확인 (fd_bench v0.1 · v0.21 = 같은 커밋) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `521894ee0501155f1984f7b140718b468a977f05` | `180c7af33eea4c5897377f1ecb9bb92094b467c1449968dda52b53348f99eb1d` |
+| ACL 대조 (acl_bench v0.19 · v0.22 — 당사자 전화 · FAX 숫자만 · 우편번호 = 表記差 · AI 「読めず」 칸 3 번째 판독 `scanApplyR3` · 결과 순서 `viewHtml(…,{v22:true})`) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716` | `9a6b005c2a34f601e1fbdfc1dd61b364aa51ce48e5bc796d89a54ced37c076e0` |
+| B/L Draft 대조 (bl_bench v0.6 · v0.22 = 같은 커밋) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716` | `56b59ebc2aa1ee2101d0ec3d1905dab3c7138173563c7d065bbbe05e4e53efb6` |
+| FD 확인 (fd_bench v0.2 · v0.22 = 같은 커밋 — 보험증권 AI `INS_AI` · 제출기한 = FD送付日) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716` | `e08dc6073eeea2129061e3e5101030cb3ce0ecd35412ad42fa5b876c5e4a4aff` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -145,6 +145,11 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 일본어 본문 (R5) — 실제 보낸 원문 2 모양: 짧은 형 (`MAIL19.SHIP.ja`) · 목록 형 (`MAIL20.JA_LIST` — 지난 메일 본문에 `-Invoice# :` 가 있으면). 빈 칸 (仕入先 등) = 「本文の空欄を確認してください」. 본문 · 제목에 빈 `{ORDER}` 같은 글자가 남지 않음 (v0.19 버그).
   - 마스터 줄 찾기 (`mailSalesRow`) = Shipping Schedule `buildBuyerData` 와 같음 — 계약의 AGENT (下書き 만들 때 그 계약만 COMPASS 에서 읽음 · 숫자 = 없음) → `AGENT::BUYER` → `AGENT::` · 없으면 `::BUYER`. (v0.19 는 BUYER 이름으로만 찾아 FORESTRY · FOUR SEASONS 같은 에이전트 줄을 못 찾았음.)
   - 시험 = `tests/v20.js`.
+- **v0.22 (지시서 `THOR_17_지시서_D00_엔진_書類ツールv0.22` · 묶음 `D-00_書類ツール_v0.22_수정묶음_v0.3` · 형님 V1 ~ V8 · K3 · K4 · 리나이 자동 기록)** — 엔진 = CONTRACT_SEND `31c77e2` (acl v0.19 · bl v0.6 · fd v0.2).
+  - **서류 보기 부품 `DV`** (index 안 한 묶음 · 나중에 LEENAI_COMMON 으로 옮길 수 있게 — 밖에서 쓰는 것은 `DV.mount` · `DV.target` 뿐): pdf.js 3.11.174 · 보이는 쪽만 canvas · 휠 확대 (1 ~ 6 배) · 끌어 이동 · ⟲ ⟳ 180° (화면만 · `localStorage` `dt_rotmem_v1` = 파일 이름 + 쪽) · ← → 쪽 · 결과 줄 누르면 그 칸 (`DOC.dvFind` = 글자 위치에 노란 테두리 · AI 판독 = 쪽 + AI 의 枠). **ACL · B/L Draft · FD 탭 = 왼쪽 서류 / 오른쪽 결과** (`.dv-split` · 1,100 px 아래 = 위/아래). 保存の入口 줄마다 「👁 見る」 (모달 · 읽기만).
+  - 결과 순서 (V4): ACL = 엔진 `viewHtml(res,{v22:true})` 의 `<!--av-list-->` 로 나눔 (`DOC.aclSplit`) · B/L Draft = 「確認した項目」 표를 떼어 맨 아래 접기 (`DOC.blSplit`) → **결론 → 相違 → 読めない → 過去の誤記 · 表記差 → 버튼 → 체크리스트 (접기)**. 결과 5 색 (V5) = CSS 변수 `--rs-ok · --rs-note · --rs-ng · --rs-read · --rs-na` (색 표 2 개에).
+  - V3 = 스캔 ACL 의 3 번째 판독 저장본 (`_scan_ai/{sha256}[.other].r3.json` · acl_bench 가 저장 · 이 TOOL 은 읽기만) → 「3 回目で確定」 · 미정 = 잘라낸 그림 (`_scan_ai/{…}.r3.{칸}.png` · `cropLoad`). V7 契約別 완료 접기 (`DOC.ctDone` · `dt_ct_done_open`). V8 국내 = `DOC.isDomestic` 한 곳 (Invoice L · 계약 LS- · 국가 JAPAN).
+  - **FD 탭을 열면 결과 기록** (리나이 결정 · `doc_tool/fd/{IV}_{UTC}_d{n}_h{fdHash}.json` · 앞 기록과 같은 결과 = 안 씀 · 문지기 `V22.FD_NAME_RE`). 보험증권 AI (`fdInsAi` · 저장본 `_fd_ai/{sha256}.ins.json` · 문지기 `V22.FD_AI_RE` · 白紙 `_1POL` → TO BANK) · AI 부르는 곳 = `aiPost` 한 곳. 제출기한 = PORTAL `shipping[IV].fd_date`.
 - **v0.21 (지시서 `THOR_15_지시서_D00_FD확인_fd_bench_v0.1_書類ツールv0.21` · 형님 F1 ~ F3)** — 엔진 = CONTRACT_SEND `521894e` (acl v0.18 · bl v0.5 · fd v0.1).
   - FD 탭 = `fdTabHtml` · `fdRun` — 부품 PDF (fd-core `fileTier`: `{IV}_FD_DATA.pdf` > `{IV}_.pdf` > DRAFT DOC > 단품 > 通関/) 글자 ↔ L/C 보관소 (+ L/C 본문 `source.lc_text` · 43P/43T/48). 탭을 열면 계산만 (쓰기 0) · 「確認して記録する」 를 누르거나 TO BANK AI 가 돈 때만 `doc_tool/fd/{IV}_{UTC}_d{試験相違数}.json`.
   - TO BANK AI (F3 · 자동) = `fdTbAi` — 저장본 `ACL_bench/_fd_ai/{sha256}.json` (fd_ai/1 · 쪽마다 r1 · r2) 이 있으면 그것 (AI 0) · 없으면 설정의 API 키로 브라우저에서 (회색 150 dpi · 2 회 · 3 쪽씩) → 저장본 + `doc_tool/ai_cost/{yyyymmdd}/`. 키 없음 = 관리자에게만 「AI 未実行（キーなし）」. 쪽 그림 = `FD_PNG.fn` (시험은 바꿔 끼움).

@@ -109,6 +109,7 @@ const CSV_H='発信者,発信日時(JST),月,件名,返信/転送,件名規則,�
   eq($$(w,'#dtCtPeriod button').map(b=>b.textContent),['直近2週間','直近1ヶ月','直近3ヶ月','直近6ヶ月'],'#7 기간 4가지 (契約別에만)');
   ok(w.document.getElementById('dtIvCtl').style.display==='none','#7 ETD · FD済み 조작은 契約別에서 숨김');
   w.document.querySelector('#dtCtPeriod button[data-days="90"]').click(); eq($$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent),['LRS-2611CC1'],'直近3ヶ月 (120 일 전 계약은 아직 밖)');
+  w.localStorage.setItem('dt_ct_done_open','1');   // v0.22 (V7): 完了 を開いた状態
   w.document.querySelector('#dtCtPeriod button[data-days="180"]').click(); eq($$(w,'#dtTable button.dt-link[data-ct]').map(b=>b.textContent),['LRS-2611CC1','LRS-2611BB1','LRS-2611AA1'],'直近6ヶ月 → 계약일 역순');
   w.document.getElementById('dtTodo').click(); ok($$(w,'#dtTable tbody tr').filter(tr=>tr.querySelector('button[data-ct]')).every(tr=>[...tr.querySelectorAll('td.c .st')].some(s=>/確認|相違/.test(s.textContent))),'要対応 = LC · S/I 가 確認 · 相違');
 }
