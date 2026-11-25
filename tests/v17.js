@@ -179,7 +179,7 @@ function world17(){
   const r=await w.eval("aclCompareOne('NAA2611-01')"); ok(r.format==='SCAN'&&r.verdict!=='読取対象外'&&r.ai&&r.ai.label==='AI 判読 (スキャン)'&&(r.items||[]).some(i=>i.key==='ai:scan'),'G10 스캔 ACL → 저장본 AI 판독으로 대조 (読取対象外 아님 · 「AI 判読 (スキャン)」 · pdf.js 가 버퍼를 비워도 sha256 = 원본)',{f:r.format,v:r.verdict,why:r.why});
   ok(W.writes.length===0&&!W.req.some(x=>/anthropic/.test(x)),'G10 AI 호출 0 · 쓰기 0 (저장본 읽기만)');
   W.itemBytes.scan1=await BF.mkPdf([[],[]]); const r2=await w.eval("aclCompareOne('NAA2611-01')"); ok(r2.verdict==='読取対象外'&&/AI 判読なし/.test(r2.why),'G10 저장본 없는 스캔 = 読取対象外 (AI 判読なし)',r2.why);
-  ok(/const ACL_ENGINE = \{commit:'[0-9a-f]{40}', sha256:'[0-9a-f]{64}', ver:'0\.1[4-9]'\}/.test(HTML),'G10 엔진 고정 = acl_bench (커밋 + sha256 · v0.14 이상 — v0.18 에서 980b6f4)');
+  ok(/const ACL_ENGINE = \{commit:'[0-9a-f]{40}', sha256:'[0-9a-f]{64}', ver:'0\.(?:1[4-9]|2\d)'\}/.test(HTML),'G10 엔진 고정 = acl_bench (커밋 + sha256 · v0.14 이상 — v0.18 에서 980b6f4)');
   w.close(); }
 /* 2-7 B9 保存の入口 — 놓기 (시험 모드) · FD · TO BANK · 메일 첨부 */
 { const W=world17(); W.messages=W.messages.concat([{id:'mb',subject:'Documents NAA2611-01',from:{emailAddress:{address:'trade@bank.example.org'}},receivedDateTime:new Date(Date.now()-3600e3).toISOString(),hasAttachments:true,attachments:[{id:'ab',name:'NAA2611-01_TO BANK.pdf',isInline:false,size:100}]}]);

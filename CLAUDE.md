@@ -60,9 +60,9 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.19 · v0.22 — 당사자 전화 · FAX 숫자만 · 우편번호 = 表記差 · AI 「読めず」 칸 3 번째 판독 `scanApplyR3` · 결과 순서 `viewHtml(…,{v22:true})`) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716` | `9a6b005c2a34f601e1fbdfc1dd61b364aa51ce48e5bc796d89a54ced37c076e0` |
-| B/L Draft 대조 (bl_bench v0.6 · v0.22 = 같은 커밋) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716` | `56b59ebc2aa1ee2101d0ec3d1905dab3c7138173563c7d065bbbe05e4e53efb6` |
-| FD 확인 (fd_bench v0.2 · v0.22 = 같은 커밋 — 보험증권 AI `INS_AI` · 제출기한 = FD送付日) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716` | `e08dc6073eeea2129061e3e5101030cb3ce0ecd35412ad42fa5b876c5e4a4aff` |
+| ACL 대조 (acl_bench v0.20 · v0.22.1 — CP-A04 = L/C 42C 원문 그대로 (공백 · 대소문자만 表記差) · FAX 메일 칸 「?」 밖 같으면 一致 · v0.19 의 V6 · V3 · v22 화면) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `b4c4b882afc52ae176404dcc957acc59cdf39964` | `741935181889d595e05d856f8e370c807ad6dfa201306d12fb9e6bf323b98cf7` |
+| B/L Draft 대조 (bl_bench v0.6 · v0.22.1 = 같은 커밋 · ACL 고정만 새로) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `b4c4b882afc52ae176404dcc957acc59cdf39964` | `b3e912e2af6f4bbf8ef6c832321250f174d0f4b259dee53b90e18f1c14d40cfa` |
+| FD 확인 (fd_bench v0.3 · v0.22.1 = 같은 커밋 — 보험 표준 제외 특약 = 一致 · DESTINATION + 같은 나라 = 注意 · 보험증권 AI · 제출기한 = FD送付日) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `b4c4b882afc52ae176404dcc957acc59cdf39964` | `463bc7bbb44e9a8cbba4041ad1c79a7e11dfd966fb810950cedaa3357b7de846` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
@@ -145,6 +145,10 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 일본어 본문 (R5) — 실제 보낸 원문 2 모양: 짧은 형 (`MAIL19.SHIP.ja`) · 목록 형 (`MAIL20.JA_LIST` — 지난 메일 본문에 `-Invoice# :` 가 있으면). 빈 칸 (仕入先 등) = 「本文の空欄を確認してください」. 본문 · 제목에 빈 `{ORDER}` 같은 글자가 남지 않음 (v0.19 버그).
   - 마스터 줄 찾기 (`mailSalesRow`) = Shipping Schedule `buildBuyerData` 와 같음 — 계약의 AGENT (下書き 만들 때 그 계약만 COMPASS 에서 읽음 · 숫자 = 없음) → `AGENT::BUYER` → `AGENT::` · 없으면 `::BUYER`. (v0.19 는 BUYER 이름으로만 찾아 FORESTRY · FOUR SEASONS 같은 에이전트 줄을 못 찾았음.)
   - 시험 = `tests/v20.js`.
+- **v0.22.1 (지시서 `THOR_19_지시서_D00_書類ツールv0.22.1_작은수정` · 형님 P1)** — 엔진 = CONTRACT_SEND `b4c4b88` (acl v0.20 · bl v0.6 · fd v0.3).
+  - 試験 줄이 같은 내용으로 여러 번 붙던 문제 (S/I 탭 · `siTrialAppend` 가 다시 그려질 때) — `trialAppend` 가 붙이기 전에 같은 단계 · 같은 대상 (`data-trialbox`) 의 앞 묶음을 지움 (S/I · ACL · B/L 공통).
+  - **CP-A04 相違 → 「L/C の文言で直す」** (`siFixDeadline`): 확인 창 (今の値 → L/C 42C 원문) → 控え `doc_tool/si_backup/` → 그 S/I 의 `crcf9_payment_deadline` 만 PATCH (`dvWrite` · 문지기 `guardDv`) → 다시 읽기 → 履歴 `doc_tool/log/`. 확인 창 뒤에 COMPASS 가 바뀌었으면 쓰지 않음.
+  - S/I 推薦 · 前回 · 仮 S/I · 저장한 추천 = `payment_deadline` 을 L/C 42C 원문으로 (`siDeadlineApply` → `DOC.siDeadlineFix` · `DOC.lc42`).
 - **v0.22 (지시서 `THOR_17_지시서_D00_엔진_書類ツールv0.22` · 묶음 `D-00_書類ツール_v0.22_수정묶음_v0.3` · 형님 V1 ~ V8 · K3 · K4 · 리나이 자동 기록)** — 엔진 = CONTRACT_SEND `31c77e2` (acl v0.19 · bl v0.6 · fd v0.2).
   - **서류 보기 부품 `DV`** (index 안 한 묶음 · 나중에 LEENAI_COMMON 으로 옮길 수 있게 — 밖에서 쓰는 것은 `DV.mount` · `DV.target` 뿐): pdf.js 3.11.174 · 보이는 쪽만 canvas · 휠 확대 (1 ~ 6 배) · 끌어 이동 · ⟲ ⟳ 180° (화면만 · `localStorage` `dt_rotmem_v1` = 파일 이름 + 쪽) · ← → 쪽 · 결과 줄 누르면 그 칸 (`DOC.dvFind` = 글자 위치에 노란 테두리 · AI 판독 = 쪽 + AI 의 枠). **ACL · B/L Draft · FD 탭 = 왼쪽 서류 / 오른쪽 결과** (`.dv-split` · 1,100 px 아래 = 위/아래). 保存の入口 줄마다 「👁 見る」 (모달 · 읽기만).
   - 결과 순서 (V4): ACL = 엔진 `viewHtml(res,{v22:true})` 의 `<!--av-list-->` 로 나눔 (`DOC.aclSplit`) · B/L Draft = 「確認した項目」 표를 떼어 맨 아래 접기 (`DOC.blSplit`) → **결론 → 相違 → 読めない → 過去の誤記 · 表記差 → 버튼 → 체크리스트 (접기)**. 결과 5 색 (V5) = CSS 변수 `--rs-ok · --rs-note · --rs-ng · --rs-read · --rs-na` (색 표 2 개에).

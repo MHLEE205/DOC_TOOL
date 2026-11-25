@@ -28,8 +28,8 @@ const body=w=>w.document.getElementById('dtIvBody');
 (async()=>{
 console.log('③-1 엔진 고정');
 { const a=ENG.pin(HTML), b=ENG.blPin(HTML), f=ENG.fdPin(HTML);
-  ok(a.commit===b.commit&&b.commit===f.commit&&a.ver==='0.19'&&b.ver==='0.6'&&f.ver==='0.2','acl v0.19 · bl v0.6 · fd v0.2 = 같은 커밋 (v0.22)',[a,b,f]);
-  const F=ENG.fdEngine(HTML); ok(F.VERSION==='0.2'&&typeof F.check==='function'&&F.CHECKS.length===44,'fd-core v0.2 (sha256 일치) · 항목 44',F.CHECKS.length);
+  ok(a.commit===b.commit&&b.commit===f.commit&&a.ver==='0.20'&&b.ver==='0.6'&&f.ver==='0.3','acl v0.20 · bl v0.6 · fd v0.3 = 같은 커밋 (v0.22.1)',[a,b,f]);
+  const F=ENG.fdEngine(HTML); ok(F.VERSION==='0.3'&&typeof F.check==='function'&&F.CHECKS.length===44,'fd-core v0.3 (sha256 일치) · 항목 44',F.CHECKS.length);
   const A=ENG.engine(HTML); ok(typeof A.siCheck==='function'&&Object.keys(A.CP_CODE).length===16,'acl-core v0.18 · CP_CODE 16 · siCheck'); }
 
 console.log('쓰기 문지기 (v0.21 이름)');
@@ -74,7 +74,9 @@ console.log('③-3 키 있음 = 자동 2 회 · 저장본 · 비용 · 다시 �
   ok(wr.some(u=>u.indexOf('ACL_bench/_fd_ai/'+sha+'.json')>=0),'저장본 ACL_bench/_fd_ai/{sha256}.json',wr); ok(wr.some(u=>/doc_tool\/ai_cost\/\d{8}\/NAA2611-01_/.test(u)),'비용 기록 doc_tool/ai_cost/');
   const cache=W.writes.find(x=>decodeURIComponent(x.url).indexOf('_fd_ai/')>=0); const C=JSON.parse(cache.body.text?await cache.body.text():cache.body); ok(C.schema==='fd_ai/1'&&C.pages.length===2&&C.pages.every(p=>p.r1&&p.r2)&&C.sha256===sha,'저장본 내용 (2 회 · 쪽마다)',C);
   /* 두 번째 사람 — 저장본이 있으면 AI 를 안 부름 */
-  const W2=await mk({tb:true}); W2.content['古紙/-. AI 活用/D-00/ACL_bench/_fd_ai/'+sha+'.json']=JSON.stringify(C); W2.content['古紙/-. AI 活用/D-00/ACL_bench/_fd_ai/'+sha+'.ins.json']=INSC;
+  /* v0.22.1: 2 つ目の世界の TO BANK は 作り直した PDF (作成時刻で sha256 が変わることがある) → その sha256 で保存本を置く */
+  const W2=await mk({tb:true}), sha2=nodeCrypto.createHash('sha256').update(W2.tbBytes).digest('hex');
+  W2.content['古紙/-. AI 活用/D-00/ACL_bench/_fd_ai/'+sha2+'.json']=JSON.stringify(Object.assign({},C,{sha256:sha2})); W2.content['古紙/-. AI 活用/D-00/ACL_bench/_fd_ai/'+sha2+'.ins.json']=JSON.stringify(Object.assign(JSON.parse(INSC),{sha256:sha2}));
   const w2=await X.page(W2,{...INIT, html:HFILE, ls:{leenai_apikey_v1:'sk-test-fake'}}); w2.eval('FD_PNG.fn=async()=>"AAAA"'); await openFd(w2);
   ok(!W2.aiCalls&&/保存した判別/.test(body(w2).textContent),'저장본 있음 → AI 0 (「保存した判別を使いました」)',W2.aiCalls); }
 

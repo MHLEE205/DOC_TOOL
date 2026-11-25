@@ -10,7 +10,7 @@ let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.lo
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const qa=(w,s)=>[...w.document.querySelectorAll(s)];
 (async()=>{
-ok(/^0\.(9|1\d)$/.test(P.ver)&&typeof E.lcItems==='function'&&typeof E.mailKindOf==='function','엔진 고정 = acl_bench v0.9 (커밋 '+P.commit.slice(0,7)+' · sha256)',P);
+ok(/^0\.(9|[12]\d)$/.test(P.ver)&&typeof E.lcItems==='function'&&typeof E.mailKindOf==='function','엔진 고정 = acl_bench v0.9 (커밋 '+P.commit.slice(0,7)+' · sha256)',P);
 
 console.log('6 메일 초안');
 { const it=(o)=>Object.assign({group:'S/I 文面', key:'x', label:'X', status:'MATCH', expected:'', actual:'', detail:'', kind:''},o);

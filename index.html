@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.22</title>
+<title>LEENAI D-00 書類ツール v0.22.1</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -216,7 +216,7 @@ button.st:hover{border-color:currentColor}
 .fd-badge{display:inline-block;font-size:12px;border:1px solid var(--border);border-radius:8px;padding:1px 8px;margin-left:8px;color:var(--text2);background:transparent}
 .fd-trial{border:1px dashed var(--border);border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;flex-direction:column;gap:4px}
 .fd-th{font-size:13px;font-weight:700;color:var(--text2)}
-.fd-tr{display:grid;grid-template-columns:64px 72px minmax(0,1fr) auto;gap:8px;align-items:start;font-size:13px;padding:3px 0;border-top:1px solid var(--border)}
+.fd-act{display:flex;gap:6px;flex-wrap:nowrap;align-items:flex-start;white-space:nowrap}.fd-tr{display:grid;grid-template-columns:64px 72px minmax(0,1fr) auto;gap:8px;align-items:start;font-size:13px;padding:3px 0;border-top:1px solid var(--border)}
 .fd-tr:first-of-type{border-top:0}.fd-cp{font-family:var(--mono);font-size:12px;color:var(--text2)}.fd-l{min-width:0;overflow-wrap:anywhere}
 .fd-w{font-weight:700;font-size:12px;border:1px solid var(--border);border-radius:6px;padding:0 6px;text-align:center;color:var(--text2)}
 .fd-w-DIFF{border-style:double;border-width:3px}.fd-w-MATCH{opacity:.75}
@@ -303,6 +303,8 @@ button.st:hover{border-color:currentColor}
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
+   v0.22.1 (2026-11-25 指示書 THOR_19 Part ② · 形さん P1): 試験の行が 同じ内容で何度も付く (S/I タブ) を直した (付ける前に 同じ段階 · 同じ対象の前の行を消す) ·
+     CP-A04 相違 → 「L/C の文言で直す」 (確認 → 控え → payment_deadline だけ COMPASS に) · S/I 推薦 · 前回 · 仮 S/I の payment_deadline = L/C 42C 原文 · エンジン acl v0.20 · fd v0.3
    v0.22 (2026-11-25 指示書 THOR_17 Part ② · 形さん V1 ~ V8 · K3 · K4 · 리나이 自動記録): 書類の表示 (DV — 左 PDF · 右 結果 · pdf.js 3.11.174 · 拡大 · 移動 · ⟲ ⟳ 180° この PC に覚える · 行を押すと その欄へ 黄色い枠) ·
      保存の入口 「👁 見る」 · 読めず欄の 3 回目 (「3 回目で確定」 · 決まらない = 切り抜き画像 + 値) · ACL · B/L Draft の並び (結論 → 相違 → 読めない → 過去の誤記 · 表記差 → ボタン → チェックリスト (たたむ)) ·
      結果の 5 色 (一致 緑 · 表記差 黄 · 相違 赤 · 読めず 橙 · 対象外 灰) · 契約別 = 完了をたたむ · 国内 (JAPAN · LS-) を出さない (isDomestic 1 か所) · FD タブを開いたら記録 (同じ結果なら書かない) ·
@@ -639,6 +641,13 @@ const DOC = (()=>{
   const V22 = {ROT_KEY:'dt_rotmem_v1', CT_FOLD_KEY:'dt_ct_done_open', SPLIT_MIN:1100, VIEW_DPR:2, ZOOM_MAX:6,
     FD_NAME_RE:/^([A-Za-z0-9_\-]+)_(\d{8}-\d{6})_d(\d+)(?:_h([0-9a-f]{8}))?\.json$/, FD_AI_RE:/^[0-9a-f]{64}(\.ins)?\.json$/,
     DONE_LABEL:n=>'完了 '+n+' 件（開く）', DONE_LABEL_OPEN:n=>'完了 '+n+' 件（閉じる）', VIEW_BTN:'👁 見る', NO_DOC:'表示する書類がありません'};
+  /* v0.22.1 (指示書 THOR_19 ②-2 · ②-3 · 形さん P1 「하루 빨리 자동화의 길로」): S/I の payment_deadline = L/C 42C の原文そのまま (L/C 保管所 lc_read/1 の payment.tenor_text) —
+     推薦 · 前回の S/I · 仮 S/I を作ったら その値にする (siDeadlineFix) · CP-A04 相違 の行の 「L/C の文言で直す」 = この値で その S/I の欄だけ書く */
+  const lc42 = lc => { const p=lc&&lc.payment; return String((p&&(p.tenor_text||p.read_text))||'').replace(/\s+/g,' ').trim(); };
+  function siDeadlineFix(res, tenor){ const t=String(tenor||'').trim(), out=[]; if(!t||!res||!res.rec||!res.rec.sinos) return out;
+    if(res.fieldHead&&res.fieldHead.indexOf('crcf9_payment_deadline')<0) return out;
+    Object.keys(res.rec.sinos).forEach(sn=>{ const r=res.rec.sinos[sn]||{}, b=String(r.crcf9_payment_deadline==null?'':r.crcf9_payment_deadline); if(b!==t){ r.crcf9_payment_deadline=t; out.push({sino:sn, before:b, after:t}); } res.rec.sinos[sn]=r; });
+    if(out.length) res.deadlineFix=out; return out; }
   const isDomestic = x => { x=x||{}; return /^L/i.test(String(x.iv||'').trim())||/^LS-/i.test(String(x.ct||'').trim())||up(x.country)==='JAPAN'; };
   const ctDone = cells => { const l=cells&&cells.lc, s=cells&&cells.si; return !!(l&&s&&(l.s==='done'||l.s==='na')&&s.s==='done'&&!s.tent&&!s.lcStale); };
   /* FNV-1a 32 bit → 8 桁 (結果の 項目 · 判定 · 期待 · 実際 · 読んだ PDF — 時刻は入れない) */
@@ -1665,7 +1674,7 @@ const DOC = (()=>{
     /* v0.6 */ SI_TENT, SI_TENT_WHY, ACL_TENT_NOTE, siTent, CT_DAYS_DEFAULT,
     /* v0.3 */ useAclEngine, aclReady, aclPick, FD_TENT, fdFiles, fdBundle, honIndex, jstDay, CT_REAL, CT_PERIODS, monthsAgo, sortCtDate,
     blKind, pickBl, aclScan, fdDone, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
-    utcStamp, aclResultPath, /* v0.22 */ V22, isDomestic, ctDone, fdHash, dvFind, aclTarget, aclSplit, blSplit, /* v0.21 */ V21, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
+    utcStamp, aclResultPath, /* v0.22.1 */ lc42, siDeadlineFix, /* v0.22 */ V22, isDomestic, ctDone, fdHash, dvFind, aclTarget, aclSplit, blSplit, /* v0.21 */ V21, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
     SI_HEAD_COLS, SI_DET_COLS, SI_LABEL, nv, siFieldState, siPlan, isGuid, guardDv, siVerify, siEdits};
 })();
 if(typeof module!=='undefined') module.exports=DOC;
@@ -2577,7 +2586,7 @@ async function runSearch(){
    エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
    v0.3: ACL の名前の規則 (aclScan · aclPick) · 本登録の語 (mailKind) · 結果の見せ方 (viewHtml) もエンジンから — 現況板が始まるときに読む (loadAll)
    下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @903d923 (v0.4 から変わっていない) */
-const ACL_ENGINE = {commit:'31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716', sha256:'9a6b005c2a34f601e1fbdfc1dd61b364aa51ce48e5bc796d89a54ced37c076e0', ver:'0.19'};   // v0.22: エンジン v0.19 (電話 · 郵便番号 = 表記差 · 読めず欄の 3 回目 · 結果の並び v22)   // v0.21: エンジン v0.18 (新しい試験の行のコード判定 CP_CODE · S/I 段階 siCheck)   // v0.19: エンジン v0.17 (40HCR = 45R)   // v0.18 (T-1): エンジン v0.16 (形態 HC 表記 · 複合輸送の空欄 = 参考 · RECIEVED BY CARRIER = 対象外 · 乙仲の過去の誤記 · NACCS の判定は v0.15 と同じ)   // v0.17 (G10): エンジン v0.14 (スキャン ACL の AI 判読 2 回 · NACCS の判定は v0.13 と同じ) — 토르_10 が終わったら その版へ   // v0.13: エンジン v0.13 (画面の韓国語なし · 判定は v0.12 と同じ)   // v0.12: エンジン v0.12 (CP-A01 の 末尾の , ; : · B/L Draft と共通の部品)   // v0.11: エンジン v0.11 (チェックポイント · 港の別名)   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
+const ACL_ENGINE = {commit:'b4c4b882afc52ae176404dcc957acc59cdf39964', sha256:'741935181889d595e05d856f8e370c807ad6dfa201306d12fb9e6bf323b98cf7', ver:'0.20'};   // v0.22: エンジン v0.19 (電話 · 郵便番号 = 表記差 · 読めず欄の 3 回目 · 結果の並び v22)   // v0.21: エンジン v0.18 (新しい試験の行のコード判定 CP_CODE · S/I 段階 siCheck)   // v0.19: エンジン v0.17 (40HCR = 45R)   // v0.18 (T-1): エンジン v0.16 (形態 HC 表記 · 複合輸送の空欄 = 参考 · RECIEVED BY CARRIER = 対象外 · 乙仲の過去の誤記 · NACCS の判定は v0.15 と同じ)   // v0.17 (G10): エンジン v0.14 (スキャン ACL の AI 判読 2 回 · NACCS の判定は v0.13 と同じ) — 토르_10 が終わったら その版へ   // v0.13: エンジン v0.13 (画面の韓国語なし · 判定は v0.12 と同じ)   // v0.12: エンジン v0.12 (CP-A01 の 末尾の , ; : · B/L Draft と共通の部品)   // v0.11: エンジン v0.11 (チェックポイント · 港の別名)   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
 ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 const CMAPS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/';   // v0.12: cdnjs は cmaps を出さない (403) — 同じ版の cmaps (sha256 同じ · acl_bench v0.12 · bl_bench v0.2 と同じ)
@@ -2814,8 +2823,8 @@ function aclTabAfter(r){
 /* ══════════ v0.12 P2b — B/L Draft タブ (指示書 D00 B/L Draft 2 段階 Step 3 · 原指示書 Step 3 · 5 · 형님 D1 ~ D8 · D2 ~ D4 (2 段階)) ══════════
    エンジン = CONTRACT_SEND/bl_bench.html の <script id="bl-core"> を コミット固定 + sha256 で読み込み、ACL エンジン (同じく固定) を BL.useEngine で渡す (コピーしない)
    基準 = COMPASS (S/I · ブッキング · コンテナ) + L/C 保管所 · ACL は参考 (D1) · 運賃の金額は比べない · チェックポイント (stage BL_DRAFT) は cpLoad のマスター (承認の安全装置つき)
-   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @31c77e2 · v0.2 から変わっていない) */
-const BL_ENGINE = {commit:'31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716', sha256:'56b59ebc2aa1ee2101d0ec3d1905dab3c7138173563c7d065bbbe05e4e53efb6', ver:'0.6'};   // v0.22: bl_bench v0.6   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
+   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @b4c4b88 · v0.2 から変わっていない) */
+const BL_ENGINE = {commit:'b4c4b882afc52ae176404dcc957acc59cdf39964', sha256:'b3e912e2af6f4bbf8ef6c832321250f174d0f4b259dee53b90e18f1c14d40cfa', ver:'0.6'};   // v0.22: bl_bench v0.6   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
 BL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+BL_ENGINE.commit+'/bl_bench.html';
 const JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';   // バイヤー用 Draft (画像 PDF) — bl_bench と同じ固定版
 const BL_DPI = 200;
@@ -3008,7 +3017,7 @@ function blTabAfter(r){
    TO BANK AI (F3 · 自動): TO BANK があり 保存本 (ACL_bench/_fd_ai/{sha256}.json) がなく 設定に API キー → この画面を開いた人のブラウザで 頁の判別 (枚数 · 原本/写し · 署名) を 2 回
      → 保存本を SharePoint に (他の人は 呼ばない) · 費用 = doc_tool/ai_cost/ · キーがない → 管理者に 「AI 未実行（キーなし）」
    新しい確認は 全部 試験 (判定に入れない · 赤にしない · 灰色の枠) · 試験の行に 「誤検知」 (doc_tool/cp_trial_log/) · 結果 = doc_tool/fd/{IV}_{UTC}_d{相違数}.json (新規だけ) */
-const FD_ENGINE = {commit:'31c77e263bd0a155c6bbac0ca9ccb3ecc1bb7716', sha256:'e08dc6073eeea2129061e3e5101030cb3ce0ecd35412ad42fa5b876c5e4a4aff', ver:'0.2'};   // v0.22: fd_bench v0.2 (保険証券 AI · 提出期限 = FD送付日)
+const FD_ENGINE = {commit:'b4c4b882afc52ae176404dcc957acc59cdf39964', sha256:'463bc7bbb44e9a8cbba4041ad1c79a7e11dfd966fb810950cedaa3357b7de846', ver:'0.3'};   // v0.22: fd_bench v0.2 (保険証券 AI · 提出期限 = FD送付日)
 FD_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+FD_ENGINE.commit+'/fd_bench.html';
 let FDX=null, FDX_P=null;
 async function loadFdEngine(){
@@ -3128,7 +3137,8 @@ function trialRowsHtml(items, iv, stage, opt){
   return '<div class="fd-trial"><div class="fd-th">試験中のチェック <span class="dt-note">（判定には入りません · 違う結果なら「誤検知」を押してください）</span></div>'+list.map(i=>{ const k=DOC.safeKey(iv)+'|'+(i.cp||i.key), done=S.faDone[k];
     return '<div class="fd-tr" data-dvkey="'+esc(i.key)+'"><span class="fd-cp">'+esc(i.cp||i.ref||'')+'</span><span class="fd-w fd-w-'+esc(i.would)+'">'+esc(FD_TRIAL_JA[i.would]||i.would)+'</span><span class="fd-l">'+esc(i.label)+(i.tsukan?' <span class="fd-tag">通関版</span>':'')+
       '<span class="dt-note"> '+esc(String(i.detail||'').replace(/^【[^】]*】\s*/,''))+(i.expected||i.actual?' — 基準 「'+esc(String(i.expected).slice(0,80))+'」 · 書類 「'+esc(String(i.actual).slice(0,80))+'」':'')+'</span></span>'+
-      (done?'<span class="dt-note">記録しました</span>':'<button class="dt-btn ghost sm" data-fa="'+esc(k)+'" data-fastage="'+esc(stage)+'" data-facp="'+esc(i.cp||'')+'" data-fakey="'+esc(i.key)+'" data-fawould="'+esc(i.would)+'">誤検知</button>')+'</div>'; }).join('')+'</div>';
+      '<span class="fd-act">'+(i.fixSi?'<button class="dt-btn sm" data-sifix="'+esc(i.fixSi)+'" title="S/I の payment_deadline を L/C 42C の原文にします (確認のあと COMPASS に書きます)">L/C の文言で直す</button> ':'')+
+      (done?'<span class="dt-note">記録しました</span>':'<button class="dt-btn ghost sm" data-fa="'+esc(k)+'" data-fastage="'+esc(stage)+'" data-facp="'+esc(i.cp||'')+'" data-fakey="'+esc(i.key)+'" data-fawould="'+esc(i.would)+'">誤検知</button>')+'</span></div>'; }).join('')+'</div>';
 }
 function bindTrial(root, items, iv){
   if(!root) return; root.querySelectorAll('[data-fa]').forEach(b=>{ b.onclick=async()=>{ b.disabled=true; const it=(items||[]).find(i=>(i.cp||'')===b.dataset.facp&&i.key===b.dataset.fakey)||{};
@@ -3155,14 +3165,18 @@ function fdTabAfter(r){
   const X=S.fdRes[r.iv]; if(X) bindTrial($('dtIvBody'), X.res.items, r.iv);
 }
 /* ACL · B/L Draft · S/I タブ — 新しい試験の行 (誤検知) を 職員にも (同じ形) */
-function trialAppend(root, items, iv, stage){ if(!root) return; const h=trialRowsHtml(items, iv, stage); if(!h) return; const sec=root.querySelector('.dt-panel')||root; const d=document.createElement('div'); d.innerHTML=h; sec.appendChild(d); bindTrial(d, items, iv); }
+/* v0.22.1 (指示書 THOR_19 ②-1 · 形さん画面: S/I タブ CP-A04 が 3 回): 付ける前に 同じ段階 · 同じ対象の 前の 試験の行を消す (タブを何度 行き来しても 1 つ) — S/I · ACL · B/L · FD 共通 */
+function trialAppend(root, items, iv, stage){ if(!root) return; const tag=stage+'|'+iv; root.querySelectorAll('[data-trialbox]').forEach(x=>{ if(x.getAttribute('data-trialbox')===tag) x.remove(); });
+  const h=trialRowsHtml(items, iv, stage); if(!h) return; const sec=root.querySelector('.dt-panel')||root; const d=document.createElement('div'); d.setAttribute('data-trialbox', tag); d.innerHTML=h; sec.appendChild(d); bindTrial(d, items, iv); }
 async function siTrialAppend(r){
   try{ const id=r.id, E=await loadAclEngine(), cpx=await cpLoad(); if(!cpx||!cpx.rows.some(x=>x.stages.indexOf('S/I')>=0)) return;
     const L=await readLcJson(id).catch(()=>null), lc=L&&L.lc; if(!lc) return; const lcText=await lcTextOf(lc), c=S.ct[id]||{};
     const sis=(S.sis[id]||[]).slice().sort((a,b)=>(+a.crcf9_sino||0)-(+b.crcf9_sino||0)); if(!sis.length) return;
     const meta={pay:isLcCt(id)?'LC':'', country:ctRow(id).country, contract:c.cr49f_sale_contract_no};
-    const items=[]; sis.forEach(si=>{ E.siCheck(cpx,{lc, si, meta, lcText}).forEach(i=>{ i.label=i.label+(sis.length>1?' (S/I '+si.crcf9_sino+')':''); items.push(i); }); });
-    if(S.cur&&S.cur.id===id&&S.curTab==='si') trialAppend($('dtCtBody'), items, c.cr49f_sale_contract_no||id, 'S/I');
+    const dl=(cpx.rows||[]).find(x=>x.engine_key==='si:deadline'), to=DOC.lc42(lc);   // v0.22.1 (②-2): CP-A04 = L/C 42C
+    const items=[]; sis.forEach(si=>{ E.siCheck(cpx,{lc, si, meta, lcText}).forEach(i=>{ i.label=i.label+(sis.length>1?' (S/I '+si.crcf9_sino+')':''); if(dl&&i.cp===dl.id&&(i.would||i.status)==='DIFF'&&to) Object.assign(i,{fixSi:si.cr49f_s_iid, fixTo:to}); items.push(i); }); });
+    if(S.cur&&S.cur.id===id&&S.curTab==='si'){ const root=$('dtCtBody'); trialAppend(root, items, c.cr49f_sale_contract_no||id, 'S/I');
+      root.querySelectorAll('[data-sifix]').forEach(b=>{ b.onclick=()=>{ const it=items.find(i=>i.fixSi===b.dataset.sifix); if(it) siFixDeadline(id, it.fixSi, it.fixTo); }; }); }
   }catch(e){}
 }
 /* 今日やること 「FD 作成・送付」 の行 — FD 確認 — 相違 n（試験） (灰色の枠 · 赤にしない) */
@@ -3253,6 +3267,31 @@ async function siRecommend(id, say){
     sale:await saleWithItems(await A.loadSaleDetails(c))};
 }
 /* 保存した推薦 (D-00/doc_tool/si_rec/{契約}_{UTC}.json) — 再読み込み · あとで でも残る */
+/* v0.22.1 (②-3): L/C の契約で L/C 保管所に 42C があれば 推薦の payment_deadline = その原文 (なければ 何もしない) */
+async function siDeadlineApply(id, res){ try{ if(!isLcCt(id)) return; const L=await readLcJson(id).catch(()=>null), t=DOC.lc42(L&&L.lc); if(t) DOC.siDeadlineFix(res, t); }catch(e){} }
+/* v0.22.1 (②-2 · 形さん P1): CP-A04 相違 → 「L/C の文言で直す」 — 確認 (今の値 → L/C 42C 原文) → 控え (doc_tool/si_backup/) → その S/I の payment_deadline だけ (門番 guardDv) → 読み直し → 履歴 (doc_tool/log/) */
+async function siFixDeadline(id, siId, to){
+  const c=S.ct[id]||{}, no=c.cr49f_sale_contract_no||id, here=()=>!!(S.cur&&S.cur.type==='ct'&&S.cur.id===id), st=()=>here()?$('dtSiSt'):null, say=m=>{ const e=st(); if(e) e.textContent=m; };
+  try{ say('COMPASS の今の S/I を読み直しています…');
+    const q=`cr49f_s_is(${siId})?$select=cr49f_s_iid,crcf9_sino,crcf9_payment_deadline,modifiedon,_cr49f_sale_contract_id_value`, cur=await dvGet(q);
+    if(String(cur._cr49f_sale_contract_id_value||'').toLowerCase()!==String(id).toLowerCase()) throw new Error('この契約の S/I ではありません');
+    const before=String(cur.crcf9_payment_deadline==null?'':cur.crcf9_payment_deadline); if(before===to){ say('COMPASS はもう L/C の文言です — 書くものはありません'); return; } say('');
+    modal('<div class="dt-h">L/C の文言で直す — '+esc(no)+' (S/I '+esc(cur.crcf9_sino)+')</div><div class="dt-note">'+esc(DOC.SI_LABEL.crcf9_payment_deadline||'支払条件')+' (payment_deadline) だけを L/C 42C の原文にします。書く前に今の値を SharePoint に控えます。</div>'+
+      '<div class="dt-kv"><div>今の値</div><div><span style="color:var(--st-diff-fg);text-decoration:line-through">'+esc(before||'(空欄)')+'</span></div><div>L/C 42C</div><div><b>'+esc(to)+'</b></div></div>'+
+      '<label class="dt-row" style="font-size:13px"><input type="checkbox" id="dtSiFixOk"> 内容を確認しました</label><div class="dt-actions"><button class="dt-btn ghost" data-close="1">やめる</button><button class="dt-btn" id="dtSiFixGo" disabled>書き込む</button></div>');
+    $('dtSiFixOk').onchange=()=>{ $('dtSiFixGo').disabled=!$('dtSiFixOk').checked; };
+    $('dtSiFixGo').onclick=async()=>{ closeModal(); const d=new Date(), at=d.toISOString(), log={kind:'S/I 書き込み (L/C の文言で直す · CP-A04)', contract:no, contract_id:id, si:siId, sino:cur.crcf9_sino, at, user:(LEENAI.user&&LEENAI.user.email)||'', before, after:to, backup:'', ok:false};
+      try{ say('確認画面のあとに 変わっていないか確かめています…'); const again=await dvGet(q); if(again.modifiedon!==cur.modifiedon) throw new Error('確認画面のあとに COMPASS の S/I が変わりました — もう一度');
+        const bp=DOC.OUT_ROOT+'si_backup/'+DOC.safeKey(no)+'_'+DOC.utcStamp(d)+'.json'; await spPut(bp, JSON.stringify({contract:no, contract_id:id, at, user:log.user, current:{si:siId, crcf9_payment_deadline:before, modifiedon:cur.modifiedon}, plan:[{set:'cr49f_s_is', id:siId, crcf9_payment_deadline:to}]})); log.backup=bp;
+        say('書き込んでいます…'); const r=await dvWrite('PATCH','cr49f_s_is',siId,{crcf9_payment_deadline:to},{contractId:id, siIds:new Set([siId]), detailIds:new Set(), created:new Set()});
+        if(!r.ok) throw new Error(r.status+' '+r.message); const now=await dvGet(q); log.ok=String(now.crcf9_payment_deadline||'')===to;
+        try{ await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(e){ toast('履歴の保存に失敗: '+e.message,'warn'); }
+        const L=S.sis[id]||[], x=L.find(h=>h.cr49f_s_iid===siId); if(x) x.crcf9_payment_deadline=now.crcf9_payment_deadline; S.siCur[id]=undefined;
+        if(here()) renderCt(); const e=st(); if(e) e.innerHTML=log.ok?'<span style="color:var(--st-done-fg)">L/C の文言で直しました · 読み直して一致 ✓ · 控え '+esc(bp)+'</span>':'<span style="color:var(--st-diff-fg)">書きましたが 読み直すと違います — COMPASS 画面で確認してください</span>';
+        toast(log.ok?'L/C の文言で直しました':'書き込み後の確認で違いあり', log.ok?'ok':'warn');
+      }catch(e){ const el=st(); if(el) el.innerHTML='<span style="color:var(--st-diff-fg)">書き込めません: '+esc(e.message)+(log.backup?' · 控え '+esc(log.backup):' (何も書いていません)')+'</span>'; try{ log.error=e.message; if(log.backup) await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(x){} } };
+    bindClose();
+  }catch(e){ const el=st(); if(el) el.innerHTML='<span style="color:var(--st-diff-fg)">直せません: '+esc(e.message)+'</span>'; } }
 async function siLoadSaved(id){
   const no=DOC.up((S.ct[id]||{}).cr49f_sale_contract_no); if(!no) return null;
   try{ const k=await spChildren(DOC.OUT_ROOT+'si_rec'); const L=DOC.latestAcl((k||[]).filter(x=>x.file).map(x=>x.name))[DOC.up(DOC.safeKey(no))]; if(!L) return null;
@@ -3358,7 +3397,7 @@ function siPills(id){ const el=$('dtSiPills'); if(!el||!S.siRec[id]) return; con
 async function siTabAfter(r){
   siTrialAppend(r);   // v0.21: S/I 段階の試験の行 (入力された S/I ↔ L/C)
   const id=r.id, here=()=>!!(S.cur&&S.cur.id===id&&S.curTab==='si');
-  if(!S.siRec[id]&&S.siRec[id]!==null&&!S.siBusy[id]){ S.siRec[id]=null; const saved=await siLoadSaved(id); if(saved){ S.siRec[id]=saved; if(here()) renderCt(); return; }
+  if(!S.siRec[id]&&S.siRec[id]!==null&&!S.siBusy[id]){ S.siRec[id]=null; const saved=await siLoadSaved(id); if(saved){ await siDeadlineApply(id,saved); S.siRec[id]=saved; if(here()) renderCt(); return; }
     if(!here()) return; }   // 待っている間に別の画面へ移った → この契約のボタンを付けない
   if(!S.siRec[id]&&(S.sis[id]||[]).length&&S.siCur[id]===undefined){   // S/I 済 → 今の S/I を読んで先に見せる
     S.siCur[id]=null; if(here()) renderCt();
@@ -3379,7 +3418,7 @@ async function siRun(id, opt){
   if(lc&&lcArrivalOf(id)==='no'){ toast('L/C 未着 — '+guideOf((S.ct[id]||{}).cr49f_sale_contract_no),'warn'); return; }
   const say=m=>{ S.siBusy[id]=m; const st=$('dtSiSt'); if(st&&S.cur&&S.cur.id===id) st.textContent=m; };
   say('準備中…'); const b=$('dtSiRun'); if(b) b.disabled=true;
-  try{ const res=lc?await siRecommend(id,say):await siTtRecommend(id,say,{tent}); S.siRec[id]=res; S.siEdit[id]={sinos:{},details:[]}; S.siBusy[id]='';
+  try{ const res=lc?await siRecommend(id,say):await siTtRecommend(id,say,{tent}); await siDeadlineApply(id,res); S.siRec[id]=res; S.siEdit[id]={sinos:{},details:[]}; S.siBusy[id]='';   // v0.22.1 (②-3)
     try{ await spPut(DOC.OUT_ROOT+'si_rec/'+DOC.safeKey(res.no)+'_'+DOC.utcStamp()+'.json', JSON.stringify(res)); }catch(e){ toast('推薦の保存に失敗 (画面にはあります): '+e.message,'warn'); }
     if(S.cur&&S.cur.id===id) renderCt(); toast(lc?'S/I 推薦ができました (US$ '+(+res.cost||0).toFixed(2)+')':tent?'仮 S/I を作りました (L/C 番号 '+DOC.V15.LC_TENT_VAL+' · AI なし)':'前回の S/I から作りました (AI なし · 費用 0)','ok');
   }catch(e){ S.siBusy[id]=''; if(S.cur&&S.cur.id===id){ renderCt(); const st=$('dtSiSt'); if(st) st.innerHTML=errHtml(e,'推薦できません','a1_bench'); } }
@@ -4021,7 +4060,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.22', date:'2026-11-25',
+  sys:'D-00', name:'書類ツール', version:'0.22.1', date:'2026-11-25',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',
