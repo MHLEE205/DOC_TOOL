@@ -145,6 +145,14 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 일본어 본문 (R5) — 실제 보낸 원문 2 모양: 짧은 형 (`MAIL19.SHIP.ja`) · 목록 형 (`MAIL20.JA_LIST` — 지난 메일 본문에 `-Invoice# :` 가 있으면). 빈 칸 (仕入先 등) = 「本文の空欄を確認してください」. 본문 · 제목에 빈 `{ORDER}` 같은 글자가 남지 않음 (v0.19 버그).
   - 마스터 줄 찾기 (`mailSalesRow`) = Shipping Schedule `buildBuyerData` 와 같음 — 계약의 AGENT (下書き 만들 때 그 계약만 COMPASS 에서 읽음 · 숫자 = 없음) → `AGENT::BUYER` → `AGENT::` · 없으면 `::BUYER`. (v0.19 는 BUYER 이름으로만 찾아 FORESTRY · FOUR SEASONS 같은 에이전트 줄을 못 찾았음.)
   - 시험 = `tests/v20.js`.
+- **v0.23 (지시서 `THOR_20_지시서_D00_書類ツールv0.23` · 수정 묶음 v0.4 N1 ~ N4 · N8 ~ N10)** — 엔진 그대로 (CONTRACT_SEND `b4c4b88`).
+  - N8 — 메일 (35 일 · 약 8,000 통 · 약 40 초) 을 다 읽기 전 · 못 읽은 구간이 있을 때 = 메일로 정하는 단계는 「メール確認中…」 / 「メール未確認」 (`todoMailPend` · 「〜メールなし」 「期限切れ」 「催促」 로 보이지 않게) · 띠 (`dtTodoBar`) 는 모두에게 (v0.17 부터 관리자만 · 맨 아래였음) · 구간마다 3 번 다시 읽기 (`MAIL_RETRY`) · 「もう一度 メールを読む」. 판 회귀는 아니었음 (v0.14 ↔ v0.22.1 같은 메일 = 같은 판단).
+  - N9 — 메일 ↔ 선적 연결 `linkMails` · `linkMax`: 접두어 (영자 1 ~ 10 자 · `ONE-` · `YMJA` …) · 하이픈으로 붙은 번호 · 송금 · B/L 依頼 메일은 8 건까지 (넘으면 제목 · 첨부만). B/L 受領 = 폴더 발행 B/L (`NAME.BL_FINAL` · `BL_FILE2`) · 후불 / FOB 의 선사 B/L 사본 메일 (`BL_COPY`) · 선사 발행 메일 (`BL_ISSUED`). 「期限なし」 → `dueText` (후불 Draft = 「ETD 後に B/L 依頼」) · 없으면 「—」.
+  - N10 — 줄마다 「済にする」 (이유 3 · 메일 제목 · 메모) → `doc_tool/state/done/{IV}_{UTC}.json` (새 파일 · `stateWrite` · 가장 새 기록이 지금 상태 · 元に戻す = `undo:true`) · 단계 (gkey · stage) 가 같을 때만 숨김 · 「済にしたもの」 구역 · 관리자 「メールが見つからない」 · 「長く残っている」 (ETD + 14 일 · 자동 끝 아님) · 같은 PC 다른 창 = BroadcastChannel `doc_tool_v023` (+ storage).
+  - N1 · N2 — S/I 표 (`siCurHtml(cur, id)`): 걸린 칸 = `si-bad` 빨간 테두리 · 틀린 글자 `mark.si-mk` · 이유 `si-why` · 위 띠 `siBandHtml` → 그 줄 · 칸마다 「✏ 直す」 → `siEditField` (입력 → 전/후 확인 → 控え → 그 칸만 PATCH → 다시 읽기 → 履歴 → 다시 검사) · 고칠 값 미리 채움 (`DOC.siFieldIssues` 別の契約番号 · CP-A04 = L/C 42C) · `siFixDeadline` = 그 한 경우. 推薦 화면 (저장된 추천) 에서는 표가 아니라 推薦 표가 나옴 (표시 = 지금의 S/I 표에서).
+  - N3 — 保存の入口: 「メールを確認」 · 다시 읽기마다 save_log 다시 읽음 (`SAVE.logKeys=null` · 이 창 / 다른 창 기록 `SAVE.logLocal`) · 열린 줄의 Invoice 폴더 다시 읽고 끝난 줄 지움 (`savePrune`) · 다른 창 保存 · 取消 → `bcSend({type:'save'})` → 그 줄 바로 지움.
+  - N4 — 今日やること 「S/I 確認（相違）」 (`sichk` · 맨 앞) = 別の契約番号. CP-A04 (試験) 은 S/I 탭에서만 (「有効」 이 되면 묶음에 넣을 것).
+  - DOC_TOOL Pages = GitHub 기본 「pages build and deployment」 (브랜치 배포 · deploy.yml 없음) → N6 의 2 단계 워크플로 해당 없음.
 - **v0.22.1 (지시서 `THOR_19_지시서_D00_書類ツールv0.22.1_작은수정` · 형님 P1)** — 엔진 = CONTRACT_SEND `b4c4b88` (acl v0.20 · bl v0.6 · fd v0.3).
   - 試験 줄이 같은 내용으로 여러 번 붙던 문제 (S/I 탭 · `siTrialAppend` 가 다시 그려질 때) — `trialAppend` 가 붙이기 전에 같은 단계 · 같은 대상 (`data-trialbox`) 의 앞 묶음을 지움 (S/I · ACL · B/L 공통).
   - **CP-A04 相違 → 「L/C の文言で直す」** (`siFixDeadline`): 확인 창 (今の値 → L/C 42C 원문) → 控え `doc_tool/si_backup/` → 그 S/I 의 `crcf9_payment_deadline` 만 PATCH (`dvWrite` · 문지기 `guardDv`) → 다시 읽기 → 履歴 `doc_tool/log/`. 확인 창 뒤에 COMPASS 가 바뀌었으면 쓰지 않음.

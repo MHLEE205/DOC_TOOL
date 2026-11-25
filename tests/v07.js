@@ -48,7 +48,7 @@ ok(row({}, {})===null,'통관 서류 전 → 書類 담당 일 없음 (T1 = 통�
   const r2=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-19','17:00'), drafts:[at('2026-11-20','08:00')]}); ok(r2.gkey==='w_buyer'&&r2.group==='wait'&&r2.due==null,'베트남 1번째 Draft · Deposit 아직 보통 시간 안 → v0.14 (1-2): 待ち · バイヤー (送金 기한으로 세지 않음)',r2);
   const r3=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-10','10:00'), drafts:[at('2026-11-18','10:00'),at('2026-11-20','08:00')]}); ok(!/Deposit 催促|Deposit 依頼/.test(r3.what)&&/2 回目の Draft（Deposit 番号 反映済み）/.test(r3.why),'베트남 2번째 Draft (LG 뒤) → Deposit 끝',r3);
   const r4=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-10','10:00'), depoRep:at('2026-11-12','10:00'), drafts:[at('2026-11-20','08:00')]}); ok(!/Deposit/.test(r4.what+r4.why),'Deposit 회신 있음 → Deposit 없음',r4); }
-{ const r=row({carrier:'SINOKOR'}, {drafts:[at('2026-11-19','10:00')]}); ok(r.gkey==='draft'&&r.group==='none'&&r.what==='B/L Draft 確認 → B/L 発行依頼'&&r.when==='期限なし','후불 선사 → 송금 없음 · Draft 뒤 바로 B/L 의뢰 · 後払い 묶음',r);
+{ const r=row({carrier:'SINOKOR'}, {drafts:[at('2026-11-19','10:00')]}); ok(r.gkey==='draft'&&r.group==='none'&&r.what==='B/L Draft 確認 → B/L 発行依頼'&&r.when==='ETD 後に B/L 依頼','후불 선사 → 송금 없음 · Draft 뒤 바로 B/L 의뢰 · 後払い 묶음',r);
   const r2=row({term:'FOB'}, {drafts:[at('2026-11-19','10:00')], pay:at('2026-11-19','15:00')}); ok(r2.gkey==='draft'&&r2.group==='none'&&/FOB/.test(r2.why)&&r2.stage===3,'FOB → 송금 없음 (지불일이 있어도 송금 단계 아님)',r2);
   ok(R.POSTPAID.length>=7&&['SINOKOR','HEUNG A','NAMSUNG','DONG YOUNG','OOCL','KMTC','PAN OCEAN'].every(c=>DOC.postpaid(c))&&!DOC.postpaid('MAERSK')&&DOC.postpaid('pan ocean'),'후불 7곳 (상수 표 · 대소문자 무관) · MAERSK 선불'); }
 { const r=row({}, {drafts:[at('2026-11-17','10:00')], cmail:at('2026-11-17','12:00')});

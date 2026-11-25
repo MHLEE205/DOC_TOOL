@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.22.1</title>
+<title>LEENAI D-00 書類ツール v0.23</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -225,7 +225,7 @@ button.st:hover{border-color:currentColor}
 .fd-st{border-collapse:collapse;width:100%;font-size:12.5px}.fd-st th,.fd-st td{border:1px solid var(--border);padding:3px 6px;text-align:left}.fd-st th{background:var(--surface2,var(--surface))}
 .tl-rows{border-top:1px solid var(--surface3)}.tl-row{display:grid;grid-template-columns:150px 230px minmax(0,1.2fr) minmax(0,1fr) 120px;gap:10px;padding:5px 16px;border-top:1px solid var(--surface3);align-items:center;font-size:13px}.tl-rows .tl-row:first-child{border-top:none}
 .tl-what{font-weight:500;color:var(--text)}.tl-why{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.tl-act{text-align:right}.tl-iv{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tl-due{font-size:12px;color:var(--text2)}.tl-d-late{background:var(--td-late-bg);color:var(--td-late-fg);font-weight:700;border-radius:6px;padding:1px 6px}.tl-d-today{background:var(--st-todo-bg);color:var(--st-todo-fg);font-weight:700;border-radius:6px;padding:1px 6px}
+.tl-due{font-size:12px;color:var(--text2)}.si-bad>td{border-top:2px solid var(--st-diff-fg);border-bottom:2px solid var(--st-diff-fg)}.si-bad>td:first-child{border-left:2px solid var(--st-diff-fg)}.si-bad>td:last-child{border-right:2px solid var(--st-diff-fg)}.si-mk{background:var(--st-diff-bg);color:var(--st-diff-fg);font-weight:700;border-radius:3px;padding:0 2px}.si-why{font-size:12px;color:var(--st-diff-fg);font-weight:600;margin-top:4px;white-space:normal}.si-ed{margin-top:4px;text-align:right}.si-band{padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.si-go{cursor:pointer;text-decoration:underline dotted}.si-flash>td{background:var(--st-diff-bg)}.tl-d-pend{background:var(--surface2,var(--bg));color:var(--text2);font-style:italic;border-radius:6px;padding:1px 6px}.tl-mailbar{padding:8px 12px;margin-bottom:8px;border-left:4px solid var(--st-todo-fg)}.tl-mailbar-err{border-left-color:var(--td-late-fg)}.tl-d-late{background:var(--td-late-bg);color:var(--td-late-fg);font-weight:700;border-radius:6px;padding:1px 6px}.tl-d-today{background:var(--st-todo-bg);color:var(--st-todo-fg);font-weight:700;border-radius:6px;padding:1px 6px}
 .tl-d-chase{background:var(--td-chase-bg);color:var(--td-chase-fg);font-weight:700;border-radius:6px;padding:1px 6px}.tl-wait .tl-what{font-weight:400;color:var(--text2)}
 .sv-done{border-top:1px solid var(--surface3);padding-top:6px}
 @media (max-width:720px){.tl-row{grid-template-columns:1fr}.tl-act{text-align:left}.tl-why{white-space:normal}}
@@ -303,6 +303,7 @@ button.st:hover{border-color:currentColor}
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
+   v0.23 (2026-11-25 指示書 THOR_20 · 修正まとめ v0.4 N1 ~ N4 · N8 ~ N10): N8 メールを読み終わるまで メールで決まる段階は 「メール確認中」 (「〜メールなし · 期限切れ」 を決まったように見せない · 読み込みの帯は全員 · 読めない区間は 3 回 読み直す · 「もう一度 メールを読む」) · N9 送金 · B/L 依頼を B/L (ブッキング) 番号で (接頭語 ONE- · YMJA … · 1 通に 8 件まで) · B/L 受領 = フォルダの発行済み B/L · 後払いは 船社の B/L 写し · 船社の発行済みの知らせ · 「期限なし」 → その段階の目安 · N10 「済にする」 (理由 · メモ · 元に戻す · 全員) · 管理者 「メールが見つからない」 · 「長く残っている」 · N1 S/I の相違の欄を赤 (違う文字 · 理由 · 帯 → その行) · N2 S/I 「✏ 直す」 (その欄だけ COMPASS · 直す値を先に · 「L/C の文言で直す」 はその 1 つ) · N3 保存の入口 = 毎回 記録とフォルダを読み直す · 別の窓の 保存 · 取消 を すぐ反映 · N4 「S/I 確認（相違）」 の まとまり
    v0.22.1 (2026-11-25 指示書 THOR_19 Part ② · 形さん P1): 試験の行が 同じ内容で何度も付く (S/I タブ) を直した (付ける前に 同じ段階 · 同じ対象の前の行を消す) ·
      CP-A04 相違 → 「L/C の文言で直す」 (確認 → 控え → payment_deadline だけ COMPASS に) · S/I 推薦 · 前回 · 仮 S/I の payment_deadline = L/C 42C 原文 · エンジン acl v0.20 · fd v0.3
    v0.22 (2026-11-25 指示書 THOR_17 Part ② · 形さん V1 ~ V8 · K3 · K4 · 리나이 自動記録): 書類の表示 (DV — 左 PDF · 右 結果 · pdf.js 3.11.174 · 拡大 · 移動 · ⟲ ⟳ 180° この PC に覚える · 行を押すと その欄へ 黄色い枠) ·
@@ -882,6 +883,7 @@ const DOC = (()=>{
     NUDGE_MIN_N:3,
     DRAFT_GAP_H:1,   // 1 時間以内に続いた Draft メールは 1 回 (토르_2 events.py)
     MAIL_DAYS:35,    // メールを読む日数 (今日 / asof から前へ) — CY_CUT 7 日前 〜 FD まで
+    MAIL_RETRY:[2000,5000,10000],   // v0.23 (N8): 区間が読めないとき 待って読み直す (ミリ秒)
     /* メールの用途 (토르_2 rules.py USAGES の必要な分) — [key, 送り手 (null = 誰でも), 件名 (頭の見出し), 添付名, 本文の先頭, 添付必須] */
     MAIL_USE:[
       ['ACL',['otsu','carrier'], /\bACL\b(?!\s*CUT)|D\/?R\s*(?:E\/D\s*)?添付|DRのご送付|ドックレシート|DOCK\s*RECEIPT|仮登録|本登録(?:完了|しました|済)|【ACL/i, /ACL|(?:^|[^A-Z])D\/?R(?:[^A-Z]|$)|仮登録|本登録|ドック/i, null, true],
@@ -913,12 +915,18 @@ const DOC = (()=>{
     SUB_HEAD:/通関書類|通関依頼|通関のご依頼|新規通関/i,
     FD_NOT:/Draft\s*docs?|ドラフト|DRAFT/i,
     BL_PREFIX:['ONEY','HLCU','MAEU','CMDU','YMLU','KMTC','SNKO','HASL','WHLC','IAAU','NSSL','PCSL'],
+    /* v0.23 (N9): B/L 受領の証拠 — 名前が IV でない 発行済み B/L (WAYBILL) · 後払い船社の 写しのメール (INFORMATION OF BILL (INVOICE,COPY NOTICE) など) */
+    BL_FILE2:/WAYBILL\.pdf$/i,
+    BL_COPY:/COPY\s*NOTICE|B\/?L\s*COPY|COPY\s*(?:OF\s*)?B\/?L|SEA\s*WAY\s*BILL|WAYBILL|\bSWB\b|SURRENDER/i,
+    BL_COPY_NOT:/DRAFT|ドラフト|確認|訂正|AMEND|BK\s*NOTICE/i,
+    BL_ISSUED:/SWB\s*is\s*Ready\s*for\s*Print|OBL\s*is\s*Ready|WAYBILL\s*(?:の発行|送付)|sea\s*waybill,\s*shipped\s*on\s*board|Internet\s*BL\s*アップ完了/i,
     ASSIST_LABEL:'補助（書類全体）',   // 형님 D5: 서류 업무 보조 = 書類の仕事を全部見る · v0.8: マスター staff に 「書類補助」 の印がある人は 「{名前}・補助」
     ASSIST_ROLE:'書類補助', ASSIST_FIELD:'doc_role',   // v0.8 (D6): master_staff の項目 doc_role = '書類補助' (期間の項目はなし)
     ACTION:{acl:['ACL 照合','acl'], draft:['Draft 照合','bl'], fd:['FD を作る','fd'], rr:['RR を開く','rr'], mail:['メールを作る',''], chase:['催促メール',''], si:['S/I を開く','ctsi'], fname:['フォルダを開く','']},
     /* v0.14 やること (自分の番) / 待ち (相手の番) / 今日終わったもの — グループの並び = 仕事の順 (社長 D3 · D5) · [key, 区域, 名前, 一行の案内, マニュアルの章 (無ければ '')] */
     ZONES:[['do','やること（自分の番）'],['wait','待ち（相手の番）'],['done','今日終わったもの']],
     TGROUPS:[
+      ['sichk','do','S/I 確認（相違）','S/I の中身が契約 · L/C と違う（別の契約番号など）→ S/I タブの赤い欄を「✏ 直す」',''],   // v0.23 (N4)
       ['si','do','S/I 更新（L/C 着）','L/C が届いた仮 S/I → L/C で S/I を更新（S/I タブ「推薦を作る」）',''],
       ['fname','do','ファイル名の確認','ファイル名の Invoice 番号がフォルダ · メールの件名と違う',''],
       ['acl','do','ACL 確認','乙仲の ACL を照合 → 本登録依頼 / 訂正依頼','3. ACL が届いたら'],
@@ -999,9 +1007,20 @@ const DOC = (()=>{
     (T.match(/(?<![A-Z])([A-Z]{2,4}\d{4}-\d{2})(?!\d)/g)||[]).forEach(iv=>put(I.iv[iv]));
     (T.match(/\b((?:LRS|UCS|LS)-?\d{4,5}[A-Z]+\d+)\b/g)||[]).forEach(c=>put(I.ct[alnum(c)]));
     (T.match(/\b([A-Z]{4}\s?\d{7})\b/g)||[]).forEach(c=>put(I.cn[alnum(c)]));
-    (T.match(/[A-Z0-9][A-Z0-9\-]{5,24}/g)||[]).forEach(t=>{ const k=alnum(t); put(I.key[k]); TR.BL_PREFIX.forEach(p=>{ if(k.indexOf(p)===0) put(I.key[k.slice(p.length)]); }); });
+    /* v0.23 (N9): 船社の接頭語 (ONEY · ONE- · YMJA · HLCU …) は 頭の英字 1 〜 8 字を外して ブッキング · B/L 番号と照合 (残り 6 字以上 · 番号そのものが一致したときだけ) */
+    (T.match(/[A-Z0-9][A-Z0-9\-]{5,24}/g)||[]).forEach(t=>{ const k=alnum(t); put(I.key[k]); TR.BL_PREFIX.forEach(p=>{ if(k.indexOf(p)===0) put(I.key[k.slice(p.length)]); });
+      t.split('-').map(alnum).concat([k]).forEach(q=>{ if(q.length<6) return; put(I.key[q]); const pm=q.match(/^[A-Z]{1,10}/); if(pm) for(let j=1;j<=pm[0].length;j++){ const r=q.slice(j); if(r.length>=6&&/\d/.test(r)) put(I.key[r]); } }); });
     return [...hit];
   }
+  /* v0.23 (N9): 担当 → 船社 の 送金 · B/L 発行依頼 (1 通に B/L 番号が いくつも) — 件名 · 添付名 · 本文で 8 件まで · 8 件を超えたら 件名 · 添付名だけ (本文の別の番号を拾わない) */
+  const LINK_MAX=4, LINK_MAX_B=8;
+  const linkBMail = m => m.skind==='staff'&&(m.kind==='b'||(m.uses||[]).indexOf('BLISSUE')>=0);
+  function linkMails(m, I){
+    const all=linkMail(m.subj+' '+(m.att||[]).join(' ')+' '+(m.body||''), I);
+    if(linkBMail(m)&&all.length>LINK_MAX_B){ const s=linkMail(m.subj+' '+(m.att||[]).join(' '), I); if(s.length) return s; }
+    return all;
+  }
+  function linkMax(m){ return linkBMail(m)?LINK_MAX_B:LINK_MAX; }
   /* 催促の 「いつもの時間」 — kind = acl (乙仲) · draft · bl (船社) · depo (バイヤー) · ext = SharePoint の値 {party:[h,n]} */
   function nudgeH(kind, party, ext){
     const N=TR.NUDGE[kind]||{}, p=String(party||'').trim(), e=ext&&ext[kind]&&ext[kind][p];
@@ -1055,6 +1074,12 @@ const DOC = (()=>{
     const blBase=noPay?(S.bmail!=null?S.bmail:drafts.length?drafts[drafts.length-1]:null):payDone;
     S.bl=blr?blr.t:(x.blDate&&blBase!=null&&nowT!=null&&x.blDate<=dayOf(nowT)?Math.max(blBase, at(x.blDate,TR.FIX.day)):null); if(S.bl!=null&&!ok(S.bl)) S.bl=null;   // B/L date の 18:00 (토르_2 と同じ推定)
     S.blSrc=blr?'船社 B/L メール':S.bl!=null?'B/L date + '+(noPay?'B/L 依頼 / Draft':'送金'):'';
+    /* v0.23 (N9 · N10): 後ろの段階の証拠 = B/L 受領 — フォルダの発行済み B/L (_SWB · _OBL · _SURRENDER · _BL · WAYBILL) · 後払い / FOB は 船社の B/L 写し (COPY NOTICE · B/L COPY · SWB) のメール */
+    const blF=F.filter(f=>!f.sub&&(NAME.BL_FINAL.test(f.name)||TR.BL_FILE2.test(f.name))&&ok(fT(f))).map(fT).sort((a,b)=>a-b)[0];
+    const blC=noPay?first(M,m=>m.skind==='carrier'&&ok(m.t)&&TR.BL_COPY.test(m.subj)&&!TR.BL_COPY_NOT.test(m.subj)):null;
+    const blI=first(M,m=>m.skind==='carrier'&&ok(m.t)&&TR.BL_ISSUED.test(m.subj)&&!/^\s*(?:RE|FW|FWD)\s*[:：]/i.test(m.subj));   // 先払いでも 送金の記録がなくても 船社の 発行済みの知らせ
+    const blE=[[blF,'フォルダの B/L'],[blC&&blC.t,'船社の B/L 写し'],[blI&&blI.t,'船社 B/L メール']].filter(a=>a[0]!=null).sort((a,b)=>a[0]-b[0])[0];
+    if(blE&&(S.bl==null||blE[0]<S.bl)){ S.bl=blE[0]; S.blSrc=blE[1]; }
     /* ⑦ 保険 · RR */
     const ins=first(M,m=>m.uses.indexOf('INS')>=0&&m.skind==='ins'); S.ins=ins?ins.t:(!asof&&+x.premium>0?'known':null);
     const rrF=F.filter(f=>NAME.RR.test(f.name)&&ok(fT(f))).map(fT), rrM=first(M,m=>m.uses.indexOf('RR')>=0&&m.skind==='staff');
@@ -1089,7 +1114,7 @@ const DOC = (()=>{
       const blD=x.blDate||dayOf(S.bl), dueD=badd(blD, post&&!vn?TR.FD_BDAYS_POSTPAID:TR.FD_BDAYS), due=at(dueD,TR.FIX.courier);
       const need=[cif&&S.ins==null?'保険':'', kr&&S.rr==null?'RR 送付':''].filter(Boolean);
       /* v0.17 (D8): 保険 · RR が残っていれば 「保険・RR 準備」 (保険 · RR だけ) · FD の段階は 「FD 作成・送付」 */
-      return R(need.length?7:8, need.length?'insrr':lc?'fdlc':'fd', need.length?need.join('・'):'FD 送付'+(lc?'（L/C 原本）':''), (S.blSrc==='船社 B/L メール'?'B/L 発行メール '+md(S.bl)+(x.blDate?' · B/L date '+md(at(x.blDate)):''):'B/L date '+md(at(blD))+' 確定')+(post&&!vn?' · '+V17.FD_POST:'')+(lc?' · L/C':''),
+      return R(need.length?7:8, need.length?'insrr':lc?'fdlc':'fd', need.length?need.join('・'):'FD 送付'+(lc?'（L/C 原本）':''), (S.blSrc==='船社 B/L メール'?'B/L 発行メール '+md(S.bl)+(x.blDate?' · B/L date '+md(at(x.blDate)):''):S.blSrc==='フォルダの B/L'||S.blSrc==='船社の B/L 写し'?S.blSrc+' '+md(S.bl)+(x.blDate?' · B/L date '+md(at(x.blDate)):''):'B/L date '+md(at(blD))+' 確定')+(post&&!vn?' · '+V17.FD_POST:'')+(lc?' · L/C':''),
         {due, action:kr&&S.rr==null?TR.ACTION.rr:TR.ACTION.fd, fdToday:true, blDay:dayOf(S.bl)});
     }
     /* ⑤ B/L 依頼 済 → 待ち · 船社 */
@@ -1106,7 +1131,7 @@ const DOC = (()=>{
       const why=(n>1?n+' 回目の Draft':'Draft 到着 '+md(last))+(vn&&n>1?V17.DEPO_DONE:'');
       const d=hmOf(last)<=TR.FIX.draft&&bday(dayOf(last))?dayOf(last):nextBday(addDays(dayOf(last),1)), pd=noPay?{}:{due:at(d,TR.FIX.pay), dueShow:at(d,TR.FIX.draft)};
       if(dp&&dp.kind==='req') return R(3,'depo','Deposit 依頼 ＋ B/L Draft 確認'+nth, why+' · Deposit 依頼メールなし', pd);
-      if(noPay) return R(3,'draft','B/L Draft 確認'+nth+' → B/L 発行依頼',(post?'後払い':'FOB')+' · '+why,{action:TR.ACTION.draft});
+      if(noPay) return R(3,'draft','B/L Draft 確認'+nth+' → B/L 発行依頼',(post?'後払い':'FOB')+' · '+why,{action:TR.ACTION.draft, dueText:'ETD 後に B/L 依頼'});
       return R(3,'draft','B/L Draft 確認'+nth+' → 運賃送金', why+' · 先払い',Object.assign(pd,{action:TR.ACTION.draft}));
     }
     /* ② 本登録 済 → 待ち · 船社 (Draft) */
@@ -1150,7 +1175,8 @@ const DOC = (()=>{
     /* v0.17 (D6): 待ち = 「70 時間待ち（いつもは 2 時間）」 */
     if(r.zone==='wait') return r.nudge?fillT(V17.WAIT_H,{h:Math.round(r.nudge.el), th:Math.round(r.nudge.th)}):'—';
     /* v0.17 (D4): 左の欄は いつも 期限 (「期限 11/25」 · 「期限切れ 11/21」 · 「期限なし」) — 出来事の日 · 時刻は 2 行目 (whenSub) */
-    if(r.extra||r.due==null) return '期限なし';
+    /* v0.23 (N9): 「期限なし」 はやめる — その段階の実際の目安 (dueText · 例 後払い = 「ETD 後に B/L 依頼」) · なければ 「—」 */
+    if(r.extra||r.due==null) return r.dueText||'—';
     return (r.group==='late'?'期限切れ ':'期限 ')+mdOf(r.due);
   }
   function whenSub(r, now){
@@ -1423,7 +1449,7 @@ const DOC = (()=>{
     /* B7: ETD が過ぎて FD がまだ → Invoice 番号でメール検索 (読むだけ) · 一度に聞く数 · 同じ Invoice を聞き直すまで */
     FD_SEARCH:{conc:2, max:40, againH:6},
     /* 状態の記憶 (doc_tool/state/ · 新しいファイルだけ) — fd = FD 済 (メール検索) · fname = ファイル名の判断 · si_lc = 仮 S/I を L/C で更新した */
-    STATE_DIR:'state/', STATE_RE:/^(?:fd|fname|si_lc)\/[A-Za-z0-9_\-]+\.json$/
+    STATE_DIR:'state/', STATE_RE:/^(?:fd|fname|si_lc|done)\/[A-Za-z0-9_\-]+\.json$/
   };
   const lcNoKey = v => String(v==null?'':v).replace(/\s+/g,'').toUpperCase();
   const siLcTent = sis => (sis||[]).some(s=>s&&(V15.LC_TENT_RE.test(lcNoKey(s.cr49f_lc_no))||V17.LC_TENT_XX.test(up(s.cr49f_lc_no))));
@@ -1487,7 +1513,7 @@ const DOC = (()=>{
     /* v0.18 (T-4): B/L Draft に 別の契約番号 → 赤 (Invoice に 1 行) */
     if((x.blOtherCt||[]).length) out.push(R(3,'draft',V17.OTHER_CT+x.blOtherCt.join(' · ')+V18.BL_OTHER, (x.ct?x.ct+' · ':'')+'B/L Draft にこの契約と違う契約番号があります', {red:true, action:TR.ACTION.draft}));
     /* v0.17 (E1): S/I に 別の契約番号 → 赤 (契約に 1 行) */
-    if((x.otherCt||[]).length) out.push(R(0,'si',V17.OTHER_CT+x.otherCt.join(' · '), (x.ct?x.ct+' · ':'')+V17.OTHER_CT_WHY, {red:true, action:TR.ACTION.si}));
+    if((x.otherCt||[]).length) out.push(R(0,'sichk',V17.OTHER_CT+x.otherCt.join(' · '), (x.ct?x.ct+' · ':'')+V17.OTHER_CT_WHY, {red:true, action:TR.ACTION.si}));
     if(x.lcStale) out.push(R(0,'si','L/C 着 · S/I 未更新', (x.ct?x.ct+' · ':'')+'L/C は届いています · S/I の L/C 番号が XXX のまま', {red:true, action:TR.ACTION.si}));
     if(x.aclRecheck) out.push(R(2,'acl','ACL 再確認（S/I を L/C で更新）','S/I 更新 '+md(x.aclRecheck.t)+' · ACL の照合はその前', {action:TR.ACTION.acl}));
     /* v0.17 (G3 형님 「참고로 낮춰줘. 이미 지난 건이고」): FD 済 (FD送付日 · FD メール · フォルダ FD) の Invoice = 参考 → 今日やること に出さない (Invoice の詳細だけ) */
@@ -1605,6 +1631,13 @@ const DOC = (()=>{
   const siTexts = sis => (sis||[]).map(s=>Object.keys(s||{}).filter(k=>k.indexOf('@')<0&&typeof s[k]==='string').map(k=>s[k]).join('\n')).join('\n');
   /* 文 (S/I · ACL · B/L Draft の文字) の中の 契約番号 で この契約 (ct) と違うもの → [番号] (重複なし · 大小は見ない) */
   function otherCts(text, ct){ const C=up(ct), out=[]; (up(text).match(V17.CT_RE)||[]).forEach(n=>{ if(n!==C&&out.indexOf(n)<0) out.push(n); }); return out; }
+  /* v0.23 (N1 · N2): S/I の欄ごとの 相違 — 別の契約番号 = どの S/I のどの欄の どの文字か · 直す値 (その番号を この契約番号に) · 短い理由 */
+  function siFieldIssues(sis, ct){ const C=up(ct), out=[]; if(!C) return out; const re=new RegExp(V17.CT_RE.source,'gi');
+    (sis||[]).forEach(h=>SI_HEAD_COLS.forEach(f=>{ const v=String(h[f]==null?'':h[f]), bad=otherCts(v, C); if(!bad.length) return;
+      out.push({kind:'ct', siId:h.cr49f_s_iid, sino:h.crcf9_sino, field:f, bad, fixTo:v.replace(re, x=>up(x)===C?x:C), reason:'この契約は '+C}); }));
+    return out; }
+  /* CP-A04 の理由 (書き換え: A → B · 抜けた: … · 足した: …) から S/I 側の 違う文字 (B · 足した) */
+  function cxBadWords(detail){ const d=String(detail||''), out=[]; let m; const re=/書き換え: .+? → (.+?)(?= · |$)|足した: (.+?)(?= · |$)/g; while((m=re.exec(d))) out.push((m[1]||m[2]).trim()); return out.filter(Boolean); }
 
   /* ══ v0.16 Invoice 別 = PORTAL 「船積書類」 と同じ表 (指示書 THOR_8 D00 v0.16) ══
      PORTAL (CLEARANCE_COMPASS v4.8 loadShipping · renderShipping · saveSpStatus) と同じ読み方:
@@ -1670,7 +1703,7 @@ const DOC = (()=>{
     /* v0.11 */ CP_REPORT_DIR, CP_REPORT_RE, CP_ACK_RE, CP_NEW_DAYS, CP_STAGE_JA, CP_SCOPE_JA, CP_REPORT_STAGES, cpReportName, cpReportPath, cpAckPath, cpReportBody, cpReportsState, cpVisible, cpFilter, cpNewFor,
     /* v0.9 */ SAVE_RULES, saveKind, docKind, textKeyOf, saveCands, saveJudge, saveBump, guardSave, /* v0.12 */ BL_MAIL, blMailDraft, blLabelA, /* v0.13 */ BL_RESULT_DIR, BL_RESULT_RE, blResultPath,
     /* v0.8 */ ACL_MAIL, aclMailDraft, reSubj, lcOriginals, /* v0.10 */ mdHtml,
-    /* v0.7 */ TODO_RULES, jst, at, dayOf, hmOf, bday, badd, nextBday, bhours, postpaid, mailHead, senderKind, mailUses, mailKind, kindTarget, linkIndex, linkMail, nudgeH, todoSignals, todoRow, todoGroup, whenLabel, whenSub, todoSort, parseAsof, /* v0.14 */ gzone, todoDone,
+    /* v0.7 */ TODO_RULES, jst, at, dayOf, hmOf, bday, badd, nextBday, bhours, postpaid, mailHead, senderKind, mailUses, mailKind, kindTarget, linkIndex, linkMail, linkMails, linkMax, siFieldIssues, cxBadWords, nudgeH, todoSignals, todoRow, todoGroup, whenLabel, whenSub, todoSort, parseAsof, /* v0.14 */ gzone, todoDone,
     /* v0.6 */ SI_TENT, SI_TENT_WHY, ACL_TENT_NOTE, siTent, CT_DAYS_DEFAULT,
     /* v0.3 */ useAclEngine, aclReady, aclPick, FD_TENT, fdFiles, fdBundle, honIndex, jstDay, CT_REAL, CT_PERIODS, monthsAgo, sortCtDate,
     blKind, pickBl, aclScan, fdDone, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
@@ -1807,7 +1840,7 @@ async function loadAll(){
     const need=list.filter(iv=>!hit.has(iv)); let k=0;
     prog('読み込み中 — Invoice フォルダ '+need.length+' 件（前回のまま '+hit.size+' 件）');
     const foldP=loadFoldersBatch(need, seq, n=>{ k=n; prog('読み込み中 '+k+' / '+need.length+' (Invoice フォルダ · 前回のまま '+hit.size+' 件)'); renderSoon(); }).then(()=>{ if(seq===S.loadSeq) folderCacheSave(list); });
-    TODO.mailSeq++; const mailP=Promise.all([loadTodoMail(TODO.mailSeq), foldP.then(()=>{ if(seq===S.loadSeq&&!SAVE.started){ SAVE.started=true; return saveMailScan(); } })]);   // 保存の入口 = フォルダを読んだ後 (同じファイルかを見る) · 今日やることのメールと並べて (添付は 2 本ずつ)
+    TODO.mailSeq++; const mailP=Promise.all([loadTodoMail(TODO.mailSeq), foldP.then(()=>{ if(seq===S.loadSeq){ SAVE.started=true; return saveMailScan(); } })]);   // 保存の入口 = フォルダを読んだ後 (同じファイルかを見る) · 今日やることのメールと並べて (添付は 2 本ずつ)
     await foldP; if(seq!==S.loadSeq) return;
     await ptP; if(seq!==S.loadSeq) return; await loadPortalFolders(seq).catch(()=>{}); if(seq!==S.loadSeq) return;   // v0.16: PORTAL の行で まだ読んでいない Invoice フォルダ
     await restP; if(seq!==S.loadSeq) return;
@@ -3175,7 +3208,11 @@ async function siTrialAppend(r){
     const meta={pay:isLcCt(id)?'LC':'', country:ctRow(id).country, contract:c.cr49f_sale_contract_no};
     const dl=(cpx.rows||[]).find(x=>x.engine_key==='si:deadline'), to=DOC.lc42(lc);   // v0.22.1 (②-2): CP-A04 = L/C 42C
     const items=[]; sis.forEach(si=>{ E.siCheck(cpx,{lc, si, meta, lcText}).forEach(i=>{ i.label=i.label+(sis.length>1?' (S/I '+si.crcf9_sino+')':''); if(dl&&i.cp===dl.id&&(i.would||i.status)==='DIFF'&&to) Object.assign(i,{fixSi:si.cr49f_s_iid, fixTo:to}); items.push(i); }); });
-    if(S.cur&&S.cur.id===id&&S.curTab==='si'){ const root=$('dtCtBody'); trialAppend(root, items, c.cr49f_sale_contract_no||id, 'S/I');
+    /* v0.23 (N1): CP-A04 相違 → S/I 表の その欄を赤く (違う文字 · L/C 42C の原文) — 変わったときだけ 描き直す */
+    const cp=items.filter(i=>i.fixSi).map(i=>{ const si=sis.find(s=>s.cr49f_s_iid===i.fixSi)||{}; return {kind:'cp', siId:i.fixSi, sino:si.crcf9_sino, field:'crcf9_payment_deadline', bad:DOC.cxBadWords(i.detail), fixTo:i.fixTo, reason:'L/C 42C: '+i.fixTo}; });
+    const sig=JSON.stringify(cp), changed=sig!==JSON.stringify(S.siCp[id]||[]); S.siCp[id]=cp;
+    if(S.cur&&S.cur.id===id&&S.curTab==='si'){ if(changed&&S.siCur[id]&&S.siCur[id].sis&&!S.siRec[id]){ renderCt(); return; }
+      const root=$('dtCtBody'); trialAppend(root, items, c.cr49f_sale_contract_no||id, 'S/I');
       root.querySelectorAll('[data-sifix]').forEach(b=>{ b.onclick=()=>{ const it=items.find(i=>i.fixSi===b.dataset.sifix); if(it) siFixDeadline(id, it.fixSi, it.fixTo); }; }); }
   }catch(e){}
 }
@@ -3270,27 +3307,43 @@ async function siRecommend(id, say){
 /* v0.22.1 (②-3): L/C の契約で L/C 保管所に 42C があれば 推薦の payment_deadline = その原文 (なければ 何もしない) */
 async function siDeadlineApply(id, res){ try{ if(!isLcCt(id)) return; const L=await readLcJson(id).catch(()=>null), t=DOC.lc42(L&&L.lc); if(t) DOC.siDeadlineFix(res, t); }catch(e){} }
 /* v0.22.1 (②-2 · 形さん P1): CP-A04 相違 → 「L/C の文言で直す」 — 確認 (今の値 → L/C 42C 原文) → 控え (doc_tool/si_backup/) → その S/I の payment_deadline だけ (門番 guardDv) → 読み直し → 履歴 (doc_tool/log/) */
-async function siFixDeadline(id, siId, to){
-  const c=S.ct[id]||{}, no=c.cr49f_sale_contract_no||id, here=()=>!!(S.cur&&S.cur.type==='ct'&&S.cur.id===id), st=()=>here()?$('dtSiSt'):null, say=m=>{ const e=st(); if(e) e.textContent=m; };
+/* v0.23 (N2 形さん 「이걸 여기서 수정하게 만들 수는 없는 거니?」): S/I の 1 欄を その場で直す — 入力 → 前 / 後 の確認 → COMPASS の その欄だけ (他の欄 · 他の sino 0)
+   → 読み直して確認 → 履歴 · TOOL が理由を知る欄は 直す値を先に入れておく (別の契約番号 → この契約番号 · CP-A04 → L/C 42C 原文)
+   v0.22.1 の 「L/C の文言で直す」 = この機能の 1 つ (値が決まっている → 確認から) */
+async function siFixDeadline(id, siId, to){ return siEditField(id, siId, 'crcf9_payment_deadline', {value:to, title:'L/C の文言で直す', kind:'S/I 書き込み (L/C の文言で直す · CP-A04)', note:'L/C 42C の原文にします。'}); }
+async function siEditField(id, siId, field, opt){
+  opt=opt||{}; const c=S.ct[id]||{}, no=c.cr49f_sale_contract_no||id, here=()=>!!(S.cur&&S.cur.type==='ct'&&S.cur.id===id), st=()=>here()?$('dtSiSt'):null, say=m=>{ const e=st(); if(e) e.textContent=m; };
+  const label=DOC.SI_LABEL[field]||field;
+  if(DOC.SI_HEAD_COLS.indexOf(field)<0){ toast('この欄は直せません','danger'); return; }
   try{ say('COMPASS の今の S/I を読み直しています…');
-    const q=`cr49f_s_is(${siId})?$select=cr49f_s_iid,crcf9_sino,crcf9_payment_deadline,modifiedon,_cr49f_sale_contract_id_value`, cur=await dvGet(q);
+    const q=`cr49f_s_is(${siId})?$select=cr49f_s_iid,crcf9_sino,${field},modifiedon,_cr49f_sale_contract_id_value`, cur=await dvGet(q);
     if(String(cur._cr49f_sale_contract_id_value||'').toLowerCase()!==String(id).toLowerCase()) throw new Error('この契約の S/I ではありません');
-    const before=String(cur.crcf9_payment_deadline==null?'':cur.crcf9_payment_deadline); if(before===to){ say('COMPASS はもう L/C の文言です — 書くものはありません'); return; } say('');
-    modal('<div class="dt-h">L/C の文言で直す — '+esc(no)+' (S/I '+esc(cur.crcf9_sino)+')</div><div class="dt-note">'+esc(DOC.SI_LABEL.crcf9_payment_deadline||'支払条件')+' (payment_deadline) だけを L/C 42C の原文にします。書く前に今の値を SharePoint に控えます。</div>'+
-      '<div class="dt-kv"><div>今の値</div><div><span style="color:var(--st-diff-fg);text-decoration:line-through">'+esc(before||'(空欄)')+'</span></div><div>L/C 42C</div><div><b>'+esc(to)+'</b></div></div>'+
-      '<label class="dt-row" style="font-size:13px"><input type="checkbox" id="dtSiFixOk"> 内容を確認しました</label><div class="dt-actions"><button class="dt-btn ghost" data-close="1">やめる</button><button class="dt-btn" id="dtSiFixGo" disabled>書き込む</button></div>');
-    $('dtSiFixOk').onchange=()=>{ $('dtSiFixGo').disabled=!$('dtSiFixOk').checked; };
-    $('dtSiFixGo').onclick=async()=>{ closeModal(); const d=new Date(), at=d.toISOString(), log={kind:'S/I 書き込み (L/C の文言で直す · CP-A04)', contract:no, contract_id:id, si:siId, sino:cur.crcf9_sino, at, user:(LEENAI.user&&LEENAI.user.email)||'', before, after:to, backup:'', ok:false};
-      try{ say('確認画面のあとに 変わっていないか確かめています…'); const again=await dvGet(q); if(again.modifiedon!==cur.modifiedon) throw new Error('確認画面のあとに COMPASS の S/I が変わりました — もう一度');
-        const bp=DOC.OUT_ROOT+'si_backup/'+DOC.safeKey(no)+'_'+DOC.utcStamp(d)+'.json'; await spPut(bp, JSON.stringify({contract:no, contract_id:id, at, user:log.user, current:{si:siId, crcf9_payment_deadline:before, modifiedon:cur.modifiedon}, plan:[{set:'cr49f_s_is', id:siId, crcf9_payment_deadline:to}]})); log.backup=bp;
-        say('書き込んでいます…'); const r=await dvWrite('PATCH','cr49f_s_is',siId,{crcf9_payment_deadline:to},{contractId:id, siIds:new Set([siId]), detailIds:new Set(), created:new Set()});
-        if(!r.ok) throw new Error(r.status+' '+r.message); const now=await dvGet(q); log.ok=String(now.crcf9_payment_deadline||'')===to;
-        try{ await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(e){ toast('履歴の保存に失敗: '+e.message,'warn'); }
-        const L=S.sis[id]||[], x=L.find(h=>h.cr49f_s_iid===siId); if(x) x.crcf9_payment_deadline=now.crcf9_payment_deadline; S.siCur[id]=undefined;
-        if(here()) renderCt(); const e=st(); if(e) e.innerHTML=log.ok?'<span style="color:var(--st-done-fg)">L/C の文言で直しました · 読み直して一致 ✓ · 控え '+esc(bp)+'</span>':'<span style="color:var(--st-diff-fg)">書きましたが 読み直すと違います — COMPASS 画面で確認してください</span>';
-        toast(log.ok?'L/C の文言で直しました':'書き込み後の確認で違いあり', log.ok?'ok':'warn');
-      }catch(e){ const el=st(); if(el) el.innerHTML='<span style="color:var(--st-diff-fg)">書き込めません: '+esc(e.message)+(log.backup?' · 控え '+esc(log.backup):' (何も書いていません)')+'</span>'; try{ log.error=e.message; if(log.backup) await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(x){} } };
-    bindClose();
+    const before=String(cur[field]==null?'':cur[field]); say('');
+    const iss=(S.siCur[id]&&S.siCur[id].sis?siIssues(id, S.siCur[id].sis):[]).filter(i=>i.siId===siId&&i.field===field&&i.fixTo!=null);
+    const goConfirm=after=>{
+      if(after===before){ say('今の値と同じです — 書くものはありません'); closeModal(); return; }
+      modal('<div class="dt-h">'+esc(opt.title||'✏ 直す')+' — '+esc(no)+' (S/I '+esc(cur.crcf9_sino)+')</div><div class="dt-note">'+esc(label)+' ('+esc(field)+') だけを '+esc(opt.note||'書き換えます。')+'書く前に今の値を SharePoint に控えます。</div>'+
+        '<div class="dt-kv"><div>今の値</div><div><span style="color:var(--st-diff-fg);text-decoration:line-through;white-space:pre-wrap">'+esc(before||'(空欄)')+'</span></div><div>'+esc(opt.value!=null&&opt.title==='L/C の文言で直す'?'L/C 42C':'直した値')+'</div><div><b style="white-space:pre-wrap">'+esc(after||'(空欄)')+'</b></div></div>'+
+        '<label class="dt-row" style="font-size:13px"><input type="checkbox" id="dtSiFixOk"> 内容を確認しました</label><div class="dt-actions"><button class="dt-btn ghost" data-close="1">やめる</button><button class="dt-btn" id="dtSiFixGo" disabled>書き込む</button></div>');
+      $('dtSiFixOk').onchange=()=>{ $('dtSiFixGo').disabled=!$('dtSiFixOk').checked; };
+      $('dtSiFixGo').onclick=async()=>{ closeModal(); const d=new Date(), at=d.toISOString(), log={kind:opt.kind||('S/I 書き込み (✏ 直す · '+label+')'), contract:no, contract_id:id, si:siId, sino:cur.crcf9_sino, field, at, user:(LEENAI.user&&LEENAI.user.email)||'', before, after, reason:iss.map(i=>i.reason).join(' · '), backup:'', ok:false};
+        try{ say('確認画面のあとに 変わっていないか確かめています…'); const again=await dvGet(q); if(again.modifiedon!==cur.modifiedon) throw new Error('確認画面のあとに COMPASS の S/I が変わりました — もう一度');
+          const bp=DOC.OUT_ROOT+'si_backup/'+DOC.safeKey(no)+'_'+DOC.utcStamp(d)+'.json'; await spPut(bp, JSON.stringify({contract:no, contract_id:id, at, user:log.user, current:{si:siId, [field]:before, modifiedon:cur.modifiedon}, plan:[{set:'cr49f_s_is', id:siId, [field]:after}]})); log.backup=bp;
+          say('書き込んでいます…'); const r=await dvWrite('PATCH','cr49f_s_is',siId,{[field]:after},{contractId:id, siIds:new Set([siId]), detailIds:new Set(), created:new Set()});
+          if(!r.ok) throw new Error(r.status+' '+r.message); const now=await dvGet(q); log.ok=String(now[field]==null?'':now[field])===after;
+          try{ await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(e){ toast('履歴の保存に失敗: '+e.message,'warn'); }
+          const L=S.sis[id]||[], x=L.find(h=>h.cr49f_s_iid===siId); if(x) x[field]=now[field]; S.siCur[id]=undefined; S.siCp[id]=[];   // 読み直して もう一度 検査
+          if(here()) renderCt(); const e=st(); if(e) e.innerHTML=log.ok?'<span style="color:var(--st-done-fg)">'+esc(opt.title==='L/C の文言で直す'?'L/C の文言で直しました':label+' を直しました')+' · 読み直して一致 ✓ · 控え '+esc(bp)+'</span>':'<span style="color:var(--st-diff-fg)">書きましたが 読み直すと違います — COMPASS 画面で確認してください</span>';
+          toast(log.ok?(opt.title==='L/C の文言で直す'?'L/C の文言で直しました':'直しました（もう一度 検査します）'):'書き込み後の確認で違いあり', log.ok?'ok':'warn');
+        }catch(e){ const el=st(); if(el) el.innerHTML='<span style="color:var(--st-diff-fg)">書き込めません: '+esc(e.message)+(log.backup?' · 控え '+esc(log.backup):' (何も書いていません)')+'</span>'; try{ log.error=e.message; if(log.backup) await spPut(DOC.logPath(no,'si',d), JSON.stringify(log)); }catch(x){} } };
+      bindClose(); };
+    if(opt.value!=null){ if(before===opt.value){ say('COMPASS はもう L/C の文言です — 書くものはありません'); return; } goConfirm(opt.value); return; }
+    const pre=iss.length?iss[iss.length-1].fixTo:before;
+    modal('<div class="dt-h">✏ 直す — '+esc(no)+' (S/I '+esc(cur.crcf9_sino)+') · '+esc(label)+'</div>'+
+      (iss.length?'<div class="dt-note dt-c-diff">'+esc(iss.map(i=>i.reason).join(' · '))+' — 直す値を入れておきました（確かめてください）</div>':'')+
+      '<textarea class="dt-in" id="dtSiEdV" rows="5" style="width:100%;height:auto;white-space:pre-wrap">'+esc(pre)+'</textarea>'+
+      '<div class="dt-actions"><button class="dt-btn ghost" data-close="1">やめる</button><button class="dt-btn" id="dtSiEdNext">保存</button></div>');
+    bindClose(); $('dtSiEdNext').onclick=()=>goConfirm($('dtSiEdV').value);
   }catch(e){ const el=st(); if(el) el.innerHTML='<span style="color:var(--st-diff-fg)">直せません: '+esc(e.message)+'</span>'; } }
 async function siLoadSaved(id){
   const no=DOC.up((S.ct[id]||{}).cr49f_sale_contract_no); if(!no) return null;
@@ -3343,10 +3396,23 @@ async function siTtRecommend(id, say, opt){
 /* 今の S/I (COMPASS · 読むだけ) — S/I 済 の契約は まずこれを見せる (v0.2 #4) */
 S.siCur={};
 const cellV = v => { const s=String(v==null?'':v); return s.trim()===''?'<span class="dt-empty-v">(空欄)</span>':esc(s).replace(/\bX{2,}\b/gi,m=>'<span class="dt-xx">'+m+'</span>'); };
-function siCurHtml(cur){
+/* v0.23 (N1 · N2): S/I の 相違の欄 — 別の契約番号 (doc-core) + CP-A04 (試験の行 · S.siCp) */
+S.siCp={};
+function siIssues(id, sis){ return DOC.siFieldIssues(sis, (S.ct[id]||{}).cr49f_sale_contract_no).concat(S.siCp[id]||[]); }
+function siMark(v, bad){ let h=cellV(v); (bad||[]).filter(Boolean).sort((a,b)=>b.length-a.length).forEach(w=>{ const e=esc(w); if(!e) return; h=h.split(e).join('<mark class="si-mk">'+e+'</mark>'); }); return h; }
+/* 上の帯 — 相違の欄の一覧 (押すと その行へ) */
+function siBandHtml(id, sis){ const iss=siIssues(id, sis); if(!iss.length) return '';
+  const g={}; iss.forEach(i=>{ const k=i.field; (g[k]=g[k]||[]).push(i); });
+  return '<div class="dt-card si-band"><b class="dt-c-diff">S/I 確認（相違） '+iss.length+' 欄</b> '+Object.keys(g).map(f=>'<button class="dt-btn ghost sm" data-sigo="'+esc(f)+'">'+esc(DOC.SI_LABEL[f]||f)+' — '+esc([...new Set(g[f].map(i=>i.kind==='ct'?'別の契約番号':'L/C 42C と違う'))].join(' · '))+'</button>').join(' ')+'</div>'; }
+function siCurHtml(cur, id){
   const sis=(cur.sis||[]).slice().sort((a,b)=>a.crcf9_sino-b.crcf9_sino), td='<td style="padding:8px 14px;white-space:pre-wrap;word-break:break-word;vertical-align:top">';
+  const iss=id?siIssues(id, sis):[], at=(h,c)=>iss.filter(i=>i.siId===h.cr49f_s_iid&&i.field===c);
+  const cell=(h,c)=>{ const L=at(h,c), bad=[].concat(...L.map(i=>i.bad||[])), fix=L.find(i=>i.fixTo!=null);
+    return '<td style="padding:8px 14px;white-space:pre-wrap;word-break:break-word;vertical-align:top"'+(L.length?' class="si-badc"':'')+'>'+siMark(h[c], bad)+
+      (L.length?'<div class="si-why">'+esc([...new Set(L.map(i=>i.reason))].join(' · '))+'</div>':'')+
+      (id?'<div class="si-ed"><button class="dt-btn ghost sm" data-siedit="'+esc(h.cr49f_s_iid)+'" data-sifld="'+esc(c)+'"'+(fix?' data-siwhy="'+esc(L.map(i=>i.kind).join(','))+'"':'')+'>✏ 直す</button></div>':'')+'</td>'; };
   const head='<div class="dt-card dt-tablewrap"><table class="dt-t" style="min-width:640px"><thead><tr><th style="width:170px">項目</th>'+sis.map(h=>'<th>S/I sino '+esc(h.crcf9_sino)+'</th>').join('')+'</tr></thead><tbody>'+
-    DOC.SI_HEAD_COLS.map(c=>'<tr'+(sis.some(h=>/\bX{2,}\b/i.test(String(h[c]||'')))?' class="hl"':'')+'><td style="padding:8px 14px;white-space:normal">'+esc(DOC.SI_LABEL[c]||c)+'</td>'+sis.map(h=>td+cellV(h[c])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+    DOC.SI_HEAD_COLS.map(c=>{ const bad=sis.some(h=>at(h,c).length); return '<tr id="siRow-'+esc(c)+'"'+(bad?' class="si-bad"':sis.some(h=>/\bX{2,}\b/i.test(String(h[c]||'')))?' class="hl"':'')+'><td style="padding:8px 14px;white-space:normal">'+esc(DOC.SI_LABEL[c]||c)+'</td>'+sis.map(h=>cell(h,c)).join('')+'</tr>'; }).join('')+'</tbody></table></div>';
   const det=sis.map(h=>(h._details||[]).length?'<div class="dt-card dt-tablewrap"><table class="dt-t"><thead><tr><th>明細 (sino '+esc(h.crcf9_sino)+')</th><th>'+esc(DOC.SI_LABEL.crcf9_productname)+'</th><th>'+esc(DOC.SI_LABEL.crcf9_hs_code)+'</th><th>'+esc(DOC.SI_LABEL.crcf9_weight)+'</th><th>'+esc(DOC.SI_LABEL.crcf9_price)+'</th></tr></thead><tbody>'+
     h._details.map((d,i)=>'<tr><td>'+(i+1)+'</td>'+['crcf9_productname','crcf9_hs_code','crcf9_weight','crcf9_price'].map(c=>td+cellV(d[c])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>':'<div class="dt-note">sino '+esc(h.crcf9_sino)+' の明細なし</div>').join('');
   return '<div class="dt-p" style="font-weight:500">今の S/I（COMPASS · 読むだけ）</div>'+head+det;
@@ -3359,9 +3425,10 @@ function siTabHtml(r){
   const runLabel=lc?'推薦を作る':'前回の S/I から作る';
   const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">S/I '+(lc?'推薦 (L/C)':'推薦 (T/T · AI なし)')+'</div><div class="dt-note" style="font-size:13px">'+
     (lc?'LC と過去の S/I から作成します。':'同じバイヤーの前回の S/I をそのまま使い、明細は今回の販売契約から作ります。PO はバイヤーの最近 3 件で判断します。')+'違うところだけ直して、COMPASS に書き込みます。</div></div><div class="dt-pills" id="dtSiPills"></div></div>';
-  let body='<div>'+statusLine(r.cells.si)+'</div>'+((r.cells.si.otherCt||[]).length?'<div class="dt-p dt-c-diff" style="font-weight:700">'+esc(DOC.V17.OTHER_CT+r.cells.si.otherCt.join(' · '))+'</div>':'');
+  const ctIss=cur&&cur.sis?siIssues(id, cur.sis).filter(i=>i.kind==='ct'):[];   // v0.23 (N1): 帯を押すと その欄へ
+  let body='<div>'+statusLine(r.cells.si)+'</div>'+((r.cells.si.otherCt||[]).length?'<div class="dt-p dt-c-diff'+(ctIss.length?' si-go':'')+'" style="font-weight:700"'+(ctIss.length?' data-sigo="'+esc(ctIss[0].field)+'" title="押すと その欄へ"':'')+'>'+esc(DOC.V17.OTHER_CT+r.cells.si.otherCt.join(' · '))+(ctIss.length?' → '+esc(DOC.SI_LABEL[ctIss[0].field]||ctIss[0].field):'')+'</div>':'');
   if(!res){
-    if(cur&&cur.sis&&cur.sis.length) body+=siCurHtml(cur);
+    if(cur&&cur.sis&&cur.sis.length) body+=siBandHtml(id, cur.sis)+siCurHtml(cur, id);
     else if((S.sis[id]||[]).length) body+='<div class="dt-note">'+(cur===null?'今の S/I を読み込み中…':cur&&cur.error?'今の S/I を読めません: '+esc(cur.error):'')+'</div>';
     if(noLc) body+='<section class="dt-card dt-panel" style="padding:16px 18px"><div class="dt-p"><b class="dt-c-diff">L/C 未着</b>'+(po?' · PO 着 '+esc(DOC.fmtMD(DOC.isoDay(po.at))):'')+'</div><div class="dt-note" style="font-size:13px">'+esc(guideOf(r.ct))+'</div>'+
       (noSi?'<div class="dt-p">乙仲に S/I を先に送るとき（ブッキングの後 · ACL の前）は「仮 S/I を作る」— 前回の S/I から作り、L/C 番号は '+esc(DOC.V15.LC_TENT_VAL)+' にします（AI なし · L/C でしか決まらない文は「'+esc(DOC.V15.LC_TENT_MARK)+'」）。</div>':
@@ -3404,6 +3471,9 @@ async function siTabAfter(r){
     try{ S.siCur[id]=await siReadNow(id, DOC.SI_HEAD_COLS); }catch(e){ S.siCur[id]={error:e.message}; }
     if(here()) renderCt(); return; }
   siPills(id);
+  /* v0.23 (N1 · N2): 相違の帯 → その行へ · 「✏ 直す」 → その欄だけ COMPASS に */
+  document.querySelectorAll('#dtCtBody [data-sigo]').forEach(b=>{ b.onclick=()=>{ const row=document.getElementById('siRow-'+b.dataset.sigo); if(row){ row.scrollIntoView({block:'center', behavior:'smooth'}); row.classList.add('si-flash'); setTimeout(()=>row.classList.remove('si-flash'),1600); } }; });
+  document.querySelectorAll('#dtCtBody [data-siedit]').forEach(b=>{ b.onclick=()=>siEditField(id, b.dataset.siedit, b.dataset.sifld); });
   const run=$('dtSiRun'); if(run) run.onclick=()=>siRun(id);
   const tb=$('dtSiTent'); if(tb) tb.onclick=()=>siRun(id,{tent:true});   // v0.15 (B3)
   const all=$('dtSiAll'); if(all) all.onclick=()=>{ S.siShowAll=!S.siShowAll; renderCt(); };
@@ -3513,7 +3583,7 @@ async function siExecute(id, ops, cur, fin, meta){
    COMPASS (ブッキング · CY_CUT · 支払日 · B/L date · 保険料 · 船社 · 乙仲) · Invoice フォルダ (v0.3 の規則) · PORTAL clearance_status.json (通関依頼済 · FD送付日)
    · ログインした人のメールボックス (rcp@ は配布グループ — 皆のメールボックスに入る · 読むだけ — 送る · 下書き · 既読 0) */
 const PORTAL_PATH = '古紙/-. AI 活用/PORTAL/clearance_status.json';
-const TODO = {fdState:{}, fnameDec:{}, siLc:{}, stateErr:'', fdSearch:{st:'', n:0, hit:0}, asof:null, portal:null, portalErr:'', ext:null, carriers:{}, fwd:{}, ctx:null, cntr:{}, mails:null, byBk:{}, mailSt:'', mailErr:'', mailMs:0, mailN:0, mailSeq:0, baseMs:0, open:null, done:[]};
+const TODO = {manDone:{}, fdState:{}, fnameDec:{}, siLc:{}, stateErr:'', fdSearch:{st:'', n:0, hit:0}, asof:null, portal:null, portalErr:'', ext:null, carriers:{}, fwd:{}, ctx:null, cntr:{}, mails:null, byBk:{}, mailSt:'', mailErr:'', mailMs:0, mailN:0, mailSeq:0, baseMs:0, open:null, done:[]};
 async function loadTodoBase(){
   const t0=Date.now(), R=DOC.TODO_RULES;
   const domsOf=v=>String(v||'').split(/[;,\s]+/).filter(x=>x.indexOf('@')>0).map(x=>x.split('@')[1].toLowerCase().trim());
@@ -3548,9 +3618,10 @@ async function loadState(){
   await Promise.all([
     rd('fd',j=>{ const iv=DOC.up(j.invoice); if(iv&&j.at&&(!TODO.fdState[iv]||j.at<TODO.fdState[iv].at)) TODO.fdState[iv]={at:j.at, subject:j.subject||'', att:j.att||[], bad:j.bad||[], id:j.mailId||''}; }),
     rd('fname',j=>{ const iv=DOC.up(j.invoice); if(iv&&j.name&&j.decision) (TODO.fnameDec[iv]=TODO.fnameDec[iv]||{})[j.name]=j.decision; }),
+    rd('done',j=>manDoneApply(j)),   // v0.23 (N10): 人が 「済にする」 · 元に戻す (いちばん新しい記録)
     rd('si_lc',j=>{ const c=DOC.up(j.contract); if(c&&j.at&&(!TODO.siLc[c]||j.at>TODO.siLc[c])) TODO.siLc[c]=j.at; })]);
 }
-async function stateWrite(kind, key, obj){ const d=new Date(); await spPut(DOC.statePath(kind,key,d), JSON.stringify(Object.assign({schema:'doc_tool_state/1', kind, at_saved:d.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', tool:'書類ツール v'+CFG.version}, obj))); }
+async function stateWrite(kind, key, obj){ const d=new Date(), rec=Object.assign({schema:'doc_tool_state/1', kind, at_saved:d.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', tool:'書類ツール v'+CFG.version}, obj); await spPut(DOC.statePath(kind,key,d), JSON.stringify(rec)); return rec; }
 /* v0.15 (B7): Invoice 番号でメール検索 — ログインした人のメールボックス (読むだけ · $search) · 担当が送った FD のメール → doc_tool/state/fd に記憶 (次は探さない) */
 const LS_FDS='doc_tool_fdsearch_v15';
 function mailObj(g){ const ctx=TODO.ctx||{}, adr=r=>String(r&&r.emailAddress&&r.emailAddress.address||'').toLowerCase(), from=adr(g.from);
@@ -3581,11 +3652,15 @@ async function loadTodoMail(seq){
   TODO.mailSt='load'; TODO.mailErr=''; renderTodo();
   const sel='$select=id,webLink,subject,from,toRecipients,ccRecipients,receivedDateTime,hasAttachments,bodyPreview&$expand=attachments($select=name,isInline)&$top=1000';   // v0.8: id · webLink = 元のメールを Outlook で開く (下書きの返信先)
   const chunks=Array.from({length:N},(_,i)=>[new Date(start+i*step).toISOString(), new Date(start+(i+1)*step).toISOString()]); let done=0;
-  try{
-    await mapLimit(chunks,3,async([a,b])=>{ let url=GRAPH+'me/messages?$filter='+encodeURIComponent('receivedDateTime ge '+a+' and receivedDateTime lt '+b)+'&'+sel;
-      while(url){ if(seq!==TODO.mailSeq) return; const r=await graphFetch(url,{headers:{Accept:'application/json'}}); if(!r.ok) throw new Error('メールを読めない ('+r.status+')'); const j=await r.json(); out.push(...(j.value||[])); url=j['@odata.nextLink']||null; }
-      done++; TODO.mailN=out.length; if(seq===TODO.mailSeq){ TODO.mailSt='load'; renderTodoNote(); } });
-  }catch(e){ TODO.mailErr=e.message||String(e); }
+  /* v0.23 (N8): 区間ごとに 読めなかったら 待って読み直す (3 回) — 1 区間でも読めないと その期間の メールなしで計算してしまうため · 読めない区間の数は TODO.mailBad */
+  TODO.mailBad=0; TODO.mailDone=0; TODO.mailChunks=N;
+  await mapLimit(chunks,3,async([a,b])=>{
+    for(let k=0;k<=R.MAIL_RETRY.length;k++){ const part=[];
+      try{ let url=GRAPH+'me/messages?$filter='+encodeURIComponent('receivedDateTime ge '+a+' and receivedDateTime lt '+b)+'&'+sel;
+        while(url){ if(seq!==TODO.mailSeq) return; const r=await graphFetch(url,{headers:{Accept:'application/json'}}); if(!r.ok) throw new Error('メールを読めない ('+r.status+')'); const j=await r.json(); part.push(...(j.value||[])); url=j['@odata.nextLink']||null; }
+        out.push(...part); break; }
+      catch(e){ if(k<R.MAIL_RETRY.length){ await sleep(R.MAIL_RETRY[k]); continue; } TODO.mailBad++; TODO.mailErr=e.message||String(e); } }
+    done++; TODO.mailDone=done; TODO.mailN=out.length; if(seq===TODO.mailSeq){ TODO.mailSt='load'; renderTodoNote(); renderTodoBanner(); } });
   if(seq!==TODO.mailSeq) return;
   const ships=S.bk.map(b=>({id:b.cr49f_bookingid, iv:b.cr49f_invoice_no, bkg:b.cr49f_booking_no, bl:b.cr49f_bl_number, ct:(S.ct[b._cr49f_sale_contract_id_value]||{}).cr49f_sale_contract_no, cntrs:TODO.cntr[b.cr49f_bookingid]||[]}));
   const I=DOC.linkIndex(ships), by={}, ctx=TODO.ctx, adr=r=>String(r&&r.emailAddress&&r.emailAddress.address||'').toLowerCase();
@@ -3594,7 +3669,7 @@ async function loadTodoMail(seq){
     m.id=g.id||''; m.web=g.webLink||''; m.fromName=String(g.from&&g.from.emailAddress&&g.from.emailAddress.name||''); m.fromDom=from.split('@')[1]||'';   // v0.8
     m.fromAddr=from; m.toBuyer=(g.toRecipients||[]).map(adr).filter(a=>DOC.senderKind(a,ctx)==='buyer');   // v0.12: B/L Draft のメールの下書きの宛先 (船社 = Draft メールの送り手 · バイヤー = 前にバイヤーへ送ったメールの宛先)
     if(!m.uses.length&&!m.kind) return;
-    const bk=DOC.linkMail(m.subj+' '+att.join(' ')+' '+m.body, I); if(!bk.length||bk.length>4) return;
+    const bk=DOC.linkMails(m, I); if(!bk.length||bk.length>DOC.linkMax(m)) return;   // v0.23 (N9): 送金 · B/L 依頼は 件名の B/L 番号 (8 件まで)
     bk.forEach(id=>{ (by[id]=by[id]||[]).push(m); }); });
   TODO.byBk=by; TODO.mails=out.length; TODO.mailMs=Date.now()-t0; TODO.mailSt=TODO.mailErr?'error':'ok'; PERF.mark('mail'); renderTodo();
 }
@@ -3602,7 +3677,9 @@ async function loadTodoMail(seq){
 function todoOf(b){
   const I=todoInput(b), iv=I.iv, x=I.x, r=I.r, now=I.now, Sg=I.sig, fo=I.fo, row=DOC.todoRow(x,Sg,now,TODO.ext), done=DOC.todoDone(Sg,now);
   if(done.length) TODO.done.push({iv, carrier:x.carrier, country:x.country, staff:r.staff, list:done});
-  if(!row) return null; row.group=DOC.todoGroup(row,now); row.when=DOC.whenLabel(row,now); row.whenSub=DOC.whenSub(row,now); return Object.assign(row,{iv, carrier:x.carrier, country:x.country, staff:r.staff, b, sig:Sg, folderWait:fo===undefined});
+  if(!row) return null; row.group=DOC.todoGroup(row,now); row.when=DOC.whenLabel(row,now); row.whenSub=DOC.whenSub(row,now);
+  const mdn=manDoneHit(iv,row); if(mdn){ (TODO.manShown=TODO.manShown||[]).push({iv, what:row.what, gkey:row.gkey, stage:row.stage, rec:mdn, carrier:x.carrier, country:x.country, staff:r.staff}); return null; }   // v0.23 (N10): 人が 「済にした」 段階 (段階が進めば また出る)
+  todoMailPend(row); return Object.assign(row,{iv, carrier:x.carrier, country:x.country, staff:r.staff, b, sig:Sg, folderWait:fo===undefined});
 }
 /* 船積 1 件の材料 + 信号 (v0.15: todoOf · FD 検索で同じもの) */
 function todoInput(b){
@@ -3656,11 +3733,72 @@ async function fnDecide(iv, key, decision, btn){
   catch(e){ if(btn) btn.disabled=false; toast('記憶できません: '+e.message,'danger'); }
 }
 /* v0.14 (Step 4-1): フォルダを読む前でも COMPASS だけで出す (読めた Invoice から 行を描き直す) */
-function todoRows(){ const out=[], seenCt=new Set(); TODO.done=[]; S.bk.forEach(b=>{ const iv=DOC.up(b.cr49f_invoice_no); try{ out.push(...todoExtraOf(b, seenCt)); }catch(e){} try{ const r=todoOf(b); if(r) out.push(r); }catch(e){ out.push({iv, gkey:'acl', zone:'do', group:'late', stage:1, what:'計算できません', why:e.message, when:'—', action:DOC.TODO_RULES.ACTION.mail, b, staff:''}); } }); return out; }
+function todoRows(){ const out=[], seenCt=new Set(); TODO.done=[]; TODO.manShown=[]; S.bk.forEach(b=>{ const iv=DOC.up(b.cr49f_invoice_no); try{ out.push(...todoExtraOf(b, seenCt)); }catch(e){} try{ const r=todoOf(b); if(r) out.push(r); }catch(e){ out.push({iv, gkey:'acl', zone:'do', group:'late', stage:1, what:'計算できません', why:e.message, when:'—', action:DOC.TODO_RULES.ACTION.mail, b, staff:''}); } }); return out; }
 function renderTodoNote(){ const el=$('dtTodoMail'); if(!el) return; el.textContent=todoMailNote(); }
+/* v0.23 (N8): メールを読み終わるまで (読めない区間があるときも) メールで決まる段階は 「メール確認中」 — 「〜メールなし」 「期限切れ」 を 決まったように見せない (形さん 「이거는 메일 확인 한 건가?」) */
+const todoMailReady = () => TODO.asof!=null||TODO.mailSt==='ok';
+function todoMailPend(row){
+  if(todoMailReady()||row.extra) return row;
+  row.mailPend=true; row.why=String(row.why||'').replace(/メールなし/g,'メール確認中'); row.when=TODO.mailSt==='error'?'メール未確認':'メール確認中…'; row.whenSub='';
+  if(row.group==='late'||row.group==='today'||row.group==='chase') row.group='pend';
+  if(row.nudge) row.nudge=Object.assign({},row.nudge,{over:false});
+  return row;
+}
+function todoBannerHtml(){
+  if(todoMailReady()) return '';
+  if(TODO.mailSt==='error') return '<div class="dt-card tl-mailbar tl-mailbar-err"><b>⚠ メールを一部読めませんでした（'+(TODO.mailBad||0)+' / '+(TODO.mailChunks||10)+' 区間）</b> — 「メール未確認」の行は まだ決まっていません（依頼済 · 回答 · Draft などは メールで決まります）。 <button class="dt-btn ghost sm" id="dtMailRetry">もう一度 メールを読む</button></div>';
+  return '<div class="dt-card tl-mailbar"><b>メールを読み込み中… '+(TODO.mailN||0)+' 通（'+(TODO.mailDone||0)+' / '+(TODO.mailChunks||10)+'）</b> — 読み終わるまで メールで決まる段階（依頼済 · 回答 · Draft など）は 「メール確認中」 と表示します（約 40 秒）。</div>';
+}
+/* ══ v0.23 (N10) 人が 「済にする」 — TOOL がメールを読めなくても 仕事が いつまでも残らない (形さん 「메일을 이 툴에서 못 읽으면 영원히 남는 거 아닌가?」) ══
+   記録 = doc_tool/state/done/{IV}_{UTC}.json (新しいファイルだけ · いちばん新しいものが今の状態 · 元に戻す = undo:true の記録) · 全員の画面で同じ */
+const MAN_REASONS=[['mail','メールで済'],['phone','電話 · 口頭で済'],['none','不要']], LONG_DAYS=14;
+function manDoneApply(j){ if(!j||!j.at_saved) return; const iv=DOC.up(j.invoice); if(!iv) return;
+  const L=TODO.manLog=TODO.manLog||[]; if(!L.some(x=>x.at_saved===j.at_saved&&DOC.up(x.invoice)===iv)) L.push(j);
+  const cur=TODO.manDone[iv]; if(!cur||cur.at_saved<j.at_saved) TODO.manDone[iv]=j; }
+function manDoneHit(iv, row){ const j=TODO.manDone[DOC.up(iv)]; return j&&!j.undo&&j.gkey===row.gkey&&+j.stage===+row.stage?j:null; }
+const jstStr = iso => iso?new Date(Date.parse(iso)+9*3600e3).toISOString().slice(0,16).replace('T',' '):'';
+async function manDoneWrite(rec){ const full=await stateWrite('done', rec.invoice, Object.assign({name:S.me.name||''}, rec)); manDoneApply(full); bcSend({type:'done', rec:full}); return full; }
+function manDoneModal(iv){
+  const row=todoRows().find(r=>r.iv===iv&&!r.extra); if(!row){ toast('この行は もうありません','danger'); return; }
+  modal('<div class="dt-h">済にする — '+esc(iv)+'</div><div class="dt-p">「'+esc(row.what)+'」を 済にします。<br>TOOL がメールを読めないとき · 電話で終わったとき に使ってください（記録が残り 全員の画面から消えます · 元に戻せます · 次の段階の証拠が来たら 次の段階が出ます）。</div>'+
+    '<div class="dt-row" style="flex-wrap:wrap;gap:14px;margin:6px 0">'+MAN_REASONS.map((r,i)=>'<label><input type="radio" name="dtMdr" value="'+r[0]+'"'+(i===0?' checked':'')+'> '+esc(r[1])+'</label>').join('')+'</div>'+
+    '<label class="dt-note" id="dtMdSubjL" style="display:block;margin:6px 0">メールの件名（わかれば — TOOL が読めなかった理由を 管理者が調べます）<input class="dt-in" id="dtMdSubj" style="width:100%"></label>'+
+    '<label class="dt-note" style="display:block;margin:6px 0">メモ<input class="dt-in" id="dtMdMemo" style="width:100%"></label>'+
+    '<div class="dt-actions"><button class="dt-btn" id="dtMdOk">済にする</button><button class="dt-btn ghost" data-close>やめる</button></div>');
+  const box=$('dtModalBox'), sel=()=>(box.querySelector('input[name=dtMdr]:checked')||{}).value||'mail';
+  box.querySelectorAll('input[name=dtMdr]').forEach(el=>{ el.onchange=()=>{ $('dtMdSubjL').style.display=sel()==='mail'?'block':'none'; }; });
+  $('dtMdOk').onclick=async()=>{ const b=$('dtMdOk'); b.disabled=true; const reason=sel();
+    const rec={invoice:iv, gkey:row.gkey, stage:row.stage, what:row.what, why:row.why, reason, reason_ja:(MAN_REASONS.find(r=>r[0]===reason)||[])[1]||'', mail_subject:reason==='mail'?$('dtMdSubj').value.trim():'', memo:$('dtMdMemo').value.trim(), undo:false, etd:row.b?DOC.etdOf(row.b):''};
+    try{ await manDoneWrite(rec); closeModal(); toast('済にしました（元に戻す = 下の 「済にしたもの」）','ok'); renderTodo(); }catch(e){ b.disabled=false; toast('記録できません: '+e.message,'danger'); } };
+}
+async function manUndo(iv, btn){ const j=TODO.manDone[DOC.up(iv)]; if(!j||j.undo) return; if(btn) btn.disabled=true;
+  try{ await manDoneWrite({invoice:j.invoice, gkey:j.gkey, stage:j.stage, what:j.what, reason:j.reason, reason_ja:j.reason_ja, undo:true, undo_of:j.at_saved}); toast('元に戻しました','ok'); renderTodo(); }
+  catch(e){ if(btn) btn.disabled=false; toast('元に戻せません: '+e.message,'danger'); } }
+/* 管理者: 「メールが見つからない」 (= 「メールで済」 にした記録) — TOOL が読めなかったメールを集める · 次の版で規則を直す材料 */
+function manMissModal(){ const L=(TODO.manLog||[]).filter(j=>!j.undo&&j.reason==='mail').sort((a,b)=>a.at_saved<b.at_saved?1:-1);
+  modal('<div class="dt-h">メールが見つからない <span class="dt-note">'+L.length+' 件 — 「メールで済」 にした記録（TOOL が読めなかったメール · 規則を直す材料）</span></div>'+
+    '<div style="max-height:60vh;overflow:auto"><table class="dt-t"><thead><tr><th>Invoice</th><th>段階</th><th>メールの件名</th><th>メモ</th><th>だれ</th><th>いつ</th></tr></thead><tbody>'+
+    (L.map(j=>'<tr><td>'+esc(j.invoice)+'</td><td>'+esc(j.what||'')+'</td><td>'+esc(j.mail_subject||'—')+'</td><td>'+esc(j.memo||'')+'</td><td>'+esc(j.name||j.user||'')+'</td><td>'+esc(jstStr(j.at_saved))+'</td></tr>').join('')||'<tr><td colspan="6">まだありません</td></tr>')+'</tbody></table></div>'+
+    '<div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>'); }
+/* 管理者: 長く残っている (ETD から LONG_DAYS 日を過ぎても 今日やること にある行 · 自動で済にはしない) */
+function longModal(){ const today=Date.parse(S.today+'T00:00:00Z'), L=todoRows().filter(r=>!r.extra&&r.b).map(r=>({r, etd:DOC.etdOf(r.b)})).filter(o=>o.etd&&(today-Date.parse(o.etd+'T00:00:00Z'))/864e5>=LONG_DAYS).sort((a,b)=>a.etd<b.etd?-1:1);
+  modal('<div class="dt-h">長く残っている <span class="dt-note">'+L.length+' 件 — ETD から '+LONG_DAYS+' 日を過ぎても 残っている行（自動で 済にはしません · 確かめて 「済にする」）</span></div>'+
+    '<div style="max-height:60vh;overflow:auto"><table class="dt-t"><thead><tr><th>Invoice</th><th>ETD</th><th>日数</th><th>段階</th><th>理由</th><th>担当</th></tr></thead><tbody>'+
+    (L.map(o=>'<tr><td><button class="dt-link" data-lgiv="'+esc(o.r.iv)+'">'+esc(o.r.iv)+'</button></td><td>'+esc(o.etd)+'</td><td>'+Math.floor((today-Date.parse(o.etd+'T00:00:00Z'))/864e5)+'</td><td>'+esc(o.r.what)+'</td><td>'+esc(o.r.why)+'</td><td>'+esc(o.r.staff||'')+'</td></tr>').join('')||'<tr><td colspan="6">ありません</td></tr>')+'</tbody></table></div>'+
+    '<div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>');
+  $('dtModalBox').querySelectorAll('[data-lgiv]').forEach(b=>{ b.onclick=()=>{ closeModal(); openIv(b.dataset.lgiv,'').catch(e=>toast('開けません: '+e.message,'danger')); }; }); }
+/* v0.23 (N3 · N10): 同じ PC の 別の窓 にも すぐ知らせる (BroadcastChannel · なければ storage イベント) */
+const BC=(()=>{ try{ return typeof BroadcastChannel==='function'?new BroadcastChannel('doc_tool_v023'):null; }catch(e){ return null; } })();
+function bcSend(msg){ try{ if(BC) BC.postMessage(msg); }catch(e){} try{ localStorage.setItem('doc_tool_bc', JSON.stringify(Object.assign({t:Date.now(), n:Math.random()}, msg))); }catch(e){} }
+function bcOn(msg){ if(!msg||!msg.type) return;
+  if(msg.type==='done'&&msg.rec){ manDoneApply(msg.rec); renderSoon(); }
+  if(msg.type==='save'&&msg.key){ saveSeenApply(msg); } }
+if(BC) BC.onmessage=e=>bcOn(e.data);
+window.addEventListener('storage', e=>{ if(e.key==='doc_tool_bc'&&e.newValue){ try{ bcOn(JSON.parse(e.newValue)); }catch(x){} } });
+function renderTodoBanner(){ const el=$('dtTodoBar'); if(!el) return; el.innerHTML=todoBannerHtml(); const b=$('dtMailRetry'); if(b) b.onclick=()=>{ TODO.mailSeq++; loadTodoMail(TODO.mailSeq); }; }
 const todoMailNote = () => !S.me.admin?'':(TODO.fdSearch.st==='load'?'FD のメールを Invoice 番号で検索中 '+(TODO.fdSearch.done||0)+' / '+TODO.fdSearch.n+' · ':TODO.fdSearch.st==='ok'&&TODO.fdSearch.n?'FD のメール検索 '+TODO.fdSearch.n+' 件 → 送付済み '+TODO.fdSearch.hit+' 件 · ':'')+(TODO.mailSt==='load'?'メールを読み込み中… '+TODO.mailN+' 通 (先に COMPASS · フォルダ · PORTAL で表示しています)':TODO.mailSt==='error'?'⚠ '+TODO.mailErr+' — メールなしで計算 (COMPASS · フォルダ · PORTAL)':TODO.mailSt==='ok'?'メール '+TODO.mails+' 通 (直近 '+DOC.TODO_RULES.MAIL_DAYS+' 日 · '+(TODO.mailMs/1000).toFixed(0)+' 秒) も使って計算':'');
 /* v0.14: グループは開いておく (今日終わったもの だけ 閉じる) · 0 件のグループは 1 行 · v0.15 (A1): 「待ち」 の区域は最初は閉じる (押すと開く · このブラウザに記憶) */
-const TODO_OPEN_DEF = {done:false, zone_wait:false};
+const TODO_OPEN_DEF = {done:false, zone_wait:false, man:false};
 function renderTodo(){
   if(S.view!=='list'||S.board!=='todo') return;
   const t0=perfNow(), R=DOC.TODO_RULES, box=$('dtTodoBox'), now=TODO.asof!=null?TODO.asof:DOC.jst(new Date().toISOString());
@@ -3677,6 +3815,7 @@ function renderTodo(){
     '<div class="tl-act">'+(r.action&&r.action[1]==='ctsi'?'<button class="dt-btn ghost sm" data-tdct="'+esc(r.ctId||'')+'">'+esc(r.action[0])+'</button>':r.action?'<button class="dt-btn ghost sm" data-tdiv="'+esc(r.iv)+'" data-tdtab="'+esc(r.action[1])+'">'+esc(r.action[0])+'</button>':'')+
       (r.fn?(r.fn.kind==='file'?'<button class="dt-btn ghost sm" data-tdfn="this" data-fniv="'+esc(r.iv)+'" data-fnkey="'+esc(r.fn.key)+'">この Invoice のファイル</button><button class="dt-btn ghost sm" data-tdfn="other" data-fniv="'+esc(r.iv)+'" data-fnkey="'+esc(r.fn.key)+'">別の Invoice</button>'
         :'<button class="dt-btn ghost sm" data-tdfn="ack" data-fniv="'+esc(r.iv)+'" data-fnkey="'+esc(r.fn.key)+'">確認しました</button>'):'')+
+      (!r.extra?'<button class="dt-btn ghost sm tl-man" data-tddone="'+esc(r.iv)+'" title="TOOL がメールを読めないとき · 電話で終わったとき">済にする</button>':'')+   // v0.23 (N10)
       (!r.extra&&mailKindOf(r)?'<button class="dt-btn ghost sm" data-mail="'+mailKindOf(r)+'" data-mailiv="'+esc(r.iv)+'">下書きを作る</button>'+(mailDoneLabel(r.iv,mailKindOf(r))?'<span class="dt-note tl-md">'+esc(mailDoneLabel(r.iv,mailKindOf(r)))+'</span>':''):'')+'</div></div>';   // v0.19
   const help=ch=>'<a class="tl-help" href="'+esc(R.MANUAL)+'" target="_blank" rel="noopener" title="'+esc('マニュアル'+(ch?'「'+ch+'」':'（この仕事の章はまだありません）'))+'">？</a>';
   const grp=([k,z,name,hint,ch])=>{ const c=n(k), o=c&&isOpen(k), late=z==='do'?G[k].filter(r=>r.group==='late').length:0, chase=z==='wait'?G[k].filter(r=>r.group==='chase').length:0;
@@ -3688,14 +3827,24 @@ function renderTodo(){
     return '<section class="dt-card tl-zone tl-z-'+z+'"><div class="tl-zh">'+(col?'<button class="tl-gt" data-tdtoggle="'+zk+'">'+(o?'▼ ':'▶ ')+esc(title)+'</button>':esc(title))+' <span class="tl-n">'+zn(z)+' 件</span>'+(col&&!o&&ch?' <span class="tl-badge tl-d-chase">催促 '+ch+'</span>':'')+'</div>'+(o?R.TGROUPS.filter(g=>g[1]===z).map(grp).join(''):'')+'</section>'; };
   const doneH='<section class="dt-card tl-zone tl-z-done"><div class="tl-gh"><button class="tl-gt" data-tdtoggle="done"'+(done.length?'':' disabled')+'>'+(done.length?(isOpen('done')?'▼ ':'▶ '):'· ')+esc(R.ZONES[2][1])+'</button><span class="tl-n">'+done.length+' 件</span></div>'+
     (done.length&&isOpen('done')?'<div class="tl-rows">'+done.map(d=>'<div class="tl-row"><div class="tl-due">'+esc(DOC.hmOf(d.list[d.list.length-1][0]))+'</div><div class="tl-iv"><button class="dt-link" data-tdiv="'+esc(d.iv)+'" data-tdtab="">'+esc(d.iv)+'</button> <span class="dt-note">'+esc([d.carrier,d.country].filter(Boolean).join(' · '))+'</span></div><div class="tl-what">'+esc(d.list.map(x=>x[1]).join(' · '))+'</div><div></div><div></div></div>').join('')+'</div>':'')+'</section>';
+  /* v0.23 (N10): 人が 済にしたもの (元に戻す) · 管理者 = メールが見つからない · 長く残っている */
+  const man=(TODO.manShown||[]).filter(vis);
+  const manH='<section class="dt-card tl-zone tl-z-man"><div class="tl-gh"><button class="tl-gt" data-tdtoggle="man"'+(man.length?'':' disabled')+'>'+(man.length?(isOpen('man')?'▼ ':'▶ '):'· ')+'済にしたもの（人が済にした · 段階が進めばまた出ます）</button><span class="tl-n">'+man.length+' 件</span>'+
+    (S.me.admin?'<span class="dt-row" style="gap:6px;margin-left:auto"><button class="dt-btn ghost sm" id="dtManMiss">メールが見つからない（'+(TODO.manLog||[]).filter(j=>!j.undo&&j.reason==='mail').length+'）</button><button class="dt-btn ghost sm" id="dtLong">長く残っている</button></span>':'')+'</div>'+
+    (man.length&&isOpen('man')?'<div class="tl-rows">'+man.map(o=>'<div class="tl-row"><div class="tl-due">'+esc(jstStr(o.rec.at_saved).slice(5))+'</div><div class="tl-iv"><button class="dt-link" data-tdiv="'+esc(o.iv)+'" data-tdtab="">'+esc(o.iv)+'</button> <span class="dt-note">'+esc([o.carrier,o.country].filter(Boolean).join(' · '))+'</span></div><div class="tl-what">'+esc(o.what)+'</div><div class="tl-why dt-note">'+esc((o.rec.reason_ja||'')+(o.rec.mail_subject?' · 「'+o.rec.mail_subject+'」':'')+(o.rec.memo?' · '+o.rec.memo:'')+' · '+(o.rec.name||o.rec.user||''))+'</div><div class="tl-act"><button class="dt-btn ghost sm" data-tdundo="'+esc(o.iv)+'">元に戻す</button></div></div>').join('')+'</div>':'')+'</section>';
   const fo=Object.keys(S.folders).length, fw=S.bk.length&&fo<S.bk.length?' · Invoice フォルダ確認中 '+fo+' / '+S.bk.length+'（表示は変わることがあります）':'';
   box.innerHTML=cpBannerHtml()+(TODO.asof!=null?'<div class="dt-card td-asof">asof '+esc(DOC.dayOf(now)+' '+DOC.hmOf(now))+' の時点で計算しています（管理者 · 試験 · その時刻より前の信号だけ）</div>':'')+
+    '<div id="dtTodoBar">'+todoBannerHtml()+'</div>'+
     '<div class="dt-note tl-now">いま '+esc(DOC.hmOf(now))+' · 締切 14:30 Draft 確認 · 15:00 送金 · 18:00 宅配'+esc(fw)+'</div>'+
-    zone('do',R.ZONES[0][1])+zone('wait',R.ZONES[1][1])+doneH+
+    zone('do',R.ZONES[0][1])+zone('wait',R.ZONES[1][1])+doneH+manH+
     '<div class="dt-note" id="dtTodoMail">'+esc(todoMailNote())+'</div>'+
     '<div class="dt-note">1 Invoice = 1 行（いまの段階だけ）。やること = 自分の番（グループは仕事の順 · 期限の早い順 · 赤 = 期限切れ · 橙 = 今日 · 灰 = 明日以降）。待ち = 相手の番（いつもの時間を過ぎたら催促）。Invoice を押すと詳細（段階の札）。FD を送ったら一覧から消える。'+
       (TODO.portalErr?' ⚠ PORTAL を読めない: '+esc(TODO.portalErr):'')+'</div><div class="dt-note" id="dtPerf">'+(S.me.admin?esc(PERF.note()):'')+'</div>';
   cpBannerBind(box);   // v0.11
+  renderTodoBanner();   // v0.23 (N8)
+  box.querySelectorAll('[data-tddone]').forEach(b=>{ b.onclick=()=>manDoneModal(b.dataset.tddone); });   // v0.23 (N10)
+  box.querySelectorAll('[data-tdundo]').forEach(b=>{ b.onclick=()=>manUndo(b.dataset.tdundo, b); });
+  const mm=$('dtManMiss'); if(mm) mm.onclick=manMissModal; const lg=$('dtLong'); if(lg) lg.onclick=longModal;
   box.querySelectorAll('[data-tdtoggle]').forEach(b=>{ b.onclick=()=>{ const k=b.dataset.tdtoggle, o=Object.assign({},TODO.open||{}); o[k]=!isOpen(k); TODO.open=o; lsSet(LS.todoOpen,JSON.stringify(o)); renderTodo(); }; });
   box.querySelectorAll('[data-mail]').forEach(b=>{ b.onclick=()=>mailDraftModal(b.dataset.mailiv, b.dataset.mail); });   // v0.19
   box.querySelectorAll('[data-tdiv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.tdiv, b.dataset.tdtab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
@@ -3707,7 +3856,7 @@ function renderTodo(){
 
 /* ══════════ v0.9 保存の入口 — 入口 A: メール (自分のメールボックス · 読むだけ · 添付の GET まで) · 入口 B: 置く (画面に PDF を落とす) → 処理 1 つ ══════════
    保存は 「新規作成」 だけ (conflictBehavior=fail · 上書き · 削除 · 名前変更 0) · 確認 (「保存する」) が既定 · 試験 = doc_tool/save_test/{IV}/ (管理者) */
-const SAVE = {rows:[], seq:0, idn:0, extra:{}, logKeys:null, mailSt:'', mailMs:0, mailN:0, hashCache:{}};
+const SAVE = {rows:[], seq:0, idn:0, extra:{}, logKeys:null, logLocal:new Set(), mailSt:'', mailMs:0, mailN:0, hashCache:{}};
 const saveTest = () => S.me.admin&&lsGet(LS.saveTest,'0')==='1';
 const saveAuto = () => S.me.admin&&lsGet(LS.saveAuto,'0')==='1';
 async function sha256Hex(buf){ const h=await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join(''); }
@@ -3809,7 +3958,8 @@ async function aclCompareFromPages(iv, pages, name){
 async function saveLog(row, result){
   const d=new Date(), day=DOC.utcStamp(d).slice(0,8), rec={at:d.toISOString(), invoice:row.iv, saved:row.target||'', path:row.saved||'', test:saveTest(), kind:row.kind&&row.kind.sub||'', result,
     src:row.src, mailId:row.mailId||'', att:row.attName||'', file:row.name, hash:row.hash, user:(LEENAI.user&&LEENAI.user.email)||'', same:row.same||''};
-  try{ await spPut(DOC.OUT_ROOT+DOC.SAVE_RULES.LOG_DIR+day+'/'+DOC.utcStamp(d)+'_'+DOC.safeKey(row.iv||'NOIV')+'_'+Math.random().toString(36).slice(2,8)+'.json', JSON.stringify(rec)); if(SAVE.logKeys&&row.mailId) SAVE.logKeys.add(row.mailId+'|'+row.attName); }catch(e){ row.logErr=e.message; }
+  try{ await spPut(DOC.OUT_ROOT+DOC.SAVE_RULES.LOG_DIR+day+'/'+DOC.utcStamp(d)+'_'+DOC.safeKey(row.iv||'NOIV')+'_'+Math.random().toString(36).slice(2,8)+'.json', JSON.stringify(rec)); if(row.mailId){ SAVE.logLocal.add(row.mailId+'|'+row.attName); if(SAVE.logKeys) SAVE.logKeys.add(row.mailId+'|'+row.attName); }
+    if(row.mailId) bcSend({type:'save', key:row.mailId+'|'+row.attName, iv:row.iv||'', result}); }catch(e){ row.logErr=e.message; }   // v0.23 (N3): 同じ PC の 別の窓にも すぐ知らせる
 }
 /* 記録にある メール + 添付 — v0.14 (3-2): 保存 · 取消 · 重複 · 同じ内容 すべて (次に開いたとき 飛ばす) · 見るのは メールを確認する期間の 日付フォルダだけ (sinceDay = yyyymmdd · UTC) */
 async function saveLogKeys(sinceDay){
@@ -3817,7 +3967,22 @@ async function saveLogKeys(sinceDay){
   try{ const LD=DOC.OUT_ROOT+DOC.SAVE_RULES.LOG_DIR.replace(/\/$/,''), days=await spChildren(LD); const recent=(days||[]).filter(x=>x.folder&&(!sinceDay||x.name>=sinceDay)).map(x=>x.name).sort().slice(-20);
     for(const dname of recent){ const k=await spChildren(LD+'/'+dname)||[];
       await mapLimit(k.filter(x=>x.file),8,async x=>{ try{ const t=await spText(LD+'/'+dname+'/'+x.name); const j=t&&JSON.parse(t); if(j&&j.mailId&&(j.result==='保存'||DOC.SAVE_RULES.REMEMBER.indexOf(j.result)>=0)) keys.add(j.mailId+'|'+j.att); }catch(e){} }); } }catch(e){}
+  SAVE.logLocal.forEach(k=>keys.add(k));   // v0.23 (N3): この窓 · 別の窓で 記録したもの (一覧に まだ出ていなくても)
   return SAVE.logKeys=keys;
+}
+/* v0.23 (N3 形さん 「다른 창에서 보존/보존하지 않는다를 눌렀는데, 지금 갱신해도 아직 남아있네?」):
+   ① 別の窓 (同じ PC) で 保存 · 取消 → この窓の その行も すぐ消す (BroadcastChannel · storage)
+   ② 「メールを確認」 · 画面の更新 = save_log (記録) と その Invoice のフォルダを 読み直して 終わった行を消す */
+const saveOpen = r => r.busy||!r.res||DOC.SAVE_RULES.OPEN_RE.test(r.res);
+function saveSeenApply(msg){ SAVE.logLocal.add(msg.key); if(SAVE.logKeys) SAVE.logKeys.add(msg.key); const n=SAVE.rows.length;
+  SAVE.rows=SAVE.rows.filter(r=>!(r.mailId&&(r.mailId+'|'+r.attName)===msg.key&&saveOpen(r)&&!r.busy)); if(SAVE.rows.length!==n) renderInbox(); }
+async function savePrune(keys){
+  const gone=SAVE.rows.filter(r=>r.mailId&&keys.has(r.mailId+'|'+r.attName)&&saveOpen(r)&&!r.busy);
+  const ivs=[...new Set(SAVE.rows.filter(r=>saveOpen(r)&&!r.busy&&r.iv&&gone.indexOf(r)<0).map(r=>r.iv))];
+  await mapLimit(ivs,3,async iv=>{ const b=S.bk.find(x=>DOC.up(x.cr49f_invoice_no)===iv); try{ await loadFolder(iv, b); }catch(e){} });
+  const inFolder=r=>{ const f=S.folders[r.iv]; return !!(f&&f.files&&f.files.some(x=>x.name===(r.target||r.name)||(r.size&&x.name===r.attName&&x.size===r.size))); };
+  const n=SAVE.rows.length; SAVE.rows=SAVE.rows.filter(r=>gone.indexOf(r)<0&&!(saveOpen(r)&&!r.busy&&r.iv&&inFolder(r)));
+  SAVE.pruned=(SAVE.pruned||0)+(n-SAVE.rows.length); return n-SAVE.rows.length;
 }
 /* v0.14 (3-2): メールの添付の 重複 · 同じ内容 (v0.15: 対象外) も記録 (1 回だけ · 取消 は 「保存しない」 で記録) */
 async function saveRemember(row){
@@ -3832,7 +3997,9 @@ async function saveMailScan(days){
   try{
     const end=TODO.asof!=null?TODO.asof-9*3600e3:Date.now(); let d=DOC.dayOf(DOC.jst(new Date(end).toISOString())), k=0; const n=days||DOC.SAVE_RULES.BDAYS;
     while(k<n){ if(DOC.bday(d)) k++; if(k<n) d=DOC.addDays(d,-1); }
+    SAVE.logKeys=null;   // v0.23 (N3): 毎回 記録を読み直す (別の窓 · 別の人の 保存 · 取消)
     const since=new Date(DOC.at(d,'00:00')-9*3600e3).toISOString(), keys=await saveLogKeys(since.slice(0,10).replace(/-/g,'')), ctx=TODO.ctx||{}, out=[];
+    await savePrune(keys); renderInbox();
     let url=GRAPH+'me/messages?$filter='+encodeURIComponent('receivedDateTime ge '+since+' and hasAttachments eq true')+'&$select=id,subject,receivedDateTime,from&$expand=attachments($select=id,name,contentType,size,isInline)&$top=100';
     while(url){ const r=await graphFetch(url,{headers:{Accept:'application/json'}}); if(!r.ok) throw new Error('メールを読めない ('+r.status+')'); const j=await r.json(); out.push(...(j.value||[])); url=j['@odata.nextLink']||null; if(seq!==SAVE.seq) return; }
     const ATT=DOC.TODO_RULES.MAIL_USE.find(u=>u[0]==='ACL')[3], cand=[];
@@ -4060,7 +4227,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.22.1', date:'2026-11-25',
+  sys:'D-00', name:'書類ツール', version:'0.23', date:'2026-11-25',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

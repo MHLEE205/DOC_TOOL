@@ -62,8 +62,8 @@ console.log('1-4 乙仲 ACL 訂正依頼');
   ok(DOC.todoRow(X0(),s4,NOW,null).gkey==='acl','폴더에 새 ACL (REV) 이 訂正依頼 뒤에 들어옴 → ACL 確認',s4); }
 
 console.log('2 그룹 · 정렬 · 기한 색');
-{ eq(R.TGROUPS.map(g=>g[0]),['si','fname','acl','depo','draft','blreq','insrr','fd','fdlc','w_otsu','w_carrier','w_buyer'],'그룹 순서 = 일의 순서 · 待ち = 乙仲 · 船社 · バイヤー (v0.15: 앞에 si · fname)');
-  eq(R.TGROUPS.map(g=>g[1]).join(''),'dododododododododowaitwaitwait','구역 (do 9 · wait 3)');
+{ eq(R.TGROUPS.map(g=>g[0]),['sichk','si','fname','acl','depo','draft','blreq','insrr','fd','fdlc','w_otsu','w_carrier','w_buyer'],'그룹 순서 = 일의 순서 · 待ち = 乙仲 · 船社 · バイヤー (v0.15: 앞에 si · fname)');
+  eq(R.TGROUPS.map(g=>g[1]).join(''),'dodododododododododowaitwaitwait','구역 (do 10 · wait 3 · v0.23 sichk)');
   ok(R.TGROUPS.every(g=>g[3]&&g[2])&&R.TGROUPS.filter(g=>g[4]).map(g=>g[0]).join()==='acl,draft'&&/^https:\/\/claude\.ai\/artifact\//.test(R.MANUAL),'그룹마다 한 줄 안내 · 매뉴얼 장 (있는 것만) · 링크만');
   const bl=at('2026-11-19','18:00');
   eq([row({blDate:'2026-11-19',term:'CIF'},{bl}).gkey,row({blDate:'2026-11-19',country:'KOREA'},{bl}).gkey,row({blDate:'2026-11-19'},{bl}).gkey,row({blDate:'2026-11-19',pay:'LC'},{bl}).gkey],['insrr','insrr','fd','fdlc'],'B/L 뒤: 保険 · RR → FD / L/C 원본');
@@ -79,7 +79,7 @@ console.log('3 화면');
   W.bookings[0]._cr49f_carrier_id_value=X.g('6',1); W.carriers=[{crcf9_carrierid:X.g('6',1), crcf9_carrier:'ONE'}];
   const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}});
   await X.until(()=>!!w.document.querySelector('.tl-zone'));
-  eq(qa(w,'.tl-zone').map(z=>z.className.match(/tl-z-(\w+)/)[1]),['do','wait','done'],'세 구역 순서 やること → 待ち → 今日終わったもの');
+  eq(qa(w,'.tl-zone').map(z=>z.className.match(/tl-z-(\w+)/)[1]),['do','wait','done','man'],'구역 순서 やること → 待ち → 今日終わったもの → 済にしたもの (v0.23)');
   eq(qa(w,'.tl-z-do .tl-gt').map(b=>b.textContent.replace(/^[▼▶·] /,'')),R.TGROUPS.filter(g=>g[1]==='do').map(g=>g[2]),'やること 그룹 이름 = 표 순서');
   /* v0.15 (A1): 待ち 는 처음에 접혀 있음 → 눌러 펼친 뒤 */
   ok(!w.document.querySelector('.tl-z-wait .tl-grp'),'v0.15 待ち 처음 = 접힘'); w.document.querySelector('[data-tdtoggle="zone_wait"]').click(); await X.sleep(20);
@@ -100,7 +100,7 @@ console.log('3 화면');
 /* 폴더 전 — COMPASS 만으로 먼저 그림 (Step 4-1) */
 { const W=X.world(); let firstRows=-1, foldersAt=-1;
   const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}, init:win=>{ const f0=win.fetch; win.fetch=async(u,o)=>{ if(/\$batch/.test(u)&&firstRows<0){ await new Promise(r=>setTimeout(r,30)); const b=win.document.getElementById('dtTodoBox'); firstRows=b?b.querySelectorAll('.tl-zone').length:0; foldersAt=Object.values(win.eval('S.folders')).filter(v=>v&&typeof v==='object').length; } return f0(u,o); }; }});
-  ok(firstRows===3&&foldersAt===0,'폴더를 읽기 전에 할 일 화면 (세 구역) 이 이미 그려짐',{firstRows,foldersAt}); }
+  ok(firstRows===4&&foldersAt===0,'폴더를 읽기 전에 할 일 화면 (세 구역) 이 이미 그려짐',{firstRows,foldersAt}); }
 
 console.log('4 保存の入口');
 const cp=FX.compass(1), spec=FX.perfectSpec(E,cp); spec.fields.booking=['TESTBK1']; spec.rows[0].container='TSTU0000001'; spec.rows=spec.rows.slice(0,1); FX.retotal(spec);

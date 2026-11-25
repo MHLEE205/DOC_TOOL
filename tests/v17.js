@@ -33,7 +33,7 @@ console.log('1 규칙 (doc-core)');
   const si={crcf9_sino:1, cr49f_lc_no:'TESTLC1', crcf9_consignee:'C', crcf9_notify_party:'N', crcf9_bencert_text:'WE CERTIFY … CONTRACT NUMBER (LRS-2699XS2)'};
   const c=DOC.judgeCt({pay:'TT', ct:'LRS-2699XS1', sis:[si]}); ok(c.si.s==='diff'&&/^別の契約番号: LRS-2699XS2/.test(c.si.why)&&c.si.otherCt[0]==='LRS-2699XS2','E1 S/I 칸 = 相違 「別の契約番号: LRS-2699XS2」',c.si);
   ok(DOC.judgeCt({pay:'TT', ct:'LRS-2699XS2', sis:[si]}).si.s!=='diff','E1 같은 계약번호 = 문제 없음');
-  const x=DOC.todoExtra({iv:'NAA2699-02', ct:'LRS-2699XS1', otherCt:['LRS-2699XS2']}, DOC.at(T,'09:00')); ok(x.length===1&&x[0].red&&x[0].gkey==='si'&&x[0].what==='別の契約番号: LRS-2699XS2','E1 今日やること 빨강 (S/I 그룹)',x); }
+  const x=DOC.todoExtra({iv:'NAA2699-02', ct:'LRS-2699XS1', otherCt:['LRS-2699XS2']}, DOC.at(T,'09:00')); ok(x.length===1&&x[0].red&&x[0].gkey==='sichk'&&x[0].what==='別の契約番号: LRS-2699XS2','E1 今日やること 빨강 (S/I 確認（相違） 그룹 · v0.23 N4)',x); }
 /* F1 · F2 */
 { const F=(...n)=>({files:n.map(x=>({name:x, lastModified:'2026-11-10T00:00:00Z'}))}), IV='NAA2699-01';
   const J=(o)=>DOC.judgeIv(Object.assign({iv:IV, country:'VIETNAM', term:'CIF', premium:null, etdPast:false, folder:F(), acl:null, hon:[], bookingNo:'TESTBK1', otherBookings:[]},o));
@@ -55,7 +55,7 @@ console.log('1 규칙 (doc-core)');
   const r4=row({},{sub:at('2026-11-18','10:00')}); ok(/^\d+ 時間待ち（いつもは \d+ 時間）$/.test(r4.when),'D6 「70 時間待ち（いつもは 2 時間）」 모양',r4.when);
   const r5=row({country:'VIETNAM'},{sub:1, depoReq:at('2026-11-10','10:00'), drafts:[at('2026-11-18','10:00'),at('2026-11-20','08:00')]}); ok(/^2 回目の Draft（Deposit 番号 反映済み）/.test(r5.why),'D7 「3 回目の Draft（Deposit 番号 反映済み）」 모양',r5.why);
   eq(DOC.TODO_RULES.TGROUPS.filter(g=>g[0]==='insrr'||g[0]==='fd').map(g=>g[2]),['保険・RR 準備','FD 作成・送付'],'D8 그룹 이름');
-  ok(DOC.whenLabel({zone:'do', extra:true, red:true},NOW)==='期限なし'&&DOC.whenLabel({zone:'do', due:null},NOW)==='期限なし','D4 기한 없음 = 「期限なし」'); }
+  ok(DOC.whenLabel({zone:'do', extra:true, red:true},NOW)==='—'&&DOC.whenLabel({zone:'do', due:null},NOW)==='—'&&DOC.whenLabel({zone:'do', due:null, dueText:'ETD 後に B/L 依頼'},NOW)==='ETD 後に B/L 依頼','D4 기한 없음 = 「—」 · 目安があれば 그 글 (v0.23 N9 「期限なし」 안 씀)'); }
 /* G3 */
 { const x={iv:'NAA2699-01', fname:[{name:'NAA2698-01_FD.pdf', sub:'', others:['NAA2698-01'], ref:false}], fdBad:[{t:1, subject:'S', bad:['NAA2698-01_FD.pdf']}]};
   ok(DOC.todoExtra(x,1).length===2,'G3 FD 전 = 빨강 2 줄 (지금처럼)'); ok(DOC.todoExtra(Object.assign({fdDone:true},x),1).length===0,'G3 FD 済 = 今日やること 에 안 띄움'); }
@@ -117,7 +117,7 @@ function world17(){
   ok(w.__cfg.desc==='書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）','D1 로그인 화면 설명',w.__cfg.desc);
   ok(/^読み込み完了 \d\d:\d\d$/.test(txt(w,'dtProg')),'D2 직원 = 「読み込み完了 HH:MM」 한 줄',txt(w,'dtProg'));
   const box=txt(w,'dtTodoBox'); ok(!/メール \d+ 通|初回表示|ACL 照合結果|本登録メール \d+ 通/.test(box),'D2 메일 통수 · 初回表示 = 직원에게 안 보임',box.slice(-300));
-  const dues=qa(w,'.tl-z-do .tl-due').map(d=>d.firstChild?d.firstChild.textContent:''); ok(dues.length&&dues.every(t=>/^期限(切れ)? \d+\/\d+$|^期限なし$/.test(t)),'D4 왼쪽 칸 = 모두 「期限 …」 모양',dues);
+  const dues=qa(w,'.tl-z-do .tl-due').map(d=>d.firstChild?d.firstChild.textContent:''); ok(dues.length&&dues.every(t=>/^期限(切れ)? \d+\/\d+$|^—$|^ETD 後に B\/L 依頼$|^メール確認中…$|^メール未確認$/.test(t)),'D4 왼쪽 칸 = 모두 「期限 …」 모양',dues);
   ok(!/\d+h \/ \d+h|LG 済|後払い船社は|本日|昨日 B\/L 受領/.test(box),'D4 · D5 · D6 · D7 옛 글자 없음',box.match(/.{0,30}(\d+h \/|LG 済|後払い船社は|本日|昨日).{0,30}/));
   ok(/別の契約番号: LRS-2609BB2/.test(box),'E1 今日やること 빨강 「別の契約番号」',box.slice(0,400));
   { const L=qa(w,'#dtTodoBox .tl-what, #dtTodoBox .tl-why, #dtTodoBox .tl-due, #dtTodoBox .tl-gh, #dtTodoBox .tl-zh').map(e=>e.textContent).filter(t=>JSP.test(t)); ok(!L.length,'D15 일본어 사이 띄어쓰기 없음 (今日やること 각 칸)',L); }

@@ -1,7 +1,7 @@
 /* DOC_TOOL 시험 전부 — node run_all.js [html]. 마지막 줄 ✅ ALL PASS 면 통과. 네트워크 없음 · 가짜 데이터만 */
 const cp=require('child_process'),path=require('path');
 const html=process.argv[2]||path.join(__dirname,'../index.html');
-const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.22.1']],
+const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.23']],
   ['core.js','#1~#5 상태 규칙 · 대상 외 · 담당 · 정렬/범위 · B/L 파일 고르기',[html]],
   ['app.js','#3 기억 · #4 · #9 화면 흐름 (현황판 → 상세 → 탭 → 돌아가기 · 검색 → 상세 · 설정 · 쓰기 0)',[html]]];
 const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 결과 · DR 이름 · 관리자 버튼'],['si.js','#7 S/I 쓰기 — 쓰기 전 저장 → 쓰기 → 다시 읽기 · 취소 · S/I 済 지금 표 먼저'],
@@ -25,6 +25,7 @@ const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 
   ['v21.js','v0.21 — FD 탭 (fd_bench v0.1 · 試験 · 읽은 PDF) · TO BANK AI 자동 (키 없음 = 관리자 「AI 未実行」 · 2 회 · 저장본 · 비용 · 다시 안 부름) · 誤検知 기록 · 今日やること 배지 · 실적표 · S/I · ACL · B/L 試験 줄 · 문지기 · 엔진 고정'],
   ['v22.js','v0.22 — V1 서류 보기 (왼쪽 PDF · 오른쪽 결과 · ← → · 확대 · ⟲ ⟳ 180° 기억 · 글자 찾기) · V2 「👁 見る」 · V3 잘라낸 그림 · V4 순서 · V5 5 색 · V7 완료 접기 · V8 国内 한 곳 · 자동 기록 (fdHash) · K3 보험 AI · K4 FD送付日 · 문지기 · 엔진 고정'],
   ['v221.js','v0.22.1 — ②-1 試験 줄 1 묶음 (탭 3 번 오가도) · ②-2 CP-A04 相違 「L/C の文言で直す」 (확인 창 · 控え → payment_deadline 만 → 다시 읽기 → 履歴 · 문지기) · ②-3 推薦 · 仮 S/I = L/C 42C 원문'],
+  ['v23.js','v0.23 — N8 메일 읽는 중 · 못 읽음 = 「メール確認中 / 未確認」 · 구간 다시 읽기 · N9 B/L 번호 연결 (접두어 · 여러 건) · B/L 受領 (폴더 · 후불 사본 · 발행 메일) · 「期限なし」 → 目安 · N10 「済にする」 · 元に戻す · 다른 창 · 관리자 모음 · N1 · N2 S/I 칸 빨강 · ✏ 直す (그 칸만 · 미리 채움) · N3 保存の入口 · N4 S/I 確認（相違）',[html]],
   ['width.js','v0.16.1 한 화면 — 실제 Chrome (headless) 1,920 · 1,366 폭에서 Invoice 別 가로 넘침 0 · 1 줄 높이 · 열 머리 고정 (Chrome · puppeteer-core 없으면 SKIP)'],
   ['hangul.js','v0.13 한글 0 — 화면에 나갈 수 있는 문자열 · HTML 본문 (주석 · 정규식 제외)'],
   ['v12.js','v0.12 B/L Draft 탭 — 保存の入口 B/L Draft (FRT MEMO · N版目 · 문지기) · 메일 下書き 3 · 엔진 고정 (ACL v0.12 · bl_bench v0.2) · 照合 화면 · CP 번호 · 試験 줄 관리자만 · バイヤー用 확인 · 쓰기 0'],
