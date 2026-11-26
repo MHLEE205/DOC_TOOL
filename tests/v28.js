@@ -10,7 +10,7 @@ const T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z', PT_PATH='古紙/-. AI �
 const V=DOC.V28;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.2[89]<\/title>/.test(HTML)&&/version:'0\.2[89]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.28 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[89]|30)<\/title>/.test(HTML)&&/version:'0\.(?:2[89]|30)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.28 · 푸터');
 
 console.log('U3 표시 대응 (지금 판정 → 印 · 판정 변경 0)');
 eq(Object.keys(DOC.ST).map(k=>[k,DOC.mark({s:k}).k,DOC.mark({s:k}).g]),[['done','ok','✓'],['todo','now','●'],['diff','ng','◆'],['wait','wait','◐'],['not','todo','○'],['na','na','―'],['unk','unk','?'],['load','load','…']],'ST 8 가지 → 印 (済 ✓ · 確認 ● · 相違 ◆ · 待ち ◐ · 未 ○ · — ― · ? · …)');

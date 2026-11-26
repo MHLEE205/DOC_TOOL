@@ -10,7 +10,7 @@ const T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z', PT_PATH='古紙/-. AI �
 const J=iso=>DOC.jst(iso);
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.29<\/title>/.test(HTML)&&/version:'0\.29'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.29 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:29|30)<\/title>/.test(HTML)&&/version:'0\.(?:29|30)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.29 · 푸터');
 
 console.log('U14 보이는 범위 (순수)');
 const z=(etd,fd,obl)=>DOC.v29Zone({etd, fd, obl, today:'2026-11-26'});
@@ -60,8 +60,8 @@ console.log('送金 ③ 振込 確認済 (手入력)');
 const sx=o=>Object.assign({iv:'NAA2611-01', carrier:'SAMPLE LINE', term:'CIF', pay:'TT', country:'INDONESIA', files:[{name:'NAA2611-01_DRAFT.pdf', lastModified:'2026-11-20T01:00:00Z'}], mails:[], portal:{furi:'確認済'}, now}, o||{});
 const sig=x=>DOC.todoSignals(x), row=x=>DOC.todoRow(x,sig(x),now,null);
 const a=row(sx()); ok(a&&a.gkey==='blreq'&&a.payManual&&/手入力/.test(a.why)&&a.due==null&&a.dueText==='手入力','③ 支払日 · 振込明細 없음 + 振込 確認済 + Draft = B/L 発行依頼 (手入力 · 기한 없음)',a);
-const b1=row(sx({payDate:'2026-11-24'})); ok(b1&&b1.gkey==='blreq'&&!b1.payManual&&DOC.dayOf(b1.due)==='2026-11-24'&&/送金 11\/24/.test(b1.why),'① COMPASS 支払日 있음 = B/L 発行依頼 · 기한 = 그 날 18:00 (그대로)',b1);
-ok(DOC.hmOf(b1.due)==='18:00','기한 18:00');
+const b1=row(sx({payDate:'2026-11-24'})); ok(b1&&b1.gkey==='blreq'&&!b1.payManual&&b1.due==null&&b1.soon&&/送金 11\/24/.test(b1.why),'① COMPASS 支払日 있음 = B/L 発行依頼 · v0.30 기한 = ETD (여기는 ETD 없음)',b1);
+{ const b2=row(sx({payDate:'2026-11-24', etd:'2026-11-28'})); ok(DOC.dayOf(b2.due)==='2026-11-28'&&DOC.hmOf(b2.due)==='00:00'&&b2.untilEtd==='by','v0.30 기한 = ETD 당일 0:00 부터 빨강',b2); }
 const c1=row(sx({portal:{furi:'未'}})); ok(c1&&c1.gkey==='draft'&&/運賃送金/.test(c1.what),'振込 未 · 支払日 없음 = Draft 확인 → 運賃送金 (그대로)',c1);
 const d1=row(sx({files:[]})); ok(!d1||d1.gkey!=='blreq','Draft 없으면 ③ 쓰지 않음',d1);
 

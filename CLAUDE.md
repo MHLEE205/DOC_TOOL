@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 = 2026-11-26)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 = 2026-11-26)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -222,6 +222,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - U14 보이는 범위 = `DOC.v29Zone` (past · near · far · '') — FD送付日 있으면 빠짐 (N35 = `oblFlow` 는 SWB 끝까지) · ETD 오늘 ~ +14 = 펼침 · 그 뒤 = 표 맨 아래 접힘 (`V29.FOLD_KEY`) · **FD 済 · 접힌 줄은 폴더를 읽지 않음** (`v29NeedIv` — loadAll · loadPortalFolders · blLatestLoad) · 펼치면 `v29LoadFar`. 지난 ETD 는 90 일 (`PAST_DAYS`) 까지 새 화면에서만 `S.bk` 에 더함 (옛 화면 = 그대로).
   - N35 바이어 = 공통 마스터 `doc_staff` 의 `obl_then_swb` (RA · DD). 着金日 = COMPASS `crcf9_payment_date` (BK_SEL · 읽기만). 끝 = 폴더 `_SWB` · `_SURRENDER` · `Surrendered BL` · `Telex Release` (LG · DRAFT 제외) · 담당 → 바이어 「SWB / Surrendered B/L for …」 · 依頼 뒤 船社 SWB / Surrender 메일. 下書き kind `swb` = `[BL TYPE変更依頼]BL#…` (L/G 는 사람이 첨부).
   - **주의**: `todoInput` 처럼 한 줄에 여러 칸이 있는 줄에 `//` 주석을 넣지 말 것 (v0.29 작업 중 메일 · 本登録 칸이 주석 처리된 사고 — v29.js 가 `todoInput` 칸을 확인).
+- **v0.30 (지시서 `THOR_28_지시서_D00_書類ツールv0.30` · 형님 D1 ~ D8)** — 낱말 · 정규식 = doc-core `DOC.V30` 한 곳.
+  - D1 ETD = `DOC.etdPick(b)` = `cr49f_etd` 와 `crcf9_bl_etd` 중 **늦은 날** (한쪽만 = 그것) — `etdOf` · `ptEtd` 는 이 함수 (표 · 정렬 · 범위 · 기한 · 契約 · 패널). 두 값이 다르면 ETD 칸 옆 회색 「計画 MM/DD」 (`etdOther` · `.v30-plan`). 出港済 = `shippedOut` (고른 ETD ≤ 오늘). **ACL · FD 엔진 쪽 `meta.etd` · `blDate` (B/L date 먼저) 는 그대로.**
+  - prepaid B/L 단계 기한 (`todoRow`): Draft 있음 · CY CUT 전 = 「B/L Draft 確認 → CUT 後に送金」 (`zone:'wait'` · `cutWait` · 要対応 아님 · 기한 없음) / CUT 뒤 (CY CUT 빈칸 포함) = 「なるべく早く（ETD MM/DD まで）」 / 送金 뒤 = 「ETD MM/DD まで」 — `due` = ETD 당일 0:00 (그날부터 빨강) · 그 전 = 노랑 (`soon` → group `today`). Draft 도착 시각 14:30 · 15:00 · 送金日 18:00 기한은 없앰 (`FIX` 값은 신호 시각에만). ③ 手入力 · 後払い · Deposit · FD · N35 = 그대로.
+  - B/L 依頼 済 신호 더함: 담당 → 선사 「B/L発行申請」 (`KIND.B_SUBJ`) · 선사 Web 접수 메일 (`blRcvLink` — CNC 「B/L発行依頼受付通知」 · 「【輸出】B/L発行申請（…）」 · Hapag-Lloyd Webform (formzu · 申請内容 = B/L 発行 · Waybill · Surrender 만)). 앞부분 (bodyPreview) 에 번호가 없어 **그 메일만 본문을 더 읽음** (GET `me/messages/{id}?$select=body` · 40 통까지) → B/L · 부킹 번호로 연결 · 번호 없는 접수 통지는 같은 티켓 번호의 메일의 船積으로. 접수 메일은 「B/L 受領」 으로 세지 않음.
+  - 「FD送付日を入力」 (`fdInputRow`) = 단계 끝 · FD 済 (폴더 · 메일) · PORTAL FD送付日 빈칸 → 要対応 노랑 · 기한 없음 (`todoRow` → `swbRow` → `fdInputRow` 순서).
+  - ACL 照合結果 줄여 읽기 (D8) 는 **안 함** — 실측: ACL 결과 읽기 약 2 초 (동시) · 「読み込み完了」 를 붙잡는 것은 本登録 메일 검색 `loadHon` 약 10 초.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

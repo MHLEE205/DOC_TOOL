@@ -40,10 +40,11 @@ ok(row({}, {})===null,'통관 서류 전 → 書類 담당 일 없음 (T1 = 통�
   { const r2=row({}, {sub:1, acl:1, hon:at('2026-11-19','15:00')}); ok(r2&&r2.gkey==='w_carrier'&&r2.group==='wait'&&!r2.action,'本登録 뒤 아직 보통 시간 안 → 待ち · 船社 (催促 없음)',r2); } }
 { const r=row({country:'VIETNAM'}, {sub:at('2026-11-17','10:00'), tsk:{on:true, at:at('2026-11-17','10:00'), day:'2026-11-17', src:'通関依頼済 11/17'}, acl:1, hon:at('2026-11-19','15:00')}); ok(r&&/^Deposit 依頼 ＋ Draft 待ち/.test(r.what)&&r.group==='late','베트남 本登録 뒤 Deposit 의뢰 없음 → 「Deposit 依頼 ＋ Draft 待ち」',r); }
 /* ③ Draft */
-{ const r=row({}, {sub:1, acl:1, hon:1, drafts:[at('2026-11-20','08:00')]}); ok(r.stage===3&&r.what==='B/L Draft 確認 → 運賃送金'&&r.group==='today'&&r.when==='期限 11/20'&&r.whenSub==='14:30 → 15:00'&&r.action[1]==='bl'&&r.gkey==='draft','선불 Draft 도착 (오전) → 그날 14:30 → 15:00 · Draft 照合',r);
-  const r2=row({}, {drafts:[at('2026-11-19','16:00')]}); ok(r2.group==='today','Draft 가 14:30 뒤 → 다음 영업일 14:30 (11/19 16:00 → 11/20)',r2);
-  const r3=row({}, {drafts:[at('2026-11-18','10:00')]}); ok(r3.group==='late','어제 Draft → 15:00 지남 = 期限切れ',r3);
-  const r4=row({}, {drafts:[at('2026-11-19','10:00'),at('2026-11-20','08:00')]}); ok(/（2回目）/.test(r4.what)&&r4.group==='today','다음 Draft = 새 Draft 기준 (2回目 · 대체됨)',r4); }
+{ const r=row({etd:'2026-11-24'}, {sub:1, acl:1, hon:1, drafts:[at('2026-11-20','08:00')]}); ok(r.stage===3&&r.what==='B/L Draft 確認 → 運賃送金'&&r.group==='today'&&r.when==='なるべく早く（ETD 11/24 まで）'&&r.whenSub===''&&r.action[1]==='bl'&&r.gkey==='draft','v0.30 선불 Draft (CUT 뒤) → なるべく早く（ETD まで）· 14:30 · 15:00 기한 없음 · Draft 照合',r);
+  const r2=row({}, {drafts:[at('2026-11-19','16:00')]}); ok(r2.group==='today'&&r2.when==='なるべく早く','v0.30 ETD 모름 → 「なるべく早く」 (노랑 · 시각 기한 없음)',r2);
+  const r3=row({etd:'2026-11-20'}, {drafts:[at('2026-11-18','10:00')]}); ok(r3.group==='late'&&r3.when==='期限切れ（ETD 11/20）','v0.30 ETD 당일 = 期限切れ (D4)',r3);
+  const r4=row({etd:'2026-11-23'}, {drafts:[at('2026-11-19','10:00'),at('2026-11-20','08:00')]}); ok(/（2回目）/.test(r4.what)&&r4.group==='today','다음 Draft = 2回目 · ETD 전날까지 노랑',r4);
+  const r5=row({cut:'2026-11-25', etd:'2026-11-28'}, {drafts:[at('2026-11-19','10:00')]}); ok(r5.what==='B/L Draft 確認 → CUT 後に送金'&&r5.zone==='wait'&&r5.due==null&&r5.group==='wait'&&r5.when==='CUT 後'&&!DOC.reqRow(r5),'v0.30 CY CUT 전 Draft → ◐ CUT 後に送金 (기한 없음 · 要対応 아님)',r5); }
 { const r=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-17','10:00'), drafts:[at('2026-11-20','08:00')]}); ok(r.gkey==='w_buyer'&&r.group==='chase'&&r.what==='Deposit 番号待ち'&&/^\d+ 時間待ち（いつもは 17 時間）$/.test(r.when),'베트남 1번째 Draft · Deposit 回答 없음 (75% 넘음) → v0.14 (1-2): 待ち · バイヤー + 催促',r);
   const r2=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-19','17:00'), drafts:[at('2026-11-20','08:00')]}); ok(r2.gkey==='w_buyer'&&r2.group==='wait'&&r2.due==null,'베트남 1번째 Draft · Deposit 아직 보통 시간 안 → v0.14 (1-2): 待ち · バイヤー (送金 기한으로 세지 않음)',r2);
   const r3=row({country:'VIETNAM'}, {sub:1, depoReq:at('2026-11-10','10:00'), drafts:[at('2026-11-18','10:00'),at('2026-11-20','08:00')]}); ok(!/Deposit 催促|Deposit 依頼/.test(r3.what)&&/2 回目の Draft（Deposit 番号 反映済み）/.test(r3.why),'베트남 2번째 Draft (LG 뒤) → Deposit 끝',r3);
@@ -54,7 +55,8 @@ ok(row({}, {})===null,'통관 서류 전 → 書類 담당 일 없음 (T1 = 통�
 { const r=row({}, {drafts:[at('2026-11-17','10:00')], cmail:at('2026-11-17','12:00')});
   { const r0=row({}, {drafts:[at('2026-11-18','10:00')], cmail:at('2026-11-18','12:00')}); ok(r0&&r0.gkey==='w_carrier'&&r0.group==='wait'&&r0.what==='訂正 Draft 待ち','정정 의뢰 뒤 아직 보통 시간 안 (15h < 21.6h) → 待ち · 船社',r0); } ok(r&&r.group==='chase'&&r.gkey==='w_carrier'&&r.what==='訂正 Draft 待ち','Draft 뒤 내용 정정 의뢰 → 정정판 Draft 재촉 (공이 선사에)',r); }
 /* ④ 송금 · ⑤ B/L 의뢰 · ⑥ B/L */
-{ const r=row({}, {drafts:[1], pay:at('2026-11-19','15:00')}); ok(r.stage===5&&r.what==='B/L 発行依頼（振込明細）'&&r.group==='late','송금 끝 → B/L 의뢰 (그날 18:00 지남 = 期限切れ) · 앞 Draft 확인은 끝',r);
+{ const r=row({etd:'2026-11-20'}, {drafts:[1], pay:at('2026-11-19','15:00')}); ok(r.stage===5&&r.what==='B/L 発行依頼（振込明細）'&&r.group==='late','v0.30 송금 끝 → B/L 의뢰 · ETD 당일 = 期限切れ · 앞 Draft 확인은 끝',r);
+  const rb=row({etd:'2026-11-21'}, {drafts:[1], pay:at('2026-11-19','15:00')}); ok(rb.group==='today'&&rb.when==='ETD 11/21 まで','v0.30 ETD 전날 = 노랑 「ETD まで」',rb);
   { const r1=row({}, {pay:at('2026-11-19','15:00'), bmail:at('2026-11-19','15:10')}); ok(r1&&r1.gkey==='w_carrier'&&r1.group==='wait'&&r1.what==='B/L 待ち','B/L 의뢰 뒤 아직 보통 시간 안 → 待ち · 船社',r1); }
   const r2=row({}, {pay:1, bmail:at('2026-11-17','15:10')}); ok(r2&&r2.group==='chase'&&r2.stage===6&&r2.what==='B/L 待ち'&&r2.action[0]==='催促メール','B/L 의뢰 뒤 오래 → B/L 재촉',r2); }
 { const bl=at('2026-11-19','18:00');
@@ -114,10 +116,10 @@ console.log('5 화면');
   eq(qa(w,'.dt-seg button').map(b=>b.textContent),['Invoice','契約','今日やること'],'5 탭 (v0.28: Invoice · 契約 — 今日やること 는 旧画面 (이 시험) 에서만 보임)');
   const who=qa(w,'#dtWho button').map(b=>b.textContent); ok(who[0].indexOf('自分の担当')===0&&who.indexOf(R.ASSIST_LABEL)>=0&&who.indexOf('全員')>who.indexOf(R.ASSIST_LABEL),'5 담당 버튼 (自分 · 담당자 · 補助 · 全員)',who);
   eq(qa(w,'.tl-zh').map(e=>e.textContent.replace(/^[▼▶] /,'').replace(/\s*\d+ 件.*$/,'')),['やること（自分の番）','待ち（相手の番）'],'v0.14 세 구역 — やること · 待ち (+ 今日終わったもの 접힘) · v0.15 待ち = 누르면 펼침');
-  ok(/締切 14:30/.test(w.document.querySelector('.tl-now').textContent),'오늘 마감 한 줄');
+  ok(/送金 · B\/L 依頼 = ETD まで/.test(w.document.querySelector('.tl-now').textContent)&&!/14:30/.test(w.document.querySelector('.tl-now').textContent),'오늘 마감 한 줄 (v0.30: ETD まで)');
   const rowsN=()=>qa(w,'.tl-z-do .tl-row, .tl-z-wait .tl-row').length, iv=qa(w,'.tl-z-do .tl-row button.dt-link, .tl-z-wait .tl-row button.dt-link').map(b=>b.textContent);
   ok(iv.indexOf('NAA2611-01')>=0&&iv.length===new Set(iv).size,'5 1 Invoice = 1 줄 (같은 Invoice 두 줄 없음)',iv);
-  ok(!iv.includes('NBB2611-01'),'FD 있는 NBB2611-01 은 목록에 없음 (FD 끝 → 사라짐)');
+  ok(!iv.includes('NBB2611-01')||qa(w,'.tl-row').filter(r=>/NBB2611-01/.test(r.textContent)).every(r=>/FD送付日を入力/.test(r.textContent)),'FD 있는 NBB2611-01 은 일 줄 없음 (v0.30: FD送付日 비면 「FD送付日を入力」 만)');
   const sec=qa(w,'.tl-gt:not([disabled])')[0], k=sec.dataset.tdtoggle, before=rowsN(); sec.click();
   ok(rowsN()<before&&JSON.parse(w.localStorage.getItem('doc_tool_todo_open_v14'))[k]===false,'5 묶음 접기 → 기억 (localStorage)',[before,rowsN()]);
   w.document.querySelector('.tl-gt[data-tdtoggle="'+k+'"]').click();

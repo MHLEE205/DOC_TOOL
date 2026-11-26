@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.29</title>
+<title>LEENAI D-00 書類ツール v0.30</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -40,6 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui
 .dt-btn.ghost{background:var(--surface);color:var(--text);border:1px solid var(--border);font-weight:400;padding:0 18px}
 .dt-btn.sm{height:34px;padding:0 14px;font-size:13px}
 .dt-note{font-size:12px;color:var(--text3)}
+.v30-plan{margin-left:4px;font-size:10px;color:var(--text3);font-weight:400;white-space:nowrap}   /* v0.30 (E3): ETD の下に 選ばなかった方の日付 (参考 · 灰色) */
 .dt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dt-between{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 .dt-chip{height:34px;padding:0 14px;border-radius:999px;font-family:inherit;font-size:13px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text)}
@@ -507,8 +508,14 @@ const DOC = (()=>{
 
   const up = s => String(s==null?'':s).trim().toUpperCase();
   const isoDay = s => String(s||'').slice(0,10);
-  /* ETD = B/L ETD 優先、なければ計画 ETD (DOC-Z-06 §4 書類・保険の読み方) */
-  const etdOf = b => isoDay((b&&(b.crcf9_bl_etd||b.cr49f_etd))||'');
+  /* v0.30 (D1 형님 「둘중에 더 미래인 것에 맞추면 될 것 같은데, 그 어떤것도 ETD가 앞당겨지는 일은 없을 것」): ETD = 計画 ETD (cr49f_etd) と B/L date (crcf9_bl_etd) の 遅い方 (片方だけなら それ) — 表 · 並び · 範囲 · 期限 · 出港済 はすべてこれ 1 つ。
+     ACL · FD エンジンの B/L date (meta.etd · blDate = 書類の船積日 · L/C 44C) は 変えない */
+  const etdPick = b => { const a=isoDay((b&&b.cr49f_etd)||''), c=isoDay((b&&b.crcf9_bl_etd)||''); return a>c?a:c; };
+  /* v0.30 (E3): 2 つが違うとき 選ばなかった方 (参考に 灰色で 「計画 MM/DD」) · 同じ · 片方だけ = '' */
+  const etdOther = b => { const a=isoDay((b&&b.cr49f_etd)||''), c=isoDay((b&&b.crcf9_bl_etd)||''); return a&&c&&a!==c?(a>c?c:a):''; };
+  const etdOf = etdPick;
+  /* v0.30 (E2): 出港済 = 選んだ ETD (遅い方) が 今日 以前 */
+  const shippedOut = (etd, today) => !!etd&&String(etd).slice(0,10)<=String(today||'').slice(0,10);
   const addDays = (iso, n) => { const d=new Date(iso+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
   const fmtMD = iso => iso?(+iso.slice(5,7))+'/'+iso.slice(8,10):'—';
 
@@ -1054,7 +1061,7 @@ const DOC = (()=>{
     MAIL_NOT:{FD:/通関書類|通関依頼|DHL集荷|Deposit Request/i},
     /* 担当 → 船社 メールの 4 種 (토르_2 mailkind.py · 재현 보고서 Step 0-5): (a) 運賃 · 請求書 訂正 (POL) · (b) 送金明細 + B/L 依頼 (書類) · (c) 内容訂正 · (d) そのほか */
     KIND:{
-      B_SUBJ:/振込明細|送金明細|振込.{0,6}送付|送金.{0,6}送付|(?:O?BL|B\/L|SWB|SEA\s*WAY)\s*(?:の)?\s*発行(?:の)?(?:ご)?依頼|SWB\s*依頼|SWB依頼書|発行依頼|Payer details|payment\s*(?:slip|advice|proof|receipt)|proof of payment|remittance/i,
+      B_SUBJ:/振込明細|送金明細|振込.{0,6}送付|送金.{0,6}送付|(?:O?BL|B\/L|SWB|SEA\s*WAY)\s*(?:の)?\s*発行(?:の)?(?:ご)?依頼|SWB\s*依頼|SWB依頼書|発行依頼|発行申請|Payer details|payment\s*(?:slip|advice|proof|receipt)|proof of payment|remittance/i,
       B_ATT:/振込|送金|明細|依頼書|payment|remit|slip/i,
       A_SUBJ:/運賃.{0,8}(?:訂正|修正|変更|相違|違い|間違|確認)|(?:フレート|FRT\.?|FREIGHT)\s*(?:メモ|MEMO)?.{0,10}(?:ご)?(?:訂正|修正|相違)|訂正.{0,10}フレート|請求書?.{0,6}(?:訂正|修正|再発行|差し替え|変更)|(?:freight|rate|charge|invoice).{0,12}(?:correct|amend|revis|wrong|incorrect|discrepan)|金額.{0,6}(?:訂正|相違|違い)|料金.{0,6}(?:訂正|相違)|THC|チャージ.{0,6}(?:訂正|相違|確認)|レート.{0,6}相違/i,
       A_BODY:/運賃.{0,10}(?:訂正|修正|相違|違|誤|間違)|金額.{0,10}(?:訂正|相違|違|誤)|請求.{0,10}(?:訂正|修正|再発行)|(?:freight|rate|amount|charge).{0,20}(?:incorrect|wrong|correct(?:ion)?|revise|amend)/i,
@@ -1213,7 +1220,9 @@ const DOC = (()=>{
     const dq=first(M,m=>m.skind==='staff'&&m.uses.indexOf('DEPO')>=0); S.depoReq=dq?dq.t:null;
     const dr=dq?first(M,m=>m.uses.indexOf('DEPO')>=0&&(m.skind==='buyer'||m.skind==='other')&&m.t>dq.t):null; S.depoRep=dr?dr.t:null;
     /* ③ B/L Draft — 船社のメール (1 時間以内は 1 回) + フォルダの Draft · FRT MEMO */
-    const kb=first(M,m=>m.kind==='b'); S.bmail=kb?kb.t:null;
+    const kb=first(M,m=>m.kind==='b'); S.bmail=kb?kb.t:null; S.bmailSrc=kb?'mail':'';
+    /* v0.30 (R1 · F4): 船社 (Web) の B/L 依頼 受付 = 依頼済 — CNC 「B/L発行依頼受付通知メール」 · 「【輸出】B/L発行申請（…）」 · Hapag-Lloyd Webform 受け付け (申請内容 = B/L 発行 · Waybill · Surrender) */
+    const kr=first(M,m=>m.rcv&&m.rcvReq); if(kr&&(S.bmail==null||kr.t<S.bmail)){ S.bmail=kr.t; S.bmailSrc='rcv'; }
     const lo=x.cut?at(addDays(x.cut,-7)):null, hi=S.bmail!=null?S.bmail:(x.payDate&&!noPay?at(x.payDate,TR.FIX.day):null);
     const dm=M.filter(m=>ok(m.t)&&m.uses.indexOf('BLDRAFT')>=0&&m.skind==='carrier'&&(lo==null||m.t>=lo)&&(hi==null||m.t<=hi)).map(m=>m.t);
     const df=F.filter(f=>!f.sub&&/\.pdf$/i.test(f.name)&&/^[DM]$/.test(blKind(f.name,x.iv).k)&&ok(fT(f))).map(fT);
@@ -1230,7 +1239,7 @@ const DOC = (()=>{
     if(!ok(S.bmail)) S.bmail=null;
     /* ⑥ B/L 受領 — 実データ (2026-11-22 · 200 件): B/L date (crcf9_bl_etd) は 193 件に入っていて 71 件は先の日付 (ETD と同じ 82 件) = 前もって入っている →
        B/L date だけでは 「受け取った」 と言えない。토르_2 再現と同じ: 船社の B/L 発行メール · なければ B/L date が過ぎていて 前の段階の信号 (先払い = 送金 · 後払い/FOB = B/L 依頼メール か Draft) があるとき (時刻 = 遅い方) */
-    const nowT=lim, blBase0=noPay?S.bmail:(payDone!=null?payDone:S.bmail), blr=blBase0==null?null:first(M,m=>m.uses.indexOf('BLISSUE')>=0&&m.skind==='carrier'&&!/Payer|請求|INVOICE|運賃|Pending|保留/i.test(m.subj)&&m.t>=blBase0);   // B/L 依頼 · 送金の後の船社メールだけ (運賃請求 · 「Issue Pending」 (まだ発行していない通知) を B/L にしない — 実データ)
+    const nowT=lim, blBase0=noPay?S.bmail:(payDone!=null?payDone:S.bmail), blr=blBase0==null?null:first(M,m=>m.uses.indexOf('BLISSUE')>=0&&m.skind==='carrier'&&!m.rcv&&!/Payer|請求|INVOICE|運賃|Pending|保留/i.test(m.subj)&&m.t>=blBase0);   // B/L 依頼 · 送金の後の船社メールだけ (運賃請求 · 「Issue Pending」 (まだ発行していない通知) を B/L にしない — 実データ)
     const blBase=noPay?(S.bmail!=null?S.bmail:drafts.length?drafts[drafts.length-1]:null):payDone;
     S.bl=blr?blr.t:(x.blDate&&blBase!=null&&nowT!=null&&x.blDate<=dayOf(nowT)?Math.max(blBase, at(x.blDate,TR.FIX.day)):null); if(S.bl!=null&&!ok(S.bl)) S.bl=null;   // B/L date の 18:00 (토르_2 と同じ推定)
     S.blSrc=blr?'船社 B/L メール':S.bl!=null?'B/L date + '+(noPay?'B/L 依頼 / Draft':'送金'):'';
@@ -1284,10 +1293,12 @@ const DOC = (()=>{
         {due, action:kr&&S.rr==null?TR.ACTION.rr:TR.ACTION.fd, fdToday:true, blDay:dayOf(S.bl)});
     }
     /* ⑤ B/L 依頼 済 → 待ち · 船社 */
-    if(S.bmail!=null) return wait(6,'w_carrier','B/L',S.bmail,'bl',x.carrier,'B/L 待ち','B/L 依頼済 '+md(S.bmail)+' · 未着');
+    if(S.bmail!=null) return wait(6,'w_carrier','B/L',S.bmail,'bl',x.carrier,'B/L 待ち','B/L 依頼済 '+md(S.bmail)+(S.bmailSrc==='rcv'?V30.RCV_WHY:'')+' · 未着');
     /* ④ 送金 済 (予定日を含む · 1-1) → B/L 発行依頼 */
     if(S.pay!=null&&!noPay&&S.payManual) return R(5,'blreq','B/L 発行依頼（振込明細）','振込 確認済（手入力 · Invoice 別）· COMPASS 支払日なし · 依頼メールなし',{dueText:'手入力', payManual:true});   // v0.29 (追加 2 ③)
-    if(S.pay!=null&&!noPay) return R(5,'blreq','B/L 発行依頼（振込明細）',(S.payPlan?'送金予定 ':'送金 ')+md(S.pay)+' · 依頼メールなし',{due:at(dayOf(S.pay),TR.FIX.day), payPlan:!!S.payPlan});
+    /* v0.30 (B3 · D3 · D4): 送金の後の B/L 依頼 = ETD まで (ETD 当日から 期限切れ) — 送金日 18:00 の期限はやめた */
+    const etdD=String(x.etd||'').slice(0,10), etdDue=etdD?at(etdD,'00:00'):null, cutPassed=!x.cut||dayOf(now)>=x.cut;
+    if(S.pay!=null&&!noPay) return R(5,'blreq','B/L 発行依頼（振込明細）',(S.payPlan?'送金予定 ':'送金 ')+md(S.pay)+' · 依頼メールなし',{due:etdDue, untilEtd:'by', soon:true, etd:etdD, dueText:etdD?undefined:'—', payPlan:!!S.payPlan});
     /* ③ B/L Draft */
     if(S.drafts.length){
       const n=S.drafts.length, last=S.drafts[n-1], nth=n>1?'（'+n+'回目）':'';
@@ -1296,9 +1307,11 @@ const DOC = (()=>{
       /* 1-2: ベトナム Deposit 回答待ち = 待ち · バイヤー (送金の期限切れにしない) · 番号が来たら Draft 確認 → 送金 */
       if(dp&&dp.kind!=='req') return wait(3,'w_buyer','Deposit',S.depoReq,'depo',x.buyer,'Deposit 番号待ち','Deposit 依頼済 '+md(S.depoReq)+' · 回答なし · Draft 到着 '+md(last));
       const why=(n>1?n+' 回目の Draft':'Draft 到着 '+md(last))+(vn&&n>1?V17.DEPO_DONE:'');
-      const d=hmOf(last)<=TR.FIX.draft&&bday(dayOf(last))?dayOf(last):nextBday(addDays(dayOf(last),1)), pd=noPay?{}:{due:at(d,TR.FIX.pay), dueShow:at(d,TR.FIX.draft)};
+      /* v0.30 (B1 · B2 · D2 · D3 · D4): Draft の届いた時刻の期限 (14:30 確認 · 15:00 送金) はやめた — CY CUT 前 = 期限なし (CUT 後に送金) · CUT 後 = なるべく早く · ETD まで (ETD 当日から 期限切れ) · CY CUT なし = CUT 後とみる */
+      const pd=noPay?{}:cutPassed?{due:etdDue, untilEtd:'asap', soon:true, etd:etdD, dueText:etdD?undefined:V30.ASAP}:{};
       if(dp&&dp.kind==='req') return R(3,'depo','Deposit 依頼 ＋ B/L Draft 確認'+nth, why+' · '+depoWhy+' · Deposit 依頼メールなし', depoO(null,pd));   // v0.24 (N15)
       if(noPay) return R(3,'draft','B/L Draft 確認'+nth+' → B/L 発行依頼',(post?'後払い':'FOB')+' · '+why,{action:TR.ACTION.draft, dueText:'ETD 後に B/L 依頼'});
+      if(!cutPassed) return R(3,'draft',V30.B1.replace('{n}',nth), why+' · 先払い · CY CUT '+md(at(x.cut)),{action:TR.ACTION.draft, zone:'wait', cutWait:true, dueText:V30.B1_DUE});   // v0.30 (B1): 要対応ではない · 赤 0
       return R(3,'draft','B/L Draft 確認'+nth+' → 運賃送金', why+' · 先払い',Object.assign(pd,{action:TR.ACTION.draft}));
     }
     /* ② 本登録 済 → 待ち · 船社 (Draft) */
@@ -1332,25 +1345,27 @@ const DOC = (()=>{
   function todoGroup(r, now){
     if(r.zone==='wait') return r.nudge&&r.nudge.over?'chase':'wait';
     if(r.red) return 'late';   // v0.15: 赤の行 (L/C 着 · S/I 未更新 · ファイル名の番号違い · 添付名が違う)
-    if(r.due==null) return 'none';
+    if(r.due==null) return r.soon?'today':'none';   // v0.30: ETD の分からない 「なるべく早く」 · 「FD送付日を入力」 = 黄
     const today=dayOf(now);
     if(now>r.due&&!(r.vchg&&r.stage===2)) return 'late';
     if(r.fdToday) return 'today';   // v0.8 (D7) B/L を受け取ったら ほぼ当日 FD
+    if(r.soon) return 'today';   // v0.30 (B2 · B3): ETD まで = 黄 (ETD 当日から 赤)
     if(dayOf(r.due)<=today) return 'today';
     return 'later';
   }
   function whenLabel(r, now){
     const mdOf=t=>dayOf(t).slice(5).replace('-','/').replace(/^0/,'');
     /* v0.17 (D6): 待ち = 「70 時間待ち（いつもは 2 時間）」 */
-    if(r.zone==='wait') return r.nudge?fillT(V17.WAIT_H,{h:Math.round(r.nudge.el), th:Math.round(r.nudge.th)}):'—';
+    if(r.zone==='wait') return r.nudge?fillT(V17.WAIT_H,{h:Math.round(r.nudge.el), th:Math.round(r.nudge.th)}):(r.dueText||'—');   // v0.30 (B1): 「CUT 後」
     /* v0.17 (D4): 左の欄は いつも 期限 (「期限 11/25」 · 「期限切れ 11/21」 · 「期限なし」) — 出来事の日 · 時刻は 2 行目 (whenSub) */
     /* v0.23 (N9): 「期限なし」 はやめる — その段階の実際の目安 (dueText · 例 後払い = 「ETD 後に B/L 依頼」) · なければ 「—」 */
     if((r.extra&&!r.ctRow)||r.due==null) return r.dueText||'—';   // v0.27 (N27): 契約の行は 期限 (CY_CUT) を出す
+    if(r.untilEtd) return r.group==='late'?V30.LATE.replace('{d}',mdOf(r.due)):(r.untilEtd==='asap'?V30.ASAP_ETD:V30.BY_ETD).replace('{d}',mdOf(r.due));   // v0.30 (B2 · B3)
     return (r.group==='late'?'期限切れ ':'期限 ')+mdOf(r.due);
   }
   function whenSub(r, now){
     const mdOf=t=>dayOf(t).slice(5).replace('-','/').replace(/^0/,'');
-    if(r.zone==='wait'||r.extra) return '';
+    if(r.zone==='wait'||r.extra||r.untilEtd) return '';   // v0.30: ETD まで の行は 時刻なし
     const hm=r.due!=null?(r.dueShow?hmOf(r.dueShow)+' → '+hmOf(r.due):hmOf(r.due))+(r.stage===2?' CY_CUT':r.stage>=7?' 宅配':''):'';
     if(r.fdToday&&r.blDay) return 'B/L 受領 '+mdOf(at(r.blDay))+(hm?' · '+hm:'');
     return r.due!=null&&hmOf(r.due)!=='18:00'||r.dueShow||r.stage===2?hm:'';
@@ -1822,7 +1837,7 @@ const DOC = (()=>{
     FROM:-90, TO:180, RECENT:-30, TSUKAN_OLD:'2026-08-17',   // v0.17 (H4): 500 件の上限なし (nextLink で全部)
     DEP_OPTS:['未','依頼中','確認'], FURI_OPTS:['未','確認済'], FIELDS:['dep','furikomi','fd_date','fd_note'], NOTE_MAX:500,
     FOLD:['f-eta','f-cntr','f-bkg'], DEF:{dep:'未',furikomi:'未',fd_date:'',fd_note:''}, CONFLICT:'他の人が更新しました — もう一度', PORTAL_FD:'PORTAL FD送付日'};
-  const ptEtd = b => isoDay((b&&(b.crcf9_bl_etd||b.cr49f_etd))||'');
+  const ptEtd = b => etdPick(b);   // v0.30 (D1): 遅い方
   /* v0.17 (H1 형님 「통관전은 굳이 보일 필요는 없어」): records を渡すと 「通関依頼済」 の Invoice だけ (records[IV].tsukan_irai または CY_CUT ≤ 2026-08-17) — PORTAL は直さないので 行の数が PORTAL と違うのは意図 */
   function ptRows(bookings, shipping, today, records){
     const sh=shipping||{}, since=addDays(today,PT.RECENT), rc=records||null;
@@ -2329,11 +2344,37 @@ const DOC = (()=>{
     if(String(x.fd||'').trim()&&!x.obl) return '';
     if(!e) return 'near'; if(e<t) return 'past'; return e<=addDays(t,V29.FOLD_DAYS)?'near':'far'; }
   /* U11: 要対応 = やること + 催促 (待ちのうち 催促の時が来た行) */
-  const reqRow = r => !!r&&(r.zone!=='wait'||r.group==='chase');
+  const reqRow = r => !!r&&!r.cutWait&&(r.zone!=='wait'||r.group==='chase');   // v0.30 (B1): CUT 前の Draft は 要対応ではない
   /* U10: 契約の ETD = まだ出ていない一番早い ETD (無ければ 一番遅い ETD) */
+  /* ══════════ v0.30 (指示書 THOR_28 · D1 ~ D8) ══════════ */
+  const V30 = {
+    PLAN:'計画 {d}', PLAN_TIP:'もう一つの ETD（計画 ETD と B/L date の早い方 · 参考）— 表の ETD は遅い方',
+    B1:'B/L Draft 確認{n} → CUT 後に送金', B1_DUE:'CUT 後',
+    ASAP:'なるべく早く', ASAP_ETD:'なるべく早く（ETD {d} まで）', BY_ETD:'ETD {d} まで', LATE:'期限切れ（ETD {d}）',
+    NOTE:'送金 · B/L 依頼 = ETD まで',
+    RCV_WHY:'（船社の受付）',
+    /* R1 · R3: 船社 Web の B/L 依頼 受付 (件名) — CNC 受付通知 · CNC 【輸出】B/L発行申請 (確認 · カウンター) · Hapag-Lloyd Webform (formzu) */
+    RCV_SUBJ:/B\/?L\s*発行依頼\s*受付|B\/?L\s*発行\s*申請|Webform\s*受け付け完了/i,
+    RCV_FROM:/(?:^|\.)(?:formzu\.com)$/i,
+    /* Webform (formzu) は 申請内容 が B/L 発行 · Waybill · Surrender のときだけ (入金連絡 だけ = 依頼ではない) */
+    RCV_FORM_REQ:/Waybill|Surrender|SWB|B\/?L\s*発行(?!地)/i,
+    TICKET:/(\d{4}-\d{4}-\d{3})/, RCV_MAX:40,
+    FD_IN:'FD送付日を入力', FD_IN_WHY:'{src} {d} · FD送付日未入力'
+  };
+  /* R1: 船社の受付メールか — m = {subj, skind, fromDom, body} → {rcv, req (依頼の受付), ticket} */
+  function blRcvLink(m){ const x=m||{}, s=String(x.subj||''), dom=String(x.fromDom||'');
+    if(!V30.RCV_SUBJ.test(s)||!(x.skind==='carrier'||V30.RCV_FROM.test(dom))) return {rcv:false, req:false, ticket:''};
+    const tk=(s.match(V30.TICKET)||String(x.body||'').match(V30.TICKET)||[])[1]||'';
+    if(/Webform/i.test(s)){ const seg=String(x.body||'').split('申請内容')[1]; const v=seg?seg.slice(0,60).split(/B\/?L\s*発行地|■|\n\s*\n|\s\d{1,2}\s/)[0]:''; return {rcv:true, req:V30.RCV_FORM_REQ.test(v), ticket:tk}; }
+    return {rcv:true, req:true, ticket:tk}; }
+  /* F-1 (D6 형님 「담당이 안 넣은 거야. 넣게 해야지」): 段階がすべて終わって FD は済み (フォルダ · メール) なのに PORTAL FD送付日 が空 → 「FD送付日を入力」 (要対応 · 黄 · 期限なし) */
+  function fdInputRow(x, Sg){
+    if(!x||!Sg||Sg.fd==null) return null; if(String((x.portal&&x.portal.fd_date)||'').trim()) return null;
+    const md=t=>dayOf(t).slice(5).replace('-','/').replace(/^0/,'');
+    return {stage:12, gkey:'fd', zone:'do', what:V30.FD_IN, why:V30.FD_IN_WHY.replace('{src}',Sg.fdSrc||'FD').replace('{d}',md(Sg.fd)), due:null, dueText:'—', soon:true, group:null, action:null, nudge:null, fdIn:true}; }   // 下書き なし (「提案」 ボタンで入れる)
   function ctEtd(bks, today){ const L=(bks||[]).map(b=>String(b.etd||'').slice(0,10)).filter(Boolean).sort(), n=L.find(e=>e>=today); return n||L[L.length-1]||''; }
 
-  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, /* v0.30 */ etdPick, etdOther, shippedOut, V30, fdInputRow, blRcvLink, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     /* v0.29 */ V29, oblFlow, swbRow, v29Zone, reqRow, ctEtd,
     /* v0.28 */ V28, mark, staffColor, polStaffOrder, bandOf, reqSort, sort28, hay28, hit28, hashOf, hashParse, lgPersonNeed, lgHead28,
     /* v0.27 */ MAIL30, mailGreeting, mailSigCompany, mailCleanName, mailGuess, mailCompose, greetOk, mailHtml, mailInsert, htmlText, mailVerify, replyAllTo, ctRowOpt, ctIvsLabel,
@@ -2660,7 +2701,7 @@ let _bkNos={key:'', list:[]};
 function bkNos(){ const all=S.bk.concat(S.extraBk||[]), key=all.length+'|'+S.loadSeq; if(_bkNos.key!==key) _bkNos={key, list:[...new Set(all.map(b=>b.cr49f_booking_no).filter(Boolean))]}; return _bkNos.list; }   // ACL 名前のブッキング番号確認
 function ivRow(b){
   const iv=DOC.up(b.cr49f_invoice_no), c=S.ct[b._cr49f_sale_contract_id_value]||{}, reg=S.regions[b._cr49f_region_id_value]||{}, etd=DOC.etdOf(b), code=DOC.ivCode(iv), staff=S.docStaff[code]||'';
-  const x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), premium:b.crcf9_insurance_premiums, etdPast:etd<S.today, folder:S.folders[iv], acl:(S.aclLocal&&S.aclLocal[iv])||(S.acl&&S.acl.by[iv]?{result:S.acl.by[iv], runId:S.acl.runId}:null), mailRules:S.mails[iv]||[],
+  const x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), premium:b.crcf9_insurance_premiums, etdPast:DOC.shippedOut(etd,S.today), folder:S.folders[iv], acl:(S.aclLocal&&S.aclLocal[iv])||(S.acl&&S.acl.by[iv]?{result:S.acl.by[iv], runId:S.acl.runId}:null), mailRules:S.mails[iv]||[],
     bookingNo:b.cr49f_booking_no||'', otherBookings:bkNos().filter(n=>n!==b.cr49f_booking_no), blNo:b.cr49f_bl_number||'', hon:honMap()[iv]||[], engineErr:S.engine==='error', siTent:DOC.siTentAny(S.sis[b._cr49f_sale_contract_id_value]),   // v0.6: 今の S/I が （仮） · v0.15 (B4): L/C 番号 XXX も
     fnameDec:TODO.fnameDec[iv]||null, fdState:TODO.fdState[iv]||null, blFix:(S.blFix&&S.blFix[iv])||null};   // v0.15 (B10 · B7) · v0.26 (N18): B/L Draft で直った ACL 相違
   { const P=TODO.portal&&TODO.portal.records, rec=P&&(P[b.cr49f_invoice_no]||P[iv]); if(rec&&rec.tsukan_irai) x.tsukan={at:rec.tsukan_irai_at||''}; }   // v0.24 (N15): PORTAL 「通関依頼済」 = 通関 欄も
@@ -2672,7 +2713,7 @@ function ctRow(id){
   /* v0.6 (指示書 Step 2): 国 · バイヤー · POD は 相手の表の名前 (PORTAL と同じ: 国 = バイヤーの crcf9_country · POD = cr49f_regions.cr49f_pod) — 契約の 「調べる欄」 の表示値は番号 (cr49f_id) なので使わない */
   const pod=[c._cr49f_pod1_value,c._cr49f_pod2_value].map(g=>g&&(S.regions[g]||{}).pod).filter(Boolean).join(' / '), date=DOC.isoDay(c.cr49f_sale_contract_date);
   const bks=(S.ctBk[id]||[]).map(b=>({iv:b.cr49f_invoice_no, etd:DOC.etdOf(b)})).sort((a,b)=>a.etd.localeCompare(b.etd));
-  const shipped=bks.filter(b=>b.etd&&b.etd<S.today).length, next=(bks.find(b=>b.etd>=S.today)||{}).etd||'';
+  const shipped=bks.filter(b=>DOC.shippedOut(b.etd,S.today)).length,   /* v0.30 (E2): 出港済 = 選んだ ETD ≤ 今日 */ next=(bks.find(b=>b.etd>=S.today)||{}).etd||'';
   const cells=DOC.judgeCt({pay, ct:no, fdDone:DOC.siTentAny(S.sis[id])?ctFdDone(id):false, lcFiles:S.lcFiles?(S.lcFiles[DOC.up(no)]||[]).map(f=>f.name):undefined, lcOrig:lcOrigFor(no), po:S.po[id]||null, sis:S.sis[id]});   // v0.15 (B1 · B2)
   const det=S.saleDet[id], lines=det===undefined?null:det.map(d=>({item:itemName(d._cr49f_item_id_value), qty:d.cr49f_quantity||0, price:d.cr49f_price||0}));
   return {id, ct:no, date, pod, buyer:by.cr49f_buyer||'', buyerName:by.cr49f_buyer_name||'', country:DOC.up(typeof by.crcf9_country==='string'?by.crcf9_country:FV(by,'crcf9_country')), latest:DOC.isoDay(c.cr49f_latest_shipment), lines, pay, term:DOC.up(c.cr49f_terms_conditions), code, staff, cells, bks, shipped, next};
@@ -2720,7 +2761,7 @@ function ptRowOf(b){
   const reg=S.regions[b._cr49f_region_id_value]||{}, cntr=reg.name||'—', vn=DOC.up(cntr).indexOf('VIETNAM')>=0, r=iv?ivRow(b):null;
   let prop=null; if(iv&&S.folders[iv]!==undefined&&!(sp&&String(sp.fd_date||'').trim())){ try{ prop=DOC.ptPropose(sp, todoInput(b).sig); }catch(e){ prop=null; } }
   return {b, ivRaw, iv, sp, rec, r, staff:r?r.staff:'', pstaff:DOC.ptStaff(ivRaw, S.docStaffItems), cntr, vn, prop, ts:DOC.ptTsukan(rec, b.cr49f_cy_cut),
-    etd:DOC.ptEtd(b), eta:DOC.isoDay(b.crcf9_bl_eta||b.cr49f_eta), cut:DOC.isoDay(b.cr49f_cy_cut), pol:DOC.ptPol(S.polRec[b._cr49f_region_japan_id_value]),
+    etd:DOC.ptEtd(b), etdO:DOC.etdOther(b), eta:DOC.isoDay(b.crcf9_bl_eta||b.cr49f_eta), cut:DOC.isoDay(b.cr49f_cy_cut), pol:DOC.ptPol(S.polRec[b._cr49f_region_japan_id_value]),
     ship:TODO.carriers[b._cr49f_carrier_id_value]||'—', cnt:S.pCnt[b.cr49f_bookingid]||'—', bkg:b.cr49f_booking_no||'—', ct:r?r.ct:''};
 }
 const ptChips = x => { const c=(x.r&&x.r.cells)||{}, o={}; DOC.PT.CHIPS.forEach(([k])=>{ if(c[k]) o[k]=c[k]; }); return o; };
@@ -2959,7 +3000,7 @@ function v8IvRowH(o){ const x=o.x, P=DOC.PT, sp=x.sp||P.DEF, noIv=!x.ivRaw, dS=v
     (x.prop?'<button class="pt-prop" data-pt-prop="'+esc(x.ivRaw)+'" data-date="'+esc(x.prop.date)+'" title="'+esc('TOOL が見つけた FD 送付 ('+x.prop.src+') '+DOC.ptDate(x.prop.date)+' — 押すと入力します')+'">提案 '+esc(dS(x.prop.date))+'</button>':'');
   const tip=['契約 '+(x.ct||'—'),'ETA(E) '+DOC.ptDate(x.eta),'CNTR '+x.cnt+' 本 · '+x.cntr,'BKG_NO '+x.bkg].concat(x.r&&x.r.vchg.length?['本船変更: '+x.r.vchg.join(' · ')]:[]).join('\n');
   return '<tr class="v8-r" data-row="iv" data-id="'+esc(x.iv)+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td>'+
-    '<td class="m" data-c="etd">'+v8D(x.etd,dS(x.etd))+'</td><td class="m m2" data-c="eta">'+v8D(x.eta,dS(x.eta))+'</td><td class="m" data-c="cut">'+v8D(x.cut,dS(x.cut))+'</td><td data-c="pol" title="'+esc(x.pol)+'">'+esc(x.pol)+'</td>'+
+    '<td class="m" data-c="etd">'+v8D(x.etd,dS(x.etd))+(x.etdO?'<span class="v30-plan" title="'+esc(DOC.V30.PLAN_TIP)+'">'+esc(DOC.V30.PLAN.replace('{d}',DOC.fmtMD(x.etdO)))+'</span>':'')+'</td><td class="m m2" data-c="eta">'+v8D(x.eta,dS(x.eta))+'</td><td class="m" data-c="cut">'+v8D(x.cut,dS(x.cut))+'</td><td data-c="pol" title="'+esc(x.pol)+'">'+esc(x.pol)+'</td>'+
     '<td class="v8-iv" data-c="iv">'+(x.iv?'<button class="dt-link" data-iv="'+esc(x.iv)+'" data-tab="" title="'+esc(tip)+'">'+esc(x.ivRaw)+'</button>':'<span>—</span>')+'<span class="v8-ct">'+esc(x.ct||'—')+(x.r&&x.r.vchg.length?' · 本船変更':'')+'</span></td>'+
     '<td class="m" data-c="bkg">'+esc(x.bkg)+'</td><td data-c="ship" title="'+esc(x.ship+(vessel?' '+vessel:''))+'">'+esc(x.ship)+(vessel?' <span class="v8-sub">'+esc(vessel)+'</span>':'')+'</td><td data-c="staff">'+v8Staff(x.staff, x.pstaff)+'</td>'+st+v8Next(o)+
     '<td data-c="pay">'+(noIv?'—':v8Sel(x,'furikomi',P.FURI_OPTS,P.FURI_OPTS.indexOf(sp.furikomi)>=0?sp.furikomi:'未'))+'</td><td data-c="fd">'+fd+'</td>'+
@@ -3063,7 +3104,7 @@ function v8Help(){ const R=DOC.TODO_RULES, now=TODO.asof!=null?TODO.asof:DOC.jst
     '<div class="dt-p">「要対応のみ」 = 今日やること の 「やること（自分の番）」 ＋ 「催促」（待ちのうち いつもの時間を過ぎた行 · 次にやること = 「催促: …」）。ほかの待ち（相手の番）は 「すべて」 で ◐。左の色の帯 = 期限（赤 期限切れ · 橙 今日 · 青 これから · 催促）。通関 = チェック（緑 = 通関依頼済 · 「C-01」 = C-01 が入れた）。</div>'+
     '<div class="dt-p">印: ✓ 済 · ● 今やる（確認）· ◆ 相違 · ◐ 相手待ち · ○ まだ · ― 対象外（DEPO はベトナム向けのみ · RR は韓国向けのみ · 保険は CIF のみ · L/C は L/C 取引のみ）· ? 判断の根拠が見つからない。マウスを乗せると理由。</div>'+
     '<div class="dt-p">列の名前の横: C = COMPASS · P = 入力（PORTAL と同じファイル · 変えた欄だけ保存）· M = メール · A = AI。</div>'+
-    '<div class="dt-note">いま '+esc(DOC.hmOf(now))+' · 締切 14:30 Draft 確認 · 15:00 送金 · 18:00 宅配'+(S.bk.length&&fo<S.bk.length?' · Invoice フォルダ確認中 '+fo+' / '+S.bk.length:'')+'</div>'+
+    '<div class="dt-note">いま '+esc(DOC.hmOf(now))+' · '+DOC.V30.NOTE+' · 18:00 宅配'+(S.bk.length&&fo<S.bk.length?' · Invoice フォルダ確認中 '+fo+' / '+S.bk.length:'')+'</div>'+
     '<div class="dt-note">'+esc($('dtProg').textContent||'')+'</div><div class="dt-note">'+esc(todoMailNote())+'</div>'+(S.me.admin?'<div class="dt-note">'+esc(PERF.note())+'</div>':'')+(TODO.portalErr?'<div class="dt-note dt-c-diff">⚠ PORTAL を読めない: '+esc(TODO.portalErr)+'</div>':'')+
     '<div class="dt-actions"><a class="dt-btn ghost" href="'+esc(R.MANUAL)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none">マニュアル</a><button class="dt-btn ghost" data-close>閉じる</button></div>'); bindClose(); }
 /* U5 右のパネル — 左 = 狭い一覧 (今の表と同じ行) · 頭 = Invoice · 契約 · 船社 本船 · 航路 · ETD · 条件 + ← → ⤢ ✕ */
@@ -3229,7 +3270,7 @@ function renderIvSum(){
   const r=ivRow(S.cur.b), b=r.b;
   const kv=(k,v,raw)=>'<div><div class="k">'+esc(k)+'</div><div class="v">'+(raw?v:esc(v||'—'))+'</div></div>';
   $('dtIvSum').innerHTML=kv('Invoice',r.iv)+kv('契約','<button class="dt-a" data-goct="'+esc(r.ctId)+'" style="font-size:14px;font-weight:500">'+esc(r.ct||'—')+'</button>',true)+kv('国',r.country)+
-    kv('POL → POD',(S.pols[b._cr49f_region_japan_id_value]||'?')+' → '+(r.pod||'?'))+kv('ETD',r.etd+(b.crcf9_bl_etd&&b.cr49f_etd&&DOC.isoDay(b.crcf9_bl_etd)!==DOC.isoDay(b.cr49f_etd)?' (計画 '+DOC.isoDay(b.cr49f_etd)+')':''))+
+    kv('POL → POD',(S.pols[b._cr49f_region_japan_id_value]||'?')+' → '+(r.pod||'?'))+kv('ETD',r.etd+(DOC.etdOther(b)?' (計画 '+DOC.etdOther(b)+')':''))+
     kv('条件',r.term)+kv('本船',b.cr49f_main_ship_name)+kv('コンテナ',b._cntr||'…')+'<div style="grid-column:span 2"><div class="k">L/C</div><div class="dt-row" style="gap:10px">'+lcLinks(r.ctId)+'</div></div>'+
     (r.vchg.length?'<div style="grid-column:span 5"><span class="dt-tag" style="margin:0">本船変更</span> <span class="dt-note">'+esc(r.vchg.join(' · '))+'</span></div>':'')+
     (()=>{ const L=ivFdDone(b)?ivRefLines(b):[]; return L.length?'<div style="grid-column:span 5"><span class="dt-tag" style="margin:0">参考</span> <span class="dt-note">'+esc(L.join(' / '))+'</span></div>':''; })();   // v0.17 (G3)
@@ -4840,19 +4881,30 @@ async function loadTodoMail(seq){
     done++; TODO.mailDone=done; TODO.mailN=out.length; if(seq===TODO.mailSeq){ TODO.mailSt='load'; renderTodoNote(); renderTodoBanner(); } });
   if(seq!==TODO.mailSeq) return;
   const ships=S.bk.map(b=>({id:b.cr49f_bookingid, iv:b.cr49f_invoice_no, bkg:b.cr49f_booking_no, bl:b.cr49f_bl_number, ct:(S.ct[b._cr49f_sale_contract_id_value]||{}).cr49f_sale_contract_no, cntrs:TODO.cntr[b.cr49f_bookingid]||[]}));
-  const I=DOC.linkIndex(ships), by={}, ctx=TODO.ctx, adr=r=>String(r&&r.emailAddress&&r.emailAddress.address||'').toLowerCase();
+  const I=DOC.linkIndex(ships), by={}, rcvMs=[], ctx=TODO.ctx, adr=r=>String(r&&r.emailAddress&&r.emailAddress.address||'').toLowerCase();
   out.forEach(g=>{ const att=(g.attachments||[]).filter(a=>!a.isInline).map(a=>a.name||''), from=adr(g.from), m={t:DOC.jst(g.receivedDateTime), subj:g.subject||'', att, hasAtt:!!g.hasAttachments, body:g.bodyPreview||'', skind:DOC.senderKind(from,ctx)};
     m.toKinds=(g.toRecipients||[]).concat(g.ccRecipients||[]).map(x=>DOC.senderKind(adr(x),ctx)); m.uses=DOC.mailUses(m); m.kind=DOC.kindTarget(m)?DOC.mailKind(m):'';
     m.id=g.id||''; m.web=g.webLink||''; m.fromName=String(g.from&&g.from.emailAddress&&g.from.emailAddress.name||''); m.fromDom=from.split('@')[1]||'';   // v0.8
     m.fromAddr=from; m.toBuyer=(g.toRecipients||[]).map(adr).filter(a=>DOC.senderKind(a,ctx)==='buyer');   // v0.12: B/L Draft のメールの下書きの宛先 (船社 = Draft メールの送り手 · バイヤー = 前にバイヤーへ送ったメールの宛先)
-    if(!m.uses.length&&!m.kind) return;
-    const bk=DOC.linkMails(m, I); if(!bk.length||bk.length>DOC.linkMax(m)) return;   // v0.23 (N9): 送金 · B/L 依頼は 件名の B/L 番号 (8 件まで)
-    bk.forEach(id=>{ (by[id]=by[id]||[]).push(m); }); });
+    const rc=DOC.blRcvLink(m); if(rc.rcv){ m.rcv=true; m.rcvReq=rc.req; } m.ticket=rc.ticket||((m.subj.match(DOC.V30.TICKET)||[])[1]||'');   // v0.30 (R1)
+    if(!m.uses.length&&!m.kind&&!m.rcv) return;
+    const bk=DOC.linkMails(m, I); if((m.rcv&&(!bk.length||/Webform/i.test(m.subj)))||(!m.rcv&&m.kind==='b'&&m.ticket&&!bk.length)){ rcvMs.push(m); return; }   // v0.30 (R1): 船社の受付 = 本文を読んでから (下)
+    if(!bk.length||bk.length>DOC.linkMax(m)) return;   // v0.23 (N9): 送金 · B/L 依頼は 件名の B/L 番号 (8 件まで)
+    m.bk=bk; bk.forEach(id=>{ (by[id]=by[id]||[]).push(m); }); });
+  /* v0.30 (R1): 船社の受付メール — 先頭 (bodyPreview) に番号が無いので 本文を読む (GET · 数通) → B/L · ブッキング番号で結ぶ · 番号の無い受付通知は 同じチケット番号のメールの船積へ */
+  await mapLimit(rcvMs.slice(0,DOC.V30.RCV_MAX||40),3,async m=>{ try{ const r=await graphFetch(GRAPH+'me/messages/'+encodeURIComponent(m.id)+'?$select=body',{headers:{Accept:'application/json',Prefer:'outlook.body-content-type="text"'}}); if(r.ok){ const j=await r.json(); m.bodyFull=String((j.body&&j.body.content)||''); } }catch(e){} });
+  if(seq!==TODO.mailSeq) return;
+  const tkBk={}; Object.keys(by).forEach(id=>by[id].forEach(m=>{ if(m.ticket) (tkBk[m.ticket]=tkBk[m.ticket]||new Set()).add(id); }));
+  rcvMs.forEach(m=>{ if(m.rcv&&m.bodyFull!=null){ const rc=DOC.blRcvLink({subj:m.subj, skind:m.skind, fromDom:m.fromDom, body:m.bodyFull}); m.rcvReq=rc.req; m.ticket=m.ticket||rc.ticket; }
+    const bk=DOC.linkMails(Object.assign({},m,{body:m.bodyFull!=null?m.bodyFull:m.body}), I);
+    if(bk.length&&bk.length<=DOC.linkMax(m)){ m.bk=bk; bk.forEach(id=>{ (by[id]=by[id]||[]).push(m); if(m.ticket) (tkBk[m.ticket]=tkBk[m.ticket]||new Set()).add(id); }); } });
+  rcvMs.forEach(m=>{ if(m.bk||!m.ticket||!tkBk[m.ticket]) return; const ids=[...tkBk[m.ticket]]; if(ids.length>DOC.linkMax(m)) return; m.bk=ids; m.byTicket=true; ids.forEach(id=>{ (by[id]=by[id]||[]).push(m); }); });
+  TODO.rcv=rcvMs.filter(m=>m.rcv).map(m=>({t:m.t, subj:m.subj, from:m.fromDom, req:!!m.rcvReq, ticket:m.ticket, n:(m.bk||[]).length, byTicket:!!m.byTicket}));
   TODO.byBk=by; TODO.mails=out.length; TODO.mailMs=Date.now()-t0; TODO.mailSt=TODO.mailErr?'error':'ok'; PERF.mark('mail'); renderTodo();
 }
 /* 船積 1 件の材料 → DOC.todoSignals → DOC.todoRow (v0.14: 今日終わったもの = DOC.todoDone も) */
 function todoOf(b){
-  const I=todoInput(b), iv=I.iv, x=I.x, r=I.r, now=I.now, Sg=I.sig, fo=I.fo, row=DOC.todoRow(x,Sg,now,TODO.ext)||DOC.swbRow(x,Sg,now,TODO.ext), done=DOC.todoDone(Sg,now);   // v0.29 (N35): FD の後ろ = SWB 切替
+  const I=todoInput(b), iv=I.iv, x=I.x, r=I.r, now=I.now, Sg=I.sig, fo=I.fo, row=DOC.todoRow(x,Sg,now,TODO.ext)||DOC.swbRow(x,Sg,now,TODO.ext)||DOC.fdInputRow(x,Sg), done=DOC.todoDone(Sg,now);   // v0.29 (N35): FD の後ろ = SWB 切替
   if(done.length) TODO.done.push({iv, carrier:x.carrier, country:x.country, staff:r.staff, list:done});
   if(!row) return null; row.group=DOC.todoGroup(row,now); row.when=DOC.whenLabel(row,now); row.whenSub=DOC.whenSub(row,now);
   const mdn=manDoneHit(iv,row); if(mdn){ (TODO.manShown=TODO.manShown||[]).push({iv, what:row.what, gkey:row.gkey, stage:row.stage, rec:mdn, carrier:x.carrier, country:x.country, staff:r.staff}); return null; }   // v0.23 (N10): 人が 「済にした」 段階 (段階が進めば また出る)
@@ -4866,7 +4918,7 @@ function todoInput(b){
   const r=ivRow(b), x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), pay:DOC.up(FV(c,'cr49f_pay_cls')||c.cr49f_pay_cls), carrier:TODO.carriers[b._cr49f_carrier_id_value]||'', otsu:TODO.fwd[b._cr49f_fowarder_id_value]||'',
     buyer:by.cr49f_buyer_name||'', cut:DOC.isoDay(b.cr49f_cy_cut), cutAm:!!b.cr49f_cut_am, payDate:DOC.isoDay(b.crcf9_maritime_freight_payment_date), blDate:DOC.isoDay(b.crcf9_bl_etd), premium:b.crcf9_insurance_premiums,
     files:F, aclFiles, portal:{fd_date:sp.fd_date||'', tsukan:!!rec.tsukan_irai, tsukanAt:rec.tsukan_irai_at||'', furi:sp.furikomi||''/* v0.29: 振込 (③ 手入力) */}, mails:TODO.byBk[b.cr49f_bookingid]||[], hon:r.x.hon||[], vchg:r.vchg.length>0, asof:TODO.asof, bookingNo:b.cr49f_booking_no||'', blNo:b.cr49f_bl_number||'',
-    fnameDec:TODO.fnameDec[iv]||null, fdState:TODO.asof!=null?null:(TODO.fdState[iv]||null), obl:oblOf(iv), paid:DOC.isoDay(b.crcf9_payment_date)};   // v0.15 (B10 · B7 — asof の試験では使わない) · v0.29 (N35)
+    fnameDec:TODO.fnameDec[iv]||null, fdState:TODO.asof!=null?null:(TODO.fdState[iv]||null), obl:oblOf(iv), paid:DOC.isoDay(b.crcf9_payment_date), etd:DOC.etdOf(b)};   /* v0.30: etd = 遅い方 (B/L 段階の期限) */   // v0.15 (B10 · B7 — asof の試験では使わない) · v0.29 (N35)
   const now=TODO.asof!=null?TODO.asof:DOC.jst(new Date().toISOString()); x.now=now;
   return {iv, x, r, now, fo, F, aclFiles, sig:DOC.todoSignals(x)};
 }
@@ -5018,7 +5070,7 @@ function renderTodo(){
   const fo=Object.keys(S.folders).length, fw=S.bk.length&&fo<S.bk.length?' · Invoice フォルダ確認中 '+fo+' / '+S.bk.length+'（表示は変わることがあります）':'';
   box.innerHTML=cpBannerHtml()+(TODO.asof!=null?'<div class="dt-card td-asof">asof '+esc(DOC.dayOf(now)+' '+DOC.hmOf(now))+' の時点で計算しています（管理者 · 試験 · その時刻より前の信号だけ）</div>':'')+
     '<div id="dtTodoBar">'+todoBannerHtml()+'</div>'+
-    '<div class="dt-note tl-now">いま '+esc(DOC.hmOf(now))+' · 締切 14:30 Draft 確認 · 15:00 送金 · 18:00 宅配'+esc(fw)+'</div>'+
+    '<div class="dt-note tl-now">いま '+esc(DOC.hmOf(now))+' · '+DOC.V30.NOTE+' · 18:00 宅配'+esc(fw)+'</div>'+
     zone('do',R.ZONES[0][1])+zone('wait',R.ZONES[1][1])+doneH+manH+
     '<div class="dt-note" id="dtTodoMail">'+esc(todoMailNote())+'</div>'+
     '<div class="dt-note">1 Invoice = 1 行（いまの段階だけ）。やること = 自分の番（グループは仕事の順 · 期限の早い順 · 赤 = 期限切れ · 橙 = 今日 · 灰 = 明日以降）。待ち = 相手の番（いつもの時間を過ぎたら催促）。Invoice を押すと詳細（段階の札）。FD を送ったら一覧から消える。'+
@@ -5415,7 +5467,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.29', date:'2026-11-26',
+  sys:'D-00', name:'書類ツール', version:'0.30', date:'2026-11-26',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

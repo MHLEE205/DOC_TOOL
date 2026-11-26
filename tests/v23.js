@@ -14,7 +14,7 @@ const INIT={init:w=>{ w.pdfjsLib=R.pdfjsForWindow(); }};
 const TR=DOC.TODO_RULES, at=DOC.at, T='2026-11-25';
 (async()=>{
 console.log('버전');
-ok(/<title>LEENAI D-00 書類ツール v0\.2[3456789]<\/title>/.test(HTML)&&/version:'0\.2[3456789]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.23 (title · CFG) · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[3456789]|30)<\/title>/.test(HTML)&&/version:'0\.(?:2[3456789]|30)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.23 (title · CFG) · 푸터');
 
 console.log('N9 B/L 번호로 연결');
 { const ships=[{id:'s1', iv:'NAA2611-01', bkg:'TYOGQ9000001', bl:'ONEYTYOGQ9000001'},{id:'s2', iv:'NAA2611-02', bkg:'TYOGN9000002', bl:'ONEYTYOGN9000002'},{id:'s3', iv:'NAA2611-03', bkg:'I990000003', bl:'I990000003'},
@@ -75,7 +75,7 @@ console.log('N8 메일 읽는 중 · 못 읽음');
   ok(w.eval('todoRows().filter(r=>!r.extra).every(r=>r.mailPend&&r.when==="メール未確認")'),'못 읽은 동안 메일로 정하는 줄 = 「メール未確認」');
   W.mailErr=0; w.document.getElementById('dtMailRetry').click(); await X.until(()=>w.eval('TODO.mailSt')==='ok',20000); w.eval('renderTodo()');
   ok(w.document.getElementById('dtTodoBar').textContent===''&&w.eval('todoRows().every(r=>!r.mailPend)'),'다시 읽으면 = 띠 없음 · 보통 판단');
-  ok(/const bk=DOC\.linkMails\(m, I\); if\(!bk\.length\|\|bk\.length>DOC\.linkMax\(m\)\) return;/.test(HTML),'메일 연결 = linkMails · linkMax (N9)'); }
+  ok(/const bk=DOC\.linkMails\(m, I\);/.test(HTML)&&/if\(!bk\.length\|\|bk\.length>DOC\.linkMax\(m\)\) return;/.test(HTML),'메일 연결 = linkMails · linkMax (N9)'); }
 
 console.log('N10 済にする');
 { const W=X.world(), w=await X.page(W,{...INIT, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>w.eval('TODO.mailSt')==='ok',20000); w.eval('S.board="todo"; S.view="list"; renderTodo()');

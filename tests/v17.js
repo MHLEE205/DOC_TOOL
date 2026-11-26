@@ -117,7 +117,7 @@ function world17(){
   ok(w.__cfg.desc==='書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）','D1 로그인 화면 설명',w.__cfg.desc);
   ok(/^読み込み完了 \d\d:\d\d$/.test(txt(w,'dtProg')),'D2 직원 = 「読み込み完了 HH:MM」 한 줄',txt(w,'dtProg'));
   const box=txt(w,'dtTodoBox'); ok(!/メール \d+ 通|初回表示|ACL 照合結果|本登録メール \d+ 通/.test(box),'D2 메일 통수 · 初回表示 = 직원에게 안 보임',box.slice(-300));
-  const dues=qa(w,'.tl-z-do .tl-due').map(d=>d.firstChild?d.firstChild.textContent:''); ok(dues.length&&dues.every(t=>/^期限(切れ)? \d+\/\d+$|^—$|^ETD 後に B\/L 依頼$|^メール確認中…$|^メール未確認$|^通関待ち$/.test(t)),'D4 왼쪽 칸 = 모두 「期限 …」 모양',dues);
+  const dues=qa(w,'.tl-z-do .tl-due').map(d=>d.firstChild?d.firstChild.textContent:''); ok(dues.length&&dues.every(t=>/^期限(切れ)? \d+\/\d+$|^—$|^ETD 後に B\/L 依頼$|^なるべく早く(（ETD \d+\/\d+ まで）)?$|^ETD \d+\/\d+ まで$|^期限切れ（ETD \d+\/\d+）$|^メール確認中…$|^メール未確認$|^通関待ち$/.test(t)),'D4 왼쪽 칸 = 모두 「期限 …」 모양',dues);
   ok(!/\d+h \/ \d+h|LG 済|後払い船社は|本日|昨日 B\/L 受領/.test(box),'D4 · D5 · D6 · D7 옛 글자 없음',box.match(/.{0,30}(\d+h \/|LG 済|後払い船社は|本日|昨日).{0,30}/));
   ok(!/別の契約番号: LRS-2609BB2/.test(box),'E1 → v0.27 (N27): 다 나간 계약 (NBB2611-01 ETD 지남) = 参考 · 今日やること 에 안 나옴 (S/I 탭은 빨강 그대로)',box.slice(0,400));
   { const L=qa(w,'#dtTodoBox .tl-what, #dtTodoBox .tl-why, #dtTodoBox .tl-due, #dtTodoBox .tl-gh, #dtTodoBox .tl-zh').map(e=>e.textContent).filter(t=>JSP.test(t)); ok(!L.length,'D15 일본어 사이 띄어쓰기 없음 (今日やること 각 칸)',L); }
