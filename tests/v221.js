@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const INIT={init:w=>{ w.pdfjsLib=R.pdfjsForWindow(); }};
 (async()=>{
 console.log('버전 · ②-3 L/C 42C 원문');
-{ ok(/<title>LEENAI D-00 書類ツール v0\.2(2\.1|3|4|5)<\/title>/.test(HTML)&&/version:'0\.2(2\.1|3|4|5)'/.test(HTML),'버전 v0.22.1 이상 (title · CFG)');
+{ ok(/<title>LEENAI D-00 書類ツール v0\.2(2\.1|3|4|5|6)<\/title>/.test(HTML)&&/version:'0\.2(2\.1|3|4|5|6)'/.test(HTML),'버전 v0.22.1 이상 (title · CFG)');
   eq(DOC.lc42({payment:{tenor_text:'  90 DAYS AFTER\nBILL OF LADING DATE '}}),'90 DAYS AFTER BILL OF LADING DATE','lc42 = L/C 保管所 42C 원문 (공백만 정리)');
   const res={fieldHead:['crcf9_payment_deadline','crcf9_consignee'], rec:{sinos:{1:{crcf9_payment_deadline:'90 DAYS AFTER B/L DATE FOR 100PCT OF INVOICE VALUE'},2:{crcf9_payment_deadline:'90 DAYS AFTER BILL OF LADING DATE'}}}};
   const out=DOC.siDeadlineFix(res,'90 DAYS AFTER BILL OF LADING DATE');

@@ -81,7 +81,7 @@ async function engineText(){
     ok(JSON.stringify(res.kinds)===JSON.stringify(direct.kinds)&&JSON.stringify(res.sets)===JSON.stringify(direct.sets)&&JSON.stringify(res.xx)===JSON.stringify(direct.xx),iv+' 종류 · 세트 · XX 같음');
     ok(res.meta&&res.meta.contract==='LRS-2699TS'+iv.slice(-1)&&res.meta.country==='VIETNAM'&&res.meta.forwarderCompany==='SAMPLE FORWARDER',iv+' 범위 정보 (계약 · 나라 · 乙仲)',res.meta);
     ok(res.engine===('acl_bench v'+EVER+' @'+COMMIT.slice(0,7))&&res.by==='書類ツール v'+TVER,'결과에 엔진 출처 · 도구',[res.engine,res.by]);
-    ok(W.req.filter(r=>/raw\.githubusercontent/.test(r)).length===1,'엔진은 한 번만 읽음');
+    ok(W.req.filter(r=>/raw\.githubusercontent.*acl_bench\.html/.test(r)).length===1,'엔진은 한 번만 읽음');   // v0.26 (N18): B/L Draft エンジン (bl_bench) は 別
   }
   /* 02 = 相違 → 화면 · 메일 */
   const body=txt('dtIvBody');

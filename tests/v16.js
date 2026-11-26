@@ -91,6 +91,7 @@ const ivList=w=>qa(w,'#dtTable tbody tr').map(tr=>tr.cells[5].textContent.replac
   eq(qa(w,'#dtTable thead th').map(t=>t.textContent),PT.COLS.concat(['ACL','B/L Draft','保険','RR'],PT.INPUTS),'열 순서 = PORTAL 11 + 판정 4 + 입력 4');
   eq(ivList(w),['NBB2611-01','NAA2611-01','NAA2611-02','NCC2611-01','NAA2611-13'],'줄 = PORTAL 조건 (L · FD送付日 · -60 뺌 · ETD 범위 밖 +100 남김 · ETD 순) + v0.17 H1 通関依頼済 만 (NAA2611-15 = 통관 전 → 없음)');
   { const tr=qa(w,'#dtTable tbody tr')[1], c=[...tr.cells].map(x=>x.textContent.trim());
+    if(!c[3]&&tr.cells[3].querySelector('input[data-ptts]:checked')) c[3]='✅';   // v0.26 (N17): 通関 = チェック (通関依頼済 = ✓)
     eq([c[0],c[1],c[2],c[3],c[4],c[6],c[7],c[8],c[9]],[DOC.ptDateS(D(3),T),DOC.ptDateS(D(13),T),DOC.ptDateS(D(1),T),'✅','SAMPLE POL','2','VIETNAM','TEST LINE','TESTBK1'],'열 값 — ETD · ETA · CY_CUT · 通関 · POL · BKG本 · CNTR · SHIP · BKG_NO');
     ok(/LRS-2611AA1/.test(tr.cells[5].querySelector('button').title)&&!/LRS/.test(c[5]),'계약번호 = IV_NO title (줄 아래 글씨 없음 · v0.16.1)');
     ok(sel(w,'NAA2611-01','dep').value==='確認'&&sel(w,'NAA2611-01','fd_note').value==='メモA','입력 칸 = PORTAL 값 (DEP 確認 · 備考)'); }

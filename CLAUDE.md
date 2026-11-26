@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 = 2026-11-26)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -48,7 +48,8 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
    - **v0.15 상태 기억** = `doc_tool/state/{fd|fname|si_lc}/{키}_{UTC}[_rand].json` (`DOC.statePath` · 문지기 `V15.STATE_RE` · 새 파일만) — 今日やること 코드의 SharePoint 쓰기는 `stateWrite` 한 곳.
    - COMPASS 쓰기 = `dvWrite` 하나 → `DOC.guardDv` (S/I · S/I 명세 · 이 계약 · 정해진 칸 · PATCH(`If-Match:*`)/POST 만 · DELETE 없음). S/I 탭 「COMPASS に書き込む」 만 쓴다.
    - **v0.9 ACL 保存** = 같은 `spPut` 에 `save={iv, folder, test}` → `DOC.guardSave` — 시험 = `doc_tool/save_test/{IV}/` · 본번 = 그 Invoice 폴더 (書類作成中 · _OLD_DOC) · 이름은 `{IV}_ACL.pdf` / `{IV}_ACL REV.pdf` / `REV2` … 만 (v0.12: B/L Draft 는 `save.kind='BL'` → `{IV}_FRT MEMO.pdf` / `… REV.pdf` / `REV2` 만). 새 파일만 (`conflictBehavior=fail` · 409 → 다음 이름을 다시 확인).
-   - MASTER (`master_*.json`) 는 쓰지 않는다. confirm / alert 쓰지 않는다.
+   - MASTER (`master_*.json`) 는 쓰지 않는다 — **예외 1 곳 (v0.26 N21)**: 관리자 (`portal_admin`) 의 「署名の画像の確認」 → `LEENAI.master.upsert('staff', {code}, …)` 로 **그 줄의 `sign_ok` 만** (다른 칸은 읽은 그대로). confirm / alert 쓰지 않는다.
+   - **v0.26 (N17) PORTAL 「通関依頼済」** = 같은 `spPut` + `{portal:true, ifMatch}` → `guardPortal` (PORTAL 파일 · 試験の写し 둘만) · `DOC.ptMergeTs` = `records[IV]` 의 `tsukan_irai` · `tsukan_irai_at` · `tsukan_irai_off_at` (+ 상태 未 ↔ ED未) 만.
 6. **실제 값은 레포에 넣지 않는다** — 시험은 가짜 번호 (`TEST…` · `2699` · `example.test`). 실제 자료 확인 스크립트는 레포 밖 (PC 의 작업 폴더) 에서 돌리고, 결과는 숫자만 보고서에.
 7. **보안 grep** — push 전에 `ghp_ · github_pat_ · sk-ant · client_secret · AKIA` 0 (check.js 가 index.html 을 본다 · 새 파일도 직접 grep).
 8. 상태 규칙은 `doc-core` 의 표 (`NAME` · `NA` · `REQ_SI` · `FD_TENT` · `CT_REAL` · `CT_PERIODS` · `TT_PO`) 에 모은다 — 직접 판단은 보고서 「⚠️ 자체 판단」 에 적는다.
@@ -194,6 +195,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 - **v0.10 L/C 보관소** — L/C 는 SharePoint `古紙/LC/_READ/{계약}.json` (schema `lc_read/1` · A1 R2 2 회 판독을 코드로 정리 · 계약마다 1 개 · Amend 오면 다시 판독 → 옛 판은 `_old/`) 에서만 읽는다. **D-01 폴더 (`D-01-LC_FD_CHECKER`) 는 읽지 않는다.**
   - `DOC.SRC.lc` · `loadLcFiles` (`_` 로 시작하는 파일 · 폴더는 건너뜀) · `readLcJson` · 「LC 読み取り」 = `{계약}.md` 를 `DOC.mdHtml` 로 (글자는 전부 escape) · `aclFetchCompass` 의 부킹 `$select` 에 `cr49f_etd,crcf9_bl_etd` (엔진 v0.10 의 船積期限 照合).
   - 보관소 만들기 · 새 L/C 1 건 판독 = CONTRACT_SEND `tools/lc_read_build.mjs` · `tools/lc_read_one.mjs` (토르 · 리나이가 PC 에서 실행 · 이 TOOL 은 읽기만).
+
+- **v0.26 (지시서 `THOR_24_지시서_D00_書類ツールv0.26` · 묶음 v0.12 N17 · N18 · N19 · N21 · N23 · N24 · N26)** — 규칙 · 낱말은 doc-core `DOC.V26` **한 곳**
+  - N17 Invoice 別 「通関」 칸 = 체크 (`ptTsCell` · `ptSaveTs` · C-01 이 쓴 줄 (`updated_by: "C-01"`) = 「C-01」) · 「通関依頼の前の行も出す」 (`ptRowsPre` · CY_CUT 10 일) · 이 화면에서 바꾼 줄은 남김 (`PTSAVE.keep`). PORTAL v4.11 과 같은 칸.
+  - N18 `aclLater` (judgeIv 끝 · `turnFix` 뒤) — ACL 相違 의 칸이 B/L Draft 최신판에서 S/I 와 같으면 (`aclBlFixed` · bl-core A 행 `class` SAME / NOTATION) 「参考（B/L で訂正済み）」 · B/L 発行 · FD 済 = 「参考（後の段階で確認済み）」 · 本登録 = 「—（後の段階で確認済み）」. B/L 확인 = 읽기 끝에 `aclBlFixRun` (ACL 보다 새 Draft 가 있는 相違 줄만 · `S.blFix` · B/L 탭 결과 `S.blRes` 에는 남기지 않음).
+  - N19 `aclWordFix` · `blWordFix` — 「S/I 文面」 표 = 낱말 단위 (`wordDiff` LCS · `#` · 줄바꿈 · 공백 · 대소문자 무시 · 빠진 · 다른 낱말만 `av-hl`) · 엔진 HTML 의 표만 바꿈 (툴팁 · 결론 그대로 · 관리자 화면의 title 도).
+  - N21 서명 = `master_staff` `sign_img` (`D-00/lg/signatures/{메일}.png` 만) · `sign_ok` · **확인됨 = sign_ok true + 그 줄을 마지막으로 바꾼 사람 (SharePoint 판 기록 `rowLastChangers`) = 관리자** (`signState` — 직원이 ⚙ 로 true 해도 효과 없음). 아니면 LG 를 만들지 않음. 양식의 서명 그림 자리 = `templates/{선사}/cells.json` 의 `sign` (社印 은 안 바꿈) · 그림은 양식 그림 비율의 판에 (`signFit`).
+  - N23 ONE 依頼者名 = `name_en` 대문자 (`lgPerson`) · N24 CNC 양식 = SharePoint 양식 (코드 0) · N26 `lgMailDraft` 제목 = 실적 모양 + (BL#) + 本船 · 航海 + ` / {IV}` (답장 = `Re:` 앞) · 본문 = 정정 목록 없음 · `lgAttCheck` = 머리의 Invoice.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
