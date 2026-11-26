@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.26</title>
+<title>LEENAI D-00 書類ツール v0.27</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -130,6 +130,8 @@ button.st:hover{border-color:currentColor}
 .lg-row textarea,.lg-row input{width:100%;box-sizing:border-box}
 .dt-main .lg-need,.dt-modal .lg-need{background:var(--st-todo-bg);color:var(--st-todo-fg)}
 .lg-chk{color:var(--st-todo-fg);background:var(--st-todo-bg);padding:0 6px;border-radius:4px;font-weight:600}
+.md-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}@media (max-width:700px){.md-grid{grid-template-columns:1fr}}.md-sig{white-space:pre-wrap;font-size:12px;margin:0;color:var(--text2);font-family:inherit}.dt-modal .md-wide,.md-wide{max-width:900px}   /* v0.27 (N30) */
+.tl-ivs{font-size:11px}   /* v0.27 (N27) */
 .sign-img{max-height:48px;max-width:160px;background:var(--dt-on-accent);border:1px solid var(--border);border-radius:4px;padding:2px}   /* v0.26 (N21): 署名 (黒い字) は どの色モードでも白い台 */
 .pt-t .pt-ts{width:16px;height:16px;margin:0;vertical-align:middle;cursor:pointer}.pt-t .pt-c01{font-size:10px;color:var(--text3);margin-left:3px;cursor:help}   /* v0.26 (N17) */
 .av-cols.av-words td{white-space:normal;word-break:break-word;vertical-align:top}   /* v0.26 (N19): 語の単位の表 = 1 行 */
@@ -316,6 +318,7 @@ button.st:hover{border-color:currentColor}
    規則は下の表 (NAME · NA · REQ_SI · FD_TENT · CT_REAL · CT_PERIODS) にまとめる — 直すときは表だけ。
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
+   v0.27 (2026-11-26 指示書 THOR_25 · 修正まとめ v0.17): N30 下書き = C-01 と同じ形 (本文 HTML · 改行 · 署名 · 末尾 · あいさつ 「{相手の会社名}／{担当者} 様」 · 返信は元のメールの引用のまま · 実際の To / CC · 作ったら読み直して確かめる) · N31 同じ仕事に ボタン 1 つ (ACL の古いコピーの窓を やめる · 参考の ACL は 訂正依頼のボタンなし) · N28 · N29 エンジン acl v0.22 (S/I 「**」 の続き = その欄の中 · 主要な欄を比べられない = 読取確認 · D-03 の既定値 = 一致) · N27 S/I 確認 = 契約 1 行 (契約番号 · Invoice は小さく · 期限 = まだ出ていない船積の一番早い CY_CUT · 無ければ 灰色の —)
    v0.26 (2026-11-26 指示書 THOR_24 · 修正まとめ v0.12): N17 Invoice 別 に 「通関依頼済」 の補助のチェック (C-01 を通らない例外 · PORTAL v4.11 と同じ欄 tsukan_irai · tsukan_irai_at · tsukan_irai_off_at · 欄単位 · eTag · C-01 が書いた行は 「C-01」) · N18 後の段階で直った ACL 相違 = 「参考（B/L で訂正済み）」 (B/L Draft の最新の版で S/I と同じ) · B/L 発行 · FD 済 = 参考 · 本登録 「—（後の段階で確認済み）」 · N19 ACL · B/L Draft の違い = 語の単位 (# · 改行 · 空白を無視 · 抜けた · 違う語だけ赤) · N21 LG の署名 = ログインした人の署名の画像 (master_staff sign_img · 管理者が確認した人だけ · 様式の画像を入れ替え · 大きさ · 位置そのまま) · 管理者の 「署名の画像の確認」 · N23 ONE 依頼者名 = name_en · N24 CNC 様式の宛名 (SharePoint の様式) · N26 LG 下書きの件名 = 船社の形 + B/L 番号 + 本船 · 航海 + Invoice · 本文 = 訂正の一覧なし
    v0.25 (2026-11-25 指示書 MAC-THOR_23 · LG 訂正依頼): 船社の LG 様式 (D-00/lg/ · 11 船社 · 実際に送った LG を様式に) に 値を入れて 同じ Excel の形で作る (シートの XML のセルだけ書き換え · 線 · 結合 · 印影の画像はそのまま) · 訂正前 = B/L Draft の欄 · 訂正後 = S/I (L/C) · ベトナム = Deposit 番号 (バイヤーの返事から候補 · いつも 確認) · 「LG を保存」 = {IV}_LG.xlsx (REV · 上書きしない · 試験モード = save_test) · 5 番目の下書き 「LG 訂正依頼」 (船社のメール実績の宛先 · 件名 · 本文 · 添付の名前 · 送らない)
    v0.24 (2026-11-25 指示書 THOR_22 · 修正まとめ v0.8 N15 · N11 · N12): N15 Deposit 依頼 = メールで判断しない — 起点 = PORTAL 「通関依頼済」 (チェックした時刻 tsukan_irai_at · PORTAL v4.10) · 期限 = その日 + 1 営業日 (土日 · 祝日を飛ばす · 時刻のない前のチェック = CY_CUT) · 通関依頼済 の前 = 「Deposit 依頼（通関 待ち）」 (期限なし · 赤 0) · 営業の 「新規通関依頼」 を 送付と見ない · 通関 欄も 通関依頼済 · N11 エンジン acl v0.21 (42C の支払条件の部分だけ payTerm) · N12 S/I の L/C から来る欄 = L/C 保管所の原文 (推薦 · 前回 · 保存した推薦) · 書き込み · ✏ 直す の前に 「L/C と違います」 + 「L/C の文言に戻す」
@@ -1227,7 +1230,7 @@ const DOC = (()=>{
     if(r.zone==='wait') return r.nudge?fillT(V17.WAIT_H,{h:Math.round(r.nudge.el), th:Math.round(r.nudge.th)}):'—';
     /* v0.17 (D4): 左の欄は いつも 期限 (「期限 11/25」 · 「期限切れ 11/21」 · 「期限なし」) — 出来事の日 · 時刻は 2 行目 (whenSub) */
     /* v0.23 (N9): 「期限なし」 はやめる — その段階の実際の目安 (dueText · 例 後払い = 「ETD 後に B/L 依頼」) · なければ 「—」 */
-    if(r.extra||r.due==null) return r.dueText||'—';
+    if((r.extra&&!r.ctRow)||r.due==null) return r.dueText||'—';   // v0.27 (N27): 契約の行は 期限 (CY_CUT) を出す
     return (r.group==='late'?'期限切れ ':'期限 ')+mdOf(r.due);
   }
   function whenSub(r, now){
@@ -1258,7 +1261,7 @@ const DOC = (()=>{
      文は この表 1 か所。乙仲の会社 · 担当の名前は メール / マスターから (コードに 0) · 署名は Outlook が付ける */
   const ACL_MAIL = {
     TAG:{hon:'[本登録依頼]', fix:'[ACL訂正依頼]', vessel:'[本船変更依頼]'},
-    HEAD:['{乙仲会社} {乙仲担当} 様','','いつもお世話になっております。','許可書とACLのご送付ありがとうございます。'],
+    HEAD:['いつもお世話になっております。','許可書とACLのご送付ありがとうございます。'],   // v0.27 (N30): あいさつ (会社名 / 担当者 様) は 確認の窓 (mailCompose)
     HON:['内容相違ございませんので、こちらで本登録をお願いいたします。','','何卒よろしくお願い申し上げます。'],   // v0.19 (M1): 大場さんの文そのまま
     FIX_BLOCK:['ACL {訂正欄}欄','{訂正前}','→{訂正後}',''],
     DISP_LINE:'ACL {表示欄}欄へ {値} のご入力をお願いできますでしょうか。',
@@ -1295,7 +1298,7 @@ const DOC = (()=>{
      件名: 訂正 = 実際のメールの件名規則 [訂正依頼BL#{B/L 番号}] · OK = 元の Draft メールへの Re: · バイヤー = [B/L Draft for {IV}] · 宛先が分からなければ 空 */
   const BL_MAIL = {
     TAG:{fix:'[訂正依頼BL#{BL}]'},
-    HEAD:['{船社} {担当} 様','','いつもお世話になっております。','B/L Draft のご送付ありがとうございます。'],
+    HEAD:['いつもお世話になっております。','B/L Draft のご送付ありがとうございます。'],   // v0.27 (N30)
     FIX_INTRO:['下記のとおりご訂正をお願いできますでしょうか。',''],
     FIX_BLOCK:['■ {欄}','（現在）{現在}','（訂正後）{正}',''],
     FIX_TAIL:['訂正後の Draft をご送付いただけますと幸いです。','お手数をおかけし申し訳ございません。','何卒よろしくお願い申し上げます。'],
@@ -1565,8 +1568,10 @@ const DOC = (()=>{
     /* v0.18 (T-4): B/L Draft に 別の契約番号 → 赤 (Invoice に 1 行) */
     if((x.blOtherCt||[]).length) out.push(R(3,'draft',V17.OTHER_CT+x.blOtherCt.join(' · ')+V18.BL_OTHER, (x.ct?x.ct+' · ':'')+'B/L Draft にこの契約と違う契約番号があります', {red:true, action:TR.ACTION.draft}));
     /* v0.17 (E1): S/I に 別の契約番号 → 赤 (契約に 1 行) */
-    if((x.otherCt||[]).length) out.push(R(0,'sichk',V17.OTHER_CT+x.otherCt.join(' · '), (x.ct?x.ct+' · ':'')+V17.OTHER_CT_WHY, {red:true, action:TR.ACTION.si}));
-    if(x.lcStale) out.push(R(0,'si','L/C 着 · S/I 未更新', (x.ct?x.ct+' · ':'')+'L/C は届いています · S/I の L/C 番号が XXX のまま', {red:true, action:TR.ACTION.si}));
+    /* v0.27 (N27 형님 「계약번호 별로」): S/I の行 = 契約 1 行 (契約番号 · Invoice は小さく) · 期限 = まだ出ていない船積の 一番早い CY_CUT (無ければ 灰色の 「—」) · 全部出た契約 = 参考 (出さない · G3) */
+    const ctShip=!(x.ctInfo&&x.ctInfo.allShipped);
+    if((x.otherCt||[]).length&&ctShip) out.push(R(0,'sichk',V17.OTHER_CT+x.otherCt.join(' · '), V17.OTHER_CT_WHY, Object.assign({action:TR.ACTION.si}, ctRowOpt(x.ctInfo))));
+    if(x.lcStale&&ctShip) out.push(R(0,'si','L/C 着 · S/I 未更新', 'L/C は届いています · S/I の L/C 番号が XXX のまま', Object.assign({action:TR.ACTION.si}, ctRowOpt(x.ctInfo))));
     if(x.aclRecheck) out.push(R(2,'acl','ACL 再確認（S/I を L/C で更新）','S/I 更新 '+md(x.aclRecheck.t)+' · ACL の照合はその前', {action:TR.ACTION.acl}));
     /* v0.17 (G3 형님 「참고로 낮춰줘. 이미 지난 건이고」): FD 済 (FD送付日 · FD メール · フォルダ FD) の Invoice = 参考 → 今日やること に出さない (Invoice の詳細だけ) */
     /* v0.18 (T-3 形さん D7): 送って 5 営業日以内の 添付名が違う FD メール は FD 済でも 赤 (バイヤーに知らせ直せる) */
@@ -1985,6 +1990,7 @@ const DOC = (()=>{
     for(let i=n-1;i>=0;i--) for(let j=m-1;j>=0;j--) L[i][j]=A[i].k===B[j].k?L[i+1][j+1]+1:Math.max(L[i+1][j],L[i][j+1]);
     A.forEach(x=>{ x.miss=true; }); B.forEach(x=>{ x.miss=true; });
     let i=0, j=0; while(i<n&&j<m){ if(A[i].k===B[j].k){ A[i].miss=false; B[j].miss=false; i++; j++; } else if(L[i+1][j]>=L[i][j+1]) i++; else j++; }
+    const D03W=['FREIGHT','PREPAID','AS','ARRANGED']; [A,B].forEach(T=>{ for(let k=0;k+3<T.length;k++) if(D03W.every((w,q)=>T[k+q].k===w)) for(let q=0;q<4;q++) T[k+q].miss=false; });   // v0.27 (N29): D-03 の固定文言は 赤 0
     return {A, B}; }
   const escH = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   /* 文 → HTML (違う語だけ av-hl · 改行はそのまま) */
@@ -2042,7 +2048,76 @@ const DOC = (()=>{
   /* N23: 依頼者名 = ログインした人の 英語の名前 (master_staff name_en · 大文字 — 実際の ONE の LG と同じ) */
   const lgPerson = row => String((row&&row.name_en)||'').replace(/\s+/g,' ').trim().toUpperCase();
 
+  /* ══════════ v0.27 (指示書 THOR_25 · 修正まとめ v0.17 N30 · N31 · N27) ══════════
+     N30 下書きの形 = C-01 (HANNYU_TOOL js/customs.js · source.js · config.js) と同じ — 本文 esc → 改行 <br> · Meiryo 10.5pt の div · 返信は createReplyAll の HTML の <body> の直後 (引用 · 画像はそのまま)
+         · 署名 (職員マスターの名前 · メール) · 末尾 ✦ Powered by · あいさつ {相手の会社名}\n{担当者} 様 (C-01 greeting と同じ決まり) · 作ったら読み直して確かめる */
+  const MAIL30 = {
+    FONT:'<div style="font-family:\'Meiryo\',\'Yu Gothic\',sans-serif;font-size:10.5pt">',
+    SIG:'----------------------------------------\n{name}\n株式会社リニア (LEENEAR CORPORATION)\nTEL : +81-3-3528-9850 / FAX : +81-3-3528-9851\n{email}',
+    FOOT:'✦ Powered by LEENAI Automation System', CO_PH:'（相手の会社名）', PS_PH:'（担当者名）',
+    GREET_NG:'宛名（相手の会社名 · 担当者）を入れてください — 入るまで下書きを作りません', TO_NG:'宛先 (To) がありません', BROKEN:'下書きの形が崩れています', OK:'下書きを読み直して確かめました（改行 · 署名 · 末尾 · 引用 · 宛先）',
+    CO_RE:/(株式会社|㈱|有限会社|合同会社|\(株\)|（株）|Co\.,?\s*Ltd|CO\.,?\s*LTD|Corporation|Corp\.|Inc\.|LIMITED|Ltd\.)/i,
+    STOP_RE:/^(いつも|お世話|お疲れ|平素|大変お世話)/, SKIP_RE:/^[※*＊■□●◆【\[〔>＞-]/, SAMA_RE:/\s*(様|さま)\s*$/,
+    /* あいさつを入れる下書き (日本語の相手) — ACL (本登録 · 訂正 · 本船変更) · B/L Draft (訂正 · OK) · 船積書類 (日本語) */
+    GREET:['hon','fix','vessel','blfix','blok','ship_ja']
+  };
+  const mailLines = t => String(t||'').replace(/[​﻿]/g,'').replace(/[　 ]/g,' ').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  /* 本文の先頭の あいさつ (会社名 / 〇〇 様) — C-01 customs.js greeting() と同じ決まり (先頭 6 行 · 「いつも」 などの前まで · 「様」 で終わる最初の行 = 担当者 · その上 (2 行まで) = 会社名) */
+  function mailGreeting(text){ const M=MAIL30, all=mailLines(text).slice(0,6), ls=[]; for(const l of all){ if(M.STOP_RE.test(l)) break; ls.push(l); }
+    const i=ls.findIndex(l=>M.SAMA_RE.test(l)); if(i<0) return {company:'', person:''};
+    let person=ls[i].replace(M.SAMA_RE,'').trim(), company=ls.slice(0,i).filter(x=>!M.SKIP_RE.test(x)&&x.indexOf('様')<0).slice(-2).join('\n');
+    if(!company&&M.CO_RE.test(person)&&/\s/.test(person)){ const m=/^(.*\S)\s+(\S+)$/.exec(person); if(m){ company=m[1]; person=m[2]; } }
+    if(person.length>40||company.length>80) return {company:'', person:''};
+    return {company:company.trim(), person:person.trim()}; }
+  /* 相手のメールの署名の会社名の行 (一番下 · 自社の名前は除く) · 表示名 (アドレスなら空) */
+  function mailSigCompany(text, ourRe){ const ls=mailLines(text).filter(x=>x.length<=60&&MAIL30.CO_RE.test(x)&&!/様/.test(x)&&!/^(from|to|cc|差出人|宛先)\s*[:：]/i.test(x)&&!(ourRe&&ourRe.test(x))); return ls.length?ls[ls.length-1].replace(/^[\s\-_=*■□●◆|]+|[\s\-_=*■□●◆|]+$/g,''):''; }
+  const mailCleanName = n => { const s=String(n||'').replace(/\s*[<(（\[].*$/,'').replace(/[\s　]*(様|さま)$/,'').trim(); return /@/.test(s)?'':s; };
+  const domOfA = a => String(a||'').toLowerCase().split('@')[1]||'';
+  /* 宛名を探す (C-01 brokerGuess と同じ順の考え) — o = {conv:[{from, to:[], cc:[], text, at}] (会話 · 古い順), our (自社ドメイン), dom (相手のドメイン), formal (COMPASS の正式名 · 相手のドメインが同じとき), formalDom, src:{fromName, text}}
+     会社名 = ① COMPASS の正式名 (ドメインが同じ) ② 会話で 自社の職員が この相手に書いた一番新しい あいさつ ③ 相手の署名 · 担当者 = ② → 相手の表示名 → 空 (書き換えの印) */
+  function mailGuess(o){ const x=o||{}, out={company:'', person:'', src:{company:'', person:''}}, our=String(x.our||'').toLowerCase(), dom=String(x.dom||'').toLowerCase();
+    const put=(co,ps,src)=>{ if(co&&!out.company){ out.company=co; out.src.company=src; } if(ps&&!out.person){ out.person=ps; out.src.person=src; } };
+    if(x.formal&&dom&&(!x.formalDom||String(x.formalDom).toLowerCase()===dom)) put(x.formal,'','COMPASS の乙仲');
+    if(dom){ const conv=(x.conv||[]).slice().reverse();
+      for(const m of conv){ if(out.company&&out.person) break; if(domOfA(m.from)!==our) continue; if(![].concat(m.to||[],m.cc||[]).some(a=>domOfA(a)===dom)) continue;
+        const g=mailGreeting(m.text); if(g.company||g.person) put(g.company,g.person,'前のメールのあいさつ'); } }
+    if(x.src){ if(!out.company){ const co=mailSigCompany(x.src.text, x.ourRe); if(co) put(co,'','相手のメールの署名'); } if(!out.person){ const nm=mailCleanName(x.src.fromName); if(nm) put('',nm,'相手のメールの送信者名'); } }
+    return out; }
+  const mailFillT = (t, v) => String(t).replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?v[k]:m);
+  /* 本文 (人が見る文) — あいさつ + 本文 + 署名 + 末尾 (C-01 bodyText と同じ並び) */
+  function mailCompose(o){ const x=o||{}, M=MAIL30, greet=x.greet?(String(x.company||'').trim()||M.CO_PH)+'\n'+(String(x.person||'').trim()||M.PS_PH)+' 様\n\n':'';
+    return greet+String(x.body||'').replace(/\s+$/,'')+'\n\n'+mailFillT(M.SIG,{name:x.name||'', email:x.email||''})+'\n\n'+M.FOOT; }
+  const greetOk = (company, person) => { const c=String(company||'').trim(), p=String(person||'').trim(); return !!c&&!!p&&c!==MAIL30.CO_PH&&p!==MAIL30.PS_PH; };
+  const escM = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  /* 本文 → HTML (C-01 bodyHtml と同じ) */
+  const mailHtml = text => MAIL30.FONT+escM(text).replace(/\n/g,'<br>')+'</div>';
+  /* 返信の下書きの HTML の <body> の直後に 自分の HTML (C-01 customsSend と同じ) · <body> がなければ前に */
+  const mailInsert = (html, mine) => { const h=String(html||''); return /<body[^>]*>/i.test(h)?h.replace(/<body[^>]*>/i,x=>x+mine):mine+h; };
+  /* HTML → 文 (確かめる用) — <br> · </p> · </div> = 改行 · タグを取る · 文字参照を戻す */
+  function htmlText(h){ return String(h||'').replace(/<(script|style)[\s\S]*?<\/\1>/gi,'').replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|div|tr|li|h\d)>/gi,'\n').replace(/<[^>]+>/g,'')
+    .replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&#(\d+);/g,(m,n)=>String.fromCharCode(+n)).replace(/&amp;/g,'&'); }
+  /* 作った下書きを読み直して確かめる — back = {html, to:[], cc:[], subject} · exp = {text, to, cc, subject, quote (返信の引用の一部 · 新しいメールは '')} → 問題の一覧 ([] = よい) */
+  function mailVerify(back, exp){ const b=back||{}, e=exp||{}, bad=[], nz=s=>String(s||'').replace(/\s+/g,' ').trim();
+    const got=htmlText(b.html).split('\n').map(nz).filter(Boolean), want=String(e.text||'').split('\n').map(nz).filter(Boolean);
+    let j=0; const lost=[]; want.forEach(w=>{ let k=j; while(k<got.length&&got[k].indexOf(w)<0) k++; if(k<got.length) j=k+1; else lost.push(w); });
+    if(lost.length) bad.push('改行 · 文が違う: 「'+lost.slice(0,3).join(' / ')+(lost.length>3?' …':'')+'」');
+    if(!want.some(w=>w.indexOf('----------')===0)||!got.some(g=>g.indexOf('----------')===0)) bad.push('署名がない');
+    if(!got.some(g=>g.indexOf(MAIL30.FOOT)>=0)) bad.push('末尾 (✦ Powered by) がない');
+    if(e.quote&&got.join('\n').indexOf(nz(e.quote))<0) bad.push('元のメールの引用がない');
+    const set=a=>[...new Set((a||[]).map(x=>String(x||'').trim().toLowerCase()).filter(Boolean))].sort().join(';');
+    if(set(b.to)!==set(e.to)) bad.push('To が違う ('+set(b.to)+')'); if(set(b.cc)!==set(e.cc)) bad.push('CC が違う ('+set(b.cc)+')');
+    if(e.subject!=null&&nz(b.subject)!==nz(e.subject)) bad.push('件名が違う');
+    return bad; }
+  /* 全員に返信の宛先 (Graph createReplyAll と同じ) — 元のメールの From + To → To · CC → CC · 自分は除く */
+  function replyAllTo(src, me){ const s=src||{}, m=String(me||'').toLowerCase(), u=a=>[...new Set(a.map(x=>String(x||'').trim().toLowerCase()).filter(x=>x&&x!==m))];
+    const to=u([s.from].concat(s.to||[])); return {to, cc:u(s.cc||[]).filter(a=>to.indexOf(a)<0)}; }
+
+  /* N27: S/I の契約単位の行 — 期限 = その契約の まだ出ていない船積の 一番早い CY_CUT (無ければ 灰色の 「—」) · 全部出た契約 = 参考 (出さない) */
+  const ctRowOpt = ci => ci?{ctRow:{no:ci.no, ivs:ci.ivs||[]}, due:ci.due||null, dueText:ci.due?undefined:'—'}:{red:true};
+  const ctIvsLabel = ivs => { const a=(ivs||[]).filter(Boolean); return a.length<=1?(a[0]||''):a[0]+' ほか '+(a.length-1)+' 件'; };
+
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+    /* v0.27 */ MAIL30, mailGreeting, mailSigCompany, mailCleanName, mailGuess, mailCompose, greetOk, mailHtml, mailInsert, htmlText, mailVerify, replyAllTo, ctRowOpt, ctIvsLabel,
     /* v0.26 */ V26, aclBlFixed, aclLater, wordDiff, wordMarkHtml, wordDiffTable, aclWordFix, ptMergeTs, ptByC01, ptRowsPre, rowLastChangers, adminSet, signState, lgSignTarget, signFit, lgPerson,
     /* v0.25 */ V25, lgCarrier, lgDepoFind, lgDepoApply, lgHasDepo, lgNz, lgAssign, lgSpan, lgNear, lgBlocks, lgBlockText, lgRuns, xlsxFontOf, xlsxRPr, lgVessel, xlSerial, lgValues, xlsxCellSet, xlsxFill, lgName, lgMailDraft, lgAttCheck, lgDraftPath,
     /* v0.19 */ MAIL19, mailAtt, mailDraft19, guardMail, mailDraftPath,
@@ -2697,7 +2772,7 @@ const V17UI = {CUSTOMS_BTN:'通関書類', INS_BTN:'保険を入力', FD_BTN:'FD
 /* エンジンを読めないとき (raw が届かない · sha256 違い …) — 職員には決まった文だけ · 理由は管理者だけ */
 const errHtml = (e, verb, bench) => e&&e.engine&&!S.me.admin?'<span class="dt-c-diff">'+STOP_MSG+'</span>':'<span class="dt-c-diff">'+esc(verb)+': '+esc(e&&e.message)+'</span>'+(S.me.admin?' — '+bench+' で確認してください':'');
 /* v0.19: 業者メールの下書きボタン (+ 作成済みの印) */
-const mailBtn = (iv, kind) => '<button class="dt-btn ghost" data-mail="'+esc(kind)+'" data-mailiv="'+esc(iv)+'">下書きを作る</button>'+(mailDoneLabel(iv,kind)?'<span class="dt-note">'+esc(mailDoneLabel(iv,kind))+'</span>':'');
+const mailBtn = (iv, kind) => '<button class="dt-btn ghost" data-mail="'+esc(kind)+'" data-mailiv="'+esc(iv)+'">'+(kind==='depo'?'Deposit 依頼の下書きを作る':kind==='ship'?'船積書類の下書きを作る':'下書きを作る')+'</button>'+(mailDoneLabel(iv,kind)?'<span class="dt-note">'+esc(mailDoneLabel(iv,kind))+'</span>':'');
 const copyBtn = v => '<button class="dt-btn ghost" data-copy="'+esc(v)+'">'+esc(v)+' をコピー</button>';
 function folderLine(iv){ const f=S.folders[iv]; return f&&f.webUrl?'<button class="dt-a" data-url="'+esc(f.webUrl)+'">Invoice フォルダを開く</button> <span class="dt-note">'+esc(f.live?'書類作成中':'_OLD_DOC')+'</span>':'<span class="dt-note">Invoice フォルダなし</span>'; }
 function ivTabHtml(r, tab){
@@ -2864,7 +2939,7 @@ function aclTabHtml(r){
   return '<section class="dt-card dt-panel" style="gap:12px">'+head+body+'<div id="dtAclSt" class="dt-note" style="font-size:13px"></div><div id="dtAclDraft"></div><div class="dt-actions">'+
     (f&&f.webUrl?'<button class="dt-btn ghost" data-url="'+esc(f.webUrl)+'">ACL を開く</button>':'')+
     (can?'<button class="dt-btn ghost" id="dtAclRun">'+(fresh?'再照合':'照合する')+'</button>':'')+
-    (fresh?'<button class="dt-btn" id="dtAclMail">'+(g.diff.length?'訂正依頼メールの下書き':'本登録メールの下書き')+'</button><button class="dt-btn" id="dtAclOutlook">下書きを作る</button>'+(mailDoneLabel(r.iv,'acl')?'<span class="dt-note">'+esc(mailDoneLabel(r.iv,'acl'))+'</span>':''):'')+   // v0.8: 下書きまで (送るのは人)
+    (fresh&&!c.ref?'<button class="dt-btn" id="dtAclOutlook">'+(g.diff.length?'訂正依頼の下書きを作る':'本登録依頼の下書きを作る')+'</button>'+(mailDoneLabel(r.iv,'acl')?'<span class="dt-note">'+esc(mailDoneLabel(r.iv,'acl'))+'</span>':''):'')+   // v0.27 (N31): ボタン 1 つ (古いコピーの窓はやめた) · 参考 (B/L で訂正済み · 後の段階) = なし
     '<button class="dt-btn ghost" id="dtAclMiss" title="この照合で見つけられなかった違いを報告">見落とし報告</button>'+   // v0.11
     benchBtn('acl')+'</div>'+list+'</section>';
 }
@@ -3043,7 +3118,7 @@ async function runSearch(){
    エンジン = CONTRACT_SEND/acl_bench.html の <script id="acl-core"> をコミット固定で読み込み、sha256 で確かめてから使う (コピーしない · acl_bench は変えない)。
    v0.3: ACL の名前の規則 (aclScan · aclPick) · 本登録の語 (mailKind) · 結果の見せ方 (viewHtml) もエンジンから — 現況板が始まるときに読む (loadAll)
    下の通信部分 (COMPASS 読み · 乙仲 · 規則 · PDF) は acl_bench の acl-app から写したもの — source: CONTRACT_SEND/acl_bench.html @903d923 (v0.4 から変わっていない) */
-const ACL_ENGINE = {commit:'cedc44849b025aef88f78de71552ae7c65cf391f', sha256:'9d38893f16ec12c42ebf918ed6dabe38171b2ac146213c4392dfb1a3930d261e', ver:'0.21'};   // v0.22: エンジン v0.19 (電話 · 郵便番号 = 表記差 · 読めず欄の 3 回目 · 結果の並び v22)   // v0.21: エンジン v0.18 (新しい試験の行のコード判定 CP_CODE · S/I 段階 siCheck)   // v0.19: エンジン v0.17 (40HCR = 45R)   // v0.18 (T-1): エンジン v0.16 (形態 HC 表記 · 複合輸送の空欄 = 参考 · RECIEVED BY CARRIER = 対象外 · 乙仲の過去の誤記 · NACCS の判定は v0.15 と同じ)   // v0.17 (G10): エンジン v0.14 (スキャン ACL の AI 判読 2 回 · NACCS の判定は v0.13 と同じ) — 토르_10 が終わったら その版へ   // v0.13: エンジン v0.13 (画面の韓国語なし · 判定は v0.12 と同じ)   // v0.12: エンジン v0.12 (CP-A01 の 末尾の , ; : · B/L Draft と共通の部品)   // v0.11: エンジン v0.11 (チェックポイント · 港の別名)   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
+const ACL_ENGINE = {commit:'249317df8aaa5b48b63b75c59570168a57f9a923', sha256:'a7eb06ce5b5db3f6dbe9d838c2d0e331dba5434fa75d2bdc9f78ab8272f99e90', ver:'0.22'};   // v0.27: エンジン v0.22 (N28 S/I 「**」 の続き = その欄の中 · 主要な欄 = 読取確認 · N29 D-03 の既定値 = 一致)   // v0.22: エンジン v0.19 (電話 · 郵便番号 = 表記差 · 読めず欄の 3 回目 · 結果の並び v22)   // v0.21: エンジン v0.18 (新しい試験の行のコード判定 CP_CODE · S/I 段階 siCheck)   // v0.19: エンジン v0.17 (40HCR = 45R)   // v0.18 (T-1): エンジン v0.16 (形態 HC 表記 · 複合輸送の空欄 = 参考 · RECIEVED BY CARRIER = 対象外 · 乙仲の過去の誤記 · NACCS の判定は v0.15 と同じ)   // v0.17 (G10): エンジン v0.14 (スキャン ACL の AI 判読 2 回 · NACCS の判定は v0.13 と同じ) — 토르_10 が終わったら その版へ   // v0.13: エンジン v0.13 (画面の韓国語なし · 判定は v0.12 と同じ)   // v0.12: エンジン v0.12 (CP-A01 の 末尾の , ; : · B/L Draft と共通の部品)   // v0.11: エンジン v0.11 (チェックポイント · 港の別名)   // v0.10: エンジン v0.10 (L/C 保管所 lc_read/1 · Consignee 銀行 · 船積期限 ↔ ETD) · v0.8: エンジン v0.9 (表記 · 読み · 担当者メール判断 · Shipper's Mail 空欄 参考 · L/C JSON 照合 · ACL が多く書いた = 参考 · * の続き)   // v0.6: エンジン v0.8 (コンテナ別記載の指示 ✓ → コンテナの行 ある · （仮） = siTentative) · v0.5: エンジン v0.7 (ハイフン = 表記差 · 乙仲への指示 · コンテナ別記載の指示) · v0.4: v0.6 (最終確認)
 ACL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+ACL_ENGINE.commit+'/acl_bench.html';
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';   // acl_bench · D-01 と同じ版
 const CMAPS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/';   // v0.12: cdnjs は cmaps を出さない (403) — 同じ版の cmaps (sha256 同じ · acl_bench v0.12 · bl_bench v0.2 と同じ)
@@ -3181,20 +3256,6 @@ function aclMailSource(b){
   const ms=(TODO.byBk&&TODO.byBk[b.cr49f_bookingid]||[]).filter(m=>m.uses.indexOf('ACL')>=0&&(m.skind==='otsu'||m.skind==='carrier'||m.skind==='other')).sort((x,y)=>y.t-x.t);
   return ms[0]||null;
 }
-function aclMail(iv){
-  const r=ivRow(S.cur.b), res=r.x.acl&&r.x.acl.result, box=$('dtAclDraft'); if(!res||!box) return;
-  const src=aclMailSource(r.b), ctx={subject:src?src.subj:'', company:src?(TODO.otsuName&&TODO.otsuName[src.fromDom])||'':'', person:src?src.fromName:'', iv:r.iv};
-  const d=DOC.aclMailDraft(res, ctx), NL='\n';
-  box.innerHTML='<section class="av-final" style="gap:8px"><div class="av-fh">メールの下書き（'+(d.type==='hon'?'本登録依頼':d.type==='vessel'?'本船変更依頼':'ACL 訂正依頼')+' · 送るのはご自身で）</div>'+
-    '<div class="dt-note">件名</div><input class="dt-in" style="height:34px" readonly value="'+esc(d.subject)+'">'+
-    '<div class="dt-note">本文</div><textarea class="dt-in" readonly rows="'+Math.min(24,d.body.split(NL).length+2)+'" style="padding:8px 10px;font-family:inherit;font-size:13px">'+esc(d.body)+'</textarea>'+
-    (d.skipped.length?'<div class="dt-note">メールに入れなかった違い (S/I ↔ L/C — 乙仲への訂正ではない): '+esc(d.skipped.join(' · '))+'</div>':'')+(d.read?'<div class="dt-note dt-c-todo">読めないところが '+d.read+' か所あります — ACL を開いて目で確かめてから</div>':'')+
-    '<div class="dt-actions"><button class="dt-btn ghost sm" data-copy="'+esc(d.subject)+'">件名をコピー</button><button class="dt-btn ghost sm" id="dtAclBody">本文をコピー</button>'+
-    (src&&src.web?'<button class="dt-btn sm" data-url="'+esc(src.web)+'">Outlook で元の ACL メールを開く（全員に返信 → 貼り付け）</button>':'<span class="dt-note">元の ACL メールが見つかりません — 返信に本文を貼り付けてください</span>')+'</div></section>';
-  bindCommon(box);
-  const bb=$('dtAclBody'); if(bb) bb.onclick=async()=>{ try{ await navigator.clipboard.writeText(d.body); toast('本文をコピーしました','ok'); }catch(e){ toast('コピーできません','warn'); } };
-  S.lastDraft=d;
-}
 /* ══ v0.19 業者メールの下書き — 組み立て (マスター · メール · COMPASS) → 確認の窓 → Outlook 下書き (送らない) ══ */
 const MAILD = {done:{}, loaded:false};
 async function mailMasters(){ if(MAILD.sales!==undefined) return; try{ MAILD.sales=await LEENAI.master.get('sales_mail'); }catch(e){ MAILD.sales=[]; } try{ MAILD.fwd=await LEENAI.master.get('forwarder'); }catch(e){ MAILD.fwd=[]; } }
@@ -3216,7 +3277,9 @@ async function mailDraftBuild(iv, kind){
     x.vessel=b.cr49f_main_ship_name||''; x.eta=DOC.isoDay(b.crcf9_bl_eta||b.cr49f_eta)||'';
     if(kind==='ship'&&(x.lang==='ko'||x.lang==='ja')){ try{ const cp=await aclFetchCompass(iv); if(cp.ok){ x.mt=(cp.containers.reduce((a,k)=>a+(+k.crcf9_n_w||0),0)/1000).toFixed(2); x.pod=cp.pod||'';
       const g={}; cp.containers.forEach(k=>{ const z=/^20/.test(String(k.crcf9_type||''))?'20FT':'40FT'; g[z]=(g[z]||0)+1; }); x.vol=Object.keys(g).map(z=>z+'*'+g[z]+'Container').join(' / '); } }catch(e){} } }
-  const d=DOC.mailDraft19(kind, x); d.iv=iv; d.srcId=x.srcId||''; d.lang=x.lang; return d;
+  const d=DOC.mailDraft19(kind, x); d.iv=iv; d.srcId=x.srcId||''; d.lang=x.lang;
+  if(kind==='acl'){ const mt=(x.aclRes&&x.aclRes.meta)||{}; d.formal=mt.forwarderCompany||''; d.formalDom=(splitAddr(mt.forwarderTo)[0]||'').split('@')[1]||''; }   // v0.27 (N30): あいさつの会社名 = COMPASS の乙仲 (相手のドメインが同じとき)
+  return d;
 }
 /* v0.20: master_sales_mail の行 = Shipping Schedule (buildBuyerData) と同じ — 契約の AGENT (数字だけ = なし) があれば AGENT::BUYER → AGENT:: · なければ ::BUYER
    AGENT は下書きを作るときに その契約だけ COMPASS から読む (読むだけ) · 読めなければ v0.19 と同じ (BUYER → AGENT 名 = BUYER) */
@@ -3235,16 +3298,65 @@ function mailPastSubj(b, kind, lang){ const c0=S.ct[b._cr49f_sale_contract_id_va
   return {subj:p.m.subj, body:p.m.body||'', tpl:DOC.mailSubjTpl(p.m.subj, tag, {IV:x.cr49f_invoice_no, CT:c.cr49f_sale_contract_no||'', PO:String(s1.crcf9_po_vo||'').trim(), BL:x.cr49f_bl_number||''})}; }
 /* Outlook の下書き — 返信 (元の ACL メール · 全員に返信) か 新しい下書き · 添付 (3 MB まで) · CC に rcp@ — 送らない */
 async function graphMail(method, path, body){ DOC.guardMail(method, GRAPH+path); const r=await graphFetch(GRAPH+path,{method, headers:{'Content-Type':'application/json'}, body:body?JSON.stringify(body):undefined}); if(!r.ok){ const e=new Error('Outlook '+r.status); e.status=r.status; throw e; } return r.status===204?null:r.json(); }
-async function mailDraftCreate(d, body){
-  const rc=a=>a.map(x=>({emailAddress:{address:x}}));
-  let m;
-  if(d.srcId){ m=await graphMail('POST','me/messages/'+d.srcId+'/createReplyAll',{comment:body}); const cc=(m.ccRecipients||[]).map(x=>String(x.emailAddress&&x.emailAddress.address||'').toLowerCase()), to=(m.toRecipients||[]).map(x=>String(x.emailAddress&&x.emailAddress.address||'').toLowerCase()), add=d.cc.filter(a=>cc.indexOf(a)<0&&to.indexOf(a)<0);
-    await graphMail('PATCH','me/messages/'+m.id,Object.assign({subject:d.subject}, add.length?{ccRecipients:(m.ccRecipients||[]).concat(rc(add))}:{})); }
-  else m=await graphMail('POST','me/messages',{subject:d.subject, body:{contentType:'Text', content:body}, toRecipients:rc(d.to), ccRecipients:rc(d.cc)});
-  for(const a of d.att){ const r=await graphFetch(drv()+'/items/'+a.id+'/content'); if(!r.ok) throw new Error('添付を読めない '+a.name); const buf=await r.arrayBuffer();
-    await graphMail('POST','me/messages/'+m.id+'/attachments',{'@odata.type':'#microsoft.graph.fileAttachment', name:a.as, contentType:/\.zip$/i.test(a.as)?'application/zip':'application/pdf', contentBytes:b64buf(buf)}); }
-  return m;
+/* ══════════ v0.27 (N30 · N31) 下書き = C-01 (HANNYU_TOOL) と同じ形 · 確認の窓 1 つ (本登録 · ACL 訂正 · Deposit · 船積書類 · B/L Draft · LG)
+   本文 HTML (改行 <br> · Meiryo) · 返信 = 元のメールに 全員に返信 の下書きの <body> の直後 (引用 · 画像はそのまま) · 署名 · 末尾 · あいさつ · 実際の To / CC (直せる) · 作ったら読み直して確かめる · 送らない ══════════ */
+function mailMe(){ const em=String((LEENAI.user&&LEENAI.user.email)||'').toLowerCase(), row=(S.staff||[]).find(r=>String(r.email||'').toLowerCase()===em)||{}; return {name:row.name_ja||(LEENAI.user&&LEENAI.user.name)||'', email:(LEENAI.user&&LEENAI.user.email)||''}; }
+const adrOf = r => String(r&&r.emailAddress&&r.emailAddress.address||'').toLowerCase();
+const MAIL_OUR_RE = /リニア|LEENEAR/i;
+/* 元のメール (宛先 · 本文) と 同じ会話のメール (あいさつ探し · 下書きは除く) — 読むだけ */
+async function mailSrcInfo(id){ const H={headers:{Prefer:'outlook.body-content-type="text"'}};
+  const r=await graphFetch(GRAPH+'me/messages/'+encodeURIComponent(id)+'?$select=from,toRecipients,ccRecipients,conversationId,body',H); if(!r.ok) throw new Error('元のメールを読めません ('+r.status+')'); const m=await r.json();
+  const src={from:adrOf(m.from), fromName:String(m.from&&m.from.emailAddress&&m.from.emailAddress.name||''), to:(m.toRecipients||[]).map(adrOf), cc:(m.ccRecipients||[]).map(adrOf), text:(m.body&&m.body.content)||''};
+  let conv=[]; try{ const c=await graphFetch(GRAPH+'me/messages?$filter='+encodeURIComponent("conversationId eq '"+m.conversationId+"'")+'&$top=50&$select=from,toRecipients,ccRecipients,uniqueBody,bodyPreview,receivedDateTime,isDraft',H);
+    if(c.ok) conv=((await c.json()).value||[]).filter(x=>!x.isDraft).sort((a,b)=>String(a.receivedDateTime).localeCompare(String(b.receivedDateTime))).map(x=>({from:adrOf(x.from), to:(x.toRecipients||[]).map(adrOf), cc:(x.ccRecipients||[]).map(adrOf), text:(x.uniqueBody&&x.uniqueBody.content)||x.bodyPreview||'', at:x.receivedDateTime})); }catch(e){}
+  return {src, conv}; }
+/* d = {title, kind, type, iv, subject, body, to, cc, srcId, att:[{id,name,as,size} | {as,name,bytes,ct}], greet, formal, formalDom, warn, block, after(o, m)} */
+async function mail30Modal(d){
+  const me=mailMe(), NL='\n', our=String(me.email).split('@')[1]||'', M=DOC.MAIL30;
+  modal('<div class="dt-h">'+esc(d.title||'メールの下書き')+'</div><div class="dt-note" id="dtMdSay">準備しています…（元のメール · 宛先 · あいさつ）</div><div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>'); bindClose();
+  d.warn=(d.warn||[]).slice(); let info=null;
+  if(d.srcId){ try{ info=await mailSrcInfo(d.srcId); }catch(e){ d.warn.push(e.message+' — 新しいメールの下書きになります'); d.srcId=''; } }
+  if(info){ const ra=DOC.replyAllTo(info.src, me.email); d.to=ra.to; d.cc=[...new Set(ra.cc.concat((d.cc||[]).map(x=>String(x).toLowerCase())))].filter(a=>ra.to.indexOf(a)<0); }
+  let gs={company:'', person:'', src:{}}; if(d.greet){ const dom=String((info?info.src.from:(d.to||[])[0])||'').toLowerCase().split('@')[1]||'';
+    gs=DOC.mailGuess({conv:info?info.conv:[], our, dom, formal:d.formal||'', formalDom:d.formalDom||'', src:info?info.src:null, ourRe:MAIL_OUR_RE}); }
+  const sig=DOC.mailCompose({greet:false, body:'', name:me.name, email:me.email}).replace(/^\s+/,'');
+  const attTxt=(d.att||[]).map(a=>a.as+(a.name&&a.as!==a.name?'（ファイル '+a.name+'）':'')).join(' · ')||'なし';
+  modal('<div class="dt-h">'+esc(d.title||'メールの下書き')+'</div><div class="dt-note">送るのはご自身で（このツールは送りません）。'+(d.srcId?'元のメールに 「全員に返信」 の下書き（元のメールの引用 · 画像はそのまま）':'新しいメールの下書き')+'</div>'+
+    (d.block?'<div class="av-concl av-ng" id="dtMdBlock">'+esc(d.block)+' — 下書きを作りません</div>':'')+d.warn.map(w=>'<div class="dt-note dt-c-todo">'+esc(w)+'</div>').join('')+
+    '<div class="dt-note">件名'+(d.subjFrom?'（前回の件名の形: '+esc(d.subjFrom)+'）':'')+'</div><input class="dt-in" id="dtMdSubj" style="height:34px" value="'+esc(d.subject||'')+'">'+
+    '<div class="dt-note">宛先 '+(d.srcId?'（元のメールに全員に返信 — 実際の宛先）':d.toSrc==='doc'?'（マスター 書類メール To / CC）':d.toSrc==='master'?'（マスター To / CC）':'')+'</div><div class="dt-p" id="dtMdTo"></div>'+
+    '<div class="md-grid"><div><div class="dt-note">To（「;」 で区切る · 直せます）</div><input class="dt-in'+((d.to||[]).length?'':' lg-need')+'" id="dtMdToIn" style="height:34px" value="'+esc((d.to||[]).join('; '))+'"></div><div><div class="dt-note">CC</div><input class="dt-in" id="dtMdCcIn" style="height:34px" value="'+esc((d.cc||[]).join('; '))+'"></div></div>'+
+    (d.greet?'<div class="md-grid"><div><div class="dt-note">相手の会社名'+(gs.src.company?'（'+esc(gs.src.company)+'）':'（見つかりません — 入れてください）')+'</div><input class="dt-in'+(gs.company?'':' lg-need')+'" id="dtMdCo" style="height:34px" value="'+esc(gs.company)+'" placeholder="'+esc(M.CO_PH)+'"></div>'+
+      '<div><div class="dt-note">担当者'+(gs.src.person?'（'+esc(gs.src.person)+'）':'（見つかりません — 入れてください）')+'</div><input class="dt-in'+(gs.person?'':' lg-need')+'" id="dtMdPs" style="height:34px" value="'+esc(gs.person)+'" placeholder="'+esc(M.PS_PH)+'"></div></div>':'')+
+    '<div class="dt-note">本文'+(d.greet?'（あいさつ 「会社名 / 担当者 様」 · 署名 · 末尾は自動で付きます）':'（署名 · 末尾は自動で付きます）')+'</div><textarea class="dt-in" id="dtMdBody" rows="'+Math.min(18,String(d.body||'').split(NL).length+2)+'" style="padding:8px 10px;font-family:inherit;font-size:13px">'+esc(d.body||'')+'</textarea>'+
+    '<div class="dt-note">署名 · 末尾</div><pre class="md-sig">'+esc(sig)+'</pre>'+
+    '<div class="dt-note">添付</div><div class="dt-p" id="dtMdAtt">'+esc(attTxt)+'</div>'+
+    '<div id="dtMdSt" class="dt-note"></div><div class="dt-actions">'+(d.block?'':'<button class="dt-btn" id="dtMdMake">下書きを作る（Outlook）</button>')+'<button class="dt-btn ghost" id="dtMdCopy">コピー（件名 · 宛先 · 本文）</button><button class="dt-btn ghost" data-close>閉じる</button></div>');
+  bindClose(); $('dtModalBox').classList.add('md-wide');
+  const st=$('dtMdSt'), mk=$('dtMdMake'), val=id=>{ const e=$(id); return e?e.value:''; };
+  const toLine=()=>{ const e=$('dtMdTo'); if(e) e.innerHTML='To: '+esc(splitAddr(val('dtMdToIn')).join('; ')||'—')+'<br>CC: '+esc(splitAddr(val('dtMdCcIn')).join('; ')||'—'); }; toLine();
+  ['dtMdToIn','dtMdCcIn'].forEach(id=>{ const e=$(id); if(e) e.oninput=toLine; });
+  const textNow=()=>DOC.mailCompose({greet:!!d.greet, company:val('dtMdCo'), person:val('dtMdPs'), body:val('dtMdBody'), name:me.name, email:me.email});
+  $('dtMdCopy').onclick=async()=>{ const t='件名: '+val('dtMdSubj')+NL+'To: '+splitAddr(val('dtMdToIn')).join('; ')+NL+'CC: '+splitAddr(val('dtMdCcIn')).join('; ')+NL+'添付: '+(d.att||[]).map(a=>a.as).join(', ')+NL+NL+textNow(); try{ await navigator.clipboard.writeText(t); toast('コピーしました','ok'); }catch(e){ toast('コピーできません','warn'); } };
+  if(mk) mk.onclick=async()=>{ const to=splitAddr(val('dtMdToIn')).map(x=>x.toLowerCase()), cc=splitAddr(val('dtMdCcIn')).map(x=>x.toLowerCase()).filter(a=>to.indexOf(a)<0), subject=val('dtMdSubj');
+    if(d.greet&&!DOC.greetOk(val('dtMdCo'), val('dtMdPs'))){ st.innerHTML='<span class="dt-c-diff">'+esc(M.GREET_NG)+'</span>'; ['dtMdCo','dtMdPs'].forEach(id=>{ const e=$(id); if(e&&!DOC.greetOk(e.value||'x',e.value||'x')) e.classList.add('lg-need'); }); return; }
+    if(!to.length){ st.innerHTML='<span class="dt-c-diff">'+esc(M.TO_NG)+'</span>'; return; }
+    mk.disabled=true; st.textContent='下書きを作成中…'; const text=textNow();
+    try{ const R=await mail30Create(Object.assign({}, d, {subject, to, cc}), DOC.mailHtml(text)); const bad=DOC.mailVerify(R.back, {text, to, cc, subject, quote:R.quote});
+      st.innerHTML=bad.length?'<span class="dt-c-diff" id="dtMdBroken">'+esc(M.BROKEN)+' — '+esc(bad.join(' · '))+'（下書きは下書きフォルダにあります）</span>':'<span class="dt-c-done" id="dtMdOk">Outlook の下書きフォルダに作りました（送っていません） · '+esc(M.OK)+'</span>';
+      if(d.after){ try{ await d.after({subject, to, cc}, R.m); }catch(e){} } toast(bad.length?M.BROKEN:'下書きを作りました',bad.length?'warn':'ok'); render(); }
+    catch(e){ mk.disabled=false; st.innerHTML='<span class="dt-c-diff">'+(e.status===401||e.status===403?'Outlook に下書きを作る権限がありません — 「コピー」 を使ってください':'下書きを作れません: '+esc(e.message))+'</span>'; } };
 }
+/* Outlook の下書き — 返信 (元のメール · 全員に返信 → <body> の直後に自分の HTML · 宛先 = 確認の窓のとおり) か 新しい下書き · 添付 · 読み直し — 送らない (門番 guardMail) */
+async function mail30Create(d, html){ const rc=a=>(a||[]).map(x=>({emailAddress:{address:x}})); let m, quote='';
+  if(d.srcId){ m=await graphMail('POST','me/messages/'+d.srcId+'/createReplyAll',{}); const orig=String((m.body||{}).content||'');
+    quote=(DOC.htmlText(orig).split('\n').map(x=>x.replace(/\s+/g,' ').trim()).filter(x=>x.length>=8)[0]||'').slice(0,60);
+    await graphMail('PATCH','me/messages/'+m.id,{subject:d.subject, body:{contentType:'HTML', content:DOC.mailInsert(orig,'<div>'+html+'</div>')}, toRecipients:rc(d.to), ccRecipients:rc(d.cc), bccRecipients:[]}); }
+  else m=await graphMail('POST','me/messages',{subject:d.subject, body:{contentType:'HTML', content:'<html><body><div>'+html+'</div></body></html>'}, toRecipients:rc(d.to), ccRecipients:rc(d.cc)});
+  for(const a of (d.att||[])){ let buf=a.bytes; if(!buf){ const r=await graphFetch(drv()+'/items/'+a.id+'/content'); if(!r.ok) throw new Error('添付を読めない '+a.name); buf=await r.arrayBuffer(); }
+    await graphMail('POST','me/messages/'+m.id+'/attachments',{'@odata.type':'#microsoft.graph.fileAttachment', name:a.as, contentType:a.ct||(/\.zip$/i.test(a.as)?'application/zip':/\.xlsx$/i.test(a.as)?DOC.V25.XLSX:'application/pdf'), contentBytes:b64buf(buf)}); }
+  const r=await graphFetch(GRAPH+'me/messages/'+encodeURIComponent(m.id)+'?$select=subject,body,toRecipients,ccRecipients'), j=r.ok?await r.json():{};
+  return {m, quote, back:{html:(j.body&&j.body.content)||'', to:(j.toRecipients||[]).map(adrOf), cc:(j.ccRecipients||[]).map(adrOf), subject:j.subject||''}}; }
 function b64buf(buf){ const u=new Uint8Array(buf); let s=''; for(let i=0;i<u.length;i+=0x8000) s+=String.fromCharCode.apply(null, u.subarray(i,i+0x8000)); return btoa(s); }
 async function mailDraftLog(d, m){ const dt=new Date(); MAILD.done[d.iv+'|'+d.kind]=dt.toISOString();
   try{ await spPut(DOC.mailDraftPath(d.iv, d.kind==='acl'?d.type:d.kind, dt), JSON.stringify({kind:'メールの下書き', type:d.type, invoice:d.iv, subject:d.subject, to:d.to, cc:d.cc, att:d.att.map(a=>a.as), outlook:!!m, at:dt.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', by:'書類ツール v'+CFG.version})); }catch(e){} }
@@ -3253,25 +3365,13 @@ async function mailDoneLoad(){ if(MAILD.loaded) return; MAILD.loaded=true; try{ 
 const mailDoneLabel = (iv, kind) => { const t=MAILD.done[DOC.up(iv)+'|'+kind]; return t?'下書き作成済 '+jstHM(t).slice(-5):''; };
 async function mailDraftModal(iv, kind){
   let d; try{ d=await mailDraftBuild(iv, kind); }catch(e){ toast('下書きを作れません: '+e.message,'warn'); return; }
-  const NL='\n', kname=DOC.MAIL19.KINDS[d.type]||DOC.MAIL19.KINDS[d.kind]||'';
-  modal('<div class="dt-h">メールの下書き — '+esc(kname)+' · '+esc(iv)+'</div><div class="dt-note">送るのはご自身で（このツールは送りません）。'+(d.lang&&d.kind!=='acl'?' 言語 '+esc(d.lang):'')+'</div>'+
-    (d.block?'<div class="av-concl av-ng" id="dtMdBlock">'+esc(d.block)+' — 下書きを作りません</div>':'')+
-    d.warn.map(w=>'<div class="dt-note dt-c-todo">'+esc(w)+'</div>').join('')+
-    '<div class="dt-note">件名'+(d.subjFrom?'（前回の件名の形: '+esc(d.subjFrom)+'）':'')+'</div><input class="dt-in" id="dtMdSubj" style="height:34px" value="'+esc(d.subject)+'">'+
-    '<div class="dt-note">宛先 '+(d.toSrc==='thread'?'（元の ACL メールに全員に返信）':d.toSrc==='doc'?'（マスター 書類メール To / CC）':d.toSrc==='master'?'（マスター To / CC）':'')+'</div><div class="dt-p" id="dtMdTo">To: '+esc(d.to.join('; ')||(d.toSrc==='thread'?'（返信先）':'—'))+'<br>CC: '+esc(d.cc.join('; ')||'—')+'</div>'+
-    '<div class="dt-note">添付</div><div class="dt-p" id="dtMdAtt">'+esc(d.att.map(a=>a.as+(a.as!==a.name?'（ファイル '+a.name+'）':'')).join(' · ')||'なし')+'</div>'+
-    '<div class="dt-note">本文</div><textarea class="dt-in" id="dtMdBody" rows="'+Math.min(20,d.body.split(NL).length+2)+'" style="padding:8px 10px;font-family:inherit;font-size:13px">'+esc(d.body)+'</textarea>'+
-    '<div id="dtMdSt" class="dt-note"></div><div class="dt-actions">'+(d.block?'':'<button class="dt-btn" id="dtMdMake">下書きを作る（Outlook）</button>')+
-    '<button class="dt-btn ghost" id="dtMdCopy">コピー（件名 · 宛先 · 本文）</button><button class="dt-btn ghost" data-close>閉じる</button></div>');
-  const st=$('dtMdSt'), mk=$('dtMdMake');
-  $('dtMdCopy').onclick=async()=>{ const t='件名: '+$('dtMdSubj').value+NL+'To: '+d.to.join('; ')+NL+'CC: '+d.cc.join('; ')+NL+'添付: '+d.att.map(a=>a.as).join(', ')+NL+NL+$('dtMdBody').value; try{ await navigator.clipboard.writeText(t); toast('コピーしました','ok'); }catch(e){ toast('コピーできません','warn'); } };
-  if(mk) mk.onclick=async()=>{ mk.disabled=true; st.textContent='下書きを作成中…'; d.subject=$('dtMdSubj').value;
-    try{ await mailDraftCreate(d, $('dtMdBody').value); await mailDraftLog(d, true); st.textContent='Outlook の下書きフォルダに作りました（送っていません）'; toast('下書きを作りました','ok'); render(); }
-    catch(e){ mk.disabled=false; st.innerHTML='<span class="dt-c-diff">'+(e.status===401||e.status===403?'Outlook に下書きを作る権限がありません — 「コピー」 を使ってください':'下書きを作れません: '+esc(e.message))+'</span>'; } };
+  const kname=DOC.MAIL19.KINDS[d.type]||DOC.MAIL19.KINDS[d.kind]||'', t=d.kind==='acl'?d.type:d.kind==='ship'&&d.lang==='ja'?'ship_ja':d.kind;
+  d.title='メールの下書き — '+kname+' · '+iv+(d.lang&&d.kind!=='acl'?' · '+d.lang:''); d.greet=DOC.MAIL30.GREET.indexOf(t)>=0;   // v0.27 (N30)
+  d.after=async o=>{ Object.assign(d,o); await mailDraftLog(d, true); };
+  return mail30Modal(d);
 }
 function aclTabAfter(r){
   const run=$('dtAclRun'); if(run) run.onclick=()=>aclRerun(r.iv);
-  const ml=$('dtAclMail'); if(ml) ml.onclick=()=>aclMail(r.iv);
   const mo=$('dtAclOutlook'); if(mo) mo.onclick=()=>mailDraftModal(r.iv,'acl');   // v0.19
   const mi=$('dtAclMiss'); if(mi) mi.onclick=()=>cpReportModal(r.iv);   // v0.11
   const ar=r.x&&r.x.acl&&r.x.acl.result; if(ar&&r.cells.acl.fresh) trialAppend($('dtIvBody'), (ar.items||[]).filter(i=>/^CP-A/.test(i.cp||'')&&+String(i.cp).slice(4)>=3), r.iv, 'ACL');   // v0.21: 新しい試験の行 (CP-A03 から)
@@ -3282,8 +3382,8 @@ function aclTabAfter(r){
 /* ══════════ v0.12 P2b — B/L Draft タブ (指示書 D00 B/L Draft 2 段階 Step 3 · 原指示書 Step 3 · 5 · 형님 D1 ~ D8 · D2 ~ D4 (2 段階)) ══════════
    エンジン = CONTRACT_SEND/bl_bench.html の <script id="bl-core"> を コミット固定 + sha256 で読み込み、ACL エンジン (同じく固定) を BL.useEngine で渡す (コピーしない)
    基準 = COMPASS (S/I · ブッキング · コンテナ) + L/C 保管所 · ACL は参考 (D1) · 運賃の金額は比べない · チェックポイント (stage BL_DRAFT) は cpLoad のマスター (承認の安全装置つき)
-   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @cedc448 · v0.2 から変わっていない) */
-const BL_ENGINE = {commit:'cedc44849b025aef88f78de71552ae7c65cf391f', sha256:'b3e912e2af6f4bbf8ef6c832321250f174d0f4b259dee53b90e18f1c14d40cfa', ver:'0.6'};   // v0.22: bl_bench v0.6   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
+   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @d733fb5 · v0.2 から変わっていない) */
+const BL_ENGINE = {commit:'d733fb51bbf7500fce1c1e6aecbf774233025481', sha256:'a0d1e940e1dd0288c36f80a65adaf8699c51a6a078722771e4c049c2ab224790', ver:'0.7'};   // v0.27: bl_bench v0.7 (ACL エンジン固定だけ — 判定は v0.6 と同じ)   // v0.22: bl_bench v0.6   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
 BL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+BL_ENGINE.commit+'/bl_bench.html';
 const JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';   // バイヤー用 Draft (画像 PDF) — bl_bench と同じ固定版
 const BL_DPI = 200;
@@ -3386,28 +3486,20 @@ function blTabHtml(r){
   return '<section class="dt-card dt-panel" style="gap:12px">'+head+body+'<div>'+folderLine(r.iv)+'</div><div id="dtBlSt" class="dt-note" style="font-size:13px"></div><div id="dtBlDraft"></div><div class="dt-actions">'+
     (res&&res.webUrl?'<button class="dt-btn ghost" data-url="'+esc(res.webUrl)+'">Draft を開く</button>':'')+
     (can?'<button class="dt-btn ghost" id="dtBlRun">'+(res?'再照合':'照合する')+'</button>':'')+
-    (fix?'<button class="dt-btn" id="dtBlFix">船社への訂正依頼メールの下書き</button>':'')+(lgCan(r)?'<button class="dt-btn" id="dtBlLg">LG を作る</button>':'')+(okd?'<button class="dt-btn" id="dtBlOk">「Draft OK」返信の下書き</button>':'')+
-    (res&&res.fileId?'<button class="dt-btn ghost" id="dtBlBuyerMail">バイヤー宛メールの下書き</button>'+(X&&X.saved?'':'<button class="dt-btn ghost" id="dtBlBuyer">バイヤー用 Draft 作成</button>'):'')+
+    (fix?'<button class="dt-btn" id="dtBlFix">船社への訂正依頼の下書きを作る</button>':'')+(lgCan(r)?'<button class="dt-btn" id="dtBlLg">LG を作る</button>':'')+(okd?'<button class="dt-btn" id="dtBlOk">「Draft OK」返信の下書き</button>':'')+
+    (res&&res.fileId?'<button class="dt-btn ghost" id="dtBlBuyerMail">バイヤー宛の下書きを作る</button>'+(X&&X.saved?'':'<button class="dt-btn ghost" id="dtBlBuyer">バイヤー用 Draft 作成</button>'):'')+
     copyBtn(r.iv)+(S.me.admin?toolBtn('d01'):'')+'<button class="dt-btn ghost" id="dtBlMiss" title="この照合で見つけられなかった違いを報告">見落とし報告</button>'+benchBtn('blb')+'</div><div id="dtBlBuyerSt" class="dt-note" style="font-size:13px"></div>'+list+'</section>';
 }
 /* 元の Draft メール (船社 → 自分のメールボックス) · バイヤーへ前に送ったメールの宛先 — 今日やること で読んだメールから */
 function blMailSource(b){ const ms=(TODO.byBk&&TODO.byBk[b.cr49f_bookingid]||[]).filter(m=>m.uses.indexOf('BLDRAFT')>=0&&m.skind==='carrier').sort((x,y)=>y.t-x.t); return ms[0]||null; }
 function blBuyerTo(b){ const ms=(TODO.byBk&&TODO.byBk[b.cr49f_bookingid]||[]).filter(m=>m.skind==='staff'&&(m.toBuyer||[]).length).sort((x,y)=>y.t-x.t); return ms[0]?[...new Set(ms[0].toBuyer)].join('; '):''; }
-function blMail(iv, type){
-  const r=ivRow(S.cur.b), X=S.blRes&&S.blRes[iv], res=X&&X.res, box=$('dtBlDraft'); if(!res||!box) return;
+function blMail(iv, type){   // v0.27 (N30 · N31): 古いコピーの窓 → 同じ確認の窓 (Outlook の下書き)
+  const r=ivRow(S.cur.b), X=S.blRes&&S.blRes[iv], res=X&&X.res; if(!res) return;
   const src=type==='buyer'?null:blMailSource(r.b), ctx={iv, subject:src?src.subj:'', carrier:res.carrier, person:src?src.fromName:'', to:type==='buyer'?blBuyerTo(r.b):src?src.fromAddr||'':'', blNo:res.blNo,
     buyer:res.buyer, vessel:res.vessel, vietnam:DOC.up(res.country)==='VIETNAM'};
-  const d=DOC.blMailDraft(res, type, ctx), NL='\n', title={fix:'船社への訂正依頼', ok:'「Draft OK」の返信', buyer:'バイヤー宛 (バイヤー用 Draft を付けて送るとき — 添付はご自身で)'}[type];
-  box.innerHTML='<section class="av-final" style="gap:8px"><div class="av-fh">メールの下書き（'+esc(title)+' · 送るのはご自身で）</div>'+
-    '<div class="dt-note">宛先</div><input class="dt-in" style="height:34px" readonly value="'+esc(d.to)+'" placeholder="（見つかりません — 入れてください）">'+
-    '<div class="dt-note">件名</div><input class="dt-in" style="height:34px" readonly value="'+esc(d.subject)+'">'+
-    '<div class="dt-note">本文</div><textarea class="dt-in" readonly rows="'+Math.min(24,d.body.split(NL).length+2)+'" style="padding:8px 10px;font-family:inherit;font-size:13px">'+esc(d.body)+'</textarea>'+
-    (d.read?'<div class="dt-note dt-c-todo">読めないところが '+d.read+' か所あります — Draft を開いて目で確かめてから</div>':'')+
-    '<div class="dt-actions">'+(d.to?'<button class="dt-btn ghost sm" data-copy="'+esc(d.to)+'">宛先をコピー</button>':'')+'<button class="dt-btn ghost sm" data-copy="'+esc(d.subject)+'">件名をコピー</button><button class="dt-btn ghost sm" id="dtBlBody">本文をコピー</button>'+
-    (src&&src.web?'<button class="dt-btn sm" data-url="'+esc(src.web)+'">Outlook で元の Draft メールを開く（返信 → 貼り付け）</button>':type==='buyer'?'':'<span class="dt-note">元の Draft メールが見つかりません — 返信に本文を貼り付けてください</span>')+'</div></section>';
-  bindCommon(box);
-  const bb=$('dtBlBody'); if(bb) bb.onclick=async()=>{ try{ await navigator.clipboard.writeText(d.body); toast('本文をコピーしました','ok'); }catch(e){ toast('コピーできません','warn'); } };
-  S.lastBlDraft=d;
+  const d0=DOC.blMailDraft(res, type, ctx), title={fix:'船社への訂正依頼', ok:'「Draft OK」の返信', buyer:'バイヤー宛（バイヤー用 Draft は ご自身で添付）'}[type], dom=String((LEENAI.user&&LEENAI.user.email)||'').split('@')[1]||'';
+  const warn=[]; if(d0.read) warn.push('読めないところが '+d0.read+' か所 — Draft を開いて目で確かめてから'); if(type!=='buyer'&&!(src&&src.id)) warn.push('元の B/L Draft メールが見つかりません — 新しいメールの下書きになります');
+  mail30Modal({kind:'bl', type:'bl'+type, iv, title:'メールの下書き — '+title+' · '+iv, subject:d0.subject, body:d0.body, to:splitAddr(d0.to), cc:dom&&type!=='buyer'?['rcp@'+dom]:[], srcId:src&&src.id||'', att:[], greet:type!=='buyer', warn, block:''});
 }
 /* ── バイヤー用 Draft (運賃を隠す · 画像 PDF · 형님 D4 · D5 · D6 · 2 段階 D2 · D3 · D4) — bl_bench v0.2 bl-app の写し ── */
 async function ensureJsPdf(){ if(window.jspdf&&window.jspdf.jsPDF) return; await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=JSPDF; s.onload=res; s.onerror=()=>rej(new Error('jsPDF を読めない')); document.head.appendChild(s); }); }
@@ -3609,33 +3701,15 @@ async function lgSave(cur){ const st=$('dtLgSt'), bt=$('dtLgSave'); bt.disabled=
     if(test) (SAVE.extra[cur.iv]=SAVE.extra[cur.iv]||[]).push({name, kind:'LG'}); else if(f&&f.files) f.files.push({id:cur.saved.id, name, size:blob.size, lastModified:new Date().toISOString()});
     lgRender(cur); toast((test?'【試験】 ':'')+name+' を保存しました','ok'); renderSoon(); }
   catch(e){ st.textContent='保存できません: '+e.message; bt.disabled=false; } }
-function lgMailOpen(cur){ const box=$('dtLgDraft'); if(!box||!cur.saved) return;
+async function lgMailOpen(cur){ if(!cur.saved) return;   // v0.27 (N30 · N31): LG の窓の中の下書き → 同じ確認の窓
   const s=blMailSource(cur.b), dom=String((LEENAI.user&&LEENAI.user.email)||'').split('@')[1]||'';
-  const d=DOC.lgMailDraft({pat:cur.pat, carrier:cur.carrier, iv:cur.iv, bl:cur.bl, bkg:cur.bkg, vessel:cur.vessel, blocks:cur.blocks, src:s&&s.id?{id:s.id, subj:s.subj}:null, att:cur.saved.name, rcpDom:dom}), NL='\n';   // v0.26 (N26): 本船 · 航海 · Invoice も件名に
-  cur.draft=d;
-  box.innerHTML='<section class="av-final" style="gap:8px"><div class="av-fh">LG 訂正依頼の下書き（送るのはご自身で）'+(d.mode==='reply'?' — 元の B/L Draft メールに全員に返信':'')+'</div>'+
-    (d.block?'<div class="av-concl av-ng">'+esc(d.block)+' — 下書きを作りません</div>':'')+d.warn.map(w=>'<div class="dt-note dt-c-todo">'+esc(w)+'</div>').join('')+
-    '<div class="dt-note">件名</div><input class="dt-in" id="dtLgSubj" style="height:32px" value="'+esc(d.subject)+'">'+
-    '<div class="dt-note">宛先</div><div class="dt-p">To: '+esc(d.to.join('; ')||(d.mode==='reply'?'（返信先）':'—'))+'<br>CC: '+esc(d.cc.join('; ')||'—')+'</div>'+
-    '<div class="dt-note">添付</div><div class="dt-p">'+esc(d.att.map(a=>a.as+'（ファイル '+a.name+'）').join(' · '))+'</div>'+
-    '<div class="dt-note">本文</div><textarea class="dt-in" id="dtLgBody" rows="'+Math.min(18,d.body.split(NL).length+2)+'" style="padding:8px 10px;font-family:inherit;font-size:13px">'+esc(d.body)+'</textarea>'+
-    '<div id="dtLgMSt" class="dt-note"></div><div class="dt-actions">'+(d.block?'':'<button class="dt-btn" id="dtLgMake">下書きを作る（Outlook）</button>')+'<button class="dt-btn ghost" id="dtLgCopy">コピー（件名 · 宛先 · 本文）</button></div></section>';
-  bindCommon(box);
-  $('dtLgCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText('件名: '+$('dtLgSubj').value+NL+'To: '+d.to.join('; ')+NL+'CC: '+d.cc.join('; ')+NL+'添付: '+d.att.map(a=>a.as).join(', ')+NL+NL+$('dtLgBody').value); toast('コピーしました','ok'); }catch(e){ toast('コピーできません','warn'); } };
-  const mk=$('dtLgMake'); if(mk) mk.onclick=async()=>{ mk.disabled=true; const st=$('dtLgMSt'); st.textContent='下書きを作成中…'; d.subject=$('dtLgSubj').value;
-    try{ await lgMailCreate(cur, d, $('dtLgBody').value); st.textContent='Outlook の下書きフォルダに作りました（送っていません）'; toast('下書きを作りました','ok'); }
-    catch(e){ mk.disabled=false; st.innerHTML='<span class="dt-c-diff">'+(e.status===401||e.status===403?'Outlook に下書きを作る権限がありません — 「コピー」 を使ってください':'下書きを作れません: '+esc(e.message))+'</span>'; } }; }
+  const d0=DOC.lgMailDraft({pat:cur.pat, carrier:cur.carrier, iv:cur.iv, bl:cur.bl, bkg:cur.bkg, vessel:cur.vessel, blocks:cur.blocks, src:s&&s.id?{id:s.id, subj:s.subj}:null, att:cur.saved.name, rcpDom:dom});
+  if(!cur.bytes){ try{ await lgBuild(cur); }catch(e){ toast('LG を作れません: '+e.message,'warn'); return; } }
+  mail30Modal({kind:'lg', type:'lg', iv:cur.iv, title:'LG 訂正依頼の下書き — '+cur.iv+' · '+cur.carrier, subject:d0.subject, body:d0.body, to:d0.to, cc:d0.cc, srcId:d0.srcId||'', greet:false, warn:d0.warn||[], block:d0.block||'',
+    att:(d0.att||[]).map(a=>({as:a.as, name:a.name, bytes:cur.bytes, ct:DOC.V25.XLSX})),
+    after:async(o)=>{ const dt=new Date(); MAILD.done[cur.iv+'|lg']=dt.toISOString(); try{ await spPut(DOC.lgDraftPath(cur.iv, dt), JSON.stringify({kind:'メールの下書き', type:'lg', invoice:cur.iv, carrier:cur.carrier, subject:o.subject, to:o.to, cc:o.cc, att:(d0.att||[]).map(a=>a.as), lg:cur.saved&&cur.saved.name||'', test:!!(cur.saved&&cur.saved.test), outlook:true, at:dt.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', by:'書類ツール v'+CFG.version})); }catch(e){} }});
+}
 /* Outlook の下書き — 返信 (元の Draft メール · 全員に返信) か 新しい下書き · 添付 = 今作った LG (船社の名前の形) · 送らない (門番 guardMail) */
-async function lgMailCreate(cur, d, body){ const rc=a=>a.map(x=>({emailAddress:{address:x}})); let m;
-  if(d.srcId){ m=await graphMail('POST','me/messages/'+d.srcId+'/createReplyAll',{comment:body}); const have=(m.toRecipients||[]).concat(m.ccRecipients||[]).map(x=>String(x.emailAddress&&x.emailAddress.address||'').toLowerCase()), add=d.cc.filter(a=>have.indexOf(a)<0);
-    await graphMail('PATCH','me/messages/'+m.id,Object.assign({subject:d.subject}, add.length?{ccRecipients:(m.ccRecipients||[]).concat(rc(add))}:{})); }
-  else m=await graphMail('POST','me/messages',{subject:d.subject, body:{contentType:'Text', content:body}, toRecipients:rc(d.to), ccRecipients:rc(d.cc)});
-  if(!cur.bytes) await lgBuild(cur);
-  for(const a of d.att) await graphMail('POST','me/messages/'+m.id+'/attachments',{'@odata.type':'#microsoft.graph.fileAttachment', name:a.as, contentType:DOC.V25.XLSX, contentBytes:b64buf(cur.bytes)});
-  const dt=new Date(); MAILD.done[cur.iv+'|lg']=dt.toISOString();
-  try{ await spPut(DOC.lgDraftPath(cur.iv, dt), JSON.stringify({kind:'メールの下書き', type:'lg', invoice:cur.iv, carrier:cur.carrier, subject:d.subject, to:d.to, cc:d.cc, att:d.att.map(a=>a.as), lg:cur.saved&&cur.saved.name||'', test:!!(cur.saved&&cur.saved.test), outlook:true, at:dt.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', by:'書類ツール v'+CFG.version})); }catch(e){}
-  cur.draftId=m.id; return m; }
-
 /* ══════════ v0.21 FD タブ — FD 確認 (指示書 THOR_15 Part ③ · 形さん F1 · F2 · F3) ══════════
    エンジン = CONTRACT_SEND/fd_bench.html の <script id="fd-core"> を コミット固定 + sha256 で読む (ACL · B/L と同じ方式 · コピーしない)
    読む所: {IV}_FD_DATA.pdf > {IV}_.pdf (文字版) > DRAFT DOC > 単品 > 通関/ ([通関版]) · FD.pdf · TO BANK は 文言に使わない
@@ -4309,6 +4383,7 @@ function ctFdDone(id){ const L=(S.ctBk&&S.ctBk[id])||[]; return L.length>0&&L.ev
 function todoExtraOf(b, seenCt){
   const iv=DOC.up(b.cr49f_invoice_no), ctId=b._cr49f_sale_contract_id_value, c=S.ct[ctId]||{}, no=DOC.up(c.cr49f_sale_contract_no), fo=S.folders[iv], F=fo&&fo.files||null, dec=TODO.fnameDec[iv]||{};
   const x={iv, ct:no};
+  x.ctInfo=no?ctInfoOf(ctId, no):null;   // v0.27 (N27)
   if(no&&!seenCt.has(no)&&isLcPay(c)){ const cl=DOC.judgeCt({pay:'LC', fdDone:ctFdDone(ctId), lcFiles:S.lcFiles?(S.lcFiles[no]||[]).map(f=>f.name):undefined, lcOrig:lcOrigFor(no), sis:S.sis[ctId]}); if(cl.si.lcStale){ x.lcStale=true; seenCt.add(no); } }
   /* v0.17 (E1): S/I に別の契約番号 → 契約に 1 行 */
   if(no&&!seenCt.has('oc:'+no)&&(S.sis[ctId]||[]).length){ const oc=DOC.otherCts(DOC.siTexts(S.sis[ctId]), no); if(oc.length){ x.otherCt=oc; seenCt.add('oc:'+no); } }
@@ -4328,6 +4403,9 @@ function todoExtraOf(b, seenCt){
   const now=TODO.asof!=null?TODO.asof:DOC.jst(new Date().toISOString()), r=ivRow(b), car=TODO.carriers[b._cr49f_carrier_id_value]||'';
   return DOC.todoExtra(x, now).map(e=>{ e.group=DOC.todoGroup(e,now); e.when=DOC.whenLabel(e,now); return Object.assign(e,{iv, ctId, carrier:car, country:r.country, staff:r.staff, b}); });
 }
+/* v0.27 (N27): 契約の船積 — Invoice の一覧 · まだ出ていない船積 (ETD が今日以後 · ETD なし) の一番早い CY_CUT · 全部出た */
+function ctInfoOf(ctId, no){ const bs=S.bk.filter(b=>b._cr49f_sale_contract_id_value===ctId), un=bs.filter(b=>{ const e=DOC.etdOf(b); return !e||e>=S.today; });
+  const cuts=un.map(b=>DOC.isoDay(b.cr49f_cy_cut)).filter(Boolean).sort(); return {no, ivs:bs.map(b=>DOC.up(b.cr49f_invoice_no)).filter(Boolean).sort(), due:cuts[0]?DOC.at(cuts[0], DOC.TODO_RULES.FIX.cutPm):null, allShipped:bs.length>0&&!un.length}; }
 /* v0.15 (B10 · B11): 担当の判断 — この Invoice のファイル (FD の判断にも使う) · 別の Invoice · 確認した (メール) → doc_tool/state/fname に記憶 (1 回) */
 async function fnDecide(iv, key, decision, btn){
   if(!iv||!key||['this','other','ack'].indexOf(decision)<0) return; if(btn) btn.disabled=true;
@@ -4412,7 +4490,8 @@ function renderTodo(){
   const n=k=>(G[k]||[]).length, zn=z=>R.TGROUPS.filter(g=>g[1]===z).reduce((a,g)=>a+n(g[0]),0);
   if(S.fdLatest===undefined) fdLatestLoad().then(()=>renderTodo()).catch(()=>{});   // v0.21: FD 確認の結果 (名前だけ)
   const rowH=r=>'<div class="tl-row'+(r.zone==='wait'?' tl-wait':'')+'"><div class="tl-due tl-d-'+esc(r.group)+'">'+esc(r.when)+(r.whenSub?'<span class="tl-sub">'+esc(r.whenSub)+'</span>':'')+'</div>'+
-    '<div class="tl-iv"><button class="dt-link" data-tdiv="'+esc(r.iv)+'" data-tdtab="">'+esc(r.iv)+'</button> <span class="dt-note">'+esc([r.carrier,r.country].filter(Boolean).join(' · ')||'—')+'</span></div>'+
+    '<div class="tl-iv">'+(r.ctRow?'<button class="dt-link" data-tdct="'+esc(r.ctId||'')+'">'+esc(r.ctRow.no)+'</button> <span class="dt-note tl-ivs" title="'+esc(r.ctRow.ivs.join(' · '))+'">'+esc(DOC.ctIvsLabel(r.ctRow.ivs))+'</span>'   // v0.27 (N27): 契約の行
+      :'<button class="dt-link" data-tdiv="'+esc(r.iv)+'" data-tdtab="">'+esc(r.iv)+'</button> <span class="dt-note">'+esc([r.carrier,r.country].filter(Boolean).join(' · ')||'—')+'</span>')+'</div>'+
     '<div class="tl-what">'+esc(r.what)+(r.gkey==='fd'?fdTodoBadge(r.iv):'')+'</div><div class="tl-why dt-note" title="'+esc(r.why)+'">'+esc(r.why)+(r.folderWait?' · フォルダ確認中':'')+'</div>'+
     '<div class="tl-act">'+(r.action&&r.action[1]==='ctsi'?'<button class="dt-btn ghost sm" data-tdct="'+esc(r.ctId||'')+'">'+esc(r.action[0])+'</button>':r.action?'<button class="dt-btn ghost sm" data-tdiv="'+esc(r.iv)+'" data-tdtab="'+esc(r.action[1])+'">'+esc(r.action[0])+'</button>':'')+
       (r.fn?(r.fn.kind==='file'?'<button class="dt-btn ghost sm" data-tdfn="this" data-fniv="'+esc(r.iv)+'" data-fnkey="'+esc(r.fn.key)+'">この Invoice のファイル</button><button class="dt-btn ghost sm" data-tdfn="other" data-fniv="'+esc(r.iv)+'" data-fnkey="'+esc(r.fn.key)+'">別の Invoice</button>'
@@ -4829,7 +4908,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.26', date:'2026-11-26',
+  sys:'D-00', name:'書類ツール', version:'0.27', date:'2026-11-26',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

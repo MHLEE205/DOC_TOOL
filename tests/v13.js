@@ -46,9 +46,9 @@ let saved=null;
   ok(A.length>10&&B.length>=7&&A.every(r=>['SAME','NOTATION','REF','UNKNOWN','DIFF','SI_BLANK'].indexOf(r.class)>=0)&&B.some(r=>r.item==='Consignee bank'&&/^DIFF/.test(r.result))&&A.some(r=>r.cp==='CP-B56'),'결과 전부 — A · B (판정 = 코드 · CP 번호)',{A:A.slice(0,3),B:B.slice(0,2)});
   ok(!HG.test(t),'저장한 결과 JSON 에 한글 0',(t.match(/.{0,30}[가-힯].{0,30}/)||[])[0]);
   /* 4 직원 화면 — B/L Draft 탭 · 메일 下書き 3 · ACL 탭 */
-  const b1=txt(w,'dtIvBody'); w.document.getElementById('dtBlFix').click(); await X.until(()=>!!w.document.querySelector('#dtBlDraft textarea'));
-  const m1=w.document.querySelector('#dtBlDraft textarea').value; w.document.getElementById('dtBlBuyerMail').click(); await X.until(()=>/\[B\/L Draft for/.test([...w.document.querySelectorAll('#dtBlDraft input')].map(x=>x.value).join('|')));
-  const m2=w.document.querySelector('#dtBlDraft textarea').value, ttl=[...w.document.querySelectorAll('#dtIvBody [title]')].map(x=>x.getAttribute('title')).join('\n');
+  const b1=txt(w,'dtIvBody'); w.document.getElementById('dtBlFix').click(); await X.until(()=>!!w.document.getElementById('dtMdBody'));
+  const m1=w.document.getElementById('dtMdBody').value; w.document.getElementById('dtBlBuyerMail').click(); await X.until(()=>!!w.document.getElementById('dtMdSubj')&&/\[B\/L Draft for/.test(w.document.getElementById('dtMdSubj').value));
+  const m2=w.document.getElementById('dtMdBody').value, ttl=[...w.document.querySelectorAll('#dtIvBody [title]')].map(x=>x.getAttribute('title')).join('\n');
   ok(!HG.test(b1)&&!HG.test(m1)&&!HG.test(m2)&&!HG.test(ttl),'B/L Draft 탭 글자 · 마우스 설명 (title) · 메일 下書き 에 한글 0',[(b1.match(/.{0,30}[가-힯].{0,30}/)||[])[0],(ttl.match(/.{0,30}[가-힯].{0,30}/)||[])[0]]);
   ok(/足りない語: /.test(ttl+b1)||/Consignee 銀行 \(46A\)/.test(b1),'이유 = 일본어 (Consignee 銀行 (46A) · 足りない語)',b1.slice(0,200));
   ok(/■ Consignee \(L\/C 46A の銀行\)/.test(m1),'정정 메일 = 코드에서 일본어 칸 이름 (Consignee bank → 「Consignee (L/C 46A の銀行)」)',m1.slice(0,300));

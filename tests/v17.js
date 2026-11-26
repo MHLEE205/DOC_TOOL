@@ -119,7 +119,7 @@ function world17(){
   const box=txt(w,'dtTodoBox'); ok(!/メール \d+ 通|初回表示|ACL 照合結果|本登録メール \d+ 通/.test(box),'D2 메일 통수 · 初回表示 = 직원에게 안 보임',box.slice(-300));
   const dues=qa(w,'.tl-z-do .tl-due').map(d=>d.firstChild?d.firstChild.textContent:''); ok(dues.length&&dues.every(t=>/^期限(切れ)? \d+\/\d+$|^—$|^ETD 後に B\/L 依頼$|^メール確認中…$|^メール未確認$|^通関待ち$/.test(t)),'D4 왼쪽 칸 = 모두 「期限 …」 모양',dues);
   ok(!/\d+h \/ \d+h|LG 済|後払い船社は|本日|昨日 B\/L 受領/.test(box),'D4 · D5 · D6 · D7 옛 글자 없음',box.match(/.{0,30}(\d+h \/|LG 済|後払い船社は|本日|昨日).{0,30}/));
-  ok(/別の契約番号: LRS-2609BB2/.test(box),'E1 今日やること 빨강 「別の契約番号」',box.slice(0,400));
+  ok(!/別の契約番号: LRS-2609BB2/.test(box),'E1 → v0.27 (N27): 다 나간 계약 (NBB2611-01 ETD 지남) = 参考 · 今日やること 에 안 나옴 (S/I 탭은 빨강 그대로)',box.slice(0,400));
   { const L=qa(w,'#dtTodoBox .tl-what, #dtTodoBox .tl-why, #dtTodoBox .tl-due, #dtTodoBox .tl-gh, #dtTodoBox .tl-zh').map(e=>e.textContent).filter(t=>JSP.test(t)); ok(!L.length,'D15 일본어 사이 띄어쓰기 없음 (今日やること 각 칸)',L); }
   ok(!/a1_bench|bl_bench|acl_bench|D-01|UTC/.test(txt(w,'dtMain')),'B1 · D10 · F4 직원 화면 = a1_bench · D-01 · UTC 0');
   /* E1 S/I 탭 · D13 · D14 */

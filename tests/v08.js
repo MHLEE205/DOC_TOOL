@@ -16,7 +16,7 @@ console.log('6 메일 초안');
 { const it=(o)=>Object.assign({group:'S/I 文面', key:'x', label:'X', status:'MATCH', expected:'', actual:'', detail:'', kind:''},o);
   const ctx={subject:'RE: 【ACL確認依頼】 RE: 【通関書類送付_TEST2699-01】', company:'TEST 乙仲', person:'担当 太郎', iv:'TEST2699-01'};
   const h=DOC.aclMailDraft({invoice:'TEST2699-01', items:[it({status:'MATCH'}),it({status:'NOTATION'}),it({status:'INFO'})]}, ctx);
-  ok(h.type==='hon'&&h.subject==='[本登録依頼] Re: 【ACL確認依頼】 RE: 【通関書類送付_TEST2699-01】'&&/^TEST 乙仲 担当 太郎 様/.test(h.body)&&/本登録をお願いいたします。/.test(h.body)&&/許可書とACLのご送付ありがとうございます。/.test(h.body),'問題なし (一致 · 表記差 · 参考) → 本登録 A · 제목 태그 [本登録依頼] Re: {元の件名} (앞 RE: 정리)',h);
+  ok(h.type==='hon'&&h.subject==='[本登録依頼] Re: 【ACL確認依頼】 RE: 【通関書類送付_TEST2699-01】'&&/^いつもお世話になっております。/.test(h.body)&&!/様/.test(h.body.split('\n')[0])&&/本登録をお願いいたします。/.test(h.body)&&/許可書とACLのご送付ありがとうございます。/.test(h.body),'問題なし (一致 · 表記差 · 参考) → 本登録 A · 제목 태그 [本登録依頼] Re: {元の件名} (앞 RE: 정리)',h);
   const f=DOC.aclMailDraft({invoice:'TEST2699-01', items:[it({key:'consignee', label:'Consignee', status:'DIFF', expected:'TO ORDER OF SAMPLE BANK', actual:'TO ORDER OF SAMPLE BNK'}),it({key:'set:TSTU0000001', label:'セット', group:'コンテナ', status:'DIFF', expected:'シール SL1', actual:'シール SL9'}),
     it({key:'disp:agentSign', label:'Agent Signature Request Identifier', group:'NACCS 表示欄', status:'DIFF', expected:'1', actual:'(空欄)'}),it({key:'lc:pod', label:'揚地 (S/I ↔ L/C)', group:'L/C', status:'DIFF', expected:'X', actual:'Y'})]}, ctx);
   ok(f.type==='fix'&&/^\[ACL訂正依頼\] Re: /.test(f.subject)&&f.blocks===3,'相違 → 정정 · 제목 [ACL訂正依頼] · 블록 3 (S/I ↔ L/C 는 빼고)',f);
@@ -26,9 +26,9 @@ console.log('6 메일 초안');
   const v=DOC.aclMailDraft({invoice:'TEST2699-01', items:[it({key:'vessel', label:'Ocean Vessel + Voy.No.', group:'本船・港', status:'DIFF', expected:'NEW STAR 102W', actual:'OLD STAR 101W', action:'本船変更依頼'})]}, ctx);
   ok(v.type==='vessel'&&/^\[本船変更依頼\] Re: /.test(v.subject)&&/\(OLD STAR 101W → NEW STAR 102W\)/.test(v.body),'本船変更 → 정정 B [本船変更依頼] · (旧本船 航海 → 新本船 航海)',v);
   ok(!/赤字部分/.test(v.body)&&/何卒よろしくお願い申し上げます。$/.test(v.body),'本船変更 만 → 정정 B 끝맺음 (赤字 문구 없음)',v.body);
-  const ad=DOC.aclMailDraft({invoice:'TEST2699-01', items:[]},{company:'TEST 乙仲', person:'someone@example.test'}); ok(/^TEST 乙仲 様/.test(ad.body),'보낸 사람 표시 이름이 주소 → 이름 칸에 쓰지 않음',ad.body.split('\n')[0]);
+  const ad=DOC.aclMailDraft({invoice:'TEST2699-01', items:[]},{company:'TEST 乙仲', person:'someone@example.test'}); ok(!/someone@example\.test/.test(ad.body),'보낸 사람 표시 이름이 주소 → 본문에 쓰지 않음 (v0.27: 宛名 = 확인 창)',ad.body.split('\n')[0]);
   const d=DOC.aclMailDraft({invoice:'TEST2699-01', items:[it({key:'disp:freight', label:'Freight As Arranged', group:'NACCS 表示欄', status:'DIFF', expected:'1', actual:'(空欄)'})]}, {});
-  ok(d.type==='fix'&&/^ご担当者様/.test(d.body)&&!/赤字部分/.test(d.body)&&/^\[ACL訂正依頼\] Re: TEST2699-01 ACL$/.test(d.subject),'표시 칸만 → 정정 B 만 · 宛名 모르면 「ご担当者様」 · 원 제목 모르면 Invoice',d);
+  ok(d.type==='fix'&&/^いつもお世話/.test(d.body)&&!/赤字部分/.test(d.body)&&/^\[ACL訂正依頼\] Re: TEST2699-01 ACL$/.test(d.subject),'표시 칸만 → 정정 B 만 · 宛名 모르면 「ご担当者様」 · 원 제목 모르면 Invoice',d);
   const o=DOC.aclMailDraft({invoice:'TEST2699-01', items:[it({key:'lc:originals', label:'原本通数 (L/C 46A ↔ ACL)', group:'L/C', status:'DIFF', expected:'1', actual:'3'})]}, {});
   ok(/Number of Original B\(S\)\/L欄へ 1 のご入力/.test(o.body),'L/C 46A 원본 통수 다름 → ACL 표시 칸 정정 (乙仲에게)',o.body);
   const app=HTML.split('<script id="doc-app">')[1]||'';
@@ -37,10 +37,10 @@ console.log('6 메일 초안');
 console.log('6 화면 — ACL 탭 下書き');
 { const W=X.world(), w=await X.page(W,{html:HFILE, ls:{doc_tool_who:'all',doc_tool_hide_fd:'0'}});
   w.document.querySelector('#dtTable button[data-iv="NAA2611-01"][data-tab="acl"]').click();
-  await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&!!w.document.getElementById('dtAclMail'));
-  const op0=W.opened.length; w.document.getElementById('dtAclMail').click(); await X.sleep(20);
-  const dr=w.document.getElementById('dtAclDraft'); ok(dr&&/メールの下書き/.test(dr.textContent)&&/^\[ACL訂正依頼\] Re: /.test(dr.querySelector('input').value)&&W.opened.length===op0,'ACL 탭 → 下書き 패널 (창 안 열림)',dr&&dr.textContent.slice(0,200));
-  ok(/元の ACL メールが見つかりません/.test(dr.textContent),'원본 메일을 못 찾음 → 본문 복사만 안내');
+  await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&!!w.document.getElementById('dtAclOutlook'));
+  const op0=W.opened.length; w.document.getElementById('dtAclOutlook').click(); await X.until(()=>!!w.document.getElementById('dtMdBody'));
+  const dr=w.document.getElementById('dtModalBox'); ok(dr&&/メールの下書き/.test(dr.textContent)&&/^\[ACL訂正依頼\] Re: /.test(w.document.getElementById('dtMdSubj').value)&&W.opened.length===op0,'ACL 탭 → 下書き 확인 창 (창 안 열림 · v0.27 버튼 1 개)',dr&&dr.textContent.slice(0,200));
+  ok(/元の ACL メールが見つかりません/.test(dr.textContent),'원본 메일을 못 찾음 → 새 메일 안내');
   ok(!W.writes.some(x=>/graph\.microsoft\.com\/v1\.0\/me\//.test(x.url)),'메일함 쓰기 0'); }
 
 console.log('7 이름 · 補助 · FD 本日');

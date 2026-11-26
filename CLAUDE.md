@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 = 2026-11-26)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 = 2026-11-26)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -61,8 +61,8 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 | 엔진 | 파일 | 커밋 | sha256 |
 |---|---|---|---|
-| ACL 대조 (acl_bench v0.21 · v0.24 — 42C 결제 조건 부분만 `payTerm` (N11) · CP-A04 = L/C 42C 원문 그대로 (공백 · 대소문자만 表記差) · FAX 메일 칸) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `cedc44849b025aef88f78de71552ae7c65cf391f` | `9d38893f16ec12c42ebf918ed6dabe38171b2ac146213c4392dfb1a3930d261e` |
-| B/L Draft 대조 (bl_bench v0.6 · v0.24 = 같은 커밋 · 내용 변화 없음) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `cedc44849b025aef88f78de71552ae7c65cf391f` | `b3e912e2af6f4bbf8ef6c832321250f174d0f4b259dee53b90e18f1c14d40cfa` |
+| ACL 대조 (acl_bench v0.22 · v0.27 — N28 S/I 「**」 이어쓰기 = 그 칸 안에서만 · ACL 에만 있는 연락처 줄 = 表記差 · 주요 칸 못 비교 = 読取確認 / N29 D-03 기본값 = D-03 원문 · 기본값 글 = 一致) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `249317df8aaa5b48b63b75c59570168a57f9a923` | `a7eb06ce5b5db3f6dbe9d838c2d0e331dba5434fa75d2bdc9f78ab8272f99e90` |
+| B/L Draft 대조 (bl_bench v0.7 · v0.27 = ACL 엔진 고정만 바꿈 · bl-core 판정 = v0.6 과 같음) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `d733fb51bbf7500fce1c1e6aecbf774233025481` | `a0d1e940e1dd0288c36f80a65adaf8699c51a6a078722771e4c049c2ab224790` |
 | FD 확인 (fd_bench v0.3 · v0.24 = 같은 커밋 · 내용 변화 없음) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `cedc44849b025aef88f78de71552ae7c65cf391f` | `463bc7bbb44e9a8cbba4041ad1c79a7e11dfd966fb810950cedaa3357b7de846` |
 | S/I 추천 (a1_bench v0.12) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `435799c54de2718d069c6a9fe1090eb0148ae70f` | `4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd` |
 
@@ -202,6 +202,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - N19 `aclWordFix` · `blWordFix` — 「S/I 文面」 표 = 낱말 단위 (`wordDiff` LCS · `#` · 줄바꿈 · 공백 · 대소문자 무시 · 빠진 · 다른 낱말만 `av-hl`) · 엔진 HTML 의 표만 바꿈 (툴팁 · 결론 그대로 · 관리자 화면의 title 도).
   - N21 서명 = `master_staff` `sign_img` (`D-00/lg/signatures/{메일}.png` 만) · `sign_ok` · **확인됨 = sign_ok true + 그 줄을 마지막으로 바꾼 사람 (SharePoint 판 기록 `rowLastChangers`) = 관리자** (`signState` — 직원이 ⚙ 로 true 해도 효과 없음). 아니면 LG 를 만들지 않음. 양식의 서명 그림 자리 = `templates/{선사}/cells.json` 의 `sign` (社印 은 안 바꿈) · 그림은 양식 그림 비율의 판에 (`signFit`).
   - N23 ONE 依頼者名 = `name_en` 대문자 (`lgPerson`) · N24 CNC 양식 = SharePoint 양식 (코드 0) · N26 `lgMailDraft` 제목 = 실적 모양 + (BL#) + 本船 · 航海 + ` / {IV}` (답장 = `Re:` 앞) · 본문 = 정정 목록 없음 · `lgAttCheck` = 머리의 Invoice.
+
+- **v0.27 (지시서 `THOR_25_지시서_D00_書類ツールv0.27` · 묶음 v0.17 N30 · N31 · N28 · N29 · N27)** — 규칙 · 낱말은 doc-core `DOC.MAIL30` **한 곳**
+  - N30 下書き = C-01 (HANNYU_TOOL `js/customs.js` · `source.js` · `config.js`) 과 같은 모양 — 본문 `mailHtml` (escape → `<br>` · Meiryo 10.5pt div) · 답장 = `createReplyAll` HTML 의 `<body>` 바로 뒤 (`mailInsert` · 원문 인용 · 그림 그대로) · 새 메일도 같은 HTML · 서명 `MAIL30.SIG` (master_staff 일본어 이름 · 메일) · 꼬리말 · 인사 `{相手の会社名}\n{担当者} 様` (`mailGuess` = COMPASS 乙仲 정식 이름 (도메인 같음) → 같은 대화에서 직원이 그 상대에게 쓴 인사 (`mailGreeting` = C-01 greeting) → 상대 서명 · 표시 이름 · 못 찾으면 빈칸 = 만들지 않음) · 확인 창에 실제 To · CC (`replyAllTo` · 고칠 수 있음) · 만든 뒤 다시 읽어 `mailVerify` (줄바꿈 · 서명 · 꼬리말 · 인용 · 받는 사람) — 다르면 「下書きの形が崩れています」.
+  - N31 확인 창 = `mail30Modal` 하나 (ACL · Deposit · 船積書類 · B/L Draft · LG) · ACL 탭 옛 복사 창 (`aclMail`) 없앰 · ACL 이 参考 (`c.ref`) 면 下書き 버튼 없음. 메일함 쓰기 = `graphMail` (문지기 `guardMail` — 下書き 만들기 · 고치기 · 첨부만).
+  - N27 今日やること S/I 줄 = 계약 1 줄 (`ctRowOpt` · `ctInfoOf` — 계약번호 · Invoice 작게 · 기한 = 안 나간 선적 (ETD = B/L ETD 우선 ≥ 오늘) 의 가장 이른 CY_CUT · 없으면 회색 「—」 · 모두 나간 계약 = 参考 (안 나옴)).
+  - N19 낱말 표 = D-03 고정 문언 (FREIGHT PREPAID AS ARRANGED) 빨강 0.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

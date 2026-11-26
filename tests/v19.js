@@ -62,7 +62,7 @@ function world19(){ const W=X.world();
 { const W=world19(); W.itemBytes={dd1:Buffer.from('%PDF-1.4 dd'), fd1:Buffer.from('%PDF-1.4 fd')};
   const w=await X.page(W,{html:HFILE, ls:{doc_tool_who:'all'}});
   w.eval("openIv('NAA2611-01','depo')"); await X.until(()=>/NAA2611-01/.test(txt(w,'dtIvSum')),5000); await X.sleep(30);
-  const bt=w.document.querySelector('#dtIvBody [data-mail="depo"]'); ok(bt&&bt.textContent==='下書きを作る','DEPO 탭 「下書きを作る」');
+  const bt=w.document.querySelector('#dtIvBody [data-mail="depo"]'); ok(bt&&/下書きを作る$/.test(bt.textContent),'DEPO 탭 「…下書きを作る」');
   bt.click(); await X.until(()=>!w.document.getElementById('dtModal').hidden&&!!w.document.getElementById('dtMdSubj'),5000);
   ok(w.document.getElementById('dtMdSubj').value==='[Deposit Request for NAA2611-01] #2699/1126_BUYER-A'&&/To: a@buyer-a\.example\.test/.test(txt(w,'dtMdTo'))&&/rcp@example\.test/.test(txt(w,'dtMdTo'))&&/NAA2611-01_DRAFT DOC\.pdf（ファイル NAA2611-01_DRAFT D0C\.pdf）/.test(txt(w,'dtMdAtt')),'확인 창 — 제목 · 받는 사람 (마스터 + rcp@) · 첨부 (이름 바로잡음)',[txt(w,'dtMdTo'),txt(w,'dtMdAtt')]);
   w.document.getElementById('dtMdMake').click(); await X.until(()=>/作りました/.test(txt(w,'dtMdSt'))||/作れません|権限/.test(txt(w,'dtMdSt')),5000);

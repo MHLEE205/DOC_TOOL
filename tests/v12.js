@@ -30,8 +30,8 @@ console.log('1 규칙');
     CP:[{label:'Consignee は L/C 46A の文言どおり',status:'DIFF',trial:false,actual:'X',expected:'Y'},{label:'試験',status:'INFO',trial:true,would:'DIFF',actual:'A',expected:'B'}]};
   const f=DOC.blMailDraft(res,'fix',{carrier:'SAMPLE LINE', person:'Taro Sample', to:'cs@carrier.test', blNo:'TESTBL1', subject:'RE: B/L Draft TESTBK1'});
   ok(f.subject==='[訂正依頼BL#TESTBL1] Re: B/L Draft TESTBK1'&&f.to==='cs@carrier.test'&&f.blocks===3,'訂正 — 件名 [訂正依頼BL#{B/L 番号}] Re: · 宛先 · 相違 3 (A · B · 有効 CP — 試験 CP · 같음 은 넣지 않음)',f);
-  ok(/^SAMPLE LINE Taro Sample 様/.test(f.body)&&/■ Consignee\n（現在）TO THE ORDER OF OTHER BANK\n（訂正後）TO THE ORDER OF SAMPLE BANK/.test(f.body)&&/■ L\/C 番号の記載 \(L\/C 47A\)/.test(f.body)&&f.read===1,'訂正 — 본문 (欄 · 現在 · 訂正後) · 읽지 못한 곳 수',f.body);
-  const o=DOC.blMailDraft(res,'ok',{subject:'FW: B/L Draft TESTBK1', person:'cs@carrier.test'}); ok(o.subject==='Re: B/L Draft TESTBK1'&&/^ご担当者様/.test(o.body)&&/問題ございません/.test(o.body)&&o.to==='','Draft OK — Re: 원 제목 · 이름 모르면 「ご担当者様」 · 宛先 없으면 빈칸',o);
+  ok(/^いつもお世話になっております。/.test(f.body)&&!/様$/m.test(f.body.split('\n')[0])&&/■ Consignee\n（現在）TO THE ORDER OF OTHER BANK\n（訂正後）TO THE ORDER OF SAMPLE BANK/.test(f.body)&&/■ L\/C 番号の記載 \(L\/C 47A\)/.test(f.body)&&f.read===1,'訂正 — 본문 (欄 · 現在 · 訂正後) · 읽지 못한 곳 수',f.body);
+  const o=DOC.blMailDraft(res,'ok',{subject:'FW: B/L Draft TESTBK1', person:'cs@carrier.test'}); ok(o.subject==='Re: B/L Draft TESTBK1'&&/^いつもお世話/.test(o.body)&&/問題ございません/.test(o.body)&&o.to==='','Draft OK — Re: 원 제목 · 이름 모르면 「ご担当者様」 · 宛先 없으면 빈칸',o);
   const b=DOC.blMailDraft(res,'buyer',{buyer:'BUYER A', vessel:'SAMPLE VESSEL 001', vietnam:true}), b2=DOC.blMailDraft(res,'buyer',{});
   ok(b.subject==='[B/L Draft for NAA2611-01]'&&/Dear BUYER A,/.test(b.body)&&/SAMPLE VESSEL 001/.test(b.body)&&/Deposit number/.test(b.body)&&!/Deposit/.test(b2.body)&&b2.to===''&&/Dear Sir or Madam/.test(b2.body),'バイヤー宛 — 件名 · 본선 · 베트남만 Deposit · 宛先 없으면 빈칸',[b,b2]); }
 
@@ -74,12 +74,12 @@ console.log('3 화면 — 직원');
   ok(!/試験中のチェック/.test(t),'직원 = CP-A01 試験 줄 안 보임');
   ok(!!body.querySelector('[data-url="https://example.test/sp/NAA2611-01_DRAFT.pdf"]'),'「Draft を開く」');
   ok(!!w.document.getElementById('dtBlFix')&&!w.document.getElementById('dtBlOk')&&!!w.document.getElementById('dtBlBuyerMail')&&!!w.document.getElementById('dtBlBuyer'),'相違 → 訂正依頼 · バイヤー宛 · バイヤー用 버튼 (Draft OK 없음)');
-  w.document.getElementById('dtBlFix').click(); await X.until(()=>!!w.document.querySelector('#dtBlDraft textarea'));
-  const ins=[...w.document.querySelectorAll('#dtBlDraft input')].map(x=>x.value), ta=w.document.querySelector('#dtBlDraft textarea').value;
+  w.document.getElementById('dtBlFix').click(); await X.until(()=>!!w.document.getElementById('dtMdBody'));
+  const ins=[w.document.getElementById('dtMdToIn').value, w.document.getElementById('dtMdSubj').value], ta=w.document.getElementById('dtMdBody').value;
   ok(ins[0]==='desk@one-line.example.test'&&/^\[訂正依頼BL#TESTBL1\] Re: B\/L Draft TESTBK1$/.test(ins[1])&&/Consignee/.test(ta)&&/OTHER BANK/.test(ta),'訂正依頼 下書き — 宛先 = Draft メールの送り手 · 件名 · 본문',{ins,ta:ta.slice(0,300)});
-  ok(!!w.document.querySelector('#dtBlDraft [data-url="https://example.test/mail/d1"]'),'「Outlook で元の Draft メールを開く」');
-  w.document.getElementById('dtBlBuyerMail').click(); await X.until(()=>/\[B\/L Draft for NAA2611-01\]/.test([...w.document.querySelectorAll('#dtBlDraft input')].map(x=>x.value).join('|')));
-  const bi=[...w.document.querySelectorAll('#dtBlDraft input')].map(x=>x.value), bt=w.document.querySelector('#dtBlDraft textarea').value;
+  ok(/全員に返信/.test(w.document.getElementById('dtModalBox').textContent),'元の Draft メールに 全員に返信 の下書き (v0.27)');
+  w.document.getElementById('dtBlBuyerMail').click(); await X.until(()=>!!w.document.getElementById('dtMdSubj')&&/\[B\/L Draft for NAA2611-01\]/.test(w.document.getElementById('dtMdSubj').value));
+  const bi=[w.document.getElementById('dtMdToIn').value, w.document.getElementById('dtMdSubj').value], bt=w.document.getElementById('dtMdBody').value;
   ok(bi[0]===''&&/Deposit number/.test(bt)&&/SAMPLE VESSEL 001/.test(bt),'バイヤー宛 — 宛先 없음 = 빈칸 · 베트남 = Deposit 한 줄',{bi,bt});
   w.document.getElementById('dtBlBuyer').click(); await X.until(()=>!w.document.getElementById('dtModal').hidden);
   const mt=w.document.getElementById('dtModalBox').textContent; ok(/強い依頼/.test(mt)&&/ベトナム向け Deposit 依頼/.test(mt)&&/当社書類の頁/.test(mt)&&/画像の PDF/.test(mt),'バイヤー用 — 확인 문구 (① 강한 요청 ② 베트남 Deposit · 当社書類 뺌)',mt);
@@ -96,8 +96,8 @@ console.log('3 화면 — 직원');
   const w2=await X.page(W2,{...INIT, html:HFILE, first:true}); await X.until(()=>w2.eval('CPS.state')==='ok'&&w2.eval('TODO.mailSt')!=='load',20000); await openBl(w2,'NBB2611-01');
   w2.document.getElementById('dtBlRun').click(); await X.until(()=>/照合しました|照合できません|読めない所があります/.test(txt(w2,'dtIvBody')),30000);
   const v2=(w2.eval("S.blRes&&S.blRes['NBB2611-01']")||{res:{verdict:txt(w2,'dtIvBody').slice(0,300)}}).res.verdict; ok(v2!=='相違','L/C 와 같은 Draft → 相違 아님 ('+v2+')',txt(w2,'dtIvBody').slice(0,300));
-  if(w2.document.getElementById('dtBlOk')){ w2.document.getElementById('dtBlOk').click(); await X.until(()=>!!w2.document.querySelector('#dtBlDraft textarea'));
-    ok(/^Re: B\/L Draft TESTBK3$/.test(w2.document.querySelectorAll('#dtBlDraft input')[1].value)&&/問題ございません/.test(w2.document.querySelector('#dtBlDraft textarea').value),'「Draft OK」 返信 — Re: 원 제목'); }
+  if(w2.document.getElementById('dtBlOk')){ w2.document.getElementById('dtBlOk').click(); await X.until(()=>!!w2.document.getElementById('dtMdBody'));
+    ok(/^Re: B\/L Draft TESTBK3$/.test(w2.document.getElementById('dtMdSubj').value)&&/問題ございません/.test(w2.document.getElementById('dtMdBody').value),'「Draft OK」 返信 — Re: 원 제목'); }
   else ok(false,'「Draft OK」 버튼 없음',v2); }
 
 console.log('4 화면 — 관리자 (試験 줄)');

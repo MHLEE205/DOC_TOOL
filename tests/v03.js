@@ -66,7 +66,7 @@ const CSV_H='発信者,発信日時(JST),月,件名,返信/転送,件名規則,�
   ok(B.querySelectorAll('.av-diff').length>=1&&B.querySelector('.av-diff .av-hl')&&!/追加「|脱落「/.test(B.textContent),'#4 ③ 相違만 펼침 — ACL · S/I（正） 나란히 · 다른 글자만 색 · 글자 단위 문장 없음');
   ok(!/crcf9_|ブッキング POD/.test(B.innerHTML)&&!B.querySelector('.av-list tr[title]'),'#4 직원 화면: 내부 이름 · 근거 문장 없음 (title 없음)');
   w.eval('S.me.admin=true; renderIv()'); ok(!!w.document.querySelector('#dtIvBody .av-list tr[title]'),'#4 관리자: 근거는 마우스를 올리면 (title)'); w.eval('S.me.admin=false');
-  ok(!!B.ownerDocument.querySelector('#dtAclMail')&&!!B.ownerDocument.querySelector('#dtAclRun'),'#4 버튼 그대로 (訂正依頼メール · 再照合)');
+  ok(!B.ownerDocument.querySelector('#dtAclMail')&&!!B.ownerDocument.querySelector('#dtAclOutlook')&&!!B.ownerDocument.querySelector('#dtAclRun'),'#4 버튼 (下書き 1 개 · 再照合) — v0.27 N31');
   w.document.querySelector('#dtIv [data-back]').click();
   w.document.getElementById('dtQ').value='NBB2611-01'; w.document.getElementById('dtGo').click();
   await X.until(()=>w.document.getElementById('dtIv').style.display==='flex'&&/NBB2611-01/.test(txt(w,'dtIvSum')));
