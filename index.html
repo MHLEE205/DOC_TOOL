@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.28</title>
+<title>LEENAI D-00 書類ツール v0.29</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -19,14 +19,14 @@ html{--dt-on-accent:#FFFFFF;
   --rs-ok:#1E6B3A;--rs-note:#6E5A00;--rs-ng:#A3200F;--rs-read:#9A4300;--rs-na:#5F6763;--rs-note-bar:#C9A800;--rs-read-bar:#E07A1F;--dv-hl:rgba(255,214,0,.30);--dv-hl-line:#E0A800;
   --mk-ok-bg:#E3F3E8;--mk-ok-fg:#15803D;--mk-now-bg:#FCEBD0;--mk-now-fg:#9A4A06;--mk-ng-bg:#FBE0E0;--mk-ng-fg:#B42318;--mk-wait-bg:#E1ECFA;--mk-wait-fg:#1D5FB8;--mk-todo-bg:#ECEEF1;--mk-todo-fg:#5B6472;--mk-na-fg:#8A939E;--mk-unk-bg:#ECEEF1;--mk-unk-fg:#5B6472;
   --bd-late:#ef4444;--bd-today:#f59e0b;--bd-soon:#3b82f6;--du-late-bg:#FBE0E0;--du-late-fg:#9B1C1C;--du-today-bg:#FCEBD0;--du-today-fg:#7A4300;--du-soon-bg:#E1ECFA;--du-soon-fg:#1E3A5F;
-  --v8-alt:rgba(0,0,0,.025);--v8-sel:#E6EEFC;--v8-line:#2f6fe4;--v8-req-bg:#FBE0E0;--v8-req-fg:#9B1C1C;--v8-req-bd:#F1B5B5;--v8-band:#EEF3FA;--v8-band-bd:#D5E0EE;--v8-link:#1D5FB8;--v8-sub:#5F6873;--v8-today-bg:#fde047;--v8-today-fg:#1a1a1a}   /* v0.22 (V5): 一致 緑 · 表記差 黄 · 相違 赤 (太字) · 読めず 橙 · 対象外 灰 */
+  --v8-ts-on:#DCF2E3;--v8-alt:rgba(0,0,0,.025);--v8-sel:#E6EEFC;--v8-line:#2f6fe4;--v8-req-bg:#FBE0E0;--v8-req-fg:#9B1C1C;--v8-req-bd:#F1B5B5;--v8-band:#EEF3FA;--v8-band-bd:#D5E0EE;--v8-link:#1D5FB8;--v8-sub:#5F6873;--v8-today-bg:#fde047;--v8-today-fg:#1a1a1a}   /* v0.22 (V5): 一致 緑 · 表記差 黄 · 相違 赤 (太字) · 読めず 橙 · 対象外 灰 */
 html:not([data-theme]),html[data-theme="dark"]{--dt-on-accent:#FFFFFF;
   --st-done-bg:#143A27;--st-done-fg:#8EE8AE;--st-todo-bg:#3D2C0C;--st-todo-fg:#F7CF6B;--st-diff-bg:#441A1A;--st-diff-fg:#FDA4A4;
   --st-wait-bg:#1E1A24;--st-wait-fg:#FF8A80;--st-unk-bg:#2C3148;--st-unk-fg:#C2CAD8;--st-na-fg:#9AA3B5;--dt-dot-wait:#FF6F61;--dt-dot-unk:#8F98AB;--td-late-bg:#C8402F;--td-late-fg:#FFFFFF;--td-chase-bg:#1E2A3B;--td-chase-fg:#A9C7EE;--dt-hl:#2B2512;--dt-now:#1D3328;
   --rs-ok:#8EE8AE;--rs-note:#F5DC5A;--rs-ng:#FF9C8F;--rs-read:#FFB26B;--rs-na:#A3ACBD;--rs-note-bar:#E8C930;--rs-read-bar:#FF9A3D;--dv-hl:rgba(255,214,0,.28);--dv-hl-line:#FFD600;
   --mk-ok-bg:#12301f;--mk-ok-fg:#22c55e;--mk-now-bg:#3a2a10;--mk-now-fg:#f5a524;--mk-ng-bg:#3a1616;--mk-ng-fg:#ff6b6b;--mk-wait-bg:#142a44;--mk-wait-fg:#60a5fa;--mk-todo-bg:#1c222d;--mk-todo-fg:#8b93a1;--mk-na-fg:#4b5563;--mk-unk-bg:#2C3148;--mk-unk-fg:#C2CAD8;
   --du-late-bg:#5a1d1d;--du-late-fg:#ffb4b4;--du-today-bg:#4a3410;--du-today-fg:#ffd38a;--du-soon-bg:#24303f;--du-soon-fg:#c3d4ea;
-  --v8-alt:rgba(255,255,255,.025);--v8-sel:#1b2a44;--v8-line:#2f6fe4;--v8-req-bg:#3a1d1d;--v8-req-fg:#ff9b9b;--v8-req-bd:#6b2a2a;--v8-band:#15212f;--v8-band-bd:#22344a;--v8-link:#7fb0ff;--v8-sub:#8b93a1}
+  --v8-ts-on:#14391f;--v8-alt:rgba(255,255,255,.025);--v8-sel:#1b2a44;--v8-line:#2f6fe4;--v8-req-bg:#3a1d1d;--v8-req-fg:#ff9b9b;--v8-req-bd:#6b2a2a;--v8-band:#15212f;--v8-band-bd:#22344a;--v8-link:#7fb0ff;--v8-sub:#8b93a1}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui,'Segoe UI',sans-serif}
 .ln-hdr-right button[title="マスター設定"]{display:none!important}
 .dt-main{max-width:1240px;margin:0 auto;padding:20px 24px 48px;display:flex;flex-direction:column;gap:16px}
@@ -251,6 +251,8 @@ button.st:hover{border-color:currentColor}
 .sv-done{border-top:1px solid var(--surface3);padding-top:6px}
 @media (max-width:720px){.tl-row{grid-template-columns:1fr}.tl-act{text-align:left}.tl-why{white-space:normal}}
 @media (max-width:720px){.td-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.td-row{grid-template-columns:1fr}.td-act{text-align:left}.dt-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.dt-grid3{grid-template-columns:1fr}.dt-main{padding:16px}}
+/* v0.29: その先 (畳む) · 通関 チェック (緑) */
+.v8-t tr.v8-fold td{padding:6px 10px;background:var(--v8-band);border-top:1px solid var(--v8-band-bd)}.v8-foldb{background:none;border:0;color:var(--v8-link);font:inherit;font-weight:600;cursor:pointer;padding:0}.v8-t td.v8-ts-on{background:var(--v8-ts-on)}
 /* ══════════ v0.28 (U1 ~ U9) — 目録 (形さん OK) どおり · 色は 2 つの表 (明るいモード · ダーク) だけ ══════════ */
 /* U1 窓の幅いっぱい (両側 16 px) · 上の帯を薄く */
 .dt-main{max-width:none;margin:0;padding:6px 16px 24px;gap:8px}
@@ -356,7 +358,6 @@ input.dt-in.v8-today{padding:0 4px;color-scheme:light}
     <div class="v8-bar" id="dtBar">
       <div class="dt-seg v8-seg"><button id="dtBIv" class="on">Invoice</button><button id="dtBCt">契約</button><button id="dtBTodo" hidden>今日やること</button></div>
       <span class="v8-lbl">担当</span><span id="dtWho" class="v8-who"></span>
-      <span id="dtCutBox" class="v8-range"><label for="dtCutF">CY CUT</label><input type="date" id="dtCutF"><span>〜</span><input type="date" id="dtCutT" aria-label="CY CUT まで"></span>
       <span id="dtCtCtl" class="v8-range" style="display:none"><span>契約日</span><span id="dtCtPeriod" class="v8-who"></span></span>
       <button id="dtTodo" class="v8-req">要対応のみ</button><button id="dtAll" class="v8-all on">すべて</button>
       <label class="v8-lbl" for="dtSort">並び</label><select id="dtSort" class="v8-sel"></select>
@@ -427,6 +428,7 @@ input.dt-in.v8-today{padding:0 4px;color-scheme:light}
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
    v0.27 (2026-11-26 指示書 THOR_25 · 修正まとめ v0.17): N30 下書き = C-01 と同じ形 (本文 HTML · 改行 · 署名 · 末尾 · あいさつ 「{相手の会社名}／{担当者} 様」 · 返信は元のメールの引用のまま · 実際の To / CC · 作ったら読み直して確かめる) · N31 同じ仕事に ボタン 1 つ (ACL の古いコピーの窓を やめる · 参考の ACL は 訂正依頼のボタンなし) · N28 · N29 エンジン acl v0.22 (S/I 「**」 の続き = その欄の中 · 主要な欄を比べられない = 読取確認 · D-03 の既定値 = 一致) · N27 S/I 確認 = 契約 1 行 (契約番号 · Invoice は小さく · 期限 = まだ出ていない船積の一番早い CY_CUT · 無ければ 灰色の —)
+   v0.29 (2026-11-26 指示書 THOR_27 · 修正まとめ v0.24 + 追加 2 つ): U10 ETD を一番左 · ETD の近い順 (契約の表 · 右のパネルの一覧も) · U11 要対応 = やること + 催促 · U12 国内転売を表から外す (規則 1 か所) · U13 通関 = チェック 1 つ · U14 見える範囲 (過ぎた ETD = FD送付日 があれば終わり · これから = +14 日 · その先は畳む · FD 済 · 畳んだ行は フォルダを読まない) · CY CUT の範囲の欄をやめる · N35 OBL → 入金 → SWB (doc_staff obl_then_swb · 着金日 = COMPASS crcf9_payment_date · BL TYPE 変更依頼の下書き) · 送金 ③ 振込 確認済 (手入力) · 判定のほかは v0.28 と同じ
    v0.28 (2026-11-26 指示書 THOR_26 · 修正まとめ v0.21): 画面を大きく変える (B-06 の形 · 目録どおり · 判定は変えない) — U1 窓の幅いっぱい · U2 一覧 = 表 1 つ (今日やること + Invoice 別 · 1 行 = 1 Invoice · Invoice / 契約 = 2 行) · U3 段階 = 色の印 (✓ ● ◆ ◐ ○ ―) · U4 要対応のみ = 今日やること の やること の行 (期限順 · 左の色の帯) · U5 行を押すと右のパネル (← → ⤢ ✕ · #iv=…&tab=…) · U6 操作の行 (担当の色の点 · CY CUT · 検索 1 つ · ☰ 列 · 同期の一行) · U7 列の出所 C P M A · U8 契約の表 · U9 保存の入口 = 畳む帯 · 今日の日付 = 黄色 (形さん追加) · N33 依頼者名 = name_en_full · N34 LG 件名 = すべての船社で同じ形
    v0.26 (2026-11-26 指示書 THOR_24 · 修正まとめ v0.12): N17 Invoice 別 に 「通関依頼済」 の補助のチェック (C-01 を通らない例外 · PORTAL v4.11 と同じ欄 tsukan_irai · tsukan_irai_at · tsukan_irai_off_at · 欄単位 · eTag · C-01 が書いた行は 「C-01」) · N18 後の段階で直った ACL 相違 = 「参考（B/L で訂正済み）」 (B/L Draft の最新の版で S/I と同じ) · B/L 発行 · FD 済 = 参考 · 本登録 「—（後の段階で確認済み）」 · N19 ACL · B/L Draft の違い = 語の単位 (# · 改行 · 空白を無視 · 抜けた · 違う語だけ赤) · N21 LG の署名 = ログインした人の署名の画像 (master_staff sign_img · 管理者が確認した人だけ · 様式の画像を入れ替え · 大きさ · 位置そのまま) · 管理者の 「署名の画像の確認」 · N23 ONE 依頼者名 = name_en · N24 CNC 様式の宛名 (SharePoint の様式) · N26 LG 下書きの件名 = 船社の形 + B/L 番号 + 本船 · 航海 + Invoice · 本文 = 訂正の一覧なし
    v0.25 (2026-11-25 指示書 MAC-THOR_23 · LG 訂正依頼): 船社の LG 様式 (D-00/lg/ · 11 船社 · 実際に送った LG を様式に) に 値を入れて 同じ Excel の形で作る (シートの XML のセルだけ書き換え · 線 · 結合 · 印影の画像はそのまま) · 訂正前 = B/L Draft の欄 · 訂正後 = S/I (L/C) · ベトナム = Deposit 番号 (バイヤーの返事から候補 · いつも 確認) · 「LG を保存」 = {IV}_LG.xlsx (REV · 上書きしない · 試験モード = save_test) · 5 番目の下書き 「LG 訂正依頼」 (船社のメール実績の宛先 · 件名 · 本文 · 添付の名前 · 送らない)
@@ -799,7 +801,7 @@ const DOC = (()=>{
     if(res.fieldHead&&res.fieldHead.indexOf('crcf9_payment_deadline')<0) return out;
     Object.keys(res.rec.sinos).forEach(sn=>{ const r=res.rec.sinos[sn]||{}, b=String(r.crcf9_payment_deadline==null?'':r.crcf9_payment_deadline); if(b!==t){ r.crcf9_payment_deadline=t; out.push({sino:sn, before:b, after:t}); } res.rec.sinos[sn]=r; });
     if(out.length) res.deadlineFix=out; return out; }
-  const isDomestic = x => { x=x||{}; return /^L/i.test(String(x.iv||'').trim())||/^LS-/i.test(String(x.ct||'').trim())||up(x.country)==='JAPAN'; };
+  const isDomestic = x => { x=x||{}; return /^L/i.test(String(x.iv||'').trim())||/^LS-/i.test(String(x.ct||'').trim())||up(x.country)==='JAPAN'||/国内転売/.test(String(x.carrier||'')+' '+String(x.pod||'')); };   // v0.29 (U12): 船社 · POD 「国内転売」 も
   const ctDone = cells => { const l=cells&&cells.lc, s=cells&&cells.si; return !!(l&&s&&(l.s==='done'||l.s==='na')&&s.s==='done'&&!s.tent&&!s.lcStale); };
   /* FNV-1a 32 bit → 8 桁 (結果の 項目 · 判定 · 期待 · 実際 · 読んだ PDF — 時刻は入れない) */
   function fdHash(res){ const t=JSON.stringify([((res&&res.items)||[]).map(i=>[i.key, i.trial?i.would:i.status, i.expected, i.actual]), ((res&&res.read)||[]).map(r=>[r.type, r.file])]);
@@ -1087,6 +1089,7 @@ const DOC = (()=>{
       ['insrr','do','保険・RR 準備','B/L 受領 → CIF は保険、韓国向けは RR（FD は保険・RR の後）',''],
       ['fd','do','FD 作成・送付','B/L 受領 → FD を作って送る',''],
       ['fdlc','do','L/C 原本宅配','L/C の FD → 18:00 に宅配',''],
+      ['swb','do','SWB 切替依頼（入金後）','OBL → 入金 → SWB のバイヤー: COMPASS の着金日が入った → 船社に BL TYPE 変更依頼（L/G 付き）',''],   // v0.29 (N35)
       ['w_otsu','wait','乙仲','ACL 待ち · 訂正 ACL 待ち',''],
       ['w_carrier','wait','船社','Draft 待ち · 訂正 Draft 待ち · B/L 待ち',''],
       ['w_buyer','wait','バイヤー','Deposit 番号待ち','']],
@@ -1221,6 +1224,8 @@ const DOC = (()=>{
     S.pay=x.payDate?(S.bmail!=null&&dayOf(S.bmail)===x.payDate?S.bmail:at(x.payDate,TR.FIX.pay)):null; S.payPlan=false;
     /* v0.14 (1-1 社長 D1): COMPASS に支払日が入っていれば (先の日付も) 送金は担当の処理済み = 「送金 予定」 · asof (試験) は前と同じ (その時刻より前だけ) */
     if(S.pay!=null&&!ok(S.pay)){ if(asof) S.pay=null; else S.payPlan=true; }
+    /* v0.29 (追加 2): ③ Invoice 別 「振込 = 確認済」 — COMPASS 支払日 (①) · 振込明細のメール (②) が無いときだけ · Draft の後 · 時刻 = いちばん後の Draft (手入力) */
+    if(S.pay==null&&S.bmail==null&&!noPay&&P.furi==='確認済'&&drafts.length){ S.pay=drafts[drafts.length-1]; S.payManual=true; }
     const payDone=S.payPlan?null:S.pay;
     if(!ok(S.bmail)) S.bmail=null;
     /* ⑥ B/L 受領 — 実データ (2026-11-22 · 200 件): B/L date (crcf9_bl_etd) は 193 件に入っていて 71 件は先の日付 (ETD と同じ 82 件) = 前もって入っている →
@@ -1281,6 +1286,7 @@ const DOC = (()=>{
     /* ⑤ B/L 依頼 済 → 待ち · 船社 */
     if(S.bmail!=null) return wait(6,'w_carrier','B/L',S.bmail,'bl',x.carrier,'B/L 待ち','B/L 依頼済 '+md(S.bmail)+' · 未着');
     /* ④ 送金 済 (予定日を含む · 1-1) → B/L 発行依頼 */
+    if(S.pay!=null&&!noPay&&S.payManual) return R(5,'blreq','B/L 発行依頼（振込明細）','振込 確認済（手入力 · Invoice 別）· COMPASS 支払日なし · 依頼メールなし',{dueText:'手入力', payManual:true});   // v0.29 (追加 2 ③)
     if(S.pay!=null&&!noPay) return R(5,'blreq','B/L 発行依頼（振込明細）',(S.payPlan?'送金予定 ':'送金 ')+md(S.pay)+' · 依頼メールなし',{due:at(dayOf(S.pay),TR.FIX.day), payPlan:!!S.payPlan});
     /* ③ B/L Draft */
     if(S.drafts.length){
@@ -1720,7 +1726,7 @@ const DOC = (()=>{
   /* ══ v0.19 業者メールの下書き (指示書 THOR_12 · 형님 M1 「大場 상 방식으로 통일」 · M2 言語) — 文はこの表 1 か所 · 送らない ══
      本文 = 토르_7 カタログの 大場さんの実際の文 (挨拶 · 署名は Outlook) · ko は韓国語の本文 (画面の文字ではないので \\u で書く) · 誤字 (DRAFT D0C · for for) は表で直してある */
   const MAIL19 = {
-    KINDS:{hon:'本登録依頼', fix:'ACL訂正依頼', depo:'Deposit Request', ship:'船積書類送付'},
+    KINDS:{hon:'本登録依頼', fix:'ACL訂正依頼', depo:'Deposit Request', ship:'船積書類送付', swb:'BL TYPE変更依頼'},
     RCP:'rcp@{dom}', CHECK:'確認してください（前のメールの宛先）', NO_TO:'宛先が分かりません — 入力してください',
     DEPO:{subj:'[Deposit Request for {IV}] #{PO}_{BUYER}', body:['Dear {NAME},','','Please kindly find attached file and let us know the deposit number for this shipment.','IV# {IV}','{BLLINE}','','Thanks,'],
       att:[{re:'^{IV}_DRAFT\\s*D[O0]C(\\s*REV\\d*)?\\.pdf$', as:'{IV}_DRAFT DOC{REV}.pdf', need:true}]},
@@ -1730,7 +1736,7 @@ const DOC = (()=>{
       ja:{subj:'船積書類送付_{IV}', body:['いつも大変お世話になっております。','本件、出港確認できましたので、船積書類を添付にて送付いたします。','{IV}','ご確認のほどよろしくお願いいたします。']},   // v0.20 (R5): 実際に送った文 (短い形)
       att:[{re:'^{IV}_FD\\d*(\\s*REV\\d*)?\\.pdf$', as:'{IV}_FD.pdf', need:true},{re:'^{IV}_RR\\d*\\.pdf$', as:'{IV}_RR.pdf', need:false}]},
     KIND_RE:{depo:/DRAFT\s*D[O0]C/i, ship:/(?:^|[_\s])(?:FD|RR)\d*(?:[_\s.]|$)/i},
-    MAX_ATT:3*1024*1024, LANGS:['en','ko','ja'], DIR:'mail_draft/', RE:/^[A-Za-z0-9_\-]+_(?:hon|fix|vessel|depo|ship|lg)_\d{8}-\d{6}\.json$/
+    MAX_ATT:3*1024*1024, LANGS:['en','ko','ja'], DIR:'mail_draft/', RE:/^[A-Za-z0-9_\-]+_(?:hon|fix|vessel|depo|ship|lg|swb)_\d{8}-\d{6}\.json$/
   };
   /* ══ v0.20 (指示書 THOR_14 · 形さん R2 · R3 · R5) — 件名 = そのバイヤーに同じ種類で送った いちばん新しい件名の形 · zip · 日本語本文 = 実際に送った文 ══ */
   const MAIL20 = {
@@ -2168,7 +2174,7 @@ const DOC = (()=>{
     CO_RE:/(株式会社|㈱|有限会社|合同会社|\(株\)|（株）|Co\.,?\s*Ltd|CO\.,?\s*LTD|Corporation|Corp\.|Inc\.|LIMITED|Ltd\.)/i,
     STOP_RE:/^(いつも|お世話|お疲れ|平素|大変お世話)/, SKIP_RE:/^[※*＊■□●◆【\[〔>＞-]/, SAMA_RE:/\s*(様|さま)\s*$/,
     /* あいさつを入れる下書き (日本語の相手) — ACL (本登録 · 訂正 · 本船変更) · B/L Draft (訂正 · OK) · 船積書類 (日本語) */
-    GREET:['hon','fix','vessel','blfix','blok','ship_ja']
+    GREET:['hon','fix','vessel','blfix','blok','ship_ja','swb']
   };
   const mailLines = t => String(t||'').replace(/[​﻿]/g,'').replace(/[　 ]/g,' ').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
   /* 本文の先頭の あいさつ (会社名 / 〇〇 様) — C-01 customs.js greeting() と同じ決まり (先頭 6 行 · 「いつも」 などの前まで · 「様」 で終わる最初の行 = 担当者 · その上 (2 行まで) = 会社名) */
@@ -2232,11 +2238,12 @@ const DOC = (()=>{
     LEGEND:[['ok','✓','済'],['now','●','今やる'],['ng','◆','相違 · 期限切れ'],['wait','◐','相手待ち'],['todo','○','まだ'],['na','―','対象外']],
     SRC:[['C','COMPASS'],['P','入力'],['M','メール'],['A','AI']],
     /* 一覧の列 (目録 ① の順) — [key, 見出し, 出所, 隠せる] · 段階の 7 列は STEPS の順 (通関 · ACL · B/L · DEP · 保険 · RR · FD) */
-    COLS:[['cut','CY CUT','C',1],['etd','ETD','C',1],['eta','ETA','C',1],['pol','POL','C',1],['iv','Invoice · 契約','C',0],['bkg','BKG','C',1],['ship','船社 · 本船','C',1],['staff','担当','',1],
+    COLS:[['etd','ETD','C',1],['eta','ETA','C',1],['cut','CY CUT','C',1],['pol','POL','C',1],   // v0.29 (U10): ETD を一番左
+     ['iv','Invoice · 契約','C',0],['bkg','BKG','C',1],['ship','船社 · 本船','C',1],['staff','担当','',1],
       ['st','段階','',0],['next','次にやること','M',0],['pay','振込','P',1],['fd','FD送付日','P',1],['memo','備考','P',1]],
     ST_HEAD:[['customs','通関'],['acl','ACL'],['bl','B/L'],['depo','DEP'],['ins','保険'],['rr','RR'],['fd','FD']],
     /* 契約の表 (U8) */
-    CT_COLS:[['ct','契約 · バイヤー','C',0],['date','契約日','C',1],['country','国','C',1],['item','ITEM','C',1],['latest','最終船積日','C',1],['ship','船積','C',1],['staff','担当','',1],['st','L/C · S/I','',0],['other','別の契約番号','A',1],['next','次にやること','M',0]],
+    CT_COLS:[['etd','ETD','C',1],['ct','契約 · バイヤー','C',0],['date','契約日','C',1],['country','国','C',1],['item','ITEM','C',1],['latest','最終船積日','C',1],['ship','船積','C',1],['staff','担当','',1],['st','L/C · S/I','',0],['other','別の契約番号','A',1],['next','次にやること','M',0]],
     /* U6 担当の色 — 目録 (大場 · 朴 成旭 · 朴 秀旻) · ほかは B-06 と同じ決まり (港の担当マスターの並び → 色) */
     STAFF_COLOR:[['大場','#f472b6'],['朴成旭','#34d399'],['朴秀旻','#a78bfa']], B06_COLORS:['#1c7ed6','#d6336c','#2f9e44','#e8590c','#7048e8','#0c8599','#c92a2a','#9c7a00'], STAFF_NONE:'#8b93a1',
     SORTS:[['etd','ETD 順'],['due','期限順'],['cut','CY CUT 順']],
@@ -2273,7 +2280,61 @@ const DOC = (()=>{
   /* N34: LG の件名の頭 = [LG付き訂正依頼:BL#{B/L (無ければ BKG)}] {本船 航海} / {Invoice} */
   const lgHead28 = c => { const x=c||{}, no=String(x.bl||x.bkg||'').trim(), vv=String(x.vessel||'').replace(/\s+/g,' ').trim(); return V28.LG_HEAD.replace('{NO}',no)+(vv?' '+vv:'')+(x.iv?' / '+up(x.iv):''); };
 
+  /* ══════════ v0.29 (指示書 THOR_27 · 修正まとめ v0.24 U10 ~ U14 · N35 · N36) ══════════
+     U14 見える範囲 = 日付ではなく 「終わったか」 — 過ぎた ETD = 下の端なし (FD送付日 があれば終わり = 表から外す · なければ残る) ·
+         これから = ETD 今日 〜 +14 日だけ開く · その先は 表の一番下に畳む (この PC に記憶) · FD 済 · 畳んだ行は フォルダ · メール · エンジンを読まない
+     N35 OBL → 入金 → SWB のバイヤー (master_doc_staff の obl_then_swb · 最初 = RA (R.A.) · DD (DDT)) — FD送付日 があっても SWB まで残す */
+  const V29 = {
+    FOLD_DAYS:14, FOLD_KEY:'doc_tool_fold_far_v29', PAST_DAYS:90,
+    FOLD:'その先（ETD {d} 日以降）{n} 件', FOLD_REQ:'その先（ETD {d} 日以降）要対応 {n} 件',
+    OBL_FIELD:'obl_then_swb',
+    SWB:{wait:'入金待ち（SWB 切替前）', req:'SWB 切替を依頼', sent:'SWB 切替 依頼済（船社待ち）'},
+    /* 担当 → 船社 の依頼 (実際の件名: [BL TYPE変更依頼]BL#… · [BL TYPE訂正依頼:…]) */
+    SWB_REQ_RE:/BL\s*TYPE\s*(?:の)?\s*(?:変更|訂正)|SWB\s*(?:へ(?:の)?)?\s*(?:切替|切り替え|変更)(?:依頼|のお願い)/i,
+    /* 船社の SWB 発行の知らせ (依頼の後 · 「保留」 「Pending」 は除く) */
+    SWB_DONE_RE:/SWB\s*is\s*Ready|SEA\s*WAY\s*BILL|WAY\s*BILL\s*(?:の)?\s*(?:発行|送付|ISSUE)|\bSWB\b.{0,12}(?:発行|完了|ISSUE|アップ|送付)|(?:発行|変更|訂正).{0,4}完了|TELEX\s*RELEASE|SURRENDER/i,
+    /* 担当 → バイヤー に SWB · Surrender を送った (実際: [SWB for NRA2608-21] · [Surrendered B/L for NRA2608-03]) = 切り替え済み */
+    SWB_SENT_RE:/(?:SWB|WAY\s*BILL|SURRENDER(?:ED)?\s*B\/?L)\s*for\s/i,
+    SWB_NOT_RE:/保留|HOLD|Pending|DRAFT|ドラフト/i,
+    /* フォルダの SWB (原本は _OBL · 切り替えた後に 実際: _SWB.pdf · _SURRENDER.PDF · _Surrendered BL.pdf · _Telex Release Acknowledgement BL.PDF) · LG(…)SWB.pdf は LG */
+    SWB_FILE_RE:/(?:^|[_\s\-])(?:SWB|WAYBILL|SEA\s*WAYBILL|SURRENDER(?:ED)?(?:\s*B\/?L)?|TELEX\s*RELEASE)(?:[_\s.\-]|$)/i, SWB_FILE_NOT:/^LG|DRAFT|ドラフト/i,
+    SWB_SUBJ:'[BL TYPE変更依頼]BL#{BL}',
+    SWB_BODY:['本件、OBLにて発行していただきましたが、SWBに変更となりました。','L/Gを添付にて送付いたしますので、ご確認お願いいたします。','','BL# {BL}','Invoice# {IV}','','ご確認のほどよろしくお願いいたします。'],
+    SWB_LG:'L/G を Outlook で添付してください（この下書きには付きません）',
+    CHASE:'催促: ',
+    COLS_IV:['etd','eta','cut','pol','iv','bkg','ship','staff']
+  };
+  /* N35: そのバイヤー (Invoice の記号) が OBL → 入金 → SWB か — doc_staff の行 {iv_code, obl_then_swb} */
+  function oblFlow(iv, items){ const code=ivCode(iv); if(!code) return false; const r=(items||[]).find(x=>String((x&&x.iv_code)||'').trim().toUpperCase()===code);
+    const v=r&&r[V29.OBL_FIELD]; return v===true||/^(?:true|1|yes|○|◯)$/i.test(String(v==null?'':v).trim()); }
+  /* N35: FD の後ろの段階 (FD 済のときだけ) — x = {obl, paid (着金日 · COMPASS crcf9_payment_date), mails, files, carrier, asof} · Sg = todoSignals
+     ✓ (null) = SWB のファイル · 依頼の後の船社の SWB 発行メール / 依頼済 = 待ち (船社) / 着金あり = やること / 着金なし = 待ち (入金 · 期限なし · 催促なし) */
+  function swbRow(x, Sg, now, ext){
+    if(!x||!x.obl||!Sg||Sg.fd==null) return null;
+    const asof=x.asof||null, ok=t=>t!=null&&(asof==null||t<=asof), md=t=>dayOf(t).slice(5).replace('-','/').replace(/^0/,''), M=(x.mails||[]).slice().sort((a,b)=>a.t-b.t);
+    if((x.files||[]).some(f=>/\.pdf$/i.test(f.name||'')&&V29.SWB_FILE_RE.test(f.name)&&!V29.SWB_FILE_NOT.test(f.name)&&!V29.SWB_NOT_RE.test(f.name))) return null;
+    if(M.some(m=>ok(m.t)&&m.skind==='staff'&&m.t>=Sg.fd&&V29.SWB_SENT_RE.test(m.subj))) return null;
+    const rq=M.filter(m=>ok(m.t)&&m.skind==='staff'&&V29.SWB_REQ_RE.test(m.subj)), req=rq.length?rq[0].t:null, from=req!=null?req:Sg.fd;
+    if(M.some(m=>ok(m.t)&&m.skind==='carrier'&&m.t>=from&&!V29.SWB_NOT_RE.test(m.subj)&&(V29.SWB_DONE_RE.test(m.subj)||(TR.BL_ISSUED.test(m.subj)&&/SWB|WAY\s*BILL/i.test(m.subj))))) return null;
+    const paid=x.paid?isoDay(x.paid):'', paidT=paid?at(paid,TR.FIX.day):null, paidOk=!!paid&&paid<=dayOf(asof!=null?asof:now);   // 先の日付の着金日 = まだ
+    const base={due:null, group:null, action:TR.ACTION.mail, nudge:null, swb:true};
+    if(req!=null){ const th=nudgeH('bl',x.carrier,ext), el=bhours(req,now), over=el!=null&&th!=null&&el>th;
+      return Object.assign(base,{stage:11, gkey:'w_carrier', zone:'wait', what:V29.SWB.sent, why:'BL TYPE 変更依頼 '+md(req)+(paidOk?' · 着金 '+md(paidT):''), since:req, nudge:el!=null?{el, th, label:'SWB', over}:null, action:over?TR.ACTION.chase:null}); }
+    if(paidOk) return Object.assign(base,{stage:10, gkey:'swb', zone:'do', what:V29.SWB.req, why:'着金 '+md(paidT)+'（COMPASS）· OBL 発行済 · FD 済 · 依頼メールなし', dueText:'着金 '+md(paidT)});
+    return Object.assign(base,{stage:9, gkey:'w_buyer', zone:'wait', what:V29.SWB.wait, why:'OBL → 入金 → SWB · COMPASS の着金日なし', action:null, gray:true});
+  }
+  /* U14: 表に残すか — fd = FD送付日 (PORTAL) · obl = N35 · etd · today → 'past' (過ぎた · FD なし) · 'near' (今日 〜 +14) · 'far' (その先 · 畳む) · '' (外す)
+     ETD なし = near (今までどおり出す) */
+  function v29Zone(o){ const x=o||{}, e=String(x.etd||'').slice(0,10), t=x.today||'';
+    if(String(x.fd||'').trim()&&!x.obl) return '';
+    if(!e) return 'near'; if(e<t) return 'past'; return e<=addDays(t,V29.FOLD_DAYS)?'near':'far'; }
+  /* U11: 要対応 = やること + 催促 (待ちのうち 催促の時が来た行) */
+  const reqRow = r => !!r&&(r.zone!=='wait'||r.group==='chase');
+  /* U10: 契約の ETD = まだ出ていない一番早い ETD (無ければ 一番遅い ETD) */
+  function ctEtd(bks, today){ const L=(bks||[]).map(b=>String(b.etd||'').slice(0,10)).filter(Boolean).sort(), n=L.find(e=>e>=today); return n||L[L.length-1]||''; }
+
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+    /* v0.29 */ V29, oblFlow, swbRow, v29Zone, reqRow, ctEtd,
     /* v0.28 */ V28, mark, staffColor, polStaffOrder, bandOf, reqSort, sort28, hay28, hit28, hashOf, hashParse, lgPersonNeed, lgHead28,
     /* v0.27 */ MAIL30, mailGreeting, mailSigCompany, mailCleanName, mailGuess, mailCompose, greetOk, mailHtml, mailInsert, htmlText, mailVerify, replyAllTo, ctRowOpt, ctIvsLabel,
     /* v0.26 */ V26, aclBlFixed, aclLater, wordDiff, wordMarkHtml, wordDiffTable, aclWordFix, ptMergeTs, ptByC01, ptRowsPre, rowLastChangers, adminSet, signState, lgSignTarget, signFit, lgPerson,
@@ -2339,7 +2400,7 @@ async function dvGet(path, _r){
 }
 async function dvAll(path){ let d=await dvGet(path), out=(d.value||[]).slice(); while(d['@odata.nextLink']){ d=await dvGet(d['@odata.nextLink'].replace(DV_API+'/','')); out=out.concat(d.value||[]); } return out; }
 async function dvIn(entity, key, ids, select, extra){ const out=[]; const u=[...new Set(ids.filter(Boolean))]; for(let i=0;i<u.length;i+=40){ out.push(...await dvAll(entity+'?$filter='+u.slice(i,i+40).map(x=>key+' eq '+x).join(' or ')+(extra||'')+'&$select='+select)); } return out; }
-const BK_SEL='cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,cr49f_bl_number,cr49f_etd,crcf9_bl_etd,cr49f_main_ship_name,_cr49f_sale_contract_id_value,_cr49f_region_id_value,_cr49f_region_japan_id_value,_cr49f_carrier_id_value,crcf9_insurance_premiums,modifiedon,cr49f_cy_cut,cr49f_cut_am,crcf9_maritime_freight_payment_date,_cr49f_fowarder_id_value,cr49f_eta,crcf9_bl_eta';   // v0.7: CY_CUT · 支払日 · 乙仲 (今日やること)
+const BK_SEL='cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,cr49f_bl_number,cr49f_etd,crcf9_bl_etd,cr49f_main_ship_name,_cr49f_sale_contract_id_value,_cr49f_region_id_value,_cr49f_region_japan_id_value,_cr49f_carrier_id_value,crcf9_insurance_premiums,modifiedon,cr49f_cy_cut,cr49f_cut_am,crcf9_maritime_freight_payment_date,_cr49f_fowarder_id_value,cr49f_eta,crcf9_bl_eta,crcf9_payment_date';   // v0.7: CY_CUT · 支払日 · 乙仲 (今日やること) · v0.29 (N35): 着金日 (読むだけ)
 const CT_SEL='cr49f_sale_contractid,cr49f_sale_contract_no,cr49f_pay_cls,cr49f_terms_conditions,_cr49f_buyer_id_value,cr49f_sale_contract_date,cr49f_latest_shipment,_cr49f_pod1_value,_cr49f_pod2_value,_cr49f_country_id_value';   // v0.3: POD · 国 (契約別)
 const SI_SEL=[...new Set(['cr49f_s_iid','_cr49f_sale_contract_id_value','crcf9_sino','cr49f_lc_no','crcf9_consignee','crcf9_notify_party','crcf9_po_vo','crcf9_vo_no','crcf9_place_of_delivery_1','crcf9_pod_bl1','modifiedon']
   .concat(DOC.SI_HEAD_COLS,['crcf9_pod_bl2','crcf9_pod_bl3','crcf9_shipper','crcf9_shipper_address','crcf9_shipper_tel','crcf9_shipper_fax','crcf9_local_agent_note']))].join(',');   // v0.6: （仮） はどの欄にも書かれる → S/I の文の欄を全部 (acl_bench fetchCompass と同じ欄 + 書き込む欄)
@@ -2388,15 +2449,19 @@ async function loadAll(){
     if(!S.staff.length){ const [st,ds]=await Promise.all([LEENAI.master.get('staff').catch(()=>[]), LEENAI.master.get('doc_staff').catch(()=>[])]);
       S.staff=st||[]; S.docStaff=DOC.docStaffMap(ds); S.docStaffItems=ds||[]; S.me=DOC.meOf(LEENAI.user&&LEENAI.user.email, S.staff); renderMe(); renderWho();
       cpLoad(true).then(()=>{ if(S.view==='list'&&(S.board==='todo'||S.board==='main')) renderTodo(); }); cpReportsLoad(); }   // v0.11: チェックポイント (新しいチェックの帯) · 見落とし報告の数 (管理者)
-    const f=S.range.from, t=S.range.to;
+    const f=S.range.from, t=S.range.to, f0=isNew()&&DOC.addDays(S.today,-DOC.V29.PAST_DAYS)<f?DOC.addDays(S.today,-DOC.V29.PAST_DAYS):f;   // v0.29 (U14): 過ぎた ETD = 90 日前から (FD送付日 のない行 · N35 だけ残す) · 旧画面 (試験 · 比べる用) は今までどおり
+    S.portalP=spText(PORTAL_PATH).then(t2=>t2?JSON.parse(t2):null);   // v0.29: FD送付日 で 残す行を決める (今日やること でも同じものを使う)
     const [bk, regs, pols]=await Promise.all([
-      dvAll(`cr49f_bookings?$filter=(cr49f_etd ge ${f} and cr49f_etd le ${t}) or (crcf9_bl_etd ge ${f} and crcf9_bl_etd le ${t})&$select=${BK_SEL}`),
+      dvAll(`cr49f_bookings?$filter=(cr49f_etd ge ${f0} and cr49f_etd le ${t}) or (crcf9_bl_etd ge ${f0} and crcf9_bl_etd le ${t})&$select=${BK_SEL}`),
       Object.keys(S.regions).length?null:dvAll('cr49f_regions?$select=cr49f_regionid,cr49f_region,cr49f_pod'),
       Object.keys(S.pols).length?null:dvAll('crcf9_region_japans?$select=crcf9_region_japanid,crcf9_pol,crcf9_region_japan')]);   // v0.16: POL = PORTAL と同じ (crcf9_pol · なければ crcf9_region_japan)
     if(seq!==S.loadSeq) return;
     if(regs) regs.forEach(r=>{ S.regions[r.cr49f_regionid]={country:DOC.up(r.cr49f_region), pod:r.cr49f_pod||'', name:r.cr49f_region||''}; });
     if(pols) pols.forEach(r=>{ S.pols[r.crcf9_region_japanid]=r.crcf9_pol||''; S.polRec[r.crcf9_region_japanid]=r; });
     S.bk=bk.filter(b=>b.cr49f_invoice_no&&DOC.inRange(DOC.etdOf(b),f,t));
+    { const pj=await S.portalP.catch(()=>null), sh=(pj&&pj.shipping)||{}, have=new Set(S.bk.map(b=>b.cr49f_bookingid));
+      const past=bk.filter(b=>b.cr49f_invoice_no&&!have.has(b.cr49f_bookingid)&&DOC.etdOf(b)<f&&!DOC.isDomestic({iv:b.cr49f_invoice_no})&&(oblOf(b.cr49f_invoice_no)||!String((sh[b.cr49f_invoice_no]||{}).fd_date||'').trim()));
+      S.bkPast=isNew()?past.length:0; if(isNew()) S.bk=S.bk.concat(past); }   // v0.29 (U14): 過ぎた ETD で FD送付日 のない行 (90 日まで) · N35 の行
     const recent=await dvAll(`cr49f_sale_contracts?$filter=cr49f_sale_contract_date ge ${DOC.addDays(S.today,-Math.max(...DOC.CT_PERIODS.map(p=>p[0])))}&$select=${CT_SEL}`);   // v0.3: 契約別 = 契約日 直近 6 ヶ月まで · v0.6: 180 日 (PORTAL と同じ 日 で数える)
     const cts=await dvIn('cr49f_sale_contracts','cr49f_sale_contractid',S.bk.map(b=>b._cr49f_sale_contract_id_value),CT_SEL);
     cts.concat(recent).forEach(c=>{ S.ct[c.cr49f_sale_contractid]=c; });
@@ -2421,7 +2486,7 @@ async function loadAll(){
     render(); PERF.mark('first');
     S.pbk=null; S.pErr=''; const ptP=loadPortalBk(seq).catch(e=>{ S.pErr=e.message; });   // v0.16: PORTAL と同じブッキング (最初の画面の後ろで)
     /* v0.14 (Step 4-3): メール (今日やること 35 日 → 保存の入口 5 営業日) は 最初の画面のすぐ後 · 順番に (メールボックスは 同時 4 本まで — 超えると 429) */
-    const need=list.filter(iv=>!hit.has(iv)); let k=0;
+    const need=list.filter(iv=>!hit.has(iv)&&v29NeedIv(iv)); S.skipN=list.filter(iv=>!hit.has(iv)&&!v29NeedIv(iv)).length; let k=0;   // v0.29 (U14 ③): FD 済 · 畳んだ行 (その先) は読まない (開いたとき · 押したとき)
     prog('読み込み中 — Invoice フォルダ '+need.length+' 件（前回のまま '+hit.size+' 件）');
     const foldP=loadFoldersBatch(need, seq, n=>{ k=n; prog('読み込み中 '+k+' / '+need.length+' (Invoice フォルダ · 前回のまま '+hit.size+' 件)'); renderSoon(); }).then(()=>{ if(seq===S.loadSeq) folderCacheSave(list); });
     TODO.mailSeq++; const mailP=Promise.all([loadTodoMail(TODO.mailSeq), foldP.then(()=>{ if(seq===S.loadSeq){ SAVE.started=true; return saveMailScan(); } })]);   // 保存の入口 = フォルダを読んだ後 (同じファイルかを見る) · 今日やることのメールと並べて (添付は 2 本ずつ)
@@ -2647,7 +2712,7 @@ async function loadPortalBk(seq){
 /* PORTAL の行で ETD の範囲の外 (S.bk にない) の Invoice フォルダ — 判定チップのため (表示する行だけ) */
 async function loadPortalFolders(seq){
   if(!S.pbk) return; const sh=(TODO.portal&&TODO.portal.shipping)||{}, have=new Set(S.bk.map(b=>b.cr49f_bookingid));
-  const need=[...new Set(ptRowsShown().filter(b=>!have.has(b.cr49f_bookingid)).map(b=>DOC.up(b.cr49f_invoice_no)).filter(iv=>iv&&S.folders[iv]===undefined))];
+  const need=[...new Set(ptRowsShown().concat(v29PastPt()).filter(b=>!have.has(b.cr49f_bookingid)).map(b=>DOC.up(b.cr49f_invoice_no)).filter(iv=>iv&&S.folders[iv]===undefined&&v29NeedIv(iv)))];
   if(need.length) await loadFoldersBatch(need, seq, ()=>renderSoon());
 }
 function ptRowOf(b){
@@ -2794,6 +2859,32 @@ function renderWho(){
   $('dtWho').innerHTML=opts.map(o=>'<button class="v8-chip dt-chip'+(o[0]===S.who?' on':'')+'" data-who="'+esc(o[0])+'">'+dot(o[0])+esc(o[1])+'</button>').join('');
   $('dtWho').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.who=b.dataset.who; lsSet(LS.who,S.who); renderWho(); render(); }; });
 }
+/* ══════════ v0.29 (指示書 THOR_27 · 修正まとめ v0.24) ══════════ */
+/* N35: OBL → 入金 → SWB のバイヤー (共通マスター doc_staff の obl_then_swb) */
+const oblOf = iv => DOC.oblFlow(iv, S.docStaffItems);
+/* U12: 国内 (規則 1 か所 = DOC.isDomestic) — Invoice L · 契約 LS- · 国 JAPAN · 船社 / POD 「国内転売」 */
+function v8Dom(b){ if(!b) return false; const c=S.ct[b._cr49f_sale_contract_id_value]||{}, reg=S.regions[b._cr49f_region_id_value]||{};
+  return DOC.isDomestic({iv:b.cr49f_invoice_no, ct:c.cr49f_sale_contract_no, country:reg.country, carrier:(TODO.carriers||{})[b._cr49f_carrier_id_value]||'', pod:reg.pod||reg.name||''}); }
+/* U14: 見える範囲 — '' (外す) · past · near · far (畳む) */
+const v29Sh = () => (TODO.portal&&TODO.portal.shipping)||{};
+function v29ZoneOf(b){ const raw=b.cr49f_invoice_no||'', sp=v29Sh()[raw]||{}; return DOC.v29Zone({etd:DOC.ptEtd(b), fd:sp.fd_date, obl:oblOf(raw), today:S.today}); }
+const v29FarOpen = () => lsGet(DOC.V29.FOLD_KEY,'')==='1';
+/* フォルダを読むか (U14 ③) — FD 済 (N35 は読む) · 畳んだ行 (その先) は読まない · ほかは読む (旧画面 · 試験 · asof は 今までどおり) */
+function v29NeedIv(iv){ if(!isNew()||TODO.asof!=null) return true; const b=S.bk.concat(S.pbk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv); if(!b) return true;
+  if(!TODO.portal) return true; const z=v29ZoneOf(b); return z==='past'||z==='near'||(z==='far'&&v29FarOpen()); }
+/* PORTAL の行 (ETD -90 〜) のうち 過ぎた ETD で FD送付日 のないもの (今の Invoice 別 は -30 日まで) · N35 */
+function v29PastPt(){ if(!S.pbk) return []; const sh=v29Sh(), rc=(TODO.portal&&TODO.portal.records)||{}, since=DOC.addDays(S.today,DOC.PT.RECENT);
+  return S.pbk.filter(b=>{ const raw=b.cr49f_invoice_no||'', e=DOC.ptEtd(b); if(!raw||DOC.isDomestic({iv:raw})) return false; const ob=oblOf(raw), fd=String((sh[raw]||{}).fd_date||'').trim();
+    if(ob) return !!e&&e<S.today||!fd&&!!e&&e<since; if(fd||!e||e>=since) return false; return S.ptPre||DOC.ptTsukan(rc[raw], b.cr49f_cy_cut); }); }
+/* その先 (畳んだ行) を開いたら その行のフォルダを読む */
+async function v29LoadFar(){ const seq=S.loadSeq, need=[...new Set(S.bk.concat(S.pbk||[]).filter(b=>v29ZoneOf(b)==='far').map(b=>DOC.up(b.cr49f_invoice_no)).filter(iv=>iv&&S.folders[iv]===undefined))];
+  if(!need.length) return; prog('読み込み中 — その先の Invoice フォルダ '+need.length+' 件'); await loadFoldersBatch(need, seq, ()=>renderSoon()); if(seq===S.loadSeq&&S.doneMsg) prog(doneLine()); renderSoon(); }
+/* N35 下書き — [BL TYPE変更依頼]BL#… (大場さんが実際に送った形) · 船社のいちばん新しいメールに 全員に返信 (無ければ 新しいメール) · L/G は Outlook で */
+function swbDraft(iv, b, ctx){ const V=DOC.V29, bl=b.cr49f_bl_number||b.cr49f_booking_no||'', v={BL:bl, IV:iv}, fill=t=>t.replace(/\{(BL|IV)\}/g,(m,k)=>v[k]);
+  const M=(TODO.byBk&&TODO.byBk[b.cr49f_bookingid]||[]).filter(m=>m.skind==='carrier'&&m.id).sort((p,q)=>(q.t||0)-(p.t||0)), src=M.find(m=>(m.uses||[]).indexOf('BLISSUE')>=0)||M[0]||null;
+  const rcp=ctx&&ctx.companyDom?DOC.MAIL19.RCP.replace('{dom}',ctx.companyDom):'', warn=[V.SWB_LG].concat(src?[]:[DOC.MAIL19.NO_TO]);
+  return {kind:'swb', type:'swb', iv, subject:fill(V.SWB_SUBJ), body:V.SWB_BODY.map(fill).join('\n'), to:[], cc:rcp?[rcp]:[], toSrc:src?'thread':'', srcId:src?src.id:'', subjFrom:'', att:[], attBig:[], bad:[], miss:[], block:'', warn, lang:'ja',
+    formal:(TODO.carriers||{})[b._cr49f_carrier_id_value]||'', formalDom:src?src.fromDom||'':''}; }
 /* ══════════ v0.28 (指示書 THOR_26 · 修正まとめ v0.21 U1 ~ U9) — 一覧 = 表 1 つ (今日やること + Invoice 別) · 右のパネル · 操作の行 (B-06 と同じ形)
    判定 · 期限 · 要対応の行 · 保存 · 下書き は v0.27 の関数のまま (todoRows · ptRowOf · ivRow · ctRow · ptSave) — ここは 並べて 描くだけ
    旧画面 (今日やること のカード · PORTAL と同じ表 · 契約別) は 試験 · 比べる用に 残す (S.board = 'todo' · 'iv' · 'ct' — 画面のボタンからは選べない) */
@@ -2821,21 +2912,30 @@ const v8CtObj = (r, i) => { const d=r.due!=null?DOC.dayOf(r.due):''; return {kin
 /* 行を作る — すべて = PORTAL と同じ行 (今の Invoice 別) + 今日やること にある Invoice · 契約の行 · 要対応 = 今日やること の 「やること」 の行 (同じ数) */
 function v8Compute(){
   const vis=v8Vis(); let T=[]; try{ T=S.bk.length?todoRows().filter(vis):[]; }catch(e){ T=[]; }
+  const bOf=r=>r.b||S.bk.find(bb=>DOC.up(bb.cr49f_invoice_no)===r.iv);
+  T=T.filter(r=>r.ctRow||!v8Dom(bOf(r)));   // v0.29 (U12): 国内は 表のどこにも出さない (今日やること の行を合わせるときも)
   const byIv={}; T.forEach(r=>{ if(!r.ctRow&&r.iv) (byIv[r.iv]=byIv[r.iv]||[]).push(r); });
   Object.keys(byIv).forEach(k=>{ const L=byIv[k]; byIv[k]=DOC.reqSort(L.filter(r=>r.zone!=='wait')).concat(L.filter(r=>r.zone==='wait')); });
-  const xs={}, all=[]; let i=0;
-  const addB=b=>{ const iv=DOC.up(b.cr49f_invoice_no); if(iv&&xs[iv]) return; let x; try{ x=ptRowOf(b); }catch(e){ return; } if(iv) xs[iv]=x; const t=byIv[iv]||[];
-    if(!vis(x)&&!t.length) return; all.push({kind:'iv', id:iv, x, t, prim:t[0]||null, key:v8Key(x,t[0]), i:i++}); };
-  ptRowsShown().forEach(addB); S.bk.forEach(b=>{ if(byIv[DOC.up(b.cr49f_invoice_no)]) addB(b); });
+  /* v0.29 (U14): 見える範囲 — FD送付日 があれば終わり (入力したばかりの行は 読み直すまで残す) · N35 は SWB の行がある間だけ */
+  const kp=PTSAVE.keep||{}, zOf=b=>{ const raw=b.cr49f_invoice_no||'', iv=DOC.up(raw), z=v29ZoneOf(b), fd=String((v29Sh()[raw]||{}).fd_date||'').trim();
+    if(z&&oblOf(raw)&&fd&&!byIv[iv]) return kp[raw]?'past':''; return z||(kp[raw]?'past':''); };
+  const xs={}, all=[], far=[]; let i=0;
+  const addB=b=>{ const iv=DOC.up(b.cr49f_invoice_no); if(iv&&xs[iv]!==undefined) return; if(v8Dom(b)){ xs[iv]=null; return; } const z=zOf(b); if(!z){ xs[iv]=null; return; }
+    let x; try{ x=ptRowOf(b); }catch(e){ return; } if(iv) xs[iv]=x; const t=byIv[iv]||[];
+    if(!vis(x)&&!t.length) return; (z==='far'?far:all).push({kind:'iv', id:iv, x, t, prim:t[0]||null, key:v8Key(x,t[0]), i:i++, zone:z}); };
+  ptRowsShown().forEach(addB); v29PastPt().forEach(addB); S.bk.forEach(b=>{ if(byIv[DOC.up(b.cr49f_invoice_no)]) addB(b); });
   T.filter(r=>r.ctRow).forEach(r=>all.push(v8CtObj(r,i++)));
-  const req=DOC.reqSort(T.filter(r=>r.zone!=='wait')).map((r,j)=>{ if(r.ctRow) return v8CtObj(r,j); let x=xs[r.iv];
-    if(!x){ const b=r.b||S.bk.find(bb=>DOC.up(bb.cr49f_invoice_no)===r.iv); if(b){ try{ x=ptRowOf(b); }catch(e){ x=null; } } }
-    return x?{kind:'iv', id:r.iv, x, t:[r], prim:r, key:v8Key(x,r), i:j}:null; }).filter(Boolean);
-  return {all, req, T, vis};
+  /* v0.29 (U11): 要対応 = やること + 催促 */
+  const req=[], farReq=[]; DOC.reqSort(T.filter(DOC.reqRow)).forEach((r,j)=>{ if(r.ctRow){ req.push(v8CtObj(r,j)); return; } const b=bOf(r); let x=xs[r.iv];
+    if(x===null) return; if(!x&&b){ try{ x=ptRowOf(b); }catch(e){ x=null; } } if(!x) return; const z=b?zOf(b):'near'; if(!z) return;
+    (z==='far'?farReq:req).push({kind:'iv', id:r.iv, x, t:[r], prim:r, key:v8Key(x,r), i:j, zone:z}); });
+  return {all, far, req, farReq, T, vis};
 }
-/* 検索 · CY CUT の範囲 */
-function v8Filter(o){ const q=S.q28||'', f=S.cutF||'', t=S.cutT||'';
-  if(f||t){ const c=o.key.cut; if(!c||(f&&c<f)||(t&&c>t)) return false; }
+/* 見せる行 (並べた後) · その先 (畳む) */
+function v8Shown(R){ const so=S.todoOnly?S.sortReq:S.sortAll, base=S.todoOnly?R.req:R.all, fb=S.todoOnly?R.farReq:R.far;
+  return {base, fb, shown:DOC.sort28(base.filter(v8Filter), so), farShown:DOC.sort28(fb.filter(v8Filter), so)}; }
+/* 検索 (v0.29 U14 ⑤: CY CUT の範囲の欄はやめた — 見える範囲は 自動 · 「？」 に説明) */
+function v8Filter(o){ const q=S.q28||'';
   if(!q) return true; const x=o.x||{}, ctId=o.kind==='iv'?(x.r&&x.r.ctId):o.id;
   return DOC.hit28({iv:o.kind==='iv'?x.ivRaw:'', ct:o.kind==='iv'?x.ct:(o.prim.ctRow&&o.prim.ctRow.no), bkg:x.bkg, lc:ctId?lcOfCt(ctId).no:'', vessel:x.b?x.b.cr49f_main_ship_name:'', ivs:o.kind==='ct'&&o.prim.ctRow?o.prim.ctRow.ivs:[]}, q); }
 const v8Sel = (x,f,opts,val) => '<select class="dt-in" data-pt="'+esc(x.ivRaw)+'" data-f="'+f+'" aria-label="'+esc(f)+'">'+opts.map(o=>'<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
@@ -2848,30 +2948,30 @@ function v8Next(o){ const p=o.prim; if(!p) return '<td class="v8-next" data-c="n
       :'<button class="v8-ab" data-tdfn="ack" data-fniv="'+esc(iv)+'" data-fnkey="'+esc(p.fn.key)+'">確認しました</button>'):'')+
     (mk?'<button class="v8-ab" data-mail="'+mk+'" data-mailiv="'+esc(iv)+'" title="'+esc('下書きを作る'+(md?' — '+md:''))+'">下書き</button>':'')+
     (!p.extra?'<button class="v8-ab tl-man" data-tddone="'+esc(iv)+'" title="済にする — TOOL がメールを読めないとき · 電話で終わったとき" aria-label="済にする">済</button>':'');
-  return '<td class="v8-next'+(p.zone==='wait'?' v8-wait':'')+'" data-c="next" title="'+esc((p.why||'')+(p.folderWait?' · フォルダ確認中':''))+'"><span class="v8-du d-'+esc(g)+(p.due!=null&&DOC.dayOf(p.due)===v8Today()?' v8-today':'')+'">'+esc(p.when||'—')+'</span><span class="v8-what">'+esc(p.what||'')+'</span>'+(p.gkey==='fd'?fdTodoBadge(iv):'')+more+btn+'</td>'; }
+  return '<td class="v8-next'+(p.zone==='wait'?' v8-wait':'')+'" data-c="next" title="'+esc((p.why||'')+(p.folderWait?' · フォルダ確認中':''))+'"><span class="v8-du d-'+esc(g)+(p.due!=null&&DOC.dayOf(p.due)===v8Today()?' v8-today':'')+'">'+esc(p.when||'—')+'</span><span class="v8-what">'+esc((p.group==='chase'?DOC.V29.CHASE:'')+(p.what||''))+'</span>'+(p.gkey==='fd'?fdTodoBadge(iv):'')+more+btn+'</td>'; }
 const v8Band = p => p?DOC.bandOf(p.group):'';
 function v8IvRowH(o){ const x=o.x, P=DOC.PT, sp=x.sp||P.DEF, noIv=!x.ivRaw, dS=v=>DOC.ptDateS(v,S.today), cells=(x.r&&x.r.cells)||{}, bd=v8Band(o.prim), vessel=(x.b&&x.b.cr49f_main_ship_name)||'';
-  const st=DOC.V28.ST_HEAD.map(([k,n],j)=>{ const c=cells[k]; let h=!c?'<span class="mk mk-na">―</span>':c.s==='na'||c.s==='load'?v8Mk(c,n):v8Mk(c,n,'data-iv="'+esc(x.iv)+'" data-tab="'+k+'"');
-    if(k==='customs'&&!noIv){ const ts=ptTsCell(x); if(/^<input/.test(ts)) h+=ts; }
+  const st=DOC.V28.ST_HEAD.map(([k,n],j)=>{ const c=cells[k]; let h=!c?'<span class="mk mk-na">―</span>':c.s==='na'||c.s==='load'?v8Mk(c,n):v8Mk(c,n,'data-iv="'+esc(x.iv)+'" data-tab="'+k+'"'), on=false;
+    if(k==='customs'&&!noIv){ const ts=ptTsCell(x); if(/^<input/.test(ts)){ h=ts; on=/ checked/.test(ts); } }   // v0.29 (U13): チェック 1 つ
     if(k==='depo'&&!noIv){ const dep=DOC.ptDep(x.sp, c, x.vn); if(dep.sel) h+=v8Sel(x,'dep',P.DEP_OPTS,dep.val)+(dep.hint?'<span class="pt-hint" title="'+esc('書類ツールの判定: '+dep.hint)+'">*</span>':''); }
-    return '<td class="v8-s v8-s'+j+'" data-c="st">'+h+'</td>'; }).join('');
+    return '<td class="v8-s v8-s'+j+(on?' v8-ts-on':'')+'" data-c="st">'+h+'</td>'; }).join('');
   const fd=noIv?'—':'<input type="date" class="dt-in'+(sp.fd_date&&String(sp.fd_date).slice(0,10)===v8Today()?' v8-today':'')+'" data-pt="'+esc(x.ivRaw)+'" data-f="fd_date" value="'+esc(sp.fd_date||'')+'" aria-label="FD送付日">'+
     (x.prop?'<button class="pt-prop" data-pt-prop="'+esc(x.ivRaw)+'" data-date="'+esc(x.prop.date)+'" title="'+esc('TOOL が見つけた FD 送付 ('+x.prop.src+') '+DOC.ptDate(x.prop.date)+' — 押すと入力します')+'">提案 '+esc(dS(x.prop.date))+'</button>':'');
   const tip=['契約 '+(x.ct||'—'),'ETA(E) '+DOC.ptDate(x.eta),'CNTR '+x.cnt+' 本 · '+x.cntr,'BKG_NO '+x.bkg].concat(x.r&&x.r.vchg.length?['本船変更: '+x.r.vchg.join(' · ')]:[]).join('\n');
   return '<tr class="v8-r" data-row="iv" data-id="'+esc(x.iv)+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td>'+
-    '<td class="m" data-c="cut">'+v8D(x.cut,dS(x.cut))+'</td><td class="m" data-c="etd">'+v8D(x.etd,dS(x.etd))+'</td><td class="m m2" data-c="eta">'+v8D(x.eta,dS(x.eta))+'</td><td data-c="pol" title="'+esc(x.pol)+'">'+esc(x.pol)+'</td>'+
+    '<td class="m" data-c="etd">'+v8D(x.etd,dS(x.etd))+'</td><td class="m m2" data-c="eta">'+v8D(x.eta,dS(x.eta))+'</td><td class="m" data-c="cut">'+v8D(x.cut,dS(x.cut))+'</td><td data-c="pol" title="'+esc(x.pol)+'">'+esc(x.pol)+'</td>'+
     '<td class="v8-iv" data-c="iv">'+(x.iv?'<button class="dt-link" data-iv="'+esc(x.iv)+'" data-tab="" title="'+esc(tip)+'">'+esc(x.ivRaw)+'</button>':'<span>—</span>')+'<span class="v8-ct">'+esc(x.ct||'—')+(x.r&&x.r.vchg.length?' · 本船変更':'')+'</span></td>'+
     '<td class="m" data-c="bkg">'+esc(x.bkg)+'</td><td data-c="ship" title="'+esc(x.ship+(vessel?' '+vessel:''))+'">'+esc(x.ship)+(vessel?' <span class="v8-sub">'+esc(vessel)+'</span>':'')+'</td><td data-c="staff">'+v8Staff(x.staff, x.pstaff)+'</td>'+st+v8Next(o)+
     '<td data-c="pay">'+(noIv?'—':v8Sel(x,'furikomi',P.FURI_OPTS,P.FURI_OPTS.indexOf(sp.furikomi)>=0?sp.furikomi:'未'))+'</td><td data-c="fd">'+fd+'</td>'+
     '<td data-c="memo">'+(noIv?'—':'<input type="text" class="dt-in pt-note" data-pt="'+esc(x.ivRaw)+'" data-f="fd_note" value="'+esc(sp.fd_note||'')+'" placeholder="メモ" maxlength="'+P.NOTE_MAX+'" aria-label="備考">')+'</td></tr>'; }
 /* 契約の行 (N27 · S/I 確認 など 契約に 1 行) — Invoice の欄 = 契約番号 (太字) · 下 = その契約の Invoice */
 function v8CtTodoRowH(o){ const r=o.r, bd=v8Band(r), d=o.key.cut?DOC.ptDateS(o.key.cut,S.today):'—';
-  return '<tr class="v8-r" data-row="ct" data-id="'+esc(r.ctId||'')+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td><td class="m" data-c="cut">'+v8D(o.key.cut,d)+'</td><td class="m" data-c="etd">—</td><td class="m" data-c="eta"></td><td data-c="pol"></td>'+
+  return '<tr class="v8-r" data-row="ct" data-id="'+esc(r.ctId||'')+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td><td class="m" data-c="etd">—</td><td class="m" data-c="eta"></td><td class="m" data-c="cut">'+v8D(o.key.cut,d)+'</td><td data-c="pol"></td>'+
     '<td class="v8-iv" data-c="iv"><button class="dt-link" data-ct="'+esc(r.ctId||'')+'" data-tab="si">'+esc(r.ctRow.no)+'</button><span class="v8-ct" title="'+esc(r.ctRow.ivs.join(' · '))+'">'+esc(DOC.ctIvsLabel(r.ctRow.ivs)||'契約')+'</span></td>'+
     '<td data-c="bkg"></td><td data-c="ship">'+esc(r.carrier||'')+'</td><td data-c="staff">'+v8Staff(r.staff)+'</td>'+DOC.V28.ST_HEAD.map((s,j)=>'<td class="v8-s v8-s'+j+'" data-c="st"></td>').join('')+v8Next(o)+'<td data-c="pay"></td><td data-c="fd"></td><td data-c="memo"></td></tr>'; }
 const v8Th = (k, l, src, cls) => '<th data-c="'+k+'"'+(cls?' class="'+cls+'"':'')+'>'+esc(l)+(src?'<sup>'+esc(src)+'</sup>':'')+'</th>';
 function v8IvHead(){ const C=DOC.V28.COLS, h=k=>{ const c=C.find(x=>x[0]===k); return v8Th(k,c[1],c[2]); };
-  return '<tr><th class="v8-bd"></th>'+['cut','etd','eta','pol','iv','bkg','ship','staff'].map(h).join('')+DOC.V28.ST_HEAD.map((s,j)=>'<th class="v8-s v8-s'+j+'" data-c="st">'+esc(s[1])+'</th>').join('')+['next','pay','fd','memo'].map(h).join('')+'</tr>'; }
+  return '<tr><th class="v8-bd"></th>'+DOC.V29.COLS_IV.map(h).join('')+DOC.V28.ST_HEAD.map((s,j)=>'<th class="v8-s v8-s'+j+'" data-c="st">'+esc(s[1])+'</th>').join('')+['next','pay','fd','memo'].map(h).join('')+'</tr>'; }
 function v8Top(){ const el=$('dtTop'); if(!el) return; const now=TODO.asof!=null?TODO.asof:null;
   el.innerHTML=cpBannerHtml()+(now!=null?'<div class="dt-card td-asof">asof '+esc(DOC.dayOf(now)+' '+DOC.hmOf(now))+' の時点で計算しています（管理者 · 試験 · その時刻より前の信号だけ）</div>':'')+(TODO.mailSt==='error'?todoBannerHtml():'');
   cpBannerBind(el); const b=$('dtMailRetry'); if(b) b.onclick=()=>{ TODO.mailSeq++; loadTodoMail(TODO.mailSeq); }; }
@@ -2879,14 +2979,16 @@ function renderIvTable(){
   const t0=perfNow(), box=$('dtTable'); box.classList.add('v8-wrap');
   if(!S.bk.length&&!S.doneMsg){ box.innerHTML='<div class="v8-empty">読み込み中…</div>'; $('dtTop').innerHTML=''; $('dtAfter').innerHTML=''; return; }
   if(S.fdLatest===undefined) fdLatestLoad().then(()=>render()).catch(()=>{});   // v0.21: FD 確認の結果 (名前だけ)
-  const R=v8Compute(), base=S.todoOnly?R.req:R.all, shown=DOC.sort28(base.filter(v8Filter), S.todoOnly?S.sortReq:S.sortAll);
-  $('dtTodo').textContent='要対応のみ '+R.req.length; $('dtAll').textContent='すべて '+R.all.length; V8.last=shown;
+  const R=v8Compute(), V=v8Shown(R), shown=V.shown, op=v29FarOpen(), W=DOC.V29, rowH=o=>o.kind==='ct'?v8CtTodoRowH(o):v8IvRowH(o);
+  $('dtTodo').textContent='要対応のみ '+(R.req.length+R.farReq.length); $('dtAll').textContent='すべて '+(R.all.length+R.far.length); V8.last=shown.concat(op?V.farShown:[]);
   v8Top();
-  const flt=S.q28||S.cutF||S.cutT;
-  box.innerHTML=shown.length?'<table class="v8-t"><thead>'+v8IvHead()+'</thead><tbody>'+shown.map(o=>o.kind==='ct'?v8CtTodoRowH(o):v8IvRowH(o)).join('')+'</tbody></table>'
-    :'<div class="v8-empty">'+(flt?'条件に合う行はありません（検索 · CY CUT の範囲）':S.todoOnly?'要対応の行はありません':'表示する船積はありません（担当の選択を確認）')+'</div>';
+  const flt=S.q28;
+  const fold=V.farShown.length?'<tr class="v8-fold"><td colspan="20"><button class="v8-foldb" id="dtFar" aria-expanded="'+op+'">'+(op?'▾ ':'▸ ')+esc((S.todoOnly?W.FOLD_REQ:W.FOLD).replace('{d}',W.FOLD_DAYS+1).replace('{n}',V.farShown.length))+'</button></td></tr>':'';   // v0.29 (U14): その先 = 畳む (この PC に記憶)
+  box.innerHTML=shown.length||V.farShown.length?'<table class="v8-t"><thead>'+v8IvHead()+'</thead><tbody>'+shown.map(rowH).join('')+fold+(op?V.farShown.map(rowH).join(''):'')+'</tbody></table>'
+    :'<div class="v8-empty">'+(flt?'条件に合う行はありません（検索）':S.todoOnly?'要対応の行はありません':'表示する船積はありません（担当の選択を確認）')+'</div>';
   v8Bind(box); ptMarksApply(); v8ColsApply();
-  v8After(R.vis, flt?shown.length+' / '+base.length+' 件を表示（検索 · CY CUT）':'');
+  const fb=$('dtFar'); if(fb) fb.onclick=()=>{ lsSet(DOC.V29.FOLD_KEY, op?'':'1'); if(!op) v29LoadFar().catch(()=>{}); render(); };
+  v8After(R.vis, flt?(shown.length+V.farShown.length)+' / '+(V.base.length+V.fb.length)+' 件を表示（検索）':'');
   PERF.render(perfNow()-t0);
   v8HashOpen();
 }
@@ -2918,7 +3020,7 @@ function v8After(vis, note){ const el=$('dtAfter'); if(!el) return; const done=(
 function renderCtTable(){
   const box=$('dtTable'); box.classList.add('v8-wrap'); $('dtTop').innerHTML='';
   if(!Object.keys(S.ct).length&&!S.doneMsg){ box.innerHTML='<div class="v8-empty">読み込み中…</div>'; $('dtAfter').innerHTML=''; return; }
-  const vis=v8Vis(), B=ctIdsForBoard(), rows=DOC.sortCtDate(B.ids.map(ctRow)).filter(r=>DOC.visible(r.staff,S.who,S.me));
+  const vis=v8Vis(), B=ctIdsForBoard(), rows=DOC.sortCtDate(B.ids.map(ctRow)).filter(r=>DOC.visible(r.staff,S.who,S.me)).map((r,i)=>[r,i,DOC.ctEtd(r.bks,S.today)]).sort((a,b)=>((a[2]?0:1)-(b[2]?0:1))||a[2].localeCompare(b[2])||(a[1]-b[1])).map(a=>a[0]);   // v0.29 (U10): ETD の近い順 (まだ出ていない一番早い ETD · ETD なしは後)
   let T=[]; try{ T=S.bk.length?todoRows().filter(vis):[]; }catch(e){ T=[]; }
   const byCt={}; T.forEach(r=>{ if(r.ctRow&&r.ctId) (byCt[r.ctId]=byCt[r.ctId]||[]).push(r); });
   const req=rows.filter(r=>DOC.needs({lc:r.cells.lc, si:r.cells.si})), base=S.todoOnly?req:rows;
@@ -2928,15 +3030,16 @@ function renderCtTable(){
   const obj=r=>{ const t=byCt[r.id]||[]; return {kind:'ct', id:r.id, c:r, t, prim:t[0]||null}; };
   V8.lastCt=act.concat(op?done:[]).map(obj);
   const C=DOC.V28.CT_COLS, h=k=>{ const c=C.find(x=>x[0]===k); return v8Th(k,c[1],c[2]); };
-  const head='<tr><th class="v8-bd"></th>'+['ct','date','country','item','latest','ship','staff'].map(h).join('')+'<th class="v8-s v8-s0" data-c="st">L/C</th><th class="v8-s v8-s6" data-c="st">S/I</th>'+['other','next'].map(h).join('')+'</tr>';
+  const head='<tr><th class="v8-bd"></th>'+['etd','ct','date','country','item','latest','ship','staff'].map(h).join('')+'<th class="v8-s v8-s0" data-c="st">L/C</th><th class="v8-s v8-s6" data-c="st">S/I</th>'+['other','next'].map(h).join('')+'</tr>';
   const rowH=r=>{ const o=obj(r), bd=v8Band(o.prim), L=r.lines, it=L===null?'…':L.length?L[0].item+(L.length>1?' ほか '+(L.length-1):''):'—', oc=(r.cells.si&&r.cells.si.otherCt)||[], cp=(S.siCp&&S.siCp[r.id]||[]).length;
-    return '<tr class="v8-r" data-row="ct" data-id="'+esc(r.id)+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td>'+
+    const e=DOC.ctEtd(r.bks,S.today);
+    return '<tr class="v8-r" data-row="ct" data-id="'+esc(r.id)+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td><td class="m" data-c="etd">'+v8D(e,dS(e))+'</td>'+
       '<td class="v8-iv" data-c="ct"><button class="dt-link" data-ct="'+esc(r.id)+'" data-tab="">'+esc(r.ct)+'</button><span class="v8-ct">'+esc(r.buyer||r.buyerName||'—')+'</span></td>'+
       '<td class="m" data-c="date">'+v8D(r.date,dS(r.date))+'</td><td data-c="country">'+esc(r.country||'—')+'</td><td data-c="item">'+esc(it)+'</td><td class="m" data-c="latest">'+v8D(r.latest,dS(r.latest))+'</td>'+
       '<td data-c="ship" title="'+esc(shipTip(r))+'">'+esc(r.shipped+' / '+r.bks.length)+'</td><td data-c="staff">'+v8Staff(r.staff)+'</td>'+
       '<td class="v8-s v8-s0" data-c="st">'+v8Mk(r.cells.lc,'L/C',r.cells.lc.s==='na'||r.cells.lc.s==='load'?'':'data-ct="'+esc(r.id)+'" data-tab="lc"')+'</td><td class="v8-s v8-s6" data-c="st">'+v8Mk(r.cells.si,'S/I',r.cells.si.s==='na'||r.cells.si.s==='load'?'':'data-ct="'+esc(r.id)+'" data-tab="si"')+'</td>'+
       '<td data-c="other">'+(oc.length?'<span class="dt-c-diff">'+esc(oc.join(' · '))+'</span>':'—')+(cp?' <span class="dt-c-diff">CP-A04</span>':'')+'</td>'+v8Next(o)+'</tr>'; };
-  const body=act.map(rowH).join('')+(done.length?'<tr class="ct-fold"><td colspan="13"><button class="ct-done" id="dtCtDone" aria-expanded="'+op+'">'+esc(op?DOC.V22.DONE_LABEL_OPEN(done.length):DOC.V22.DONE_LABEL(done.length))+'</button></td></tr>'+(op?done.map(rowH).join(''):''):'');
+  const body=act.map(rowH).join('')+(done.length?'<tr class="ct-fold"><td colspan="14"><button class="ct-done" id="dtCtDone" aria-expanded="'+op+'">'+esc(op?DOC.V22.DONE_LABEL_OPEN(done.length):DOC.V22.DONE_LABEL(done.length))+'</button></td></tr>'+(op?done.map(rowH).join(''):''):'');
   box.innerHTML=shown.length?'<table class="v8-t" style="min-width:1200px"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>':'<div class="v8-empty">'+(S.q28?'条件に合う契約はありません（検索）':'表示する契約はありません（担当 · 要対応 · 期間の選択を確認）')+'</div>';
   v8Bind(box); v8ColsApply();
   const cd=$('dtCtDone'); if(cd) cd.onclick=()=>{ lsSet(DOC.V22.CT_FOLD_KEY, op?'':'1'); render(); };
@@ -2955,8 +3058,9 @@ function renderSync(){ const el=$('dtSync'); if(!el) return; const d=S.doneAt, h
 /* 「？」 — 説明 · 読み込みの詳しい内容 (前の 「読み込み完了 — …」 · 管理者は中身) */
 function v8Help(){ const R=DOC.TODO_RULES, now=TODO.asof!=null?TODO.asof:DOC.jst(new Date().toISOString()), fo=Object.keys(S.folders).length;
   modal('<div class="dt-h">書類ツール — 見方</div>'+
-    '<div class="dt-p">1 行 = 1 Invoice（今日やること と Invoice 別 を 1 つの表に）。並び = ETD の近い順（B/L ETD 優先）· 「並び」で 期限順 · CY CUT 順。行を押すと 右に詳細（「いまここ」のタブ）· 段階の印を押すとそのタブ。⤢ = 全体 · ✕ = 表に戻る。</div>'+
-    '<div class="dt-p">「要対応のみ」 = 今日やること の 「やること（自分の番）」 の行（同じ数 · 期限順）。待ち（相手の番）は 「すべて」 で ◐。左の色の帯 = 期限（赤 期限切れ · 橙 今日 · 青 これから）。</div>'+
+    '<div class="dt-p">見える範囲（自動）: 過ぎた ETD = FD送付日 が入るまで残る（入ったら終わり · 下の端なし · 90 日前から）· これから = ETD 今日 〜 '+DOC.V29.FOLD_DAYS+' 日後まで · その先は 表の一番下に畳む（押すと開く · この PC に記憶）。FD 済 · 畳んだ行は Invoice フォルダを読みません（開いたとき · 押したときに読む）。OBL → 入金 → SWB のバイヤー（R.A. · DDT）は FD 済でも SWB まで残ります。国内転売は出しません。</div>'+
+    '<div class="dt-p">1 行 = 1 Invoice（今日やること と Invoice 別 を 1 つの表に）。ETD が一番左 · 並び = ETD の近い順（B/L ETD 優先）· 「並び」で 期限順 · CY CUT 順。行を押すと 右に詳細（「いまここ」のタブ）· 段階の印を押すとそのタブ。⤢ = 全体 · ✕ = 表に戻る。</div>'+
+    '<div class="dt-p">「要対応のみ」 = 今日やること の 「やること（自分の番）」 ＋ 「催促」（待ちのうち いつもの時間を過ぎた行 · 次にやること = 「催促: …」）。ほかの待ち（相手の番）は 「すべて」 で ◐。左の色の帯 = 期限（赤 期限切れ · 橙 今日 · 青 これから · 催促）。通関 = チェック（緑 = 通関依頼済 · 「C-01」 = C-01 が入れた）。</div>'+
     '<div class="dt-p">印: ✓ 済 · ● 今やる（確認）· ◆ 相違 · ◐ 相手待ち · ○ まだ · ― 対象外（DEPO はベトナム向けのみ · RR は韓国向けのみ · 保険は CIF のみ · L/C は L/C 取引のみ）· ? 判断の根拠が見つからない。マウスを乗せると理由。</div>'+
     '<div class="dt-p">列の名前の横: C = COMPASS · P = 入力（PORTAL と同じファイル · 変えた欄だけ保存）· M = メール · A = AI。</div>'+
     '<div class="dt-note">いま '+esc(DOC.hmOf(now))+' · 締切 14:30 Draft 確認 · 15:00 送金 · 18:00 宅配'+(S.bk.length&&fo<S.bk.length?' · Invoice フォルダ確認中 '+fo+' / '+S.bk.length:'')+'</div>'+
@@ -2967,9 +3071,9 @@ function v8SideList(){ return S.board==='ctt'?V8.lastCt:V8.last; }
 function v8CurKey(){ return S.cur?(S.cur.type==='iv'?'iv:'+S.cur.iv:'ct:'+S.cur.id):''; }
 function renderSide(){ const el=$('dtSide'); if(!el) return; el.hidden=false; const L=v8SideList(), cur=v8CurKey();
   const one=o=>{ const p=o.prim, bd=v8Band(p), k=o.kind+':'+o.id;
-    if(o.kind==='iv'){ const x=o.x, cells=(x.r&&x.r.cells)||{}; return '<button class="v8-sr'+(k===cur?' on':'')+'" data-sk="'+k+'"><span class="bd'+(bd?' b-'+bd:'')+'"></span><span class="c">'+v8D(x.cut,DOC.ptDateS(x.cut,S.today))+'</span><span class="n"><b>'+esc(x.ivRaw||'—')+'</b> <span class="v8-sub">'+esc(p?p.what:'')+'</span></span><span class="mks">'+DOC.V28.ST_HEAD.map(([kk,n])=>cells[kk]?v8Mk(cells[kk],n,'',true):'').join('')+'</span></button>'; }
+    if(o.kind==='iv'){ const x=o.x, cells=(x.r&&x.r.cells)||{}; return '<button class="v8-sr'+(k===cur?' on':'')+'" data-sk="'+k+'"><span class="bd'+(bd?' b-'+bd:'')+'"></span><span class="c" title="ETD">'+v8D(x.etd,DOC.ptDateS(x.etd,S.today))+'</span><span class="n"><b>'+esc(x.ivRaw||'—')+'</b> <span class="v8-sub">'+esc(p?p.what:'')+'</span></span><span class="mks">'+DOC.V28.ST_HEAD.map(([kk,n])=>cells[kk]?v8Mk(cells[kk],n,'',true):'').join('')+'</span></button>'; }
     const c=o.c, no=c?c.ct:(o.prim&&o.prim.ctRow?o.prim.ctRow.no:''), cut=o.key?o.key.cut:'';
-    return '<button class="v8-sr'+(k===cur?' on':'')+'" data-sk="'+k+'"><span class="bd'+(bd?' b-'+bd:'')+'"></span><span class="c">'+(cut?v8D(cut,DOC.ptDateS(cut,S.today)):c?v8D(c.date,DOC.ptDateS(c.date,S.today)):'')+'</span><span class="n"><b>'+esc(no)+'</b> <span class="v8-sub">'+esc(p?p.what:(c?c.buyer||'':''))+'</span></span><span class="mks">'+(c?v8Mk(c.cells.lc,'L/C','',true)+v8Mk(c.cells.si,'S/I','',true):'')+'</span></button>'; };
+    return '<button class="v8-sr'+(k===cur?' on':'')+'" data-sk="'+k+'"><span class="bd'+(bd?' b-'+bd:'')+'"></span><span class="c">'+(c?(e=>e?v8D(e,DOC.ptDateS(e,S.today)):'—')(DOC.ctEtd(c.bks,S.today)):cut?v8D(cut,DOC.ptDateS(cut,S.today)):'')+'</span><span class="n"><b>'+esc(no)+'</b> <span class="v8-sub">'+esc(p?p.what:(c?c.buyer||'':''))+'</span></span><span class="mks">'+(c?v8Mk(c.cells.lc,'L/C','',true)+v8Mk(c.cells.si,'S/I','',true):'')+'</span></button>'; };
   el.innerHTML='<div class="v8-side-h">'+esc((S.todoOnly?'要対応のみ ':'すべて ')+L.length+' 件 — 押した行が右に開く')+'</div>'+L.map(one).join('');
   el.querySelectorAll('[data-sk]').forEach(b=>{ b.onclick=()=>{ const [kd,id]=[b.dataset.sk.slice(0,2), b.dataset.sk.slice(3)]; (kd==='iv'?openIv(id,''):openCt(id,'')).catch(e=>toast('開けません: '+e.message,'danger')); }; });
   const on=el.querySelector('.v8-sr.on'); if(on&&on.scrollIntoView) try{ on.scrollIntoView({block:'nearest'}); }catch(e){} }
@@ -2993,7 +3097,7 @@ function renderMain(){
   $('dtBIv').classList.toggle('on',!ct); $('dtBCt').classList.toggle('on',ct); $('dtBTodo').classList.remove('on');
   $('dtTodoBox').style.display='none'; $('dtTable').style.display=''; $('dtLegend').style.display='none'; $('dtTodo').style.display=''; $('dtAll').style.display='';
   $('dtTodo').classList.toggle('on',!!S.todoOnly); $('dtAll').classList.toggle('on',!S.todoOnly);
-  $('dtCutBox').style.display=ct?'none':''; $('dtCtCtl').style.display=ct?'':'none'; $('dtSort').style.display=ct?'none':''; $('dtSort').previousElementSibling.style.display=ct?'none':'';
+  $('dtCtCtl').style.display=ct?'':'none'; $('dtSort').style.display=ct?'none':''; $('dtSort').previousElementSibling.style.display=ct?'none':'';
   if(ct){ $('dtCtPeriod').innerHTML=DOC.CT_PERIODS.map(([n,l])=>'<button class="v8-chip dt-chip'+(n===S.ctDays?' on':'')+'" data-days="'+n+'">'+esc(l)+'</button>').join('');
     $('dtCtPeriod').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.ctDays=+b.dataset.days; lsSet(LS.ctdays,String(S.ctDays)); render(); }; }); }
   const so=S.todoOnly?S.sortReq:S.sortAll; $('dtSort').innerHTML=DOC.V28.SORTS.map(([k,l])=>'<option value="'+k+'"'+(k===so?' selected':'')+'>'+esc(l)+'</option>').join('');
@@ -3010,7 +3114,6 @@ function v8Start(){
   $('dtBCt').onclick=()=>{ if(S.legacy){ S.board='ct'; lsSet(LS.board,'ct'); lsSet(DOC.V28.BOARD_KEY,'ct'); render(); return; } S.board='ctt'; lsSet(DOC.V28.BOARD_KEY,'ctt'); show('list'); };
   $('dtBTodo').hidden=!S.legacy; $('dtBTodo').onclick=()=>{ S.board='todo'; lsSet(LS.board,'todo'); lsSet(DOC.V28.BOARD_KEY,'todo'); render(); };
   $('dtSort').onchange=()=>{ if(S.todoOnly) S.sortReq=$('dtSort').value; else S.sortAll=$('dtSort').value; render(); };
-  $('dtCutF').onchange=()=>{ S.cutF=$('dtCutF').value; render(); }; $('dtCutT').onchange=()=>{ S.cutT=$('dtCutT').value; render(); };
   $('dtQ').addEventListener('input',()=>{ clearTimeout(V8.qT); V8.qT=setTimeout(()=>{ S.q28=$('dtQ').value.trim(); if(isNew()&&S.view==='list') render(); },150); });
   $('dtColsBtn').onclick=()=>{ const m=$('dtColsMenu'); m.hidden=!m.hidden; $('dtColsBtn').setAttribute('aria-expanded',String(!m.hidden)); if(!m.hidden) v8ColsMenu(); };
   $('dtHelp').onclick=v8Help;
@@ -3024,7 +3127,7 @@ function v8Start(){
 
 function render(){
   ptWideUi();   // v0.16.1
-  if(S.view!=='list'){ if(isNew()){ if(S.board==='main'){ const R=v8Compute(), b=S.todoOnly?R.req:R.all; V8.last=DOC.sort28(b.filter(v8Filter), S.todoOnly?S.sortReq:S.sortAll); } renderSide(); renderSync(); } return; }   // v0.28 (U5): パネルを開いている間も 左の一覧を新しく
+  if(S.view!=='list'){ if(isNew()){ if(S.board==='main'){ const V=v8Shown(v8Compute()); V8.last=V.shown.concat(v29FarOpen()?V.farShown:[]); } renderSide(); renderSync(); } return; }   // v0.28 (U5): パネルを開いている間も 左の一覧を新しく
   if(isNew()){ renderMain(); return; }   // v0.28 (U2 · U8)
   $('dtMain').classList.add('v8-old');
   $('dtBIv').classList.toggle('on',S.board==='iv'); $('dtBCt').classList.toggle('on',S.board==='ct'); $('dtBTodo').classList.toggle('on',S.board==='todo');
@@ -3657,11 +3760,12 @@ function aclMailSource(b){
 const MAILD = {done:{}, loaded:false};
 async function mailMasters(){ if(MAILD.sales!==undefined) return; try{ MAILD.sales=await LEENAI.master.get('sales_mail'); }catch(e){ MAILD.sales=[]; } try{ MAILD.fwd=await LEENAI.master.get('forwarder'); }catch(e){ MAILD.fwd=[]; } }
 const splitAddr = s => String(s||'').split(/[;,\s]+/).map(x=>x.trim()).filter(x=>/@/.test(x));
-const mailKindOf = r => r&&(r.gkey==='acl'?'acl':r.gkey==='depo'?'depo':r.gkey==='fd'||r.gkey==='fdlc'||r.gkey==='insrr'?'ship':'');
+const mailKindOf = r => r&&(r.gkey==='swb'?'swb':r.gkey==='acl'?'acl':r.gkey==='depo'?'depo':r.gkey==='fd'||r.gkey==='fdlc'||r.gkey==='insrr'?'ship':'');
 async function mailDraftBuild(iv, kind){
   await mailMasters(); const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv); if(!b) throw new Error('船積が見つかりません: '+iv);
   if(S.folders[iv]===undefined) await loadFolder(iv,b); const fo=S.folders[iv], files=fo&&fo.files||[];
   const c=S.ct[b._cr49f_sale_contract_id_value]||{}, by=S.buyers[c._cr49f_buyer_id_value]||{}, ctx=TODO.ctx||{}, buyer=by.cr49f_buyer||'', B=DOC.up(buyer);
+  if(kind==='swb') return swbDraft(iv, b, ctx);   // v0.29 (N35)
   const ms=await mailSalesRow(b, buyer);   // v0.20: Shipping Schedule と同じ 探し方 (AGENT::BUYER → AGENT:: → ::BUYER)
   const sis=S.sis[b._cr49f_sale_contract_id_value]||[], s1=sis.find(x=>+x.crcf9_sino===1)||sis[0]||{};
   const x={iv, lang:ms&&ms.lang||'en', ct:c.cr49f_sale_contract_no||'', po:String(s1.crcf9_po_vo||'').trim(), buyer, name:by.cr49f_buyer_name||'', bl:b.cr49f_bl_number||'', etd:DOC.etdOf(b), files, rcpDom:ctx.companyDom||''};
@@ -3758,7 +3862,7 @@ function b64buf(buf){ const u=new Uint8Array(buf); let s=''; for(let i=0;i<u.len
 async function mailDraftLog(d, m){ const dt=new Date(); MAILD.done[d.iv+'|'+d.kind]=dt.toISOString();
   try{ await spPut(DOC.mailDraftPath(d.iv, d.kind==='acl'?d.type:d.kind, dt), JSON.stringify({kind:'メールの下書き', type:d.type, invoice:d.iv, subject:d.subject, to:d.to, cc:d.cc, att:d.att.map(a=>a.as), outlook:!!m, at:dt.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', by:'書類ツール v'+CFG.version})); }catch(e){} }
 /* 作った下書きの記録 (doc_tool/mail_draft/ · 読むだけ) → 「下書き作成済 HH:MM」 */
-async function mailDoneLoad(){ if(MAILD.loaded) return; MAILD.loaded=true; try{ const k=await spChildren(DOC.OUT_ROOT+DOC.MAIL19.DIR.replace(/\/$/,'')); (k||[]).filter(x=>x.file&&DOC.MAIL19.RE.test(x.name)).forEach(x=>{ const m=x.name.match(/^(.+)_(hon|fix|vessel|depo|ship|lg)_(\d{8})-(\d{6})\.json$/); const kd=/hon|fix|vessel/.test(m[2])?'acl':m[2], at=m[3].replace(/(\d{4})(\d\d)(\d\d)/,'$1-$2-$3')+'T'+m[4].replace(/(\d\d)(\d\d)(\d\d)/,'$1:$2:$3')+'Z'; const k2=m[1]+'|'+kd; if(!MAILD.done[k2]||MAILD.done[k2]<at) MAILD.done[k2]=at; }); }catch(e){} }
+async function mailDoneLoad(){ if(MAILD.loaded) return; MAILD.loaded=true; try{ const k=await spChildren(DOC.OUT_ROOT+DOC.MAIL19.DIR.replace(/\/$/,'')); (k||[]).filter(x=>x.file&&DOC.MAIL19.RE.test(x.name)).forEach(x=>{ const m=x.name.match(/^(.+)_(hon|fix|vessel|depo|ship|lg|swb)_(\d{8})-(\d{6})\.json$/); const kd=/hon|fix|vessel/.test(m[2])?'acl':m[2], at=m[3].replace(/(\d{4})(\d\d)(\d\d)/,'$1-$2-$3')+'T'+m[4].replace(/(\d\d)(\d\d)(\d\d)/,'$1:$2:$3')+'Z'; const k2=m[1]+'|'+kd; if(!MAILD.done[k2]||MAILD.done[k2]<at) MAILD.done[k2]=at; }); }catch(e){} }
 const mailDoneLabel = (iv, kind) => { const t=MAILD.done[DOC.up(iv)+'|'+kind]; return t?'下書き作成済 '+jstHM(t).slice(-5):''; };
 async function mailDraftModal(iv, kind){
   let d; try{ d=await mailDraftBuild(iv, kind); }catch(e){ toast('下書きを作れません: '+e.message,'warn'); return; }
@@ -3845,7 +3949,7 @@ function blRecord(iv, res, at){
 async function blSave(iv, res){ const d=new Date(), rec=blRecord(iv, res, d.toISOString()); await spPut(DOC.blResultPath(iv,d), JSON.stringify(rec)); S.blPrev=S.blPrev||{}; S.blPrev[iv]={rec, name:DOC.blResultPath(iv,d).split('/').pop()}; return rec; }
 /* v0.18 (T-4): 保存した B/L 照合の最新 (今の船積の分 · 読むだけ · 1 回) → S.blPrev (今日やること の 別の契約番号) */
 async function blLatestLoad(seq){ const k=await spChildren(DOC.BL_RESULT_DIR.replace(/\/$/,'')); if(!k||seq!==S.loadSeq) return; const L=DOC.latestAcl(k.filter(x=>x.file).map(x=>x.name));
-  S.blPrev=S.blPrev||{}; const want=S.bk.map(b=>DOC.up(b.cr49f_invoice_no)).filter(iv=>L[iv]&&S.blPrev[iv]===undefined);
+  S.blPrev=S.blPrev||{}; const want=S.bk.map(b=>DOC.up(b.cr49f_invoice_no)).filter(iv=>L[iv]&&S.blPrev[iv]===undefined&&v29NeedIv(iv));
   await mapLimit(want,4,async iv=>{ try{ const t=await spText(DOC.BL_RESULT_DIR+L[iv].name); S.blPrev[iv]=t?{rec:JSON.parse(t), name:L[iv].name}:null; }catch(e){} }); if(want.length) renderSoon(); }
 /* 前回の照合 (いちばん新しい保存 1 つ · 読むだけ) */
 async function blPrevLoad(iv){
@@ -4664,7 +4768,7 @@ async function loadTodoBase(){
   const [car, cus, portal, th, mf, md, ms]=await Promise.all([
     dvAll('crcf9_carriers?$select=crcf9_carrierid,crcf9_carrier').catch(()=>[]),
     dvAll('crcf9_customses?$select=crcf9_customsid,crcf9_forwarder,crcf9_forwarder_to_email,crcf9_forwarder_cc_email').catch(()=>[]),
-    spText(PORTAL_PATH).then(t=>t?JSON.parse(t):null).catch(e=>{ TODO.portalErr=e.message; return null; }),
+    (S.portalP||spText(PORTAL_PATH).then(t=>t?JSON.parse(t):null)).catch(e=>{ TODO.portalErr=e.message; return null; }),
     spText(R.NUDGE_FILE).then(t=>t?JSON.parse(t):null).catch(()=>null),
     LEENAI.master.get('forwarder').catch(()=>[]), LEENAI.master.get('dray').catch(()=>[]), LEENAI.master.get('sales_mail').catch(()=>[])]);
   car.forEach(c=>{ TODO.carriers[c.crcf9_carrierid]=c.crcf9_carrier||''; });
@@ -4748,7 +4852,7 @@ async function loadTodoMail(seq){
 }
 /* 船積 1 件の材料 → DOC.todoSignals → DOC.todoRow (v0.14: 今日終わったもの = DOC.todoDone も) */
 function todoOf(b){
-  const I=todoInput(b), iv=I.iv, x=I.x, r=I.r, now=I.now, Sg=I.sig, fo=I.fo, row=DOC.todoRow(x,Sg,now,TODO.ext), done=DOC.todoDone(Sg,now);
+  const I=todoInput(b), iv=I.iv, x=I.x, r=I.r, now=I.now, Sg=I.sig, fo=I.fo, row=DOC.todoRow(x,Sg,now,TODO.ext)||DOC.swbRow(x,Sg,now,TODO.ext), done=DOC.todoDone(Sg,now);   // v0.29 (N35): FD の後ろ = SWB 切替
   if(done.length) TODO.done.push({iv, carrier:x.carrier, country:x.country, staff:r.staff, list:done});
   if(!row) return null; row.group=DOC.todoGroup(row,now); row.when=DOC.whenLabel(row,now); row.whenSub=DOC.whenSub(row,now);
   const mdn=manDoneHit(iv,row); if(mdn){ (TODO.manShown=TODO.manShown||[]).push({iv, what:row.what, gkey:row.gkey, stage:row.stage, rec:mdn, carrier:x.carrier, country:x.country, staff:r.staff}); return null; }   // v0.23 (N10): 人が 「済にした」 段階 (段階が進めば また出る)
@@ -4761,8 +4865,8 @@ function todoInput(b){
   let aclFiles=[]; if(DOC.aclReady()&&F.length){ try{ const sc=DOC.aclPick(F,iv,{booking:b.cr49f_booking_no, others:bkNos().filter(n=>n!==b.cr49f_booking_no)}).scan; aclFiles=sc.formal.concat(sc.temp).map(a=>a.f); }catch(e){} }
   const r=ivRow(b), x={iv, country:reg.country||'', term:DOC.up(c.cr49f_terms_conditions), pay:DOC.up(FV(c,'cr49f_pay_cls')||c.cr49f_pay_cls), carrier:TODO.carriers[b._cr49f_carrier_id_value]||'', otsu:TODO.fwd[b._cr49f_fowarder_id_value]||'',
     buyer:by.cr49f_buyer_name||'', cut:DOC.isoDay(b.cr49f_cy_cut), cutAm:!!b.cr49f_cut_am, payDate:DOC.isoDay(b.crcf9_maritime_freight_payment_date), blDate:DOC.isoDay(b.crcf9_bl_etd), premium:b.crcf9_insurance_premiums,
-    files:F, aclFiles, portal:{fd_date:sp.fd_date||'', tsukan:!!rec.tsukan_irai, tsukanAt:rec.tsukan_irai_at||''}, mails:TODO.byBk[b.cr49f_bookingid]||[], hon:r.x.hon||[], vchg:r.vchg.length>0, asof:TODO.asof, bookingNo:b.cr49f_booking_no||'', blNo:b.cr49f_bl_number||'',
-    fnameDec:TODO.fnameDec[iv]||null, fdState:TODO.asof!=null?null:(TODO.fdState[iv]||null)};   // v0.15 (B10 · B7 — asof の試験では使わない)
+    files:F, aclFiles, portal:{fd_date:sp.fd_date||'', tsukan:!!rec.tsukan_irai, tsukanAt:rec.tsukan_irai_at||'', furi:sp.furikomi||''/* v0.29: 振込 (③ 手入力) */}, mails:TODO.byBk[b.cr49f_bookingid]||[], hon:r.x.hon||[], vchg:r.vchg.length>0, asof:TODO.asof, bookingNo:b.cr49f_booking_no||'', blNo:b.cr49f_bl_number||'',
+    fnameDec:TODO.fnameDec[iv]||null, fdState:TODO.asof!=null?null:(TODO.fdState[iv]||null), obl:oblOf(iv), paid:DOC.isoDay(b.crcf9_payment_date)};   // v0.15 (B10 · B7 — asof の試験では使わない) · v0.29 (N35)
   const now=TODO.asof!=null?TODO.asof:DOC.jst(new Date().toISOString()); x.now=now;
   return {iv, x, r, now, fo, F, aclFiles, sig:DOC.todoSignals(x)};
 }
@@ -5311,7 +5415,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.28', date:'2026-11-26',
+  sys:'D-00', name:'書類ツール', version:'0.29', date:'2026-11-26',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

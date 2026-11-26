@@ -218,6 +218,10 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - U9 保存の入口 = 접는 띠 (`doc_tool_fold_v28` · 목록은 hidden 으로 DOM 에 있음).
   - 오늘 = 일본 시간 (`v8Today`) · 머리줄 노란 배지 `#dtToday` · 표 · 패널 · 契約 날짜가 오늘이면 `.v8-today` (`--v8-today-bg` #fde047 · 검은 굵은 글자). 1 분 타이머는 jsdom 에서 안 돌림 (시험이 끝나도록).
   - N33 `lgPerson` = `name_en_full` 먼저 · 없으면 `name_en` 대문자 + 확인 (`lgPersonNeed` → LG 依頼者名 칸 need) · N34 `lgHead28` = `[LG付き訂正依頼:BL#{B/L|BKG}] {本船 航海} / {IV}` (모든 선사 · 답장 = + ` Re: 원래 제목`) · `patterns.json` 의 `subj` 는 안 씀 (되돌리기용).
+- **v0.29 (지시서 `THOR_27_지시서_D00_書類ツールv0.29` · 묶음 v0.24 U10 ~ U14 · N35 · N36 + 추가 지시 2 개)** — 낱말 · 숫자 = doc-core `DOC.V29` 한 곳. 판정 함수 (`todoRow` · `judgeIv` · `judgeCt`) 는 그대로 — 바뀐 곳은 셋뿐: ① `swbRow` (N35 · FD 뒤 단계 · `todoRow` 가 null 일 때만) ② `todoSignals` 의 送金 ③ (`portal.furi==='確認済'` · COMPASS 支払日 · 振込明細 메일 없고 Draft 있을 때만 · 「手入力」 · 기한 없음) ③ `isDomestic` 에 船社 / POD 「国内転売」.
+  - U14 보이는 범위 = `DOC.v29Zone` (past · near · far · '') — FD送付日 있으면 빠짐 (N35 = `oblFlow` 는 SWB 끝까지) · ETD 오늘 ~ +14 = 펼침 · 그 뒤 = 표 맨 아래 접힘 (`V29.FOLD_KEY`) · **FD 済 · 접힌 줄은 폴더를 읽지 않음** (`v29NeedIv` — loadAll · loadPortalFolders · blLatestLoad) · 펼치면 `v29LoadFar`. 지난 ETD 는 90 일 (`PAST_DAYS`) 까지 새 화면에서만 `S.bk` 에 더함 (옛 화면 = 그대로).
+  - N35 바이어 = 공통 마스터 `doc_staff` 의 `obl_then_swb` (RA · DD). 着金日 = COMPASS `crcf9_payment_date` (BK_SEL · 읽기만). 끝 = 폴더 `_SWB` · `_SURRENDER` · `Surrendered BL` · `Telex Release` (LG · DRAFT 제외) · 담당 → 바이어 「SWB / Surrendered B/L for …」 · 依頼 뒤 船社 SWB / Surrender 메일. 下書き kind `swb` = `[BL TYPE変更依頼]BL#…` (L/G 는 사람이 첨부).
+  - **주의**: `todoInput` 처럼 한 줄에 여러 칸이 있는 줄에 `//` 주석을 넣지 말 것 (v0.29 작업 중 메일 · 本登録 칸이 주석 처리된 사고 — v29.js 가 `todoInput` 칸을 확인).
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

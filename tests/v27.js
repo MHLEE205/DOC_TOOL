@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const M=DOC.MAIL30, T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z';
 (async()=>{
 console.log('버전 · 엔진');
-ok(/<title>LEENAI D-00 書類ツール v0\.2[78]<\/title>/.test(HTML)&&/version:'0\.2[78]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.27 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.2[789]<\/title>/.test(HTML)&&/version:'0\.2[789]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.27 · 푸터');
 ok(/const ACL_ENGINE = \{commit:'249317df8aaa5b48b63b75c59570168a57f9a923'.*ver:'0\.22'\}/.test(HTML)&&/const BL_ENGINE = \{commit:'d733fb51bbf7500fce1c1e6aecbf774233025481'.*ver:'0\.7'\}/.test(HTML),'엔진 = acl v0.22 (N28 · N29) · bl v0.7');
 
 console.log('N30 인사 · 본문 · HTML (C-01 과 같은 규칙)');

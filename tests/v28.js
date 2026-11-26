@@ -10,7 +10,7 @@ const T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z', PT_PATH='古紙/-. AI �
 const V=DOC.V28;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.28<\/title>/.test(HTML)&&/version:'0\.28'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.28 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.2[89]<\/title>/.test(HTML)&&/version:'0\.2[89]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.28 · 푸터');
 
 console.log('U3 표시 대응 (지금 판정 → 印 · 판정 변경 0)');
 eq(Object.keys(DOC.ST).map(k=>[k,DOC.mark({s:k}).k,DOC.mark({s:k}).g]),[['done','ok','✓'],['todo','now','●'],['diff','ng','◆'],['wait','wait','◐'],['not','todo','○'],['na','na','―'],['unk','unk','?'],['load','load','…']],'ST 8 가지 → 印 (済 ✓ · 確認 ● · 相違 ◆ · 待ち ◐ · 未 ○ · — ― · ? · …)');
@@ -57,16 +57,16 @@ const w=await X.page(W,{first:true, ls:{doc_tool_who:'all'}}); const d=w.documen
 await X.until(()=>ev('TODO.mailSt')==='ok'||ev('TODO.mailSt')==='error',20000).catch(()=>{}); await X.sleep(400); ev('render()'); await X.sleep(100);
 eq(ev('S.board'),'main','처음 화면 = 표 하나 (Invoice)');
 ok(!d.getElementById('dtBTodo').offsetParent&&d.getElementById('dtBTodo').hidden,'「今日やること」 버튼 없음 (표로 합침)');
-eq([...d.querySelectorAll('#dtTable thead th')].map(t=>t.textContent),['','CY CUTC','ETDC','ETAC','POLC','Invoice · 契約C','BKGC','船社 · 本船C','担当','通関','ACL','B/L','DEP','保険','RR','FD','次にやることM','振込P','FD送付日P','備考P'],'U2 열 순서 = 목업 ① · U7 출처 C · M · P');
+eq([...d.querySelectorAll('#dtTable thead th')].map(t=>t.textContent),['','ETDC','ETAC','CY CUTC','POLC','Invoice · 契約C','BKGC','船社 · 本船C','担当','通関','ACL','B/L','DEP','保険','RR','FD','次にやることM','振込P','FD送付日P','備考P'],'U2 열 순서 = 목업 ① (v0.29 U10: ETD 맨 왼쪽) · U7 출처 C · M · P');
 const rows=[...d.querySelectorAll('#dtTable tbody tr.v8-r')]; ok(rows.length>=3,'줄이 있음',rows.length);
 const ivc=rows[0].querySelector('td.v8-iv'); ok(ivc&&ivc.querySelector('.dt-link')&&ivc.querySelector('.v8-ct'),'Invoice · 契約 = 두 줄 (위 Invoice · 아래 契約)');
 ok(/\.v8-iv \.dt-link\{display:block;[^}]*white-space:nowrap/.test(HTML)&&/\.v8-ct\{display:block;[^}]*white-space:nowrap/.test(HTML),'두 줄 고정 (nowrap)');
 /* U3 — 표의 印 = 그 Invoice 의 지금 판정 */
 const mk=ev(`(()=>{ const out=[]; document.querySelectorAll('#dtTable tbody tr.v8-r[data-row=iv]').forEach(tr=>{ const b=S.bk.concat(S.pbk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===tr.dataset.id); if(!b) return; const c=ivRow(b).cells;
-  const got=[...tr.querySelectorAll('td.v8-s .mk')].map(m=>m.className.replace(/.*mk-(\\w+).*/,'$1')), want=DOC.V28.ST_HEAD.map(([k])=>DOC.mark(c[k]).k); out.push([tr.dataset.id, got.join(','), want.join(',')]); }); return out; })()`);
+  const got=[...tr.querySelectorAll('td.v8-s .mk')].map(m=>m.className.replace(/.*mk-(\\w+).*/,'$1')), want=DOC.V28.ST_HEAD.filter(([k])=>!(k==='customs'&&tr.querySelector('input.pt-ts'))).map(([k])=>DOC.mark(c[k]).k);   /* v0.29 (U13): 通関 = チェック 1 つ */ out.push([tr.dataset.id, got.join(','), want.join(',')]); }); return out; })()`);
 ok(mk.length&&mk.every(x=>x[1]===x[2]),'U3 印 = ivRow 판정 그대로 (모든 줄)',mk);
 /* U4 — 要対応 = 今日やること の やること 의 줄 수 */
-const nReq=+d.getElementById('dtTodo').textContent.replace(/\D/g,''), nDo=ev('todoRows().filter(v8Vis()).filter(r=>r.zone!=="wait").length');
+const nReq=+d.getElementById('dtTodo').textContent.replace(/\D/g,''), nDo=ev('todoRows().filter(v8Vis()).filter(DOC.reqRow).length');   /* v0.29 (U11): やること + 催促 */
 eq(nReq,nDo,'要対応のみ n = 今日やること 「やること」 줄 수 (같은 조건)');
 ev('S.board="todo"; render()'); await X.sleep(50);
 const oldDo=d.querySelectorAll('#dtTodoBox .tl-z-do .tl-rows .tl-row').length; ev('S.board="main"; render()'); await X.sleep(50);
@@ -77,7 +77,7 @@ eq(d.getElementById('dtSort').value,'due','要対応 = 期限順');
 const bands=[...d.querySelectorAll('#dtTable tbody tr.v8-r td.v8-bd')].map(t=>t.className.replace('v8-bd','').trim());
 ok(bands.every(b=>b===''||/^b-(late|today|soon)$/.test(b)),'왼쪽 기한 띠 = late · today · soon',bands);
 d.getElementById('dtAll').click(); await X.sleep(50);
-ok(ev('V8.last.length')===+d.getElementById('dtAll').textContent.replace(/\D/g,''),'すべて n = 표의 줄 수');
+ok(ev('(()=>{ const R=v8Compute(); return R.all.length+R.far.length; })()')===+d.getElementById('dtAll').textContent.replace(/\D/g,''),'すべて n = 표의 줄 수 (v0.29: その先 畳んだ行 포함)');
 /* 오늘 = 노랑 */
 const todayCell=[...d.querySelectorAll('#dtTable td[data-c=cut] .v8-today')]; ok(todayCell.length>=1&&/\.v8-today\{background:var\(--v8-today-bg\)!important;color:var\(--v8-today-fg\)!important/.test(HTML),'오늘인 CY CUT 칸 = 노란 바탕 · 검은 굵은 글자',todayCell.length);
 ok(!d.querySelector('#dtTable td[data-c=etd] .v8-today')||ev('S.bk.some(b=>DOC.ptEtd(b)===v8Today())'),'오늘이 아닌 칸은 그대로');
