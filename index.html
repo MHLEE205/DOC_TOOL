@@ -3801,7 +3801,7 @@ function aclMailSource(b){
 const MAILD = {done:{}, loaded:false};
 async function mailMasters(){ if(MAILD.sales!==undefined) return; try{ MAILD.sales=await LEENAI.master.get('sales_mail'); }catch(e){ MAILD.sales=[]; } try{ MAILD.fwd=await LEENAI.master.get('forwarder'); }catch(e){ MAILD.fwd=[]; } }
 const splitAddr = s => String(s||'').split(/[;,\s]+/).map(x=>x.trim()).filter(x=>/@/.test(x));
-const mailKindOf = r => r&&(r.gkey==='swb'?'swb':r.gkey==='acl'?'acl':r.gkey==='depo'?'depo':r.gkey==='fd'||r.gkey==='fdlc'||r.gkey==='insrr'?'ship':'');
+const mailKindOf = r => r&&!r.fdIn&&(r.gkey==='swb'?'swb':r.gkey==='acl'?'acl':r.gkey==='depo'?'depo':r.gkey==='fd'||r.gkey==='fdlc'||r.gkey==='insrr'?'ship':'');
 async function mailDraftBuild(iv, kind){
   await mailMasters(); const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv); if(!b) throw new Error('船積が見つかりません: '+iv);
   if(S.folders[iv]===undefined) await loadFolder(iv,b); const fo=S.folders[iv], files=fo&&fo.files||[];

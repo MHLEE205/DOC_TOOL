@@ -68,6 +68,7 @@ ok(sg2.bmail==null,'依頼 아닌 受付 (入金連絡) = 신호 아님');
 console.log('F-1 FD送付日を入力');
 const fi=DOC.fdInputRow({portal:{fd_date:''}},{fd:at('2026-11-10','18:00'), fdSrc:'フォルダ FD'});
 ok(fi&&fi.what==='FD送付日を入力'&&fi.zone==='do'&&fi.due==null&&DOC.todoGroup(fi,NOW)==='today'&&DOC.reqRow(fi)&&/フォルダ FD 11\/10/.test(fi.why),'F-1 FD 끝 · FD送付日 빈칸 = 「FD送付日を入力」 (要対応 · 🟡 · 기한 없음)',fi);
+ok(/const mailKindOf = r => r&&!r\.fdIn&&/.test(HTML),'「FD送付日を入力」 = 下書き 버튼 없음 (「提案」 으로 입력)');
 ok(DOC.fdInputRow({portal:{fd_date:'2026-11-10'}},{fd:at('2026-11-10','18:00')})==null&&DOC.fdInputRow({portal:{fd_date:''}},{fd:null})==null,'FD送付日 있음 · FD 아직 = 없음');
 ok(/row=DOC\.todoRow\(x,Sg,now,TODO\.ext\)\|\|DOC\.swbRow\(x,Sg,now,TODO\.ext\)\|\|DOC\.fdInputRow\(x,Sg\)/.test(HTML),'순서 = 단계 → N35 SWB → FD送付日を入力 (SWB 끝난 뒤)');
 
