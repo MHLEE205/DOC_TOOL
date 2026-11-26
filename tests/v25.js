@@ -99,10 +99,10 @@ ok(DOC.NAME.LG.test('TST2699-01_LG.xlsx')&&DOC.NAME.LG.test('TST2699-01_LG REV2.
 
 console.log('下書き');
 let m=DOC.lgMailDraft({pat:P.carriers.TESTLINE, carrier:'TESTLINE', iv:'TST2699-01', bl:'TST000001', bkg:'BKTST01', blocks:[{label:'NOTIFY PARTY', before:'A#DEPOSIT', after:'A#1'}], src:null, att:'TST2699-01_LG.xlsx', rcpDom:'example.test'});
-eq([m.subject, m.to, m.cc, m.att, m.block, m.mode],['[LG付き訂正依頼:TST000001] / TST2699-01',['amend@carrier.example.test'],['cs@carrier.example.test','rcp@example.test'],[{name:'TST2699-01_LG.xlsx', as:'LG(TST000001).xlsx'}],'','new'],'새 메일 — 실적 받는 사람 · 제목 · 첨부 이름 (선사 모양) · CC rcp@');
+eq([m.subject, m.to, m.cc, m.att, m.block, m.mode],['[LG付き訂正依頼:BL#TST000001] / TST2699-01',['amend@carrier.example.test'],['cs@carrier.example.test','rcp@example.test'],[{name:'TST2699-01_LG.xlsx', as:'LG(TST000001).xlsx'}],'','new'],'새 메일 — 실적 받는 사람 · 제목 · 첨부 이름 (선사 모양) · CC rcp@ (v0.28 N34: 모든 선사 같은 머리)');
 ok(/^テストライン株式会社\nご担当者様\n\nいつもお世話になっております。\n\nBL NO.TST000001につきまして、\nLG通りご訂正をお願いできますでしょうか。/.test(m.body)&&!/■|（訂正前）/.test(m.body)&&/何卒よろしくお願い申し上げます。$/.test(m.body),'본문 = 大場 방식 + 정정 목록',m.body);
 m=DOC.lgMailDraft({pat:P.carriers.REPLYLINE, carrier:'REPLYLINE', iv:'TST2699-01', bl:'TST000001', blocks:[], src:{id:'MSG1', subj:'RE: Draft B/L TST000001'}, att:'TST2699-01_LG.xlsx', rcpDom:'example.test'});
-eq([m.mode, m.srcId, m.subject, m.to],['reply','MSG1','<LG訂正の依頼> BL#TST000001 / TST2699-01 Re: Draft B/L TST000001',[]],'답장 선사 = Draft 메일에 답장 · 제목 앞 태그');
+eq([m.mode, m.srcId, m.subject, m.to],['reply','MSG1','[LG付き訂正依頼:BL#TST000001] / TST2699-01 Re: Draft B/L TST000001',[]],'답장 선사 = Draft 메일에 답장 · 제목 앞 태그 (v0.28 N34: 모든 선사 같은 머리)');
 ok(/^REPLYLINE\nご担当者様/.test(m.body),'{CARRIER} 머리');
 m=DOC.lgMailDraft({pat:P.carriers.REPLYLINE, carrier:'REPLYLINE', iv:'TST2699-01', bl:'TST000001', blocks:[], src:null, att:'TST2699-01_LG.xlsx', rcpDom:'example.test'});
 ok(m.mode==='new'&&m.warn.some(w=>/元の B\/L Draft/.test(w))&&m.warn.some(w=>/宛先が分かりません/.test(w)),'Draft 메일 없음 = 새 메일 + 안내 · 받는 사람 없음 경고');
@@ -112,7 +112,7 @@ ok(/添付名が違う/.test(DOC.lgAttCheck('LG(TST000009).xlsx','[LG付き訂�
 ok(/別の Invoice/.test(DOC.lgAttCheck('TST2699-02_LG(TST000001).xlsx','[LG付き訂正依頼:TST000001]',{bl:'TST000001', iv:'TST2699-01'})),'다른 Invoice = 막음');
 ok(/件名/.test(DOC.lgAttCheck('LG(TST000001).xlsx','[LG付き訂正依頼]',{bl:'TST000001', iv:'TST2699-01'})),'제목에 이 선적 번호 없음 = 막음');
 m=DOC.lgMailDraft({pat:{mail:{mode:'new', head:[], subj:'[LG付き訂正依頼]', body:[], att:'TESTLINE_LG({BL}).xlsx', to:['a@carrier.example.test'], cc:[]}}, iv:'TST2699-01', bl:'TST000001', blocks:[], att:'TST2699-01_LG.xlsx', rcpDom:'example.test'});
-eq([m.subject, m.block],['[LG付き訂正依頼] BL#TST000001 / TST2699-01',''],'번호 없는 제목 모양 = 「 BL#번호」 를 붙임');
+eq([m.subject, m.block],['[LG付き訂正依頼:BL#TST000001] / TST2699-01',''],'번호 없는 제목 모양 = 「 BL#번호」 를 붙임 (v0.28 N34: 모든 선사 같은 머리)');
 ['send','sendMail','forward','reply','move','copy'].forEach(v=>{ let e=''; try{ DOC.guardMail('POST','me/messages/ID/'+v); }catch(x){ e=x.message; } ok(!!e,'보내기 막힘 '+v); });
 ok(DOC.guardMail('POST','me/messages')&&DOC.guardMail('POST','me/messages/ID/createReplyAll')&&DOC.guardMail('POST','me/messages/ID/attachments')&&DOC.guardMail('PATCH','me/messages/ID'),'下書き 만 허용');
 ok(!/\/send(Mail)?['"]|sendMail\(/.test(HTML.replace(/guardMail[\s\S]{0,400}/,'')),'보내는 코드 없음');

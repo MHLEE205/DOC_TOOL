@@ -64,7 +64,7 @@ console.log('T-3 保存の入口 (담당이 보낸 FD · TO BANK)');
     {id:'s1',subject:'[선적서류안내]#LRS-2611AA1_NAA2611-01_10MT',from:{emailAddress:{address:'tester@example.test'}},receivedDateTime:now,hasAttachments:true,attachments:[{id:'a1',name:'NAA2611-02_FD.pdf',isInline:false,size:100},{id:'a9',name:'NAA2611-01_IV.pdf',isInline:false,size:100}]},
     {id:'s2',subject:'FD NAA2611-01',from:{emailAddress:{address:'tester@example.test'}},receivedDateTime:now,hasAttachments:true,attachments:[{id:'a2',name:'NAA2611-01_TO BANK.pdf',isInline:false,size:100}]}]);
   const PDF=await BF.mkPdf([[{x:40,y:60,t:'INVOICE NO. NAA2611-01'}]]); W.attBytes={'s1|a1':PDF, 's2|a2':await BF.mkPdf([[{x:40,y:60,t:'TO BANK NAA2611-01 DOCUMENTS'}]]), 's1|a9':PDF};
-  const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all', doc_tool_save_test:'1'}}); w.pdfjsLib=R.pdfjsForWindow();
+  const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_board_v28:'todo', doc_tool_who:'all', doc_tool_save_test:'1'}}); w.pdfjsLib=R.pdfjsForWindow();
   await X.until(()=>w.eval('SAVE.mailSt')==='ok'||w.eval('SAVE.mailSt')==='error',20000); await X.until(()=>w.eval('SAVE.rows').filter(r=>r.staff).length>=2&&w.eval('SAVE.rows').filter(r=>r.staff).every(r=>r.res),20000).catch(()=>{});
   const rows=w.eval('SAVE.rows'), bad=rows.find(r=>r.mailId==='s1'&&r.attName==='NAA2611-02_FD.pdf'), good=rows.find(r=>r.mailId==='s2');
   ok(bad&&bad.res==='添付名が違う'&&/保存しません/.test(bad.msg)&&!bad.target,'제목 NAA2611-01 · 첨부 NAA2611-02 → 저장 안 함 · 빨강 「添付名が違う」',bad&&{res:bad.res,msg:bad.msg});
@@ -81,7 +81,7 @@ console.log('T-3 保存の入口 (담당이 보낸 FD · TO BANK)');
 console.log('T-4 B/L Draft 「別の契約番号」 → 今日やること');
 { const W=X.world(); W.sp[OUT+'bl']=[{id:'bl1',name:'NAA2611-01_20261123-093000.json',file:{}}];
   W.content[OUT+'bl/NAA2611-01_20261123-093000.json']=JSON.stringify({kind:'B/L Draft 照合', invoice:'NAA2611-01', contract:'LRS-2611AA1', verdict:'相違', conclusion:'相違の疑い 1 か所', at:'2026-11-23T09:30:00Z', result:{verdict:'相違', otherCt:[{no:'LRS-2699ZZ2', text:'CONTRACT NO. LRS-2699ZZ2', p:1}]}});
-  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>/別の契約番号: LRS-2699ZZ2（B\/L Draft）/.test(txt(w,'dtTodoBox')),15000).catch(()=>{});
+  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>/別の契約番号: LRS-2699ZZ2（B\/L Draft）/.test(txt(w,'dtTodoBox')),15000).catch(()=>{});
   const row=qa(w,'.tl-row').find(r=>/LRS-2699ZZ2/.test(r.textContent)); ok(row&&/NAA2611-01/.test(row.textContent)&&row.querySelector('.tl-d-late'),'今日やること 빨강 「別の契約番号: LRS-2699ZZ2（B/L Draft）」',row&&row.textContent);
   ok(W.writes.length===0,'쓰기 0'); w.close(); }
 

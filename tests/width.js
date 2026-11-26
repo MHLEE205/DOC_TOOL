@@ -43,7 +43,7 @@ function worldW(){
     await pg.exposeFunction('__mg', n=>JSON.stringify(n==='staff'?W.staff:n==='doc_staff'?W.docStaff:[]));
     await pg.exposeFunction('__nf', async (url, method, headers, body)=>{ const r=await fakeFetch(url,{method,headers,body}); let text='', b64=false;
       if(typeof r.text==='function'){ text=await r.text(); } else { text=Buffer.from(await r.arrayBuffer()).toString('base64'); b64=true; } return {status:r.status, text, b64}; });
-    await pg.evaluateOnNewDocument(()=>{ try{ localStorage.setItem('doc_tool_board_v7','iv'); localStorage.setItem('doc_tool_who','all'); localStorage.setItem('doc_tool_iv_mode_v16','portal'); }catch(e){}
+    await pg.evaluateOnNewDocument(()=>{ try{ localStorage.setItem('doc_tool_board_v7','iv'); localStorage.setItem('doc_tool_board_v28','iv'); localStorage.setItem('doc_tool_who','all'); localStorage.setItem('doc_tool_iv_mode_v16','portal'); }catch(e){}
       window.fetch=async(url,init)=>{ init=init||{}; let body=init.body; if(body&&typeof body!=='string'&&typeof body.text==='function') body=await body.text();
         const r=await window.__nf(String(url), String(init.method||'GET').toUpperCase(), init.headers||{}, body||null);
         const data=r.b64?Uint8Array.from(atob(r.text),c=>c.charCodeAt(0)):r.text; const st=r.status===204?200:r.status; return new Response(st===204?null:data,{status:st}); }; });
@@ -74,7 +74,7 @@ function worldW(){
     ok(nt.nw>=300&&nt.w1===nt.w0,'備考 칸 누르면 넓어짐 (표 폭 그대로)',nt);
     /* ETD 範囲 (v0.15 표) 로 가면 원래 폭 */
     await pg.click('#dtIvEtd'); await new Promise(r=>setTimeout(r,200));
-    const mw=await pg.evaluate(()=>getComputedStyle(document.getElementById('dtMain')).maxWidth); ok(mw==='1240px','「ETD 範囲で見る」 = 원래 폭 (1240)',mw);
+    const mw=await pg.evaluate(()=>getComputedStyle(document.getElementById('dtMain')).maxWidth); ok(mw==='none','v0.28 (U1): 「ETD 範囲で見る」 도 창 폭 전체 (가운데 틀 없음)',mw);
     /* v0.22 (V1): 書類の表示を開いた状態 — ACL · B/L Draft · FD タブ = 左 書類 / 右 結果 · 가로 넘침 0 (1,920 · 1,366) · 좁으면 위/아래 */
     for(const tab of ['acl','bl','fd']){
       await pg.setViewport({width:1920,height:1080}); await pg.evaluate(t=>{ openIv('NAA2611-01', t); }, tab);
@@ -88,6 +88,26 @@ function worldW(){
         ok(m.bar,'v0.22 '+tab+' 보기 막대 (← → · 확대 · ⟲ ⟳ 180°)',m);
         if(SHOT) await pg.screenshot({path:path.join(SHOT,'v22_'+tab+'_'+wd+'.png')}); }
       await pg.evaluate(()=>{ const b=document.querySelector('[data-back]'); if(b) b.click(); }); await new Promise(r=>setTimeout(r,300)); }
+    /* v0.28 (U1 · U2 · U5): 새 화면 = 표 하나 — 1,920 · 1,905 · 1,366 · 1,351 에서 페이지 가로 넘침 0 (표는 자기 상자 안에서만 가로 스크롤) · 줄 높이 ≤ 44 px (Invoice / 契約 두 줄) */
+    await pg.evaluate(()=>{ S.legacy=false; S.board='main'; S.todoOnly=false; show('list'); }); await new Promise(r=>setTimeout(r,500));
+    for(const [wd,ht] of [[1920,1080],[1905,1080],[1366,768],[1351,768]]){
+      await pg.setViewport({width:wd,height:ht}); await pg.evaluate(()=>window.scrollTo(0,0)); await new Promise(r=>setTimeout(r,300));
+      const m=await pg.evaluate(()=>{ const d=document.documentElement, t=document.getElementById('dtTable'), tb=t.querySelector('table.v8-t'), H=[...tb.querySelectorAll('tbody tr.v8-r')].map(r=>r.getBoundingClientRect().height);
+        const vis=[...tb.querySelectorAll('tbody tr.v8-r')].filter(r=>{ const b=r.getBoundingClientRect(); return b.top>=0&&b.bottom<=innerHeight; }).length, bar=document.getElementById('dtBar').getBoundingClientRect();
+        return {docOver:d.scrollWidth-d.clientWidth, boxScroll:t.scrollWidth-t.clientWidth, ov:getComputedStyle(t).overflowX, rowMax:Math.round(Math.max(...H)), rows:H.length, visible:vis, barH:Math.round(bar.height)}; });
+      ok(m.docOver<=0,'v0.28 '+wd+' px — 페이지 가로 넘침 0',m);
+      if(wd===1920) console.log('  cols', JSON.stringify(await pg.evaluate(()=>[...document.querySelectorAll('#dtTable table.v8-t thead th')].map(t=>(t.textContent||'|')+':'+Math.round(t.getBoundingClientRect().width)))));
+      ok(m.ov==='auto','v0.28 '+wd+' px — 넓으면 표 상자 안에서만 가로 스크롤',m);
+      ok(m.rowMax<=44,'v0.28 '+wd+' px — 줄 높이 ≤ 44 px (Invoice / 契約 두 줄)',m);
+      console.log('  v0.28 '+wd+' px — 한 화면에 보이는 줄 '+m.visible+' / '+m.rows+' · 표 상자 안 가로 스크롤 '+m.boxScroll+' px · 조작줄 높이 '+m.barH);
+      if(SHOT) await pg.screenshot({path:path.join(SHOT,'v28_'+wd+'.png')}); }
+    await pg.setViewport({width:1920,height:1080}); await pg.evaluate(()=>{ openIv('NAA2611-01','acl'); }); await pg.waitForFunction(()=>!!document.getElementById('dtDV'),{timeout:60000}); await new Promise(r=>setTimeout(r,800));
+    for(const [wd,ht] of [[1920,1080],[1366,768]]){
+      await pg.setViewport({width:wd,height:ht}); await new Promise(r=>setTimeout(r,300));
+      const m=await pg.evaluate(()=>{ const d=document.documentElement, sd=document.getElementById('dtSide'), iv=document.getElementById('dtIv'), a=sd.getBoundingClientRect(), b=iv.getBoundingClientRect();
+        return {docOver:d.scrollWidth-d.clientWidth, side:!sd.hidden&&a.width>0&&a.right<=b.left+1, sw:Math.round(a.width), pw:Math.round(b.width), hash:location.hash}; });
+      ok(m.docOver<=0&&m.side&&/^#iv=NAA2611-01&tab=acl$/.test(m.hash),'v0.28 '+wd+' px — 오른쪽 패널 (왼쪽 좁은 목록 · 가로 넘침 0 · URL)',m);
+      if(SHOT) await pg.screenshot({path:path.join(SHOT,'v28_panel_'+wd+'.png')}); }
   } finally { await br.close(); }
   console.log((fail?'FAIL':'PASS')+' width — pass '+pass+' fail '+fail); process.exitCode=fail?1:0;
 })().catch(e=>{ console.log('FAIL width 예외',e.stack); process.exitCode=1; });

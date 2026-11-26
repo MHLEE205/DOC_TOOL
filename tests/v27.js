@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const M=DOC.MAIL30, T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z';
 (async()=>{
 console.log('버전 · 엔진');
-ok(/<title>LEENAI D-00 書類ツール v0\.27<\/title>/.test(HTML)&&/version:'0\.27'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.27 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.2[78]<\/title>/.test(HTML)&&/version:'0\.2[78]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.27 · 푸터');
 ok(/const ACL_ENGINE = \{commit:'249317df8aaa5b48b63b75c59570168a57f9a923'.*ver:'0\.22'\}/.test(HTML)&&/const BL_ENGINE = \{commit:'d733fb51bbf7500fce1c1e6aecbf774233025481'.*ver:'0\.7'\}/.test(HTML),'엔진 = acl v0.22 (N28 · N29) · bl v0.7');
 
 console.log('N30 인사 · 본문 · HTML (C-01 과 같은 규칙)');
@@ -91,7 +91,7 @@ console.log('N27 S/I = 계약 1 줄');
   /* 화면 — 같은 계약 Invoice 2 개 → 1 줄 · 계약번호 · S/I を開く */
   const W=X.world(); W.sis[0].crcf9_bencert_text='WE CERTIFY … CONTRACT NUMBER (LRS-2609ZZ9)';
   W.bookings[0].cr49f_cy_cut=D(2); W.bookings[1].cr49f_cy_cut=D(8);
-  const w=await X.page(W,{first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>!!w.document.querySelector('.tl-zone'),10000);
+  const w=await X.page(W,{first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>!!w.document.querySelector('.tl-zone'),10000);
   const rows=[...w.document.querySelectorAll('.tl-row')].filter(r=>/別の契約番号: LRS-2609ZZ9/.test(r.textContent));
   ok(rows.length===1&&/LRS-2611AA1/.test(rows[0].querySelector('.tl-iv').textContent)&&/NAA2611-01 ほか 1 件/.test(rows[0].querySelector('.tl-iv').textContent)&&!!rows[0].querySelector('.tl-iv [data-tdct]'),'같은 계약 Invoice 2 개 = 1 줄 · 계약번호 · Invoice 작게 · 누르면 계약 S/I',rows.map(r=>r.textContent));
   ok(rows[0]&&/^期限 /.test(rows[0].querySelector('.tl-due').textContent),'기한 = 가장 이른 CY_CUT',rows[0]&&rows[0].querySelector('.tl-due').textContent);

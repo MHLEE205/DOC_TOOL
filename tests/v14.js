@@ -77,7 +77,7 @@ console.log('3 화면');
 { const W=X.world(), T=W.T, D=n=>X.addDays(T,n)+'T00:00:00Z';
   W.bookings[0].crcf9_bl_etd=D(-1); W.bookings[0].crcf9_maritime_freight_payment_date=X.addDays(T,-1); W.bookings[0].cr49f_cy_cut=D(-3);
   W.bookings[0]._cr49f_carrier_id_value=X.g('6',1); W.carriers=[{crcf9_carrierid:X.g('6',1), crcf9_carrier:'ONE'}];
-  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}});
+  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}});
   await X.until(()=>!!w.document.querySelector('.tl-zone'));
   eq(qa(w,'.tl-zone').map(z=>z.className.match(/tl-z-(\w+)/)[1]),['do','wait','done','man'],'구역 순서 やること → 待ち → 今日終わったもの → 済にしたもの (v0.23)');
   eq(qa(w,'.tl-z-do .tl-gt').map(b=>b.textContent.replace(/^[▼▶·] /,'')),R.TGROUPS.filter(g=>g[1]==='do').map(g=>g[2]),'やること 그룹 이름 = 표 순서');
@@ -99,7 +99,7 @@ console.log('3 화면');
   ok(!W.writes.length,'쓰기 0',W.writes); }
 /* 폴더 전 — COMPASS 만으로 먼저 그림 (Step 4-1) */
 { const W=X.world(); let firstRows=-1, foldersAt=-1;
-  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}, init:win=>{ const f0=win.fetch; win.fetch=async(u,o)=>{ if(/\$batch/.test(u)&&firstRows<0){ await new Promise(r=>setTimeout(r,30)); const b=win.document.getElementById('dtTodoBox'); firstRows=b?b.querySelectorAll('.tl-zone').length:0; foldersAt=Object.values(win.eval('S.folders')).filter(v=>v&&typeof v==='object').length; } return f0(u,o); }; }});
+  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}, init:win=>{ const f0=win.fetch; win.fetch=async(u,o)=>{ if(/\$batch/.test(u)&&firstRows<0){ await new Promise(r=>setTimeout(r,30)); const b=win.document.getElementById('dtTodoBox'); firstRows=b?b.querySelectorAll('.tl-zone').length:0; foldersAt=Object.values(win.eval('S.folders')).filter(v=>v&&typeof v==='object').length; } return f0(u,o); }; }});
   ok(firstRows===4&&foldersAt===0,'폴더를 읽기 전에 할 일 화면 (세 구역) 이 이미 그려짐',{firstRows,foldersAt}); }
 
 console.log('4 保存の入口');
@@ -118,7 +118,7 @@ function mkWorld(){
 }
 const rowsTxt=w=>qa(w,'#dtInbox .sv-row').map(r=>r.textContent);
 const flush=async W=>{ for(const x of W.writes){ const u=decodeURIComponent(x.url), m=u.match(/root:\/(.*doc_tool\/save_log\/[^:]+):\/content/); if(m&&!W.content[m[1]]) W.content[m[1]]=typeof x.body==='string'?x.body:await x.body.text(); } };
-{ const W=mkWorld(), w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all'}});
+{ const W=mkWorld(), w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}});
   await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>SV(w).rows.length===2&&SV(w).rows.every(r=>r.res),20000);
   const res=SV(w).rows.map(r=>r.res).sort(); eq(res,['2版目','重複'],'(준비) 새 판 1 · 重複 1');
   ok(rowsTxt(w).length===1&&/2版目/.test(rowsTxt(w)[0]),'할 일 (新規 · N版目 · 不明 · フォルダなし) 만 펼침',rowsTxt(w));
@@ -132,22 +132,22 @@ const flush=async W=>{ for(const x of W.writes){ const u=decodeURIComponent(x.ur
   const box=w.document.getElementById('dtInbox').textContent; ok(/新しい書類 0 件（直近 5 営業日のメールを確認 · \d\d:\d\d）/.test(box)&&!w.document.querySelector('#dtInbox .sv-row'),'할 일 0 → 한 줄 「新しい書類 0 件（直近 5 営業日のメールを確認 · HH:MM）」 (v0.17 F10)',box.slice(0,200));
   /* 다시 열기 — 기억한 2 건은 안 나옴 · 첨부도 안 내려받음 */
   await flush(W); const W2=Object.assign(mkWorld(),{sp:W.sp, content:W.content}); W2.writes=[]; W2.req=[];
-  const w2=await X.page(W2,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>SV(w2).mailSt==='ok',20000); await X.sleep(30);
+  const w2=await X.page(W2,{...INIT, html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>SV(w2).mailSt==='ok',20000); await X.sleep(30);
   ok(SV(w2).rows.length===0&&!W2.req.some(r=>/attachments\/a\d\/\$value/.test(r)),'새로 열어도 取消 · 重複 은 안 나옴 · 첨부 안 내려받음',{rows:SV(w2).rows.map(r=>r.res), req:W2.req.filter(r=>/\$value/.test(r))}); }
 { /* 이름 · 크기가 폴더 파일과 같으면 안 내려받음 */
   const W=mkWorld(); W.messages=W.messages.filter(m=>!/^m\d$/.test(m.id||'')); const D=X.addDays(W.T,0)+'T01:00:00Z';
   W.messages.push({id:'m5',subject:'ACL TESTBK1 NAA2611-01',from:{emailAddress:{address:'otsu@forwarder.test'}},receivedDateTime:D,hasAttachments:true,bodyPreview:'',attachments:[{id:'a5',name:'NAA2611-01_ACL.pdf',contentType:'application/pdf',size:10,isInline:false}]});
   W.attBytes['m5|a5']=PDF1;
-  const w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>SV(w).mailSt==='ok',20000);
+  const w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>SV(w).mailSt==='ok',20000);
   const r=SV(w).rows[0]; ok(r&&r.res==='重複'&&/名前 · 大きさが同じ/.test(r.msg)&&!W.req.some(x=>/attachments\/a5\/\$value/.test(x)),'이름 · 크기 같음 → 重複 (첨부 안 내려받음)',r&&r.msg); }
 { /* 保存済みファイルを読めない → 再確認 (새 판으로 잘못 보지 않음) */
   const W=mkWorld(); W.itemBytes={};   // 폴더의 ACL 파일 내용 = 404
-  const w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>SV(w).rows.length===2&&SV(w).rows.every(r=>r.res),20000);
+  const w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>SV(w).rows.length===2&&SV(w).rows.every(r=>r.res),20000);
   ok(SV(w).rows.every(r=>r.res==='再確認')&&!w.document.querySelector('#dtInbox [data-svsave]'),'保存済み 파일을 못 읽음 → 「再確認」 (저장 버튼 없음 · 重複 / 新しい版 으로 단정하지 않음)',SV(w).rows.map(r=>r.res));
   ok(!W.writes.length,'再確認 은 기억하지 않음 (쓰기 0)'); }
 
 console.log('5 속도 — $batch · 기억');
-{ const W=X.world(), w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}});
+{ const W=X.world(), w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}});
   const ch=W.req.filter(r=>/:\/children/.test(r)&&/▲ 書類作成中\/N/.test(decodeURIComponent(r)));
   ok(W.batches>=1&&ch.length>=2,'Invoice 폴더 = $batch 로 읽음',{batches:W.batches, ch:ch.length});
   ok(!W.writes.length,'$batch (GET 만) 은 쓰기가 아님 · 쓰기 0',W.writes);
@@ -160,9 +160,9 @@ console.log('5 속도 — $batch · 기억');
   eq([...new Set(ch2)],['NBB2611-01'],'두 번째 열기 → 바뀐 폴더 (NBB2611-01) 만 다시 읽음');
   ok(/前回のまま 1/.test(w2.eval('S.doneMsg')),'완료 줄에 「前回のまま n」',w2.eval('S.doneMsg'));
   eq(JSON.stringify(w2.eval('S.folders["NAA2611-01"].files.map(f=>f.name).sort()')),JSON.stringify(w.eval('S.folders["NAA2611-01"].files.map(f=>f.name).sort()')),'기억한 폴더 = 읽은 것과 같음');
-  const W3=X.world(), w3=await X.page(W3,{html:HFILE, first:true, ls:{doc_tool_who:'all', doc_tool_folders_v14:'{broken'}}); ok(/前回のまま 0/.test(w3.eval('S.doneMsg')),'기억이 깨져 있으면 → 전부 읽음 (오류 없음)'); }
+  const W3=X.world(), w3=await X.page(W3,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all', doc_tool_folders_v14:'{broken'}}); ok(/前回のまま 0/.test(w3.eval('S.doneMsg')),'기억이 깨져 있으면 → 전부 읽음 (오류 없음)'); }
 { /* $batch 실패 → 1 건씩 (지금처럼) */
-  const W=X.world(); const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}, init:win=>{ const f0=win.fetch; win.fetch=async(u,o)=>/\$batch/.test(u)?{ok:false,status:400,headers:{get:()=>null},json:async()=>({})}:f0(u,o); }});
+  const W=X.world(); const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}, init:win=>{ const f0=win.fetch; win.fetch=async(u,o)=>/\$batch/.test(u)?{ok:false,status:400,headers:{get:()=>null},json:async()=>({})}:f0(u,o); }});
   ok(w.eval('typeof S.folders["NAA2611-01"]==="object"&&S.folders["NAA2611-01"].files.length>=3'),'$batch 안 되면 → 1 건씩 읽어서 같은 결과'); }
 { const app=HTML.split('<script id="doc-app">')[1]||''; const gb=app.slice(app.indexOf('async function graphBatch'), app.indexOf('async function loadFoldersBatch'));
   ok(/method:'GET'/.test(gb)&&!/method:'(?:PUT|PATCH|DELETE)'/.test(gb)&&(gb.match(/method:/g)||[]).length===2,'graphBatch: 안의 요청 = GET 고정 (밖은 POST $batch 1 곳)'); }

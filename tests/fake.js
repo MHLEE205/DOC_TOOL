@@ -165,7 +165,9 @@ async function page(W, opt){
     w.open=(u)=>{ W.opened.push(u); return null; }; Object.defineProperty(w.navigator,'clipboard',{value:{writeText:async t=>{ W.copied=t; }}});
     /* v0.7: 最初の画面は 今日やること — v0.6 までの試験は 前の現況板 (doc_tool_board · 既定 Invoice 別) で開く (opt.first なら何も入れない = 本当の最初の画面) */
     const L=Object.assign({},opt.ls||{}); if(!opt.first&&L.doc_tool_board_v7===undefined) L.doc_tool_board_v7=L.doc_tool_board||'iv';
-    if(!opt.first&&L.doc_tool_iv_mode_v16===undefined) L.doc_tool_iv_mode_v16='etd';   // v0.16: v0.15 までの試験は 「ETD 範囲で見る」 の表
+    if(!opt.first&&L.doc_tool_iv_mode_v16===undefined) L.doc_tool_iv_mode_v16='etd';
+    /* v0.28: 新しい画面 (表 1 つ) は doc_tool_board_v28 = 'main' (既定) — v0.27 までの試験は 旧画面 (同じ値を v28 の鍵に · opt.first は v0.28 の最初の画面) */
+    if(!opt.first&&L.doc_tool_board_v28===undefined) L.doc_tool_board_v28=L.doc_tool_board_v7;   // v0.16: v0.15 までの試験は 「ETD 範囲で見る」 の表
     Object.entries(L).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; if(opt.init) opt.init(w); }});
   const w=dom.window; await until(()=>/読み込み完了|読み込み失敗/.test(w.document.getElementById('dtProg').textContent));
   return w;

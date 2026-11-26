@@ -112,7 +112,7 @@ function world17(){
   const ng=w.document.querySelector('#dtTable .pt-ng'); ok(ng&&ng.textContent==='保存できません','H2 실패 → 빨강 「保存できません」 (지금 문구)',ng&&ng.outerHTML);
   w.close(); }
 /* 2-2 今日やること · 문구 (직원) — D1 · D2 · D3 · D4 · D15 · E1 · B1 */
-{ const W=world17(); const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}});
+{ const W=world17(); const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}});
   await X.until(()=>!!w.document.querySelector('.tl-zone'),10000);
   ok(w.__cfg.desc==='書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）','D1 로그인 화면 설명',w.__cfg.desc);
   ok(/^読み込み完了 \d\d:\d\d$/.test(txt(w,'dtProg')),'D2 직원 = 「読み込み完了 HH:MM」 한 줄',txt(w,'dtProg'));
@@ -185,7 +185,7 @@ function world17(){
 { const W=world17(); W.messages=W.messages.concat([{id:'mb',subject:'Documents NAA2611-01',from:{emailAddress:{address:'trade@bank.example.org'}},receivedDateTime:new Date(Date.now()-3600e3).toISOString(),hasAttachments:true,attachments:[{id:'ab',name:'NAA2611-01_TO BANK.pdf',isInline:false,size:100}]}]);
   W.messages.push({id:'mx',subject:'Your invoice',from:{emailAddress:{address:'billing@vendor.example.org'}},receivedDateTime:new Date(Date.now()-7200e3).toISOString(),hasAttachments:true,attachments:[{id:'ax',name:'Invoice-TEST-0041.pdf',isInline:false,size:100}]});
   const TB=await BF.mkPdf([[{x:40,y:60,t:'INVOICE NO. NAA2611-01'},{x:40,y:80,t:'TO BANK DOCUMENTS'}]]); W.attBytes={'mb|ab':TB, 'mx|ax':await BF.mkPdf([[{x:40,y:60,t:'INVOICE TEST-0041 AMOUNT DUE'}]])};
-  const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all', doc_tool_save_test:'1'}}); w.pdfjsLib=R.pdfjsForWindow();
+  const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_board_v28:'todo', doc_tool_who:'all', doc_tool_save_test:'1'}}); w.pdfjsLib=R.pdfjsForWindow();
   await X.until(()=>w.eval('SAVE.mailSt')==='ok'||w.eval('SAVE.mailSt')==='error',20000); await X.until(()=>w.eval('SAVE.rows').every(r=>r.res&&r.res!=='')||false,20000).catch(()=>{});
   const mrow=w.eval('SAVE.rows').find(r=>r.mailId==='mb'); ok(mrow&&mrow.kind&&mrow.kind.key==='TOBANK'&&mrow.iv==='NAA2611-01'&&mrow.res==='新規'&&mrow.target==='NAA2611-01_TO BANK.pdf','B9 메일 첨부 TO BANK → {IV}_TO BANK.pdf (新規)',mrow&&{k:mrow.kind,iv:mrow.iv,res:mrow.res,t:mrow.target,msg:mrow.msg});
   { const xr=w.eval('SAVE.rows').find(r=>r.mailId==='mx'); ok(xr&&xr.res==='対象外'&&/Invoice 番号のない書類/.test(xr.msg),'B9 메일의 IV 인데 당사 Invoice 번호 없음 (상대 청구서) = 対象外 (기록 · 다시 안 나옴)',xr&&{res:xr.res,msg:xr.msg}); }

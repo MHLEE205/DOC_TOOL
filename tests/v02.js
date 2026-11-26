@@ -100,7 +100,7 @@ const $$=(w,s)=>[...w.document.querySelectorAll(s)], txt=(w,id)=>(w.document.get
 const ivs=w=>$$(w,'#dtTable tbody tr').map(tr=>tr.querySelector('button.dt-link').textContent);
 /* #8 전환 순서 */
 let W=X.world(), w=await X.page(W,{ls:{doc_tool_who:'all'}});
-eq($$(w,'.dt-seg button').map(b=>b.id),['dtBTodo','dtBCt','dtBIv'],'전환 버튼 순서 = (v0.7 今日やること →) 契約別 → Invoice 別');
+eq($$(w,'.dt-seg button').map(b=>b.id),['dtBIv','dtBCt','dtBTodo'],'전환 버튼 순서 (v0.28: Invoice · 契約 — 今日やること 는 旧画面에서만)');
 ok(w.document.getElementById('dtBIv').classList.contains('on'),'v0.6 까지 고른 현황판 (가짜 = Invoice 別) — v0.7 의 처음 화면은 v07.js');
 /* #1 FD済み 기본 ON */
 ok(w.document.getElementById('dtHideFd').checked,'「FD済みは表示しない」 기본 ON');

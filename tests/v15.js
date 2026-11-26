@@ -125,13 +125,13 @@ console.log('B12 체크포인트 試験 줄 — 관리자만');
   ok(DOC.CP_STAGE_JA.FD==='FD','단계 FD 이름 있음'); }
 
 console.log('화면 — A1 · B1 · B2 · B3 · B7 · B10 · B11');
-{ const W=world15(), w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}});
+{ const W=world15(), w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}});
   await X.until(()=>!!w.document.querySelector('.tl-zone'));
   /* A1 */
   ok(!w.document.querySelector('.tl-z-wait .tl-grp')&&/^▶ 待ち/.test(w.document.querySelector('.tl-z-wait .tl-zh').textContent),'A1 待ち 처음 = 접힘 (▶)');
   w.document.querySelector('[data-tdtoggle="zone_wait"]').click(); await X.sleep(10);
   ok(!!w.document.querySelector('.tl-z-wait .tl-grp')&&JSON.parse(w.localStorage.getItem('doc_tool_todo_open_v14')).zone_wait===true,'누르면 펼침 · 이 브라우저에 기억');
-  const w1=await X.page(world15(),{html:HFILE, first:true, ls:{doc_tool_who:'all', doc_tool_todo_open_v14:w.localStorage.getItem('doc_tool_todo_open_v14')}}); await X.until(()=>!!w1.document.querySelector('.tl-zone'));
+  const w1=await X.page(world15(),{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all', doc_tool_todo_open_v14:w.localStorage.getItem('doc_tool_todo_open_v14')}}); await X.until(()=>!!w1.document.querySelector('.tl-zone'));
   ok(!!w1.document.querySelector('.tl-z-wait .tl-grp'),'다시 열어도 펼친 그대로');
   /* B7 · B10 · B11 */
   await X.until(()=>w.eval('TODO.fdSearch.st')==='ok',15000);
@@ -148,7 +148,7 @@ console.log('화면 — A1 · B1 · B2 · B3 · B7 · B10 · B11');
   w.document.querySelector('[data-back]').click(); await X.sleep(10);
   /* 다시 열기 — 기억 읽음 · 다시 검색 안 함 */
   await flushState(W); const W2=Object.assign(world15(),{sp:W.sp, content:W.content}); W2.writes=[]; W2.searches=[];
-  const w2=await X.page(W2,{html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>w2.eval('TODO.fdSearch.st')==='ok',15000);
+  const w2=await X.page(W2,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>w2.eval('TODO.fdSearch.st')==='ok',15000);
   ok(!(W2.searches||[]).filter(q=>/\d{4}-\d{2}/.test(q)).length&&w2.eval("!!TODO.fdState['NAA2611-03']"),'다시 열면 기억을 읽음 · 다시 찾지 않음',W2.searches);
   ok(W2.writes.every(x=>!/doc_tool\/state\//.test(dec(x))),'두 번째는 state 쓰기 0');
   /* B1 · B2 · B3 — L/C 없는 계약 */
@@ -174,7 +174,7 @@ console.log('화면 — A1 · B1 · B2 · B3 · B7 · B10 · B11');
 
 console.log('B7 — 今日やること 는 메일로 FD 済 · 현황판 FD 칸은 未作成 (NAS2610-07 실례) → 그래도 검색 · 기억');
 { const W=world15(); const m=W.searchMessages[0]; W.messages=W.messages.concat([Object.assign({},m,{sentDateTime:m.receivedDateTime})]);
-  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>w.eval('TODO.fdSearch.st')==='ok',15000);
+  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>w.eval('TODO.fdSearch.st')==='ok',15000);
   ok((W.searches||[]).indexOf('NAA2611-03')>=0&&w.eval("!!TODO.fdState['NAA2611-03']"),'검색함 · 기억 (state/fd)',W.searches);
   ok(w.eval("ivRow(S.bk.find(b=>b.cr49f_invoice_no==='NAA2611-03')).cells.fd.s")==='done','현황판 FD 칸 = 済 (FD 送付メールあり)'); }
 
@@ -187,11 +187,11 @@ console.log('A2 対象外 기억');
     W.putFail=u=>{ const m=u.match(/root:\/(.*doc_tool\/save_log\/(\d{8}))\/([^:]+):\/content/); if(m){ (W.sp[OUT+'save_log']=W.sp[OUT+'save_log']||[]).some(x=>x.name===m[2])||W.sp[OUT+'save_log'].push({id:'d'+m[2],name:m[2],folder:{childCount:1}}); (W.sp[m[1]]=W.sp[m[1]]||[]).push({id:'l'+Math.random(),name:m[3],file:{}}); } return 0; };
     return W; };
   const INIT={init:w=>{ w.pdfjsLib=PR.pdfjsForWindow(); }}, SV=w=>w.eval('SAVE');
-  const W=mk(), w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>SV(w).rows.length===1&&SV(w).rows[0].res,20000);
+  const W=mk(), w=await X.page(W,{...INIT, html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>SV(w).rows.length===1&&SV(w).rows[0].res,20000);
   const logs=W.writes.filter(x=>/save_log/.test(dec(x)));
   ok(SV(w).rows[0].res==='対象外'&&logs.length===1&&/"result":"対象外"/.test(await logs[0].body.text()),'메일 첨부 対象外 → save_log 기억',SV(w).rows.map(r=>[r.res,r.msg]));
   for(const x of W.writes){ const m=dec(x).match(/root:\/(.*doc_tool\/save_log\/[^:]+):\/content/); if(m) W.content[m[1]]=await x.body.text(); }
-  const W2=Object.assign(mk(),{sp:W.sp, content:W.content}); W2.req=[]; const w2=await X.page(W2,{...INIT, html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>SV(w2).mailSt==='ok',20000); await X.sleep(30);
+  const W2=Object.assign(mk(),{sp:W.sp, content:W.content}); W2.req=[]; const w2=await X.page(W2,{...INIT, html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>SV(w2).mailSt==='ok',20000); await X.sleep(30);
   ok(SV(w2).rows.length===0&&!W2.req.some(r=>/attachments\/b1\/\$value/.test(r)),'다시 열면 안 나옴 · 첨부 안 내려받음'); }
 
 console.log('직원 화면 한글 · 쓰기 범위');

@@ -81,7 +81,7 @@ function world19(){ const W=X.world();
 { const W=world19(); W.sp[WIP+'/NAA2611-01']=W.sp[WIP+'/NAA2611-01'].filter(f=>f.id!=='fd1').concat([{id:'fx',name:'NAA2698-07_FD.pdf',file:{},size:900}]);
   const w=await X.page(W,{html:HFILE, ls:{doc_tool_who:'all'}}); w.eval("mailDraftModal('NAA2611-01','ship')"); await X.until(()=>!!w.document.getElementById('dtMdSubj'),5000);
   ok(/添付名が違う: NAA2698-07_FD\.pdf — 下書きを作りません/.test(txt(w,'dtMdBlock'))&&!w.document.getElementById('dtMdMake'),'다른 번호 FD → 빨강 · 「下書きを作る」 없음'); w.close(); }
-{ const W=X.world(); const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}}); await X.until(()=>!!w.document.querySelector('.tl-row [data-mail]'),10000).catch(()=>0); await X.sleep(50);
+{ const W=X.world(); const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}}); await X.until(()=>!!w.document.querySelector('.tl-row [data-mail]'),10000).catch(()=>0); await X.sleep(50);
   const rows=[...w.document.querySelectorAll('.tl-row')].filter(r=>r.querySelector('[data-mail]')); ok(rows.length>0&&rows.every(r=>/下書きを作る/.test(r.textContent)),'今日やること 줄에 「下書きを作る」',rows.length); w.close(); }
 
 console.log((fail?'FAIL':'PASS')+' v19 — pass '+pass+' fail '+fail);

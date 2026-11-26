@@ -108,10 +108,10 @@ console.log('5 화면');
   /* 가짜 신호: NAA2611-01 (LC · CIF · 베트남 · 담당 STAFF_A) — 폴더 FD 없음 · 지불 · B/L date 어제 → FD 단계 */
   W.bookings[0].crcf9_bl_etd=D(-1); W.bookings[0].crcf9_maritime_freight_payment_date=X.addDays(T,-1); W.bookings[0].cr49f_cy_cut=D(-3);
   W.bookings[0]._cr49f_carrier_id_value=X.g('6',1); W.carriers=[{crcf9_carrierid:X.g('6',1), crcf9_carrier:'ONE'}];
-  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}});
+  const w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}});
   await X.until(()=>!!w.document.querySelector('.tl-zone'));
   ok(w.document.getElementById('dtBTodo').classList.contains('on')&&w.document.getElementById('dtTodoBox').style.display==='flex'&&w.document.getElementById('dtTable').style.display==='none','5 첫 화면 = 今日やること (현황판 표 숨김)');
-  eq(qa(w,'.dt-seg button').map(b=>b.textContent),['今日やること','契約別（LC · S/I）','Invoice 別（船積）'],'5 탭 순서 今日やること · 契約別 · Invoice 別');
+  eq(qa(w,'.dt-seg button').map(b=>b.textContent),['Invoice','契約','今日やること'],'5 탭 (v0.28: Invoice · 契約 — 今日やること 는 旧画面 (이 시험) 에서만 보임)');
   const who=qa(w,'#dtWho button').map(b=>b.textContent); ok(who[0].indexOf('自分の担当')===0&&who.indexOf(R.ASSIST_LABEL)>=0&&who.indexOf('全員')>who.indexOf(R.ASSIST_LABEL),'5 담당 버튼 (自分 · 담당자 · 補助 · 全員)',who);
   eq(qa(w,'.tl-zh').map(e=>e.textContent.replace(/^[▼▶] /,'').replace(/\s*\d+ 件.*$/,'')),['やること（自分の番）','待ち（相手の番）'],'v0.14 세 구역 — やること · 待ち (+ 今日終わったもの 접힘) · v0.15 待ち = 누르면 펼침');
   ok(/締切 14:30/.test(w.document.querySelector('.tl-now').textContent),'오늘 마감 한 줄');
@@ -133,10 +133,10 @@ console.log('5 화면');
   ok(!W.writes.filter(x=>!(x.method==='PUT'&&/\/D-00\/doc_tool\/fd\/[A-Z0-9_\-]+_\d{8}-\d{6}_d\d+_h[0-9a-f]{8}\.json:/.test(decodeURIComponent(x.url)))).length,'쓰기 0 (메일 보내기 · 초안 · 읽음 표시 · SharePoint · COMPASS) — FD 결과 기록 (doc_tool/fd/) 만 예외',W.writes);
   ok(W.req.some(r=>/me\/messages\?\$filter=/.test(decodeURIComponent(r))&&/receivedDateTime ge/.test(decodeURIComponent(r))),'메일은 GET (receivedDateTime 범위) 만'); }
 { /* asof — 관리자만 */
-  const W=X.world(), w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_who:'all'}, url:'?asof=2026-11-20T09:00'});
+  const W=X.world(), w=await X.page(W,{html:HFILE, first:true, ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}, url:'?asof=2026-11-20T09:00'});
   await X.until(()=>!!w.document.querySelector('.tl-zone'));
   ok(!w.document.querySelector('.td-asof'),'5 asof — 관리자 아님 → 무시 (지금 시각)');
-  const W2=X.world(), w2=await X.page(W2,{html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all'}, url:'?asof=2026-11-20T09:00'});
+  const W2=X.world(), w2=await X.page(W2,{html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_board_v28:'todo', doc_tool_who:'all'}, url:'?asof=2026-11-20T09:00'});
   await X.until(()=>!!w2.document.querySelector('.tl-zone'));
   ok(/asof 2026-11-20 09:00/.test(w2.document.querySelector('.td-asof')&&w2.document.querySelector('.td-asof').textContent),'5 asof — 관리자 → 그 시각으로 계산 · 표시');
   eq([DOC.parseAsof('2026-11-20T09:00'),DOC.parseAsof('2026-11-20 09:00'),DOC.parseAsof('x')],[at('2026-11-20','09:00'),null,null],'asof 모양'); }

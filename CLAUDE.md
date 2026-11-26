@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 = 2026-11-26)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 = 2026-11-26)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -208,6 +208,16 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - N31 확인 창 = `mail30Modal` 하나 (ACL · Deposit · 船積書類 · B/L Draft · LG) · ACL 탭 옛 복사 창 (`aclMail`) 없앰 · ACL 이 参考 (`c.ref`) 면 下書き 버튼 없음. 메일함 쓰기 = `graphMail` (문지기 `guardMail` — 下書き 만들기 · 고치기 · 첨부만).
   - N27 今日やること S/I 줄 = 계약 1 줄 (`ctRowOpt` · `ctInfoOf` — 계약번호 · Invoice 작게 · 기한 = 안 나간 선적 (ETD = B/L ETD 우선 ≥ 오늘) 의 가장 이른 CY_CUT · 없으면 회색 「—」 · 모두 나간 계약 = 参考 (안 나옴)).
   - N19 낱말 표 = D-03 고정 문언 (FREIGHT PREPAID AS ARRANGED) 빨강 0.
+
+- **v0.28 (지시서 `THOR_26_지시서_D00_書類ツールv0.28_화면` · 묶음 v0.21 U1 ~ U9 · N32 · N33 · N34 · 형님 추가 「오늘 날짜」)** — **화면만** (판정 · 기한 · 저장 · 下書き 함수는 v0.27 그대로). 낱말 · 열 · 색 = doc-core `DOC.V28` **한 곳**
+  - 새 화면 = `S.board` `'main'` (Invoice 표) · `'ctt'` (契約 표) · 기억 = `doc_tool_board_v28`. **옛 화면 (`'todo'` · `'iv'` · `'ct'`) 은 남김** — 시험 · 비교용 (버튼 없음 · 그 키에 옛 값을 넣으면 열림 · `tests/fake.js` 는 옛 시험에 옛 값을 넣음). `render()` = 새 화면이면 `renderMain()`.
+  - U2 `v8Compute()` = 행 만들기 — すべて = `ptRowsShown()` (PORTAL 과 같은 줄 = 옛 Invoice 別) + 今日やること 에 있는 Invoice + 계약 줄 (N27) · 要対応 = `todoRows()` 의 `zone!=='wait'` 줄 (같은 수 · `DOC.reqSort` 期限順) · 순서 = `DOC.sort28` ('etd' = 옛 Invoice 別) · 「次にやること」 = 그 Invoice 의 todo 줄 (やること 먼저 · `+n`).
+  - U3 印 = `DOC.mark(cell)` (ST → ✓ ● ◆ ◐ ○ ― ? …) · 색 = 맨 위 테마 표 2 개의 `--mk-*` (theme.js 규칙).
+  - U5 오른쪽 패널 = `show()` 가 `v8-split` · 왼쪽 `#dtSide` (`renderSide` · 지금 표의 줄 `V8.last`) · 머리 `#dtIvHead` / `#dtCtHead` (← → ⤢ ✕) · URL `#iv=…&tab=…` (`DOC.hashOf` · `hashParse` · `v8HashOpen`). 표로 돌아가면 `S.openSeq++` (읽던 「열기」 취소).
+  - U6 담당 색 = `DOC.staffColor` (목업 3 명 고정 · 그 밖 = B-06 과 같은 `pol_staff` 순서 → `B06_COLORS`) · 同期 한 줄 `renderSync` · 긴 「読み込み完了 — …」 = `#dtProg` 숨김 (「？」 `v8Help` 안) · ☰ 列 = `doc_tool_cols_v28` · 검색 = `DOC.hit28`.
+  - U9 保存の入口 = 접는 띠 (`doc_tool_fold_v28` · 목록은 hidden 으로 DOM 에 있음).
+  - 오늘 = 일본 시간 (`v8Today`) · 머리줄 노란 배지 `#dtToday` · 표 · 패널 · 契約 날짜가 오늘이면 `.v8-today` (`--v8-today-bg` #fde047 · 검은 굵은 글자). 1 분 타이머는 jsdom 에서 안 돌림 (시험이 끝나도록).
+  - N33 `lgPerson` = `name_en_full` 먼저 · 없으면 `name_en` 대문자 + 확인 (`lgPersonNeed` → LG 依頼者名 칸 need) · N34 `lgHead28` = `[LG付き訂正依頼:BL#{B/L|BKG}] {本船 航海} / {IV}` (모든 선사 · 답장 = + ` Re: 원래 제목`) · `patterns.json` 의 `subj` 는 안 씀 (되돌리기용).
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

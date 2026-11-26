@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.27</title>
+<title>LEENAI D-00 書類ツール v0.28</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -16,11 +16,17 @@
 html{--dt-on-accent:#FFFFFF;
   --st-done-bg:#E6F2EA;--st-done-fg:#1F4A36;--st-todo-bg:#FBEFD9;--st-todo-fg:#6B4508;--st-diff-bg:#FBE3DE;--st-diff-fg:#7A2416;
   --st-wait-bg:#FFF7F5;--st-wait-fg:#B3261E;--st-unk-bg:#E4E5E2;--st-unk-fg:#454D48;--st-na-fg:#4F5751;--dt-dot-wait:#C62828;--dt-dot-unk:#6F7871;--td-late-bg:#7A2416;--td-late-fg:#FFFFFF;--td-chase-bg:#E6EEF8;--td-chase-fg:#24405E;--dt-hl:#FFF6E0;--dt-now:#E3F0E8;
-  --rs-ok:#1E6B3A;--rs-note:#6E5A00;--rs-ng:#A3200F;--rs-read:#9A4300;--rs-na:#5F6763;--rs-note-bar:#C9A800;--rs-read-bar:#E07A1F;--dv-hl:rgba(255,214,0,.30);--dv-hl-line:#E0A800}   /* v0.22 (V5): 一致 緑 · 表記差 黄 · 相違 赤 (太字) · 読めず 橙 · 対象外 灰 */
+  --rs-ok:#1E6B3A;--rs-note:#6E5A00;--rs-ng:#A3200F;--rs-read:#9A4300;--rs-na:#5F6763;--rs-note-bar:#C9A800;--rs-read-bar:#E07A1F;--dv-hl:rgba(255,214,0,.30);--dv-hl-line:#E0A800;
+  --mk-ok-bg:#E3F3E8;--mk-ok-fg:#15803D;--mk-now-bg:#FCEBD0;--mk-now-fg:#9A4A06;--mk-ng-bg:#FBE0E0;--mk-ng-fg:#B42318;--mk-wait-bg:#E1ECFA;--mk-wait-fg:#1D5FB8;--mk-todo-bg:#ECEEF1;--mk-todo-fg:#5B6472;--mk-na-fg:#8A939E;--mk-unk-bg:#ECEEF1;--mk-unk-fg:#5B6472;
+  --bd-late:#ef4444;--bd-today:#f59e0b;--bd-soon:#3b82f6;--du-late-bg:#FBE0E0;--du-late-fg:#9B1C1C;--du-today-bg:#FCEBD0;--du-today-fg:#7A4300;--du-soon-bg:#E1ECFA;--du-soon-fg:#1E3A5F;
+  --v8-alt:rgba(0,0,0,.025);--v8-sel:#E6EEFC;--v8-line:#2f6fe4;--v8-req-bg:#FBE0E0;--v8-req-fg:#9B1C1C;--v8-req-bd:#F1B5B5;--v8-band:#EEF3FA;--v8-band-bd:#D5E0EE;--v8-link:#1D5FB8;--v8-sub:#5F6873;--v8-today-bg:#fde047;--v8-today-fg:#1a1a1a}   /* v0.22 (V5): 一致 緑 · 表記差 黄 · 相違 赤 (太字) · 読めず 橙 · 対象外 灰 */
 html:not([data-theme]),html[data-theme="dark"]{--dt-on-accent:#FFFFFF;
   --st-done-bg:#143A27;--st-done-fg:#8EE8AE;--st-todo-bg:#3D2C0C;--st-todo-fg:#F7CF6B;--st-diff-bg:#441A1A;--st-diff-fg:#FDA4A4;
   --st-wait-bg:#1E1A24;--st-wait-fg:#FF8A80;--st-unk-bg:#2C3148;--st-unk-fg:#C2CAD8;--st-na-fg:#9AA3B5;--dt-dot-wait:#FF6F61;--dt-dot-unk:#8F98AB;--td-late-bg:#C8402F;--td-late-fg:#FFFFFF;--td-chase-bg:#1E2A3B;--td-chase-fg:#A9C7EE;--dt-hl:#2B2512;--dt-now:#1D3328;
-  --rs-ok:#8EE8AE;--rs-note:#F5DC5A;--rs-ng:#FF9C8F;--rs-read:#FFB26B;--rs-na:#A3ACBD;--rs-note-bar:#E8C930;--rs-read-bar:#FF9A3D;--dv-hl:rgba(255,214,0,.28);--dv-hl-line:#FFD600}
+  --rs-ok:#8EE8AE;--rs-note:#F5DC5A;--rs-ng:#FF9C8F;--rs-read:#FFB26B;--rs-na:#A3ACBD;--rs-note-bar:#E8C930;--rs-read-bar:#FF9A3D;--dv-hl:rgba(255,214,0,.28);--dv-hl-line:#FFD600;
+  --mk-ok-bg:#12301f;--mk-ok-fg:#22c55e;--mk-now-bg:#3a2a10;--mk-now-fg:#f5a524;--mk-ng-bg:#3a1616;--mk-ng-fg:#ff6b6b;--mk-wait-bg:#142a44;--mk-wait-fg:#60a5fa;--mk-todo-bg:#1c222d;--mk-todo-fg:#8b93a1;--mk-na-fg:#4b5563;--mk-unk-bg:#2C3148;--mk-unk-fg:#C2CAD8;
+  --du-late-bg:#5a1d1d;--du-late-fg:#ffb4b4;--du-today-bg:#4a3410;--du-today-fg:#ffd38a;--du-soon-bg:#24303f;--du-soon-fg:#c3d4ea;
+  --v8-alt:rgba(255,255,255,.025);--v8-sel:#1b2a44;--v8-line:#2f6fe4;--v8-req-bg:#3a1d1d;--v8-req-fg:#ff9b9b;--v8-req-bd:#6b2a2a;--v8-band:#15212f;--v8-band-bd:#22344a;--v8-link:#7fb0ff;--v8-sub:#8b93a1}
 body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui,'Segoe UI',sans-serif}
 .ln-hdr-right button[title="マスター設定"]{display:none!important}
 .dt-main{max-width:1240px;margin:0 auto;padding:20px 24px 48px;display:flex;flex-direction:column;gap:16px}
@@ -245,40 +251,139 @@ button.st:hover{border-color:currentColor}
 .sv-done{border-top:1px solid var(--surface3);padding-top:6px}
 @media (max-width:720px){.tl-row{grid-template-columns:1fr}.tl-act{text-align:left}.tl-why{white-space:normal}}
 @media (max-width:720px){.td-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.td-row{grid-template-columns:1fr}.td-act{text-align:left}.dt-sum{grid-template-columns:repeat(2,minmax(0,1fr))}.dt-grid3{grid-template-columns:1fr}.dt-main{padding:16px}}
+/* ══════════ v0.28 (U1 ~ U9) — 目録 (形さん OK) どおり · 色は 2 つの表 (明るいモード · ダーク) だけ ══════════ */
+/* U1 窓の幅いっぱい (両側 16 px) · 上の帯を薄く */
+.dt-main{max-width:none;margin:0;padding:6px 16px 24px;gap:8px}
+.ln-header{padding-top:6px!important;padding-bottom:6px!important;min-height:0!important}
+.v8-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:4px 0 6px;border-bottom:1px solid var(--border);position:relative}
+.v8-seg{padding:3px;border-radius:8px}.v8-seg button{height:28px;padding:0 14px;font-size:13px;border-radius:6px}.v8-seg button.on{font-weight:700}
+.v8-lbl{font-size:12px;color:var(--text2);margin-left:6px}
+.v8-who{display:inline-flex;gap:6px;flex-wrap:wrap;align-items:center}
+.v8-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.v8-chip.on{background:var(--accent-btn);border-color:var(--accent-btn);color:var(--dt-on-accent)}
+.v8-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.v8-range{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)}
+.v8-range input{height:28px;width:128px;border:1px solid var(--border);border-radius:6px;padding:0 6px;font:inherit;font-size:12px;background:var(--surface);color:var(--text);color-scheme:light dark}
+.v8-req,.v8-all{height:28px;padding:0 12px;border-radius:999px;font:inherit;font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);white-space:nowrap}
+.v8-req{background:var(--v8-req-bg);color:var(--v8-req-fg);border-color:var(--v8-req-bd);font-weight:700}
+.v8-req.on,.v8-all.on{outline:2px solid var(--v8-line);outline-offset:1px}
+.v8-sel{height:28px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;padding:0 4px}
+.v8-sp{flex:1}
+.v8-q{width:260px;max-width:100%;height:30px;border:1px solid var(--border);border-radius:6px;padding:0 10px;font:inherit;font-size:12px;background:var(--surface);color:var(--text)}
+.v8-btn{height:28px;padding:0 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;cursor:pointer;white-space:nowrap}
+.v8-go{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);padding:0;border:0}
+.v8-menu{display:flex;flex-wrap:wrap;gap:10px 16px;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:12px}.v8-menu label{display:inline-flex;gap:4px;align-items:center;cursor:pointer}
+.v8-menu[hidden]{display:none}
+.v8-warn{padding:6px 10px;border-left:4px solid var(--st-todo-fg);background:var(--st-todo-bg);color:var(--st-todo-fg);font-size:12px;border-radius:4px}.v8-warn[hidden]{display:none}
+#dtProg[hidden]{display:none}
+.v8-legacy{display:none}
+.dt-main.v8-old .v8-legacy{display:block}
+/* U9 保存の入口 = 表の上の 畳む帯 · 印 · 出所 の説明は 同じ帯の右 */
+.v8-sv{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:5px 12px;background:var(--v8-band);border:1px solid var(--v8-band-bd);border-radius:8px;font-size:12px}
+.v8-sv-t{border:0;background:transparent;color:var(--v8-link);font:inherit;font-weight:700;cursor:pointer;padding:0}
+.v8-lg{color:var(--text2);display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}.v8-lg b{font-weight:700}
+.v8-lg .mk{width:auto;height:auto;padding:0 2px;background:transparent}
+.v8-sv-body{margin-top:6px}.v8-sv-body[hidden]{display:none}
+/* U2 表 */
+.dt-tablewrap.v8-wrap{overflow-x:auto;border-radius:8px}
+.v8-t{width:100%;border-collapse:collapse;font-size:13px;min-width:1300px}
+.v8-t thead th{position:sticky;top:0;z-index:2;background:var(--surface2,var(--surface));color:var(--text2);font-size:11px;font-weight:500;text-align:left;padding:7px 6px;white-space:nowrap}
+.v8-t thead th sup{color:var(--v8-link);font-size:9px;margin-left:2px}
+.v8-t td{padding:5px 6px;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+.v8-t tbody tr:nth-child(even){background:var(--v8-alt)}
+.v8-t tbody tr.v8-r{cursor:pointer}.v8-t tbody tr.v8-r:hover{background:var(--v8-sel)}
+.v8-t td.v8-bd,.v8-t th.v8-bd{width:6px;min-width:6px;padding:0}.v8-bd.b-late{background:var(--bd-late)}.v8-bd.b-today{background:var(--bd-today)}.v8-bd.b-soon{background:var(--bd-soon)}
+.v8-t .m{font-family:var(--mono,'IBM Plex Mono',monospace);font-size:12px}.v8-t .m2{color:var(--v8-sub)}
+.v8-iv{line-height:1.25}.v8-iv .dt-link{display:block;font-weight:700;padding:0;font-size:13px;color:var(--v8-link);white-space:nowrap;text-align:left}.v8-ct{display:block;color:var(--v8-sub);font-size:11px;white-space:nowrap}
+.v8-sub{color:var(--v8-sub);font-size:11px}
+.v8-t th.v8-s,.v8-t td.v8-s{text-align:center;padding:4px 3px}.v8-t th.v8-s0,.v8-t td.v8-s0{border-left:1px solid var(--border)}.v8-t th.v8-s6,.v8-t td.v8-s6{border-right:1px solid var(--border)}
+.mk{display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;border-radius:6px;font-weight:700;font-size:13px;border:0;padding:0;font-family:inherit;line-height:1;vertical-align:middle}
+button.mk{cursor:pointer}button.mk:hover{outline:2px solid var(--v8-line)}
+.mk.sm{width:18px;height:18px;font-size:11px;border-radius:4px}
+.mk-ok{background:var(--mk-ok-bg);color:var(--mk-ok-fg)}.mk-now{background:var(--mk-now-bg);color:var(--mk-now-fg)}.mk-ng{background:var(--mk-ng-bg);color:var(--mk-ng-fg)}.mk-wait{background:var(--mk-wait-bg);color:var(--mk-wait-fg)}
+.mk-todo{background:var(--mk-todo-bg);color:var(--mk-todo-fg)}.mk-na{background:transparent;color:var(--mk-na-fg)}.mk-unk{background:var(--mk-unk-bg);color:var(--mk-unk-fg)}.mk-load{background:transparent;color:var(--text3)}
+.v8-s .pt-ts{width:14px;height:14px;margin:0 0 0 3px;vertical-align:middle}.v8-s .pt-c01{font-size:10px;margin-left:2px}.v8-s .dt-in{height:22px;font-size:11px;padding:0 2px;margin-left:3px;width:auto}.v8-s .pt-hint{font-size:10px}
+.v8-next{white-space:nowrap}.v8-what{display:inline-block;max-width:230px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.v8-t td[data-c=ship],.v8-t td[data-c=pol]{max-width:170px;overflow:hidden;text-overflow:ellipsis}.v8-t td[data-c=pol]{max-width:100px}
+.v8-t .pt-note{width:110px!important}.v8-t input[type=date].dt-in{width:112px!important}.v8-s select.dt-in{width:48px}
+.v8-du{display:inline-block;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-right:6px}
+.v8-du.d-late{background:var(--du-late-bg);color:var(--du-late-fg)}.v8-du.d-today{background:var(--du-today-bg);color:var(--du-today-fg)}.v8-du.d-soon,.v8-du.d-later,.v8-du.d-chase{background:var(--du-soon-bg);color:var(--du-soon-fg)}.v8-du.d-none,.v8-du.d-wait,.v8-du.d-pend{color:var(--text3);font-weight:400}
+.v8-what{font-weight:500}.v8-wait .v8-what{color:var(--text2);font-weight:400}
+.v8-more{font-size:11px;color:var(--text3);margin-left:6px}
+.v8-ab{height:22px;padding:0 7px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text2);font:inherit;font-size:11px;cursor:pointer;margin-left:6px;vertical-align:middle}
+.v8-t .dt-in{height:24px;padding:0 4px;font-size:12px;border-radius:4px;width:auto}.v8-t .pt-note{width:150px}.v8-t input[type=date].dt-in{width:118px}
+.v8-t .pt-prop{font-size:11px}
+.v8-empty{padding:18px;color:var(--text3);font-size:13px}
+.v8-foot{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text3);padding:2px 2px}
+/* 列を隠す (☰ 列 · この PC に記憶) */
+.v8-h-cut [data-c=cut],.v8-h-etd [data-c=etd],.v8-h-eta [data-c=eta],.v8-h-pol [data-c=pol],.v8-h-bkg [data-c=bkg],.v8-h-ship [data-c=ship],.v8-h-staff [data-c=staff],.v8-h-pay [data-c=pay],.v8-h-fd [data-c=fd],.v8-h-memo [data-c=memo],
+.v8-h-date [data-c=date],.v8-h-country [data-c=country],.v8-h-item [data-c=item],.v8-h-latest [data-c=latest],.v8-h-other [data-c=other]{display:none}
+/* U5 右のパネル — 左 = 狭い一覧 · 右 = 詳細 (⤢ = 全体) */
+.v8-pane{display:block}
+.dt-main.v8-split .v8-pane{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:0}
+.dt-main.v8-split.v8-full .v8-pane{grid-template-columns:minmax(0,1fr)}.dt-main.v8-split.v8-full #dtSide{display:none}
+.v8-side{border-right:1px solid var(--border);padding:8px 10px 8px 0;max-height:calc(100vh - 110px);overflow:auto;position:sticky;top:0;align-self:start}
+.v8-side[hidden]{display:none}
+.v8-side-h{font-size:12px;color:var(--text2);margin:0 0 6px}
+.v8-sr{display:grid;grid-template-columns:5px 42px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;padding:6px 8px;border-radius:6px;margin-bottom:2px;border:1px solid transparent;background:transparent;color:var(--text);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.v8-sr:hover{background:var(--v8-alt)}.v8-sr.on{background:var(--v8-sel);border-color:var(--v8-line)}
+.v8-sr .bd{height:26px;border-radius:3px}.v8-sr .bd.b-late{background:var(--bd-late)}.v8-sr .bd.b-today{background:var(--bd-today)}.v8-sr .bd.b-soon{background:var(--bd-soon)}
+.v8-sr .c{font-family:var(--mono,'IBM Plex Mono',monospace);font-size:12px;color:var(--text2)}.v8-sr .n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.v8-sr .mks{display:flex;gap:3px}
+.dt-main.v8-split #dtIv,.dt-main.v8-split #dtCt{padding:8px 0 0 14px;gap:8px;min-width:0}
+.v8-ph{display:none}
+.dt-main.v8-split .v8-ph{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 14px;border:1px solid var(--border);background:var(--surface2,var(--surface));border-radius:8px}
+.v8-ph b{font-size:15px}.v8-ph .v8-sub{font-size:13px}
+.dt-main.v8-split .v8-back{display:none}
+.dt-main.v8-split .dt-sum{padding:8px 12px;font-size:12px;gap:6px 12px}
+.dt-main.v8-split .dt-tabs button{height:36px;font-size:13px;padding:0 12px}
+.dt-tabs .mk{margin-right:2px}.dt-main:not(.v8-old) .dt-tabs .dot{display:none}
+@media (max-width:900px){.dt-main.v8-split .v8-pane{grid-template-columns:minmax(0,1fr)}.dt-main.v8-split #dtSide{display:none}.v8-q{width:100%}}
+/* 形さん追加 (11/26): 今日の日付 — 黄色 (--v8-today-bg) · 黒の太字 · 小さい丸い角 (ダーク · ライト 同じ = どちらでも読める 15:1) */
+.v8-today{background:var(--v8-today-bg)!important;color:var(--v8-today-fg)!important;border-radius:4px;padding:1px 5px;font-weight:700}
+input.dt-in.v8-today{padding:0 4px;color-scheme:light}
+.v8-tbadge{background:var(--v8-today-bg);color:var(--v8-today-fg);border-radius:6px;padding:2px 10px;font-weight:700;font-size:13px;white-space:nowrap}
 </style>
 </head>
 <body>
 <div id="app" style="display:none">
 <main class="dt-main" id="dtMain" style="display:none">
 
-  <section class="dt-card dt-search">
-    <label for="dtQ">検索</label>
-    <input id="dtQ" placeholder="契約番号 / Invoice / LC番号" autocomplete="off">
-    <button id="dtGo" class="dt-btn">検索</button>
-    <span id="dtQSt" class="dt-note"></span>
-  </section>
-
   <div id="dtInbox"></div>
   <div id="dtDrop" class="sv-drop" hidden><div class="sv-drop-in">ここに置くと保存の入口へ</div></div>
 
-  <section id="dtList" style="display:flex;flex-direction:column;gap:12px">
-    <div class="dt-row"><span style="font-size:13px;color:var(--text2)">担当</span><span id="dtWho" class="dt-row"></span>
-      <span class="dt-note">担当はマスター「書類担当」（Invoice の記号 → 担当者）から。選んだものは記憶します。</span></div>
-    <div class="dt-between">
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="dt-seg"><button id="dtBTodo" class="on">今日やること</button><button id="dtBCt">契約別（LC · S/I）</button><button id="dtBIv">Invoice 別（船積）</button></div>
+  <!-- v0.28 (U1 ~ U9): 一覧 = 表 1 つ (今日やること + Invoice 別) · 操作の行 = B-06 と同じ形 -->
+  <section id="dtList" class="v8-list" style="display:flex;flex-direction:column;gap:6px">
+    <div class="v8-bar" id="dtBar">
+      <div class="dt-seg v8-seg"><button id="dtBIv" class="on">Invoice</button><button id="dtBCt">契約</button><button id="dtBTodo" hidden>今日やること</button></div>
+      <span class="v8-lbl">担当</span><span id="dtWho" class="v8-who"></span>
+      <span id="dtCutBox" class="v8-range"><label for="dtCutF">CY CUT</label><input type="date" id="dtCutF"><span>〜</span><input type="date" id="dtCutT" aria-label="CY CUT まで"></span>
+      <span id="dtCtCtl" class="v8-range" style="display:none"><span>契約日</span><span id="dtCtPeriod" class="v8-who"></span></span>
+      <button id="dtTodo" class="v8-req">要対応のみ</button><button id="dtAll" class="v8-all on">すべて</button>
+      <label class="v8-lbl" for="dtSort">並び</label><select id="dtSort" class="v8-sel"></select>
+      <span class="v8-sp"></span>
+      <input id="dtQ" class="v8-q" placeholder="Invoice · 契約 · BKG · L/C · 本船" autocomplete="off" aria-label="検索 (Enter で開く)">
+      <button id="dtGo" class="v8-btn v8-go" title="開く（Invoice · 契約番号 · L/C 番号）">開く</button>
+      <button id="dtColsBtn" class="v8-btn" aria-haspopup="true" aria-expanded="false">☰ 列</button>
+      <button id="dtHelp" class="v8-btn" title="説明 · 読み込みの詳しい内容" aria-label="説明">？</button>
+      <span id="dtQSt" class="dt-note"></span>
+    </div>
+    <div id="dtColsMenu" class="v8-menu" hidden></div>
+    <div id="dtMeNote" class="v8-warn" hidden></div>
+    <div id="dtProg" class="dt-prog"></div>
+    <div id="dtLegacy" class="v8-legacy">
+      <div class="dt-between">
         <div id="dtBoardNote" class="dt-note" style="font-size:13px"></div>
-      </div>
-      <div class="dt-row">
-        <span id="dtIvCtl" class="dt-row"><span class="dt-row" style="gap:4px"><button id="dtIvPortal" class="dt-chip on" title="PORTAL 「船積書類」 と同じ行 (FD送付日 が空の船積)">PORTAL と同じ</button><button id="dtIvEtd" class="dt-chip" title="v0.15 の表 (ETD の範囲 · FD済みは表示しない)">ETD 範囲で見る</button></span><span class="dt-range" id="dtEtdBox">ETD <input type="date" id="dtFrom"> 〜 <input type="date" id="dtTo"> <button id="dtReload" class="dt-btn ghost sm">読み込む</button></span>
-        <label class="dt-check" id="dtHideFdBox" title="FD（FINAL DOCUMENT）は最後に保存するので、FD がある船積は終わったものとして隠します。外すと全部見えます。"><input type="checkbox" id="dtHideFd" checked> FD済みは表示しない</label></span>
-        <span id="dtCtCtl" class="dt-row" style="display:none"><span style="font-size:13px;color:var(--text2)">契約日</span><span id="dtCtPeriod" class="dt-row"></span></span>
-        <span id="dtTodoAll" class="dt-note" style="display:none"></span><button id="dtTodo" class="dt-pillbtn">要対応のみ</button><button id="dtAll" class="dt-pillbtn on">すべて</button>
+        <div class="dt-row">
+          <span id="dtIvCtl" class="dt-row"><span class="dt-row" style="gap:4px"><button id="dtIvPortal" class="dt-chip on" title="PORTAL 「船積書類」 と同じ行 (FD送付日 が空の船積)">PORTAL と同じ</button><button id="dtIvEtd" class="dt-chip" title="v0.15 の表 (ETD の範囲 · FD済みは表示しない)">ETD 範囲で見る</button></span><span class="dt-range" id="dtEtdBox">ETD <input type="date" id="dtFrom"> 〜 <input type="date" id="dtTo"> <button id="dtReload" class="dt-btn ghost sm">読み込む</button></span>
+          <label class="dt-check" id="dtHideFdBox" title="FD（FINAL DOCUMENT）は最後に保存するので、FD がある船積は終わったものとして隠します。外すと全部見えます。"><input type="checkbox" id="dtHideFd" checked> FD済みは表示しない</label></span>
+          <span id="dtTodoAll" class="dt-note" style="display:none"></span>
+        </div>
       </div>
     </div>
-    <div id="dtProg" class="dt-prog"></div>
     <div id="dtTodoBox" style="display:none;flex-direction:column;gap:16px"></div>
+    <div id="dtTop"></div>
     <div class="dt-card dt-tablewrap" id="dtTable"></div>
+    <div id="dtAfter"></div>
     <div class="dt-legend" id="dtLegend">
       <span><span class="st st-done">済</span> 終わった</span>
       <span><span class="st st-todo">確認</span> 今やること</span>
@@ -290,20 +395,23 @@ button.st:hover{border-color:currentColor}
     </div>
   </section>
 
+  <div id="dtPane" class="v8-pane">
+  <aside id="dtSide" class="v8-side" hidden></aside>
   <section id="dtIv" style="display:none;flex-direction:column;gap:16px">
-    <div><button class="dt-back" data-back="iv">← 一覧へ</button></div>
+    <div class="v8-back"><button class="dt-back" data-back="iv">← 一覧へ</button></div><div id="dtIvHead" class="v8-ph"></div>
     <section class="dt-card dt-sum" id="dtIvSum"></section>
     <nav class="dt-tabs" id="dtIvTabs" aria-label="船積の流れ"></nav>
     <div id="dtIvBody"></div>
   </section>
 
   <section id="dtCt" style="display:none;flex-direction:column;gap:16px">
-    <div><button class="dt-back" data-back="ct">← 一覧へ</button></div>
+    <div class="v8-back"><button class="dt-back" data-back="ct">← 一覧へ</button></div><div id="dtCtHead" class="v8-ph"></div>
     <section class="dt-card dt-sum" id="dtCtSum"></section>
     <nav class="dt-tabs" id="dtCtTabs" aria-label="契約の流れ"></nav>
     <div id="dtCtBody"></div>
     <div class="dt-card" style="padding:14px 18px;display:flex;flex-direction:column;gap:6px"><div style="font-size:13px;font-weight:500;color:var(--text2)">この契約の船積</div><div id="dtCtShips"></div></div>
   </section>
+  </div>
 
 </main>
 <div class="ln-footer">✦ Powered by LEENAI Automation System</div>
@@ -319,6 +427,7 @@ button.st:hover{border-color:currentColor}
    v0.3: ACL の名前の規則は acl_bench エンジン (v0.5) の aclScan / aclPick を使う (この TOOL には持たない — useAclEngine で受け取る)
    v0.4 (2026-11-21 指示書 ACL 最終分析): エンジン v0.6 (最終確認 = S/I の内容が ACL のどこかに全部あるか + コンテナのセット) · ACL 欄の状態に 最終確認 を入れる (表 ACL_RULE · aclJudge)
    v0.27 (2026-11-26 指示書 THOR_25 · 修正まとめ v0.17): N30 下書き = C-01 と同じ形 (本文 HTML · 改行 · 署名 · 末尾 · あいさつ 「{相手の会社名}／{担当者} 様」 · 返信は元のメールの引用のまま · 実際の To / CC · 作ったら読み直して確かめる) · N31 同じ仕事に ボタン 1 つ (ACL の古いコピーの窓を やめる · 参考の ACL は 訂正依頼のボタンなし) · N28 · N29 エンジン acl v0.22 (S/I 「**」 の続き = その欄の中 · 主要な欄を比べられない = 読取確認 · D-03 の既定値 = 一致) · N27 S/I 確認 = 契約 1 行 (契約番号 · Invoice は小さく · 期限 = まだ出ていない船積の一番早い CY_CUT · 無ければ 灰色の —)
+   v0.28 (2026-11-26 指示書 THOR_26 · 修正まとめ v0.21): 画面を大きく変える (B-06 の形 · 目録どおり · 判定は変えない) — U1 窓の幅いっぱい · U2 一覧 = 表 1 つ (今日やること + Invoice 別 · 1 行 = 1 Invoice · Invoice / 契約 = 2 行) · U3 段階 = 色の印 (✓ ● ◆ ◐ ○ ―) · U4 要対応のみ = 今日やること の やること の行 (期限順 · 左の色の帯) · U5 行を押すと右のパネル (← → ⤢ ✕ · #iv=…&tab=…) · U6 操作の行 (担当の色の点 · CY CUT · 検索 1 つ · ☰ 列 · 同期の一行) · U7 列の出所 C P M A · U8 契約の表 · U9 保存の入口 = 畳む帯 · 今日の日付 = 黄色 (形さん追加) · N33 依頼者名 = name_en_full · N34 LG 件名 = すべての船社で同じ形
    v0.26 (2026-11-26 指示書 THOR_24 · 修正まとめ v0.12): N17 Invoice 別 に 「通関依頼済」 の補助のチェック (C-01 を通らない例外 · PORTAL v4.11 と同じ欄 tsukan_irai · tsukan_irai_at · tsukan_irai_off_at · 欄単位 · eTag · C-01 が書いた行は 「C-01」) · N18 後の段階で直った ACL 相違 = 「参考（B/L で訂正済み）」 (B/L Draft の最新の版で S/I と同じ) · B/L 発行 · FD 済 = 参考 · 本登録 「—（後の段階で確認済み）」 · N19 ACL · B/L Draft の違い = 語の単位 (# · 改行 · 空白を無視 · 抜けた · 違う語だけ赤) · N21 LG の署名 = ログインした人の署名の画像 (master_staff sign_img · 管理者が確認した人だけ · 様式の画像を入れ替え · 大きさ · 位置そのまま) · 管理者の 「署名の画像の確認」 · N23 ONE 依頼者名 = name_en · N24 CNC 様式の宛名 (SharePoint の様式) · N26 LG 下書きの件名 = 船社の形 + B/L 番号 + 本船 · 航海 + Invoice · 本文 = 訂正の一覧なし
    v0.25 (2026-11-25 指示書 MAC-THOR_23 · LG 訂正依頼): 船社の LG 様式 (D-00/lg/ · 11 船社 · 実際に送った LG を様式に) に 値を入れて 同じ Excel の形で作る (シートの XML のセルだけ書き換え · 線 · 結合 · 印影の画像はそのまま) · 訂正前 = B/L Draft の欄 · 訂正後 = S/I (L/C) · ベトナム = Deposit 番号 (バイヤーの返事から候補 · いつも 確認) · 「LG を保存」 = {IV}_LG.xlsx (REV · 上書きしない · 試験モード = save_test) · 5 番目の下書き 「LG 訂正依頼」 (船社のメール実績の宛先 · 件名 · 本文 · 添付の名前 · 送らない)
    v0.24 (2026-11-25 指示書 THOR_22 · 修正まとめ v0.8 N15 · N11 · N12): N15 Deposit 依頼 = メールで判断しない — 起点 = PORTAL 「通関依頼済」 (チェックした時刻 tsukan_irai_at · PORTAL v4.10) · 期限 = その日 + 1 営業日 (土日 · 祝日を飛ばす · 時刻のない前のチェック = CY_CUT) · 通関依頼済 の前 = 「Deposit 依頼（通関 待ち）」 (期限なし · 赤 0) · 営業の 「新規通関依頼」 を 送付と見ない · 通関 欄も 通関依頼済 · N11 エンジン acl v0.21 (42C の支払条件の部分だけ payTerm) · N12 S/I の L/C から来る欄 = L/C 保管所の原文 (推薦 · 前回 · 保存した推薦) · 書き込み · ✏ 直す の前に 「L/C と違います」 + 「L/C の文言に戻す」
@@ -1873,7 +1982,7 @@ const DOC = (()=>{
   function lgValues(ctx){ const c=ctx||{}, C=c.cells||{}, out={}, T=lgBlockText(c.blocks, c.br), vv=lgVessel(c.vessel, c.voyage);
     const val={date:xlSerial(c.today), vessel:vv[0], voyage:vv[1], bl:c.bl||c.bkg||'', pol:c.pol||'', pod:c.pod||'', before:T.before, after:T.after, person:c.person||''};
     Object.keys(C).forEach(k=>{ const d=C[k], ref=Array.isArray(d)?d[0]:d, fmt=Array.isArray(d)?d[1]:'{v}', v=val[k]==null?'':val[k];
-      out[k]={ref, v, fmt, kind:k==='date'?'date':'text', need:k!=='date'&&String(v).trim()===''||(k==='before'||k==='after')&&(c.blocks||[]).some(b=>b.need)};   // v0.26 (N23): 依頼者名 = name_en があれば 確認しない
+      out[k]={ref, v, fmt, kind:k==='date'?'date':'text', need:k!=='date'&&String(v).trim()===''||(k==='before'||k==='after')&&(c.blocks||[]).some(b=>b.need)||k==='person'&&!!c.personNeed};   /* v0.28 (N33): name_en_full が無い (name_en で代わり) = 確認 */   // v0.26 (N23): 依頼者名 = name_en があれば 確認しない
       if((k==='before'||k==='after')&&(c.blocks||[]).length) out[k].runs=lgRuns(c.blocks, c.br, k); });
     return out; }
   const xmlEsc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
@@ -1922,11 +2031,10 @@ const DOC = (()=>{
   function lgMailDraft(ctx){ const c=ctx||{}, M=(c.pat&&c.pat.mail)||null, warn=[], NL='\n', v={BL:c.bl||c.bkg||'', BKG:c.bkg||c.bl||'', IV:up(c.iv), CARRIER:c.carrier||''};
     if(!M) return {block:V25.NO_TPL, warn, to:[], cc:[], subject:'', body:'', att:[]};
     const reply=M.mode==='reply'&&c.src&&c.src.id, srcSubj=String(c.src&&c.src.subj||'').replace(/^\s*(?:(?:RE|FW|FWD)\s*[:：]\s*)+/i,'');
-    /* 件名に この船積の番号がない形 (例 「[LG付き訂正依頼]」) → 「 BL#番号」 を足す (添付の検査 · 船社が探せるように) */
-    const hasNo=t=>[up(c.bl),up(c.bkg)].filter(x=>x.length>=5).some(x=>up(t).indexOf(x)>=0);
-    /* v0.26 (N26 형님 「메일 제목을 잘 적어줘야」): 件名 = 船社の実績の形 (番号がなければ BL#番号) + 本船 · 航海 + / 当社の Invoice — 返信の船社も 「Re:」 の前に同じ頭 */
-    const tag=fillT(M.subj,v), vv=String(c.vessel||'').replace(/\s+/g,' ').trim(), head=tag+(hasNo(tag)||!(c.bl||c.bkg)?'':' BL#'+(c.bl||c.bkg))+(vv?' '+vv:'')+(c.iv?' / '+up(c.iv):'');
-    const srcTail=reply&&srcSubj&&up(srcSubj).indexOf(up(head))<0?' Re: '+srcSubj:'';
+    /* v0.28 (N34 形さん 「統一」): すべての船社で同じ頭 [LG付き訂正依頼:BL#{B/L (無ければ BKG)}] {本船 航海} / {Invoice} — 船社の実績の形 (patterns.json の subj) は 戻すときのために残す (使わない) */
+    const head=lgHead28(c);
+    const oldTag=up(fillT(M.subj||'',v)).trim();   // 前の版の頭 (船社の実績の形) がもう付いている返信 = 二重にしない
+    const srcTail=reply&&srcSubj&&up(srcSubj).indexOf(up(head))<0&&!(oldTag&&up(srcSubj).indexOf(oldTag)>=0)?' Re: '+srcSubj:'';
     const subject=head+srcTail;
     /* v0.26 (N26): 本文 = 大場さんの形のまま (訂正の一覧は入れない — 中身は添付の LG) */
     const body=(M.head||[]).map(l=>fillT(l,v)).concat(['いつもお世話になっております。','']).concat((M.body||[]).map(l=>fillT(l,v))).concat(M.tail||['','何卒よろしくお願い申し上げます。']).join(NL).replace(/\{CARRIER\}\n/,'');
@@ -2046,7 +2154,8 @@ const DOC = (()=>{
     if(w1/h1>=T){ const ch=Math.round(w1/T); return {cw:w1, ch, dx:0, dy:Math.round((ch-h1)/2), dw:w1, dh:h1}; }
     const cw=Math.round(h1*T); return {cw, ch:h1, dx:0, dy:0, dw:w1, dh:h1}; }
   /* N23: 依頼者名 = ログインした人の 英語の名前 (master_staff name_en · 大文字 — 実際の ONE の LG と同じ) */
-  const lgPerson = row => String((row&&row.name_en)||'').replace(/\s+/g,' ').trim().toUpperCase();
+  /* v0.28 (N33): 英文フルネーム (書類用) name_en_full が先 · 無ければ name_en (大文字 · 確認の印 = lgPersonNeed) */
+  const lgPerson = row => String((row&&(String(row.name_en_full||'').trim()||row.name_en))||'').replace(/\s+/g,' ').trim().toUpperCase();
 
   /* ══════════ v0.27 (指示書 THOR_25 · 修正まとめ v0.17 N30 · N31 · N27) ══════════
      N30 下書きの形 = C-01 (HANNYU_TOOL js/customs.js · source.js · config.js) と同じ — 本文 esc → 改行 <br> · Meiryo 10.5pt の div · 返信は createReplyAll の HTML の <body> の直後 (引用 · 画像はそのまま)
@@ -2116,7 +2225,56 @@ const DOC = (()=>{
   const ctRowOpt = ci => ci?{ctRow:{no:ci.no, ivs:ci.ivs||[]}, due:ci.due||null, dueText:ci.due?undefined:'—'}:{red:true};
   const ctIvsLabel = ivs => { const a=(ivs||[]).filter(Boolean); return a.length<=1?(a[0]||''):a[0]+' ほか '+(a.length-1)+' 件'; };
 
+  /* ══════════ v0.28 (指示書 THOR_26 · 修正まとめ v0.21 U1 ~ U9 · N33 · N34) — 画面だけ (判定は v0.27 と同じ) ══════════
+     U3 状態の印 — 今の判定 (ST) をそのまま 印 · 色 に置き換えるだけ (判定は変えない) */
+  const V28 = {
+    MK:{done:['ok','✓','済'], todo:['now','●','今やる'], diff:['ng','◆','相違'], wait:['wait','◐','相手待ち'], not:['todo','○','まだ'], na:['na','―','対象外'], unk:['unk','?','根拠なし'], load:['load','…','読み込み中']},
+    LEGEND:[['ok','✓','済'],['now','●','今やる'],['ng','◆','相違 · 期限切れ'],['wait','◐','相手待ち'],['todo','○','まだ'],['na','―','対象外']],
+    SRC:[['C','COMPASS'],['P','入力'],['M','メール'],['A','AI']],
+    /* 一覧の列 (目録 ① の順) — [key, 見出し, 出所, 隠せる] · 段階の 7 列は STEPS の順 (通関 · ACL · B/L · DEP · 保険 · RR · FD) */
+    COLS:[['cut','CY CUT','C',1],['etd','ETD','C',1],['eta','ETA','C',1],['pol','POL','C',1],['iv','Invoice · 契約','C',0],['bkg','BKG','C',1],['ship','船社 · 本船','C',1],['staff','担当','',1],
+      ['st','段階','',0],['next','次にやること','M',0],['pay','振込','P',1],['fd','FD送付日','P',1],['memo','備考','P',1]],
+    ST_HEAD:[['customs','通関'],['acl','ACL'],['bl','B/L'],['depo','DEP'],['ins','保険'],['rr','RR'],['fd','FD']],
+    /* 契約の表 (U8) */
+    CT_COLS:[['ct','契約 · バイヤー','C',0],['date','契約日','C',1],['country','国','C',1],['item','ITEM','C',1],['latest','最終船積日','C',1],['ship','船積','C',1],['staff','担当','',1],['st','L/C · S/I','',0],['other','別の契約番号','A',1],['next','次にやること','M',0]],
+    /* U6 担当の色 — 目録 (大場 · 朴 成旭 · 朴 秀旻) · ほかは B-06 と同じ決まり (港の担当マスターの並び → 色) */
+    STAFF_COLOR:[['大場','#f472b6'],['朴成旭','#34d399'],['朴秀旻','#a78bfa']], B06_COLORS:['#1c7ed6','#d6336c','#2f9e44','#e8590c','#7048e8','#0c8599','#c92a2a','#9c7a00'], STAFF_NONE:'#8b93a1',
+    SORTS:[['etd','ETD 順'],['due','期限順'],['cut','CY CUT 順']],
+    BAND:{late:'late', today:'today', later:'soon', chase:'soon'},
+    HASH_RE:/^#?(iv|ct)=([^&]+)(?:&tab=([a-z]+))?/, COLS_KEY:'doc_tool_cols_v28', BOARD_KEY:'doc_tool_board_v28', FOLD_KEY:'doc_tool_fold_v28',
+    SYNC:'✓ 同期 {hm}（COMPASS · メール · PORTAL）', SYNC_MAIL:'メールを読み込み中…', SYNC_ERR:'⚠ メール未確認 · 同期 {hm}',
+    SAVE_BAND:'保存の入口', NEW_DOCS:'新しい書類 {n} 件',
+    /* N34: LG の件名 = すべての船社で同じ形 */
+    LG_HEAD:'[LG付き訂正依頼:BL#{NO}]', TODAY_BADGE:'今日 {md}（{w}）'
+  };
+  const mark = c => { const s=c&&c.s, m=V28.MK[s]||V28.MK.unk; return {k:m[0], g:m[1], l:m[2], why:String((c&&c.why)||'')}; };
+  /* 担当の色 — name = 名前 (空白は無視) · code = 社員コード · order = 港の担当マスターの 担当コードの並び (B-06 と同じ) */
+  function staffColor(name, code, order){ const n=String(name||'').replace(/[\s　]/g,''); const f=V28.STAFF_COLOR.find(([k])=>n.indexOf(k)===0); if(f) return f[1];
+    const i=(order||[]).indexOf(code); return i<0?V28.STAFF_NONE:V28.B06_COLORS[i%V28.B06_COLORS.length]; }
+  /* B-06 setPolStaff と同じ — 港の担当マスター → 担当 · 補助 のコードの並び */
+  function polStaffOrder(items){ const o=[]; (items||[]).forEach(r=>{ const pol=String((r&&r.pol)||'').trim(); if(!pol) return; [r.staff, r.assist].forEach(c=>{ c=String(c||'').trim(); if(c&&o.indexOf(c)<0) o.push(c); }); }); return o; }
+  const bandOf = g => V28.BAND[g]||'';
+  /* 要対応の並び (期限順) — 期限切れ → 今日 → 後 → 期限なし · 同じなら 期限の早い順 · 仕事の順 · Invoice */
+  function reqSort(rows){ const G={late:0, today:1, later:2, none:3}, gi=k=>{ const i=TR.TGROUPS.findIndex(g=>g[0]===k); return i<0?99:i; };
+    return (rows||[]).slice().sort((a,b)=>((G[a.group]==null?4:G[a.group])-(G[b.group]==null?4:G[b.group]))||((a.due==null?1:0)-(b.due==null?1:0))||((a.due||0)-(b.due||0))||(gi(a.gkey)-gi(b.gkey))||String(a.iv).localeCompare(String(b.iv))); }
+  /* 並び — rows = [{key:{etd, cut, due}, i}] · 'etd' = 今の Invoice 別 (ETD (B/L ETD 優先) · 空が先 · 同じなら元の順) */
+  function sort28(rows, by){ const k=by||'etd', v=(r,f)=>r.key[f];
+    return (rows||[]).slice().sort((a,b)=>{ if(k==='due'){ const d=(a.key.rank-b.key.rank)||((a.key.due==null?1:0)-(b.key.due==null?1:0))||((a.key.due||0)-(b.key.due||0)); if(d) return d; }
+      const f=k==='cut'?'cut':'etd', x=v(a,f)||'', y=v(b,f)||''; if(k==='etd'||k==='due'){ if(!x&&y) return -1; if(x&&!y) return 1; } else { if(!x&&y) return 1; if(x&&!y) return -1; }
+      return x.localeCompare(y)||(a.i-b.i); }); }
+  /* 検索 (U6) — Invoice · 契約 · BKG · L/C · 本船 (大文字 · 空白を無視 · 部分一致) */
+  const hay28 = o => [o.iv, o.ct, o.bkg, o.lc, o.vessel, o.ivs].map(x=>up(Array.isArray(x)?x.join(' '):x).replace(/\s+/g,'')).join('|');
+  const hit28 = (o, q) => { const s=up(q).replace(/\s+/g,''); return !s||hay28(o).indexOf(s)>=0; };
+  /* URL #iv=…&tab=… */
+  const hashOf = (kind, id, tab) => '#'+kind+'='+encodeURIComponent(id)+(tab?'&tab='+tab:'');
+  const hashParse = h => { const m=V28.HASH_RE.exec(String(h||'')); return m?{kind:m[1], id:decodeURIComponent(m[2]), tab:m[3]||''}:null; };
+  /* N33: 依頼者名 = 英文フルネーム (name_en_full) · 無ければ name_en (大文字) + 確認 */
+  const lgPersonNeed = row => !String((row&&row.name_en_full)||'').trim();
+  /* N34: LG の件名の頭 = [LG付き訂正依頼:BL#{B/L (無ければ BKG)}] {本船 航海} / {Invoice} */
+  const lgHead28 = c => { const x=c||{}, no=String(x.bl||x.bkg||'').trim(), vv=String(x.vessel||'').replace(/\s+/g,' ').trim(); return V28.LG_HEAD.replace('{NO}',no)+(vv?' '+vv:'')+(x.iv?' / '+up(x.iv):''); };
+
   return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+    /* v0.28 */ V28, mark, staffColor, polStaffOrder, bandOf, reqSort, sort28, hay28, hit28, hashOf, hashParse, lgPersonNeed, lgHead28,
     /* v0.27 */ MAIL30, mailGreeting, mailSigCompany, mailCleanName, mailGuess, mailCompose, greetOk, mailHtml, mailInsert, htmlText, mailVerify, replyAllTo, ctRowOpt, ctIvsLabel,
     /* v0.26 */ V26, aclBlFixed, aclLater, wordDiff, wordMarkHtml, wordDiffTable, aclWordFix, ptMergeTs, ptByC01, ptRowsPre, rowLastChangers, adminSet, signState, lgSignTarget, signFit, lgPerson,
     /* v0.25 */ V25, lgCarrier, lgDepoFind, lgDepoApply, lgHasDepo, lgNz, lgAssign, lgSpan, lgNear, lgBlocks, lgBlockText, lgRuns, xlsxFontOf, xlsxRPr, lgVessel, xlSerial, lgValues, xlsxCellSet, xlsxFill, lgName, lgMailDraft, lgAttCheck, lgDraftPath,
@@ -2218,7 +2376,7 @@ async function spPut(p, content, type, save){   // 新規のみ (上書きしな
 }
 
 /* ── 読み込み ── */
-function prog(t){ $('dtProg').textContent=t||''; }
+function prog(t){ const el=$('dtProg'); el.textContent=t||''; el.hidden=/^読み込み完了/.test(t||''); }   // v0.28 (U6): 読み込み完了の長い一行は 「？」 の中 (読み込み中 · 失敗は見せる)
 /* v0.17 (D2): 読み込み完了 — 職員 = 「読み込み完了 HH:MM」 だけ · 管理者 = 中身 (船積 · 契約 · 秒 · ACL 照合結果 · 本登録メール …) */
 function doneLine(){ const d=new Date(), hm=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); return S.me.admin?S.doneMsg:'読み込み完了 '+hm; }
 async function loadAll(){
@@ -2229,7 +2387,7 @@ async function loadAll(){
     prog('マスター · COMPASS を読み込み中…');
     if(!S.staff.length){ const [st,ds]=await Promise.all([LEENAI.master.get('staff').catch(()=>[]), LEENAI.master.get('doc_staff').catch(()=>[])]);
       S.staff=st||[]; S.docStaff=DOC.docStaffMap(ds); S.docStaffItems=ds||[]; S.me=DOC.meOf(LEENAI.user&&LEENAI.user.email, S.staff); renderMe(); renderWho();
-      cpLoad(true).then(()=>{ if(S.view==='list'&&S.board==='todo') renderTodo(); }); cpReportsLoad(); }   // v0.11: チェックポイント (新しいチェックの帯) · 見落とし報告の数 (管理者)
+      cpLoad(true).then(()=>{ if(S.view==='list'&&(S.board==='todo'||S.board==='main')) renderTodo(); }); cpReportsLoad(); }   // v0.11: チェックポイント (新しいチェックの帯) · 見落とし報告の数 (管理者)
     const f=S.range.from, t=S.range.to;
     const [bk, regs, pols]=await Promise.all([
       dvAll(`cr49f_bookings?$filter=(cr49f_etd ge ${f} and cr49f_etd le ${t}) or (crcf9_bl_etd ge ${f} and crcf9_bl_etd le ${t})&$select=${BK_SEL}`),
@@ -2271,7 +2429,7 @@ async function loadAll(){
     await ptP; if(seq!==S.loadSeq) return; await loadPortalFolders(seq).catch(()=>{}); if(seq!==S.loadSeq) return;   // v0.16: PORTAL の行で まだ読んでいない Invoice フォルダ
     await restP; if(seq!==S.loadSeq) return;
     S.loadedMs=Date.now()-t0; PERF.mark('folders'); S.folderNote='フォルダ読んだ '+need.length+' · 前回のまま '+hit.size;
-    S.doneMsg='読み込み完了 — 船積 '+S.bk.length+' 件 · 契約 '+ids.length+' 件 · '+(S.loadedMs/1000).toFixed(0)+' 秒 ('+S.folderNote+')'+(S.acl?' · ACL 照合結果 '+S.acl.runId:'')+' · '+honNote()+(S.engine==='error'?' · ⚠ ACL エンジンを読めない':''); prog(doneLine());
+    S.doneAt=new Date(); S.doneMsg='読み込み完了 — 船積 '+S.bk.length+' 件 · 契約 '+ids.length+' 件 · '+(S.loadedMs/1000).toFixed(0)+' 秒 ('+S.folderNote+')'+(S.acl?' · ACL 照合結果 '+S.acl.runId:'')+' · '+honNote()+(S.engine==='error'?' · ⚠ ACL エンジンを読めない':''); prog(doneLine());
     render();
     /* v0.9: 保存の入口 — 最初の読み込みのあと 1 回 メールを見る (後は 「メールを確認」) */
     await mailP;
@@ -2624,20 +2782,251 @@ function ptModeUi(){ const pm=S.ivMode==='portal'; $('dtIvPortal').classList.tog
 function renderMe(){
   const r=document.getElementById('ln-hdr-right'); if(!r) return;
   if(!$('dtTrial')){ const sp=document.createElement('span'); sp.id='dtTrial'; sp.className='dt-row'; sp.style.gap='8px';
-    sp.innerHTML='<span class="dt-badge">試験運用</span><span class="dt-me" id="dtMeName"></span>'; r.insertBefore(sp, r.firstChild); }
+    sp.innerHTML='<span class="v8-tbadge" id="dtToday"></span><span class="dt-note" id="dtSync"></span><span class="dt-badge">試験運用</span><span class="dt-me" id="dtMeName"></span>'; r.insertBefore(sp, r.firstChild); renderToday(); renderSync(); }   // v0.28: 今日 (黄色) · 同期の一行
   const n=$('dtMeName'); if(n) n.textContent=S.me.code?(staffName(S.me.code)+(S.me.admin?'（管理者）':'')):'';
 }
 function renderWho(){
   const used=[...new Set(Object.values(S.docStaff).filter(Boolean))];
   const as=assistStaff(), asLabel=as.length?as.map(r=>staffName(r.code)).join(' · ')+'・補助':DOC.TODO_RULES.ASSIST_LABEL;   // v0.8: 印のある人の名前 (なければ 「補助（書類全体）」)
-  const opts=[['me','自分の担当'+(S.me.admin?'（管理者 = 全員）':'')]].concat(used.map(c=>[c,staffName(c)])).concat([['assist',asLabel],['all','全員'],['_none','担当未登録']]);   // v0.7: 画面案の順 (自分 · 担当者 · 補助 · 全員)
+  const opts=[['me',isNew()?'自分':'自分の担当'+(S.me.admin?'（管理者 = 全員）':'')]].concat(used.map(c=>[c,staffName(c)])).concat([['assist',asLabel],['all','全員'],['_none','担当未登録']]);   // v0.7: 画面案の順 (自分 · 担当者 · 補助 · 全員)
   if(S.staff.length&&!opts.some(o=>o[0]===S.who)) S.who='me';   // マスターを読む前は選択を残す
-  $('dtWho').innerHTML=opts.map(o=>'<button class="dt-chip'+(o[0]===S.who?' on':'')+'" data-who="'+esc(o[0])+'">'+esc(o[1])+'</button>').join('');
+  const dot=c=>['me','assist','all','_none'].indexOf(c)>=0?'':'<span class="v8-dot" style="background:'+esc(v8StaffColor(c))+'"></span>';   // v0.28 (U6): 担当の色の点 (B-06 と同じ)
+  $('dtWho').innerHTML=opts.map(o=>'<button class="v8-chip dt-chip'+(o[0]===S.who?' on':'')+'" data-who="'+esc(o[0])+'">'+dot(o[0])+esc(o[1])+'</button>').join('');
   $('dtWho').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.who=b.dataset.who; lsSet(LS.who,S.who); renderWho(); render(); }; });
 }
+/* ══════════ v0.28 (指示書 THOR_26 · 修正まとめ v0.21 U1 ~ U9) — 一覧 = 表 1 つ (今日やること + Invoice 別) · 右のパネル · 操作の行 (B-06 と同じ形)
+   判定 · 期限 · 要対応の行 · 保存 · 下書き は v0.27 の関数のまま (todoRows · ptRowOf · ivRow · ctRow · ptSave) — ここは 並べて 描くだけ
+   旧画面 (今日やること のカード · PORTAL と同じ表 · 契約別) は 試験 · 比べる用に 残す (S.board = 'todo' · 'iv' · 'ct' — 画面のボタンからは選べない) */
+const V8 = {last:[], lastCt:[], polOrder:null, polP:null, cols:null, qT:0};
+const isNew = () => S.board==='main'||S.board==='ctt';
+/* 形さん追加 (11/26 今日の日付を目立たせる): 今日 = 日本時間の日付 (日が変われば自動) · 表の日付が今日なら 黄色 (#fde047 · 黒の太字) */
+const v8Today = () => DOC.dayOf(DOC.jst(new Date().toISOString()));
+const v8D = (iso, txt) => { const t=esc(txt==null?'':txt); return iso&&String(iso).slice(0,10)===v8Today()?'<span class="v8-today" title="今日">'+t+'</span>':t; };
+function renderToday(){ const el=$('dtToday'); if(!el) return; const d=v8Today(), w='日月火水木金土'[new Date(d+'T00:00:00Z').getUTCDay()]; el.textContent=DOC.V28.TODAY_BADGE.replace('{md}',d.slice(5).replace('-','/')).replace('{w}',w);
+  if(V8.today&&V8.today!==d){ V8.today=d; render(); } V8.today=d; }
+function v8Hidden(){ if(V8.cols) return V8.cols; try{ V8.cols=JSON.parse(lsGet(DOC.V28.COLS_KEY,'[]'))||[]; }catch(e){ V8.cols=[]; } if(!Array.isArray(V8.cols)) V8.cols=[]; return V8.cols; }
+/* U6 担当の色 — 目録の 3 人 · ほかは B-06 と同じ (港の担当マスター pol_staff の並び · 読むだけ) */
+function v8StaffColor(code){
+  if(V8.polOrder===null&&!V8.polP){ V8.polP=Promise.resolve().then(()=>LEENAI.master.get('pol_staff')).then(it=>{ V8.polOrder=DOC.polStaffOrder(Array.isArray(it)?it:[]); renderWho(); render(); }).catch(()=>{ V8.polOrder=[]; }); }
+  const s=S.staff.find(r=>r.code===code); return DOC.staffColor(s?s.name_ja:code, code, V8.polOrder||[]); }
+const v8Staff = (code, pcode) => code||pcode?'<span class="dt-row" style="gap:5px;flex-wrap:nowrap"><span class="v8-dot" style="background:'+esc(v8StaffColor(code))+'"></span>'+esc(code?staffName(code):'—')+(pcode!==undefined&&pcode!==code?'<span class="pt-mk" title="'+esc('PORTAL の担当者 (共通マスター doc_staff): '+(pcode?staffName(pcode):'—'))+'">＊</span>':'')+'</span>':'—';
+/* 今日やること と同じ 「見える」 の決まり (補助の人 = 書類全体) */
+function v8Vis(){ const meAssist=S.who==='me'&&assistStaff().some(r=>r.code===S.me.code); return r=>S.who==='assist'||meAssist||DOC.visible(r.staff,S.who,S.me); }
+/* 印 (U3) — c = 判定 · name = 段階の名前 · attrs があれば押せる (その段階のタブを開く) */
+function v8Mk(c, name, attrs, sm){ const m=DOC.mark(c), t=' title="'+esc((name?name+': ':'')+m.l+(m.why?' — '+m.why:''))+'" aria-label="'+esc((name?name+' ':'')+m.l)+'"', cls='mk mk-'+m.k+(sm?' sm':'');
+  return attrs?'<button class="'+cls+'"'+t+' '+attrs+'>'+esc(m.g)+'</button>':'<span class="'+cls+'"'+t+'>'+esc(m.g)+'</span>'; }
+const V8_RANK = {late:0, today:1, later:2, none:3};
+const v8Key = (x, p) => ({etd:x.etd||'', cut:x.cut||'', due:p&&p.zone!=='wait'?p.due:null, rank:p&&p.zone!=='wait'?(V8_RANK[p.group]==null?4:V8_RANK[p.group]):5});
+const v8CtObj = (r, i) => { const d=r.due!=null?DOC.dayOf(r.due):''; return {kind:'ct', id:r.ctId, r, t:[r], prim:r, key:{etd:d, cut:d, due:r.zone!=='wait'?r.due:null, rank:r.zone!=='wait'?(V8_RANK[r.group]==null?4:V8_RANK[r.group]):5}, i}; };
+/* 行を作る — すべて = PORTAL と同じ行 (今の Invoice 別) + 今日やること にある Invoice · 契約の行 · 要対応 = 今日やること の 「やること」 の行 (同じ数) */
+function v8Compute(){
+  const vis=v8Vis(); let T=[]; try{ T=S.bk.length?todoRows().filter(vis):[]; }catch(e){ T=[]; }
+  const byIv={}; T.forEach(r=>{ if(!r.ctRow&&r.iv) (byIv[r.iv]=byIv[r.iv]||[]).push(r); });
+  Object.keys(byIv).forEach(k=>{ const L=byIv[k]; byIv[k]=DOC.reqSort(L.filter(r=>r.zone!=='wait')).concat(L.filter(r=>r.zone==='wait')); });
+  const xs={}, all=[]; let i=0;
+  const addB=b=>{ const iv=DOC.up(b.cr49f_invoice_no); if(iv&&xs[iv]) return; let x; try{ x=ptRowOf(b); }catch(e){ return; } if(iv) xs[iv]=x; const t=byIv[iv]||[];
+    if(!vis(x)&&!t.length) return; all.push({kind:'iv', id:iv, x, t, prim:t[0]||null, key:v8Key(x,t[0]), i:i++}); };
+  ptRowsShown().forEach(addB); S.bk.forEach(b=>{ if(byIv[DOC.up(b.cr49f_invoice_no)]) addB(b); });
+  T.filter(r=>r.ctRow).forEach(r=>all.push(v8CtObj(r,i++)));
+  const req=DOC.reqSort(T.filter(r=>r.zone!=='wait')).map((r,j)=>{ if(r.ctRow) return v8CtObj(r,j); let x=xs[r.iv];
+    if(!x){ const b=r.b||S.bk.find(bb=>DOC.up(bb.cr49f_invoice_no)===r.iv); if(b){ try{ x=ptRowOf(b); }catch(e){ x=null; } } }
+    return x?{kind:'iv', id:r.iv, x, t:[r], prim:r, key:v8Key(x,r), i:j}:null; }).filter(Boolean);
+  return {all, req, T, vis};
+}
+/* 検索 · CY CUT の範囲 */
+function v8Filter(o){ const q=S.q28||'', f=S.cutF||'', t=S.cutT||'';
+  if(f||t){ const c=o.key.cut; if(!c||(f&&c<f)||(t&&c>t)) return false; }
+  if(!q) return true; const x=o.x||{}, ctId=o.kind==='iv'?(x.r&&x.r.ctId):o.id;
+  return DOC.hit28({iv:o.kind==='iv'?x.ivRaw:'', ct:o.kind==='iv'?x.ct:(o.prim.ctRow&&o.prim.ctRow.no), bkg:x.bkg, lc:ctId?lcOfCt(ctId).no:'', vessel:x.b?x.b.cr49f_main_ship_name:'', ivs:o.kind==='ct'&&o.prim.ctRow?o.prim.ctRow.ivs:[]}, q); }
+const v8Sel = (x,f,opts,val) => '<select class="dt-in" data-pt="'+esc(x.ivRaw)+'" data-f="'+f+'" aria-label="'+esc(f)+'">'+opts.map(o=>'<option'+(o===val?' selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
+/* 次にやること — 今日やること の その行の文 + 期限 · 小さいボタン (済にする N10 · 下書き · ファイル名の判断) */
+function v8Next(o){ const p=o.prim; if(!p) return '<td class="v8-next" data-c="next"><span class="v8-du d-none">—</span></td>';
+  const g=p.zone==='wait'?(p.group==='chase'?'chase':'wait'):p.group, iv=p.iv||'';
+  const more=o.t&&o.t.length>1?'<span class="v8-more" title="'+esc(o.t.slice(1).map(r=>r.what+(r.why?' — '+r.why:'')).join('\n'))+'">+'+(o.t.length-1)+'</span>':'';
+  const mk=!p.extra&&mailKindOf(p), md=mk?mailDoneLabel(iv,mk):'';
+  const btn=(p.fn?(p.fn.kind==='file'?'<button class="v8-ab" data-tdfn="this" data-fniv="'+esc(iv)+'" data-fnkey="'+esc(p.fn.key)+'">この Invoice のファイル</button><button class="v8-ab" data-tdfn="other" data-fniv="'+esc(iv)+'" data-fnkey="'+esc(p.fn.key)+'">別の Invoice</button>'
+      :'<button class="v8-ab" data-tdfn="ack" data-fniv="'+esc(iv)+'" data-fnkey="'+esc(p.fn.key)+'">確認しました</button>'):'')+
+    (mk?'<button class="v8-ab" data-mail="'+mk+'" data-mailiv="'+esc(iv)+'" title="'+esc('下書きを作る'+(md?' — '+md:''))+'">下書き</button>':'')+
+    (!p.extra?'<button class="v8-ab tl-man" data-tddone="'+esc(iv)+'" title="済にする — TOOL がメールを読めないとき · 電話で終わったとき" aria-label="済にする">済</button>':'');
+  return '<td class="v8-next'+(p.zone==='wait'?' v8-wait':'')+'" data-c="next" title="'+esc((p.why||'')+(p.folderWait?' · フォルダ確認中':''))+'"><span class="v8-du d-'+esc(g)+(p.due!=null&&DOC.dayOf(p.due)===v8Today()?' v8-today':'')+'">'+esc(p.when||'—')+'</span><span class="v8-what">'+esc(p.what||'')+'</span>'+(p.gkey==='fd'?fdTodoBadge(iv):'')+more+btn+'</td>'; }
+const v8Band = p => p?DOC.bandOf(p.group):'';
+function v8IvRowH(o){ const x=o.x, P=DOC.PT, sp=x.sp||P.DEF, noIv=!x.ivRaw, dS=v=>DOC.ptDateS(v,S.today), cells=(x.r&&x.r.cells)||{}, bd=v8Band(o.prim), vessel=(x.b&&x.b.cr49f_main_ship_name)||'';
+  const st=DOC.V28.ST_HEAD.map(([k,n],j)=>{ const c=cells[k]; let h=!c?'<span class="mk mk-na">―</span>':c.s==='na'||c.s==='load'?v8Mk(c,n):v8Mk(c,n,'data-iv="'+esc(x.iv)+'" data-tab="'+k+'"');
+    if(k==='customs'&&!noIv){ const ts=ptTsCell(x); if(/^<input/.test(ts)) h+=ts; }
+    if(k==='depo'&&!noIv){ const dep=DOC.ptDep(x.sp, c, x.vn); if(dep.sel) h+=v8Sel(x,'dep',P.DEP_OPTS,dep.val)+(dep.hint?'<span class="pt-hint" title="'+esc('書類ツールの判定: '+dep.hint)+'">*</span>':''); }
+    return '<td class="v8-s v8-s'+j+'" data-c="st">'+h+'</td>'; }).join('');
+  const fd=noIv?'—':'<input type="date" class="dt-in'+(sp.fd_date&&String(sp.fd_date).slice(0,10)===v8Today()?' v8-today':'')+'" data-pt="'+esc(x.ivRaw)+'" data-f="fd_date" value="'+esc(sp.fd_date||'')+'" aria-label="FD送付日">'+
+    (x.prop?'<button class="pt-prop" data-pt-prop="'+esc(x.ivRaw)+'" data-date="'+esc(x.prop.date)+'" title="'+esc('TOOL が見つけた FD 送付 ('+x.prop.src+') '+DOC.ptDate(x.prop.date)+' — 押すと入力します')+'">提案 '+esc(dS(x.prop.date))+'</button>':'');
+  const tip=['契約 '+(x.ct||'—'),'ETA(E) '+DOC.ptDate(x.eta),'CNTR '+x.cnt+' 本 · '+x.cntr,'BKG_NO '+x.bkg].concat(x.r&&x.r.vchg.length?['本船変更: '+x.r.vchg.join(' · ')]:[]).join('\n');
+  return '<tr class="v8-r" data-row="iv" data-id="'+esc(x.iv)+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td>'+
+    '<td class="m" data-c="cut">'+v8D(x.cut,dS(x.cut))+'</td><td class="m" data-c="etd">'+v8D(x.etd,dS(x.etd))+'</td><td class="m m2" data-c="eta">'+v8D(x.eta,dS(x.eta))+'</td><td data-c="pol" title="'+esc(x.pol)+'">'+esc(x.pol)+'</td>'+
+    '<td class="v8-iv" data-c="iv">'+(x.iv?'<button class="dt-link" data-iv="'+esc(x.iv)+'" data-tab="" title="'+esc(tip)+'">'+esc(x.ivRaw)+'</button>':'<span>—</span>')+'<span class="v8-ct">'+esc(x.ct||'—')+(x.r&&x.r.vchg.length?' · 本船変更':'')+'</span></td>'+
+    '<td class="m" data-c="bkg">'+esc(x.bkg)+'</td><td data-c="ship" title="'+esc(x.ship+(vessel?' '+vessel:''))+'">'+esc(x.ship)+(vessel?' <span class="v8-sub">'+esc(vessel)+'</span>':'')+'</td><td data-c="staff">'+v8Staff(x.staff, x.pstaff)+'</td>'+st+v8Next(o)+
+    '<td data-c="pay">'+(noIv?'—':v8Sel(x,'furikomi',P.FURI_OPTS,P.FURI_OPTS.indexOf(sp.furikomi)>=0?sp.furikomi:'未'))+'</td><td data-c="fd">'+fd+'</td>'+
+    '<td data-c="memo">'+(noIv?'—':'<input type="text" class="dt-in pt-note" data-pt="'+esc(x.ivRaw)+'" data-f="fd_note" value="'+esc(sp.fd_note||'')+'" placeholder="メモ" maxlength="'+P.NOTE_MAX+'" aria-label="備考">')+'</td></tr>'; }
+/* 契約の行 (N27 · S/I 確認 など 契約に 1 行) — Invoice の欄 = 契約番号 (太字) · 下 = その契約の Invoice */
+function v8CtTodoRowH(o){ const r=o.r, bd=v8Band(r), d=o.key.cut?DOC.ptDateS(o.key.cut,S.today):'—';
+  return '<tr class="v8-r" data-row="ct" data-id="'+esc(r.ctId||'')+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td><td class="m" data-c="cut">'+v8D(o.key.cut,d)+'</td><td class="m" data-c="etd">—</td><td class="m" data-c="eta"></td><td data-c="pol"></td>'+
+    '<td class="v8-iv" data-c="iv"><button class="dt-link" data-ct="'+esc(r.ctId||'')+'" data-tab="si">'+esc(r.ctRow.no)+'</button><span class="v8-ct" title="'+esc(r.ctRow.ivs.join(' · '))+'">'+esc(DOC.ctIvsLabel(r.ctRow.ivs)||'契約')+'</span></td>'+
+    '<td data-c="bkg"></td><td data-c="ship">'+esc(r.carrier||'')+'</td><td data-c="staff">'+v8Staff(r.staff)+'</td>'+DOC.V28.ST_HEAD.map((s,j)=>'<td class="v8-s v8-s'+j+'" data-c="st"></td>').join('')+v8Next(o)+'<td data-c="pay"></td><td data-c="fd"></td><td data-c="memo"></td></tr>'; }
+const v8Th = (k, l, src, cls) => '<th data-c="'+k+'"'+(cls?' class="'+cls+'"':'')+'>'+esc(l)+(src?'<sup>'+esc(src)+'</sup>':'')+'</th>';
+function v8IvHead(){ const C=DOC.V28.COLS, h=k=>{ const c=C.find(x=>x[0]===k); return v8Th(k,c[1],c[2]); };
+  return '<tr><th class="v8-bd"></th>'+['cut','etd','eta','pol','iv','bkg','ship','staff'].map(h).join('')+DOC.V28.ST_HEAD.map((s,j)=>'<th class="v8-s v8-s'+j+'" data-c="st">'+esc(s[1])+'</th>').join('')+['next','pay','fd','memo'].map(h).join('')+'</tr>'; }
+function v8Top(){ const el=$('dtTop'); if(!el) return; const now=TODO.asof!=null?TODO.asof:null;
+  el.innerHTML=cpBannerHtml()+(now!=null?'<div class="dt-card td-asof">asof '+esc(DOC.dayOf(now)+' '+DOC.hmOf(now))+' の時点で計算しています（管理者 · 試験 · その時刻より前の信号だけ）</div>':'')+(TODO.mailSt==='error'?todoBannerHtml():'');
+  cpBannerBind(el); const b=$('dtMailRetry'); if(b) b.onclick=()=>{ TODO.mailSeq++; loadTodoMail(TODO.mailSeq); }; }
+function renderIvTable(){
+  const t0=perfNow(), box=$('dtTable'); box.classList.add('v8-wrap');
+  if(!S.bk.length&&!S.doneMsg){ box.innerHTML='<div class="v8-empty">読み込み中…</div>'; $('dtTop').innerHTML=''; $('dtAfter').innerHTML=''; return; }
+  if(S.fdLatest===undefined) fdLatestLoad().then(()=>render()).catch(()=>{});   // v0.21: FD 確認の結果 (名前だけ)
+  const R=v8Compute(), base=S.todoOnly?R.req:R.all, shown=DOC.sort28(base.filter(v8Filter), S.todoOnly?S.sortReq:S.sortAll);
+  $('dtTodo').textContent='要対応のみ '+R.req.length; $('dtAll').textContent='すべて '+R.all.length; V8.last=shown;
+  v8Top();
+  const flt=S.q28||S.cutF||S.cutT;
+  box.innerHTML=shown.length?'<table class="v8-t"><thead>'+v8IvHead()+'</thead><tbody>'+shown.map(o=>o.kind==='ct'?v8CtTodoRowH(o):v8IvRowH(o)).join('')+'</tbody></table>'
+    :'<div class="v8-empty">'+(flt?'条件に合う行はありません（検索 · CY CUT の範囲）':S.todoOnly?'要対応の行はありません':'表示する船積はありません（担当の選択を確認）')+'</div>';
+  v8Bind(box); ptMarksApply(); v8ColsApply();
+  v8After(R.vis, flt?shown.length+' / '+base.length+' 件を表示（検索 · CY CUT）':'');
+  PERF.render(perfNow()-t0);
+  v8HashOpen();
+}
+/* 表の中の操作 — 行を押す = 右のパネル (その Invoice の 「いまここ」 のタブ) · 印 = その段階のタブ · 入力 = PORTAL と同じ保存 (欄ごと · eTag) */
+function v8Bind(box){
+  box.querySelectorAll('tr.v8-r').forEach(tr=>{ tr.onclick=e=>{ if(e.target.closest('input,select,button,a,label,textarea')) return; const id=tr.dataset.id; if(!id) return;
+    (tr.dataset.row==='ct'?openCt(id, S.board==='ctt'?'':'si'):openIv(id,'')).catch(er=>toast('開けません: '+er.message,'danger')); }; });
+  box.querySelectorAll('button[data-iv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.iv, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
+  box.querySelectorAll('button[data-ct]').forEach(b=>{ b.onclick=()=>openCt(b.dataset.ct, b.dataset.tab||'').catch(e=>toast('開けません: '+e.message,'danger')); });
+  box.querySelectorAll('input[data-ptts]').forEach(el=>{ el.onchange=()=>ptSaveTsUi(el, el.dataset.ptts, el.checked); });
+  box.querySelectorAll('[data-pt]').forEach(el=>{ el.onchange=()=>ptSaveUi(el, el.dataset.pt, el.dataset.f, el.value); });
+  box.querySelectorAll('button[data-pt-prop]').forEach(b=>{ b.onclick=()=>ptSaveUi(b, b.dataset.ptProp, 'fd_date', b.dataset.date); });
+  box.querySelectorAll('[data-tddone]').forEach(b=>{ b.onclick=()=>manDoneModal(b.dataset.tddone); });
+  box.querySelectorAll('[data-mail]').forEach(b=>{ b.onclick=()=>mailDraftModal(b.dataset.mailiv, b.dataset.mail); });
+  box.querySelectorAll('[data-tdfn]').forEach(b=>{ b.onclick=()=>fnDecide(b.dataset.fniv, b.dataset.fnkey, b.dataset.tdfn, b); });
+}
+/* 表の下 — 今日終わったもの · 済にしたもの (元に戻す) · 管理者 = メールが見つからない · 長く残っている (今日やること と同じ) */
+function v8After(vis, note){ const el=$('dtAfter'); if(!el) return; const done=(TODO.done||[]).filter(vis), man=(TODO.manShown||[]).filter(vis), O=TODO.open||TODO_OPEN_DEF, isOpen=k=>O[k]!==undefined?!!O[k]:!!TODO_OPEN_DEF[k];
+  const doneRows=done.map(d=>'<div class="tl-row"><div class="tl-due">'+esc(DOC.hmOf(d.list[d.list.length-1][0]))+'</div><div class="tl-iv"><button class="dt-link" data-iv="'+esc(d.iv)+'" data-tab="">'+esc(d.iv)+'</button> <span class="dt-note">'+esc([d.carrier,d.country].filter(Boolean).join(' · '))+'</span></div><div class="tl-what">'+esc(d.list.map(x=>x[1]).join(' · '))+'</div><div></div><div></div></div>').join('');
+  const manRows=man.map(o=>'<div class="tl-row"><div class="tl-due">'+esc(jstStr(o.rec.at_saved).slice(5))+'</div><div class="tl-iv"><button class="dt-link" data-iv="'+esc(o.iv)+'" data-tab="">'+esc(o.iv)+'</button> <span class="dt-note">'+esc([o.carrier,o.country].filter(Boolean).join(' · '))+'</span></div><div class="tl-what">'+esc(o.what)+'</div><div class="tl-why dt-note">'+esc((o.rec.reason_ja||'')+(o.rec.mail_subject?' · 「'+o.rec.mail_subject+'」':'')+(o.rec.memo?' · '+o.rec.memo:'')+' · '+(o.rec.name||o.rec.user||''))+'</div><div class="tl-act"><button class="dt-btn ghost sm" data-tdundo="'+esc(o.iv)+'">元に戻す</button></div></div>').join('');
+  const sec=(k,label,n,rows,extra)=>'<section class="dt-card tl-zone"><div class="tl-gh"><button class="tl-gt" data-tdtoggle="'+k+'"'+(n?'':' disabled')+'>'+(n?(isOpen(k)?'▼ ':'▶ '):'· ')+esc(label)+'</button><span class="tl-n">'+n+' 件</span>'+(extra||'')+'</div>'+(n&&isOpen(k)?'<div class="tl-rows">'+rows+'</div>':'')+'</section>';
+  el.innerHTML=(note?'<div class="v8-foot">'+esc(note)+'</div>':'')+'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:8px">'+sec('done',DOC.TODO_RULES.ZONES[2][1],done.length,doneRows)+
+    sec('man','済にしたもの（人が済にした · 段階が進めばまた出ます）',man.length,manRows,S.me.admin?'<span class="dt-row" style="gap:6px;margin-left:auto"><button class="dt-btn ghost sm" id="dtManMiss">メールが見つからない（'+(TODO.manLog||[]).filter(j=>!j.undo&&j.reason==='mail').length+'）</button><button class="dt-btn ghost sm" id="dtLong">長く残っている</button></span>':'')+'</div>';
+  el.querySelectorAll('[data-tdundo]').forEach(b=>{ b.onclick=()=>manUndo(b.dataset.tdundo, b); });
+  el.querySelectorAll('button[data-iv]').forEach(b=>{ b.onclick=()=>openIv(b.dataset.iv,'').catch(e=>toast('開けません: '+e.message,'danger')); });
+  el.querySelectorAll('[data-tdtoggle]').forEach(b=>{ b.onclick=()=>{ const k=b.dataset.tdtoggle, o=Object.assign({},TODO.open||{}); o[k]=!isOpen(k); TODO.open=o; lsSet(LS.todoOpen,JSON.stringify(o)); render(); }; });
+  const mm=$('dtManMiss'); if(mm) mm.onclick=manMissModal; const lg=$('dtLong'); if(lg) lg.onclick=longModal; }
+/* U8 契約の表 — 1 行 = 1 契約 (L/C · S/I · 別の契約番号 · CP-A04 · 次にやること = 契約の行) · 完了は畳む · 国内 (JAPAN) は出さない (今の契約別と同じ) */
+function renderCtTable(){
+  const box=$('dtTable'); box.classList.add('v8-wrap'); $('dtTop').innerHTML='';
+  if(!Object.keys(S.ct).length&&!S.doneMsg){ box.innerHTML='<div class="v8-empty">読み込み中…</div>'; $('dtAfter').innerHTML=''; return; }
+  const vis=v8Vis(), B=ctIdsForBoard(), rows=DOC.sortCtDate(B.ids.map(ctRow)).filter(r=>DOC.visible(r.staff,S.who,S.me));
+  let T=[]; try{ T=S.bk.length?todoRows().filter(vis):[]; }catch(e){ T=[]; }
+  const byCt={}; T.forEach(r=>{ if(r.ctRow&&r.ctId) (byCt[r.ctId]=byCt[r.ctId]||[]).push(r); });
+  const req=rows.filter(r=>DOC.needs({lc:r.cells.lc, si:r.cells.si})), base=S.todoOnly?req:rows;
+  const shown=base.filter(r=>!S.q28||DOC.hit28({ct:r.ct, lc:lcOfCt(r.id).no, ivs:r.bks.map(b=>b.iv)}, S.q28));
+  $('dtTodo').textContent='要対応のみ '+req.length; $('dtAll').textContent='すべて '+rows.length;
+  const act=shown.filter(r=>!DOC.ctDone(r.cells)), done=shown.filter(r=>DOC.ctDone(r.cells)), op=lsGet(DOC.V22.CT_FOLD_KEY,'')==='1', dS=v=>v?DOC.ptDateS(v,S.today):'—';
+  const obj=r=>{ const t=byCt[r.id]||[]; return {kind:'ct', id:r.id, c:r, t, prim:t[0]||null}; };
+  V8.lastCt=act.concat(op?done:[]).map(obj);
+  const C=DOC.V28.CT_COLS, h=k=>{ const c=C.find(x=>x[0]===k); return v8Th(k,c[1],c[2]); };
+  const head='<tr><th class="v8-bd"></th>'+['ct','date','country','item','latest','ship','staff'].map(h).join('')+'<th class="v8-s v8-s0" data-c="st">L/C</th><th class="v8-s v8-s6" data-c="st">S/I</th>'+['other','next'].map(h).join('')+'</tr>';
+  const rowH=r=>{ const o=obj(r), bd=v8Band(o.prim), L=r.lines, it=L===null?'…':L.length?L[0].item+(L.length>1?' ほか '+(L.length-1):''):'—', oc=(r.cells.si&&r.cells.si.otherCt)||[], cp=(S.siCp&&S.siCp[r.id]||[]).length;
+    return '<tr class="v8-r" data-row="ct" data-id="'+esc(r.id)+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td>'+
+      '<td class="v8-iv" data-c="ct"><button class="dt-link" data-ct="'+esc(r.id)+'" data-tab="">'+esc(r.ct)+'</button><span class="v8-ct">'+esc(r.buyer||r.buyerName||'—')+'</span></td>'+
+      '<td class="m" data-c="date">'+v8D(r.date,dS(r.date))+'</td><td data-c="country">'+esc(r.country||'—')+'</td><td data-c="item">'+esc(it)+'</td><td class="m" data-c="latest">'+v8D(r.latest,dS(r.latest))+'</td>'+
+      '<td data-c="ship" title="'+esc(shipTip(r))+'">'+esc(r.shipped+' / '+r.bks.length)+'</td><td data-c="staff">'+v8Staff(r.staff)+'</td>'+
+      '<td class="v8-s v8-s0" data-c="st">'+v8Mk(r.cells.lc,'L/C',r.cells.lc.s==='na'||r.cells.lc.s==='load'?'':'data-ct="'+esc(r.id)+'" data-tab="lc"')+'</td><td class="v8-s v8-s6" data-c="st">'+v8Mk(r.cells.si,'S/I',r.cells.si.s==='na'||r.cells.si.s==='load'?'':'data-ct="'+esc(r.id)+'" data-tab="si"')+'</td>'+
+      '<td data-c="other">'+(oc.length?'<span class="dt-c-diff">'+esc(oc.join(' · '))+'</span>':'—')+(cp?' <span class="dt-c-diff">CP-A04</span>':'')+'</td>'+v8Next(o)+'</tr>'; };
+  const body=act.map(rowH).join('')+(done.length?'<tr class="ct-fold"><td colspan="13"><button class="ct-done" id="dtCtDone" aria-expanded="'+op+'">'+esc(op?DOC.V22.DONE_LABEL_OPEN(done.length):DOC.V22.DONE_LABEL(done.length))+'</button></td></tr>'+(op?done.map(rowH).join(''):''):'');
+  box.innerHTML=shown.length?'<table class="v8-t" style="min-width:1200px"><thead>'+head+'</thead><tbody>'+body+'</tbody></table>':'<div class="v8-empty">'+(S.q28?'条件に合う契約はありません（検索）':'表示する契約はありません（担当 · 要対応 · 期間の選択を確認）')+'</div>';
+  v8Bind(box); v8ColsApply();
+  const cd=$('dtCtDone'); if(cd) cd.onclick=()=>{ lsSet(DOC.V22.CT_FOLD_KEY, op?'':'1'); render(); };
+  $('dtAfter').innerHTML=(B.ex.length?'<div class="v8-foot" title="'+esc(B.ex.join('\n'))+'">試験などの契約 '+B.ex.length+' 件は出していません（契約番号の形が LRS-… · UCS-… などでない）</div>':'')+(S.saleDetErr?'<div class="v8-foot">⚠ 販売明細を読めない: '+esc(S.saleDetErr)+'</div>':'');
+  v8HashOpen();
+}
+function v8ColsApply(){ const t=$('dtTable'), H=v8Hidden(); DOC.V28.COLS.concat(DOC.V28.CT_COLS).forEach(c=>t.classList.toggle('v8-h-'+c[0], H.indexOf(c[0])>=0)); }
+function v8ColsMenu(){ const m=$('dtColsMenu'), ct=S.board==='ctt', C=ct?DOC.V28.CT_COLS:DOC.V28.COLS, H=v8Hidden();
+  m.innerHTML='<span class="dt-note">見せる列（この PC に記憶）</span>'+C.filter(c=>c[3]).map(c=>'<label><input type="checkbox" data-col="'+c[0]+'"'+(H.indexOf(c[0])<0?' checked':'')+'> '+esc(c[1])+'</label>').join('')+
+    (ct?'':'<label title="'+esc('PORTAL と同じ行 = 通関依頼済 の船積だけ — 印を付けると 通関の前の船積も出します')+'"><input type="checkbox" id="dtPtPre2"'+(S.ptPre?' checked':'')+'> '+esc(DOC.V26.TS_PRE)+'</label>');
+  m.querySelectorAll('input[data-col]').forEach(el=>{ el.onchange=()=>{ const H2=v8Hidden().filter(k=>k!==el.dataset.col); if(!el.checked) H2.push(el.dataset.col); V8.cols=H2; lsSet(DOC.V28.COLS_KEY, JSON.stringify(H2)); v8ColsApply(); }; });
+  const pp=$('dtPtPre2'); if(pp) pp.onchange=()=>{ S.ptPre=pp.checked; render(); }; }
+/* U6 右上の 1 行 — 「✓ 同期 HH:MM（COMPASS · メール · PORTAL）」 · メールを読んでいる間は 「メールを読み込み中…」 */
+function renderSync(){ const el=$('dtSync'); if(!el) return; const d=S.doneAt, hm=d?String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'):'', V=DOC.V28;
+  el.textContent=!S.doneMsg?'読み込み中…':TODO.mailSt==='load'?V.SYNC_MAIL:TODO.mailSt==='error'?V.SYNC_ERR.replace('{hm}',hm):V.SYNC.replace('{hm}',hm); }
+/* 「？」 — 説明 · 読み込みの詳しい内容 (前の 「読み込み完了 — …」 · 管理者は中身) */
+function v8Help(){ const R=DOC.TODO_RULES, now=TODO.asof!=null?TODO.asof:DOC.jst(new Date().toISOString()), fo=Object.keys(S.folders).length;
+  modal('<div class="dt-h">書類ツール — 見方</div>'+
+    '<div class="dt-p">1 行 = 1 Invoice（今日やること と Invoice 別 を 1 つの表に）。並び = ETD の近い順（B/L ETD 優先）· 「並び」で 期限順 · CY CUT 順。行を押すと 右に詳細（「いまここ」のタブ）· 段階の印を押すとそのタブ。⤢ = 全体 · ✕ = 表に戻る。</div>'+
+    '<div class="dt-p">「要対応のみ」 = 今日やること の 「やること（自分の番）」 の行（同じ数 · 期限順）。待ち（相手の番）は 「すべて」 で ◐。左の色の帯 = 期限（赤 期限切れ · 橙 今日 · 青 これから）。</div>'+
+    '<div class="dt-p">印: ✓ 済 · ● 今やる（確認）· ◆ 相違 · ◐ 相手待ち · ○ まだ · ― 対象外（DEPO はベトナム向けのみ · RR は韓国向けのみ · 保険は CIF のみ · L/C は L/C 取引のみ）· ? 判断の根拠が見つからない。マウスを乗せると理由。</div>'+
+    '<div class="dt-p">列の名前の横: C = COMPASS · P = 入力（PORTAL と同じファイル · 変えた欄だけ保存）· M = メール · A = AI。</div>'+
+    '<div class="dt-note">いま '+esc(DOC.hmOf(now))+' · 締切 14:30 Draft 確認 · 15:00 送金 · 18:00 宅配'+(S.bk.length&&fo<S.bk.length?' · Invoice フォルダ確認中 '+fo+' / '+S.bk.length:'')+'</div>'+
+    '<div class="dt-note">'+esc($('dtProg').textContent||'')+'</div><div class="dt-note">'+esc(todoMailNote())+'</div>'+(S.me.admin?'<div class="dt-note">'+esc(PERF.note())+'</div>':'')+(TODO.portalErr?'<div class="dt-note dt-c-diff">⚠ PORTAL を読めない: '+esc(TODO.portalErr)+'</div>':'')+
+    '<div class="dt-actions"><a class="dt-btn ghost" href="'+esc(R.MANUAL)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none">マニュアル</a><button class="dt-btn ghost" data-close>閉じる</button></div>'); bindClose(); }
+/* U5 右のパネル — 左 = 狭い一覧 (今の表と同じ行) · 頭 = Invoice · 契約 · 船社 本船 · 航路 · ETD · 条件 + ← → ⤢ ✕ */
+function v8SideList(){ return S.board==='ctt'?V8.lastCt:V8.last; }
+function v8CurKey(){ return S.cur?(S.cur.type==='iv'?'iv:'+S.cur.iv:'ct:'+S.cur.id):''; }
+function renderSide(){ const el=$('dtSide'); if(!el) return; el.hidden=false; const L=v8SideList(), cur=v8CurKey();
+  const one=o=>{ const p=o.prim, bd=v8Band(p), k=o.kind+':'+o.id;
+    if(o.kind==='iv'){ const x=o.x, cells=(x.r&&x.r.cells)||{}; return '<button class="v8-sr'+(k===cur?' on':'')+'" data-sk="'+k+'"><span class="bd'+(bd?' b-'+bd:'')+'"></span><span class="c">'+v8D(x.cut,DOC.ptDateS(x.cut,S.today))+'</span><span class="n"><b>'+esc(x.ivRaw||'—')+'</b> <span class="v8-sub">'+esc(p?p.what:'')+'</span></span><span class="mks">'+DOC.V28.ST_HEAD.map(([kk,n])=>cells[kk]?v8Mk(cells[kk],n,'',true):'').join('')+'</span></button>'; }
+    const c=o.c, no=c?c.ct:(o.prim&&o.prim.ctRow?o.prim.ctRow.no:''), cut=o.key?o.key.cut:'';
+    return '<button class="v8-sr'+(k===cur?' on':'')+'" data-sk="'+k+'"><span class="bd'+(bd?' b-'+bd:'')+'"></span><span class="c">'+(cut?v8D(cut,DOC.ptDateS(cut,S.today)):c?v8D(c.date,DOC.ptDateS(c.date,S.today)):'')+'</span><span class="n"><b>'+esc(no)+'</b> <span class="v8-sub">'+esc(p?p.what:(c?c.buyer||'':''))+'</span></span><span class="mks">'+(c?v8Mk(c.cells.lc,'L/C','',true)+v8Mk(c.cells.si,'S/I','',true):'')+'</span></button>'; };
+  el.innerHTML='<div class="v8-side-h">'+esc((S.todoOnly?'要対応のみ ':'すべて ')+L.length+' 件 — 押した行が右に開く')+'</div>'+L.map(one).join('');
+  el.querySelectorAll('[data-sk]').forEach(b=>{ b.onclick=()=>{ const [kd,id]=[b.dataset.sk.slice(0,2), b.dataset.sk.slice(3)]; (kd==='iv'?openIv(id,''):openCt(id,'')).catch(e=>toast('開けません: '+e.message,'danger')); }; });
+  const on=el.querySelector('.v8-sr.on'); if(on&&on.scrollIntoView) try{ on.scrollIntoView({block:'nearest'}); }catch(e){} }
+function v8Nav(d){ const L=v8SideList(), cur=v8CurKey(), i=L.findIndex(o=>o.kind+':'+o.id===cur), o=L[i<0?0:i+d]; if(!o){ toast(d<0?'最初の行です':'最後の行です','info'); return; }
+  const tab=S.curTab; (o.kind==='iv'?openIv(o.id, S.cur&&S.cur.type==='iv'?tab:''):openCt(o.id, S.cur&&S.cur.type==='ct'?tab:'')).catch(e=>toast('開けません: '+e.message,'danger')); }
+const V8_NAV = '<span class="v8-sp"></span><button class="v8-btn" data-v8nav="-1" aria-label="前の行">←</button><button class="v8-btn" data-v8nav="1" aria-label="次の行">→</button><button class="v8-btn" data-v8full aria-label="全体に広げる">⤢</button><button class="v8-btn" data-v8close aria-label="閉じる (表へ)">✕</button>';
+function v8HeadBind(el){ el.querySelectorAll('[data-v8nav]').forEach(b=>{ b.onclick=()=>v8Nav(+b.dataset.v8nav); });
+  el.querySelectorAll('[data-v8full]').forEach(b=>{ b.onclick=()=>{ S.pfull=!S.pfull; $('dtMain').classList.toggle('v8-full',S.pfull); }; });
+  el.querySelectorAll('[data-v8close]').forEach(b=>{ b.onclick=()=>{ S.pfull=false; show('list'); }; }); }
+function v8IvPanelHead(r){ const el=$('dtIvHead'); if(!el) return; const b=r.b, c=S.ct[r.ctId]||{}, pay=DOC.up(FV(c,'cr49f_pay_cls')||c.cr49f_pay_cls), car=TODO.carriers[b._cr49f_carrier_id_value]||'', pol=S.pols[b._cr49f_region_japan_id_value]||DOC.ptPol(S.polRec&&S.polRec[b._cr49f_region_japan_id_value]);
+  el.innerHTML='<b>'+esc(r.iv)+'</b><span class="v8-sub">'+[esc(r.ct||'—'), esc([car, b.cr49f_main_ship_name||''].filter(Boolean).join(' ')), esc((pol&&pol!=='—'?pol:'?')+' → '+(r.pod||'?')), 'ETD '+v8D(r.etd,DOC.ptDateS(r.etd,S.today)), esc(r.term||''), esc(pay||'')].filter(Boolean).join(' · ')+'</span>'+V8_NAV; v8HeadBind(el); }
+function v8CtPanelHead(r){ const el=$('dtCtHead'); if(!el) return;
+  el.innerHTML='<b>'+esc(r.ct||'—')+'</b><span class="v8-sub">'+[r.buyer||r.buyerName, r.country, r.pod?'POD '+r.pod:'', r.term, r.pay].filter(Boolean).map(esc).concat(r.date?['契約日 '+v8D(r.date,DOC.ptDateS(r.date,S.today))]:[]).join(' · ')+'</span>'+V8_NAV; v8HeadBind(el); }
+/* URL #iv=…&tab=… (新しく読み込んでも 同じ所) */
+function v8HashSet(h){ try{ history.replaceState(null,'',location.pathname+location.search+(h||'')); }catch(e){} }
+function v8HashOpen(){ const h=S.hashOpen; if(!h||!isNew()||S.view!=='list'||!S.bk.length) return; S.hashOpen=null;
+  (h.kind==='iv'?openIv(h.id,h.tab):openCt(h.id,h.tab)).catch(e=>toast('開けません: '+e.message,'danger')); }
+/* 操作の行 */
+function renderMain(){
+  const ct=S.board==='ctt'; $('dtMain').classList.remove('v8-old');
+  $('dtBIv').classList.toggle('on',!ct); $('dtBCt').classList.toggle('on',ct); $('dtBTodo').classList.remove('on');
+  $('dtTodoBox').style.display='none'; $('dtTable').style.display=''; $('dtLegend').style.display='none'; $('dtTodo').style.display=''; $('dtAll').style.display='';
+  $('dtTodo').classList.toggle('on',!!S.todoOnly); $('dtAll').classList.toggle('on',!S.todoOnly);
+  $('dtCutBox').style.display=ct?'none':''; $('dtCtCtl').style.display=ct?'':'none'; $('dtSort').style.display=ct?'none':''; $('dtSort').previousElementSibling.style.display=ct?'none':'';
+  if(ct){ $('dtCtPeriod').innerHTML=DOC.CT_PERIODS.map(([n,l])=>'<button class="v8-chip dt-chip'+(n===S.ctDays?' on':'')+'" data-days="'+n+'">'+esc(l)+'</button>').join('');
+    $('dtCtPeriod').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.ctDays=+b.dataset.days; lsSet(LS.ctdays,String(S.ctDays)); render(); }; }); }
+  const so=S.todoOnly?S.sortReq:S.sortAll; $('dtSort').innerHTML=DOC.V28.SORTS.map(([k,l])=>'<option value="'+k+'"'+(k===so?' selected':'')+'>'+esc(l)+'</option>').join('');
+  const meNote=S.who==='me'&&!S.me.code?'ログイン中のメールがマスター「担当者」にありません — 「全員」か担当者を選んでください。':''; $('dtMeNote').hidden=!meNote; $('dtMeNote').textContent=meNote;
+  if(ct) renderCtTable(); else renderIvTable();
+  if(!$('dtColsMenu').hidden) v8ColsMenu();
+  renderSync(); if(S.doneMsg) prog(doneLine());
+}
+function v8Start(){
+  S.board=lsGet(DOC.V28.BOARD_KEY,'main'); if(['main','ctt','todo','iv','ct'].indexOf(S.board)<0) S.board='main';   // 'todo' · 'iv' · 'ct' = 旧画面 (試験 · 比べる用 · ボタンなし)
+  S.sortAll='etd'; S.sortReq='due'; S.q28=''; S.cutF=''; S.cutT=''; S.pfull=false; S.hashOpen=DOC.hashParse(location.hash);
+  S.legacy=!isNew();   // 旧画面で開いた (試験 · 比べる用) — ボタンも 旧画面の 3 つの間で
+  $('dtBIv').onclick=()=>{ if(S.legacy){ S.board='iv'; lsSet(LS.board,'iv'); lsSet(DOC.V28.BOARD_KEY,'iv'); render(); return; } S.board='main'; lsSet(DOC.V28.BOARD_KEY,'main'); show('list'); };
+  $('dtBCt').onclick=()=>{ if(S.legacy){ S.board='ct'; lsSet(LS.board,'ct'); lsSet(DOC.V28.BOARD_KEY,'ct'); render(); return; } S.board='ctt'; lsSet(DOC.V28.BOARD_KEY,'ctt'); show('list'); };
+  $('dtBTodo').hidden=!S.legacy; $('dtBTodo').onclick=()=>{ S.board='todo'; lsSet(LS.board,'todo'); lsSet(DOC.V28.BOARD_KEY,'todo'); render(); };
+  $('dtSort').onchange=()=>{ if(S.todoOnly) S.sortReq=$('dtSort').value; else S.sortAll=$('dtSort').value; render(); };
+  $('dtCutF').onchange=()=>{ S.cutF=$('dtCutF').value; render(); }; $('dtCutT').onchange=()=>{ S.cutT=$('dtCutT').value; render(); };
+  $('dtQ').addEventListener('input',()=>{ clearTimeout(V8.qT); V8.qT=setTimeout(()=>{ S.q28=$('dtQ').value.trim(); if(isNew()&&S.view==='list') render(); },150); });
+  $('dtColsBtn').onclick=()=>{ const m=$('dtColsMenu'); m.hidden=!m.hidden; $('dtColsBtn').setAttribute('aria-expanded',String(!m.hidden)); if(!m.hidden) v8ColsMenu(); };
+  $('dtHelp').onclick=v8Help;
+  /* 日が変われば 印 · 表の黄色も変わる — 1 分ごと + 窓に戻ったとき (試験の jsdom では 時計を回さない = 試験が終われる) */
+  if(!/jsdom/i.test(navigator.userAgent||'')) setInterval(renderToday, 60e3);
+  window.addEventListener('focus', renderToday); document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) renderToday(); });
+  window.addEventListener('hashchange',()=>{ const h=DOC.hashParse(location.hash); if(!h||!isNew()) return;
+    if(S.view!=='list'&&S.cur&&(h.kind==='iv'?S.cur.iv===DOC.up(h.id):S.cur.id===h.id)){ if(h.tab&&h.tab!==S.curTab){ S.curTab=h.tab; if(S.view==='iv') renderIv(); else renderCt(); } return; }
+    if(!S.bk.length){ S.hashOpen=h; return; } (h.kind==='iv'?openIv(h.id,h.tab):openCt(h.id,h.tab)).catch(e=>toast('開けません: '+e.message,'danger')); });
+}
+
 function render(){
   ptWideUi();   // v0.16.1
-  if(S.view!=='list') return;
+  if(S.view!=='list'){ if(isNew()){ if(S.board==='main'){ const R=v8Compute(), b=S.todoOnly?R.req:R.all; V8.last=DOC.sort28(b.filter(v8Filter), S.todoOnly?S.sortReq:S.sortAll); } renderSide(); renderSync(); } return; }   // v0.28 (U5): パネルを開いている間も 左の一覧を新しく
+  if(isNew()){ renderMain(); return; }   // v0.28 (U2 · U8)
+  $('dtMain').classList.add('v8-old');
   $('dtBIv').classList.toggle('on',S.board==='iv'); $('dtBCt').classList.toggle('on',S.board==='ct'); $('dtBTodo').classList.toggle('on',S.board==='todo');
   const td=S.board==='todo'; $('dtTodoBox').style.display=td?'flex':'none'; $('dtTable').style.display=td?'none':''; $('dtLegend').style.display=td?'none':''; $('dtTodo').style.display=td?'none':''; $('dtAll').style.display=td?'none':''; $('dtTodoAll').style.display=td?'':'none';
   $('dtTodo').classList.toggle('on',S.todoOnly); $('dtAll').classList.toggle('on',!S.todoOnly); $('dtHideFd').checked=!!S.hideFd;
@@ -2680,7 +3069,11 @@ function render(){
   if(S.doneMsg) prog(doneLine()+(S.hideFd&&hidden?' · FD済み '+hidden+' 件を非表示':''));   // v0.17 (D2)
 }
 const shipTip = r => 'この契約のブッキング '+r.bks.length+' 件のうち、ETD (B/L ETD 優先) が過ぎたもの '+r.shipped+' 件';
-function show(view){ if(S.view==='list'&&view!=='list') S.prevBoard=S.board; S.view=view; ptWideUi(); $('dtList').style.display=view==='list'?'flex':'none'; $('dtIv').style.display=view==='iv'?'flex':'none'; $('dtCt').style.display=view==='ct'?'flex':'none'; if(view==='list') render(); window.scrollTo(0,0); }
+function show(view){ if(S.view==='list'&&view!=='list') S.prevBoard=S.board; S.view=view; ptWideUi(); $('dtList').style.display=view==='list'?'flex':'none'; $('dtIv').style.display=view==='iv'?'flex':'none'; $('dtCt').style.display=view==='ct'?'flex':'none';
+  /* v0.28 (U5): 新しい画面 = 右のパネル (左に 狭い一覧) · ⤢ = 全体 · ✕ = 表へ */
+  const nw=isNew(), sp=nw&&view!=='list'; $('dtMain').classList.toggle('v8-split',sp); $('dtMain').classList.toggle('v8-full',sp&&!!S.pfull); $('dtMain').classList.toggle('v8-old',!nw);
+  if(sp) renderSide(); else { $('dtSide').hidden=true; if(nw&&view==='list'){ S.openSeq=(S.openSeq||0)+1; v8HashSet(''); } }   // 表に戻ったら 読み込み中の 「開く」 はやめる
+  if(view==='list') render(); window.scrollTo(0,0); }
 
 /* ── Invoice 詳細 ── */
 /* v0.5 (指示書 Step A): 詳細は 先に 「読み込み中…」 を出し、画面に 1 回ゆずってから 読み込み · 描画 (重い処理があっても押した直後に画面が変わる) ·
@@ -2743,14 +3136,16 @@ function renderIvSum(){
 function tabsHtml(tabs, cells, now){
   return tabs.map(t=>{ const c=cells[t[0]], st=c?DOC.ST[c.s]||c.s:'';
     return '<button class="'+(t[0]===S.curTab?'on':'')+(t[0]===now?' now':'')+'" data-tab="'+t[0]+'"'+(c?' title="'+esc(st+(c.why?' — '+c.why:''))+'"':'')+'>'+esc(t[1])+
-      (c&&c.s!=='load'?'<span class="dot st-'+c.s+'" data-st="'+c.s+'" aria-label="'+esc(st)+'"></span>':'')+(t[0]===now?'<span class="now-tag">いまここ</span>':'')+'</button>'; }).join(''); }
+      (c&&c.s!=='load'&&isNew()?v8Mk(c,'','',true):'')+(c&&c.s!=='load'?'<span class="dot st-'+c.s+'" data-st="'+c.s+'" aria-label="'+esc(st)+'"></span>':'')+(t[0]===now?'<span class="now-tag">いまここ</span>':'')+'</button>'; }).join(''); }
 function renderIv(){
   renderIvSum(); const r=ivRow(S.cur.b);
+  if(isNew()){ v8IvPanelHead(r); }   // v0.28 (U5)
   const tabs=DOC.STEPS.filter(s=>r.cells[s[0]].s!=='na').concat([['log','履歴']]);
   if(!tabs.some(t=>t[0]===S.curTab)) S.curTab=tabs[0][0];
   $('dtIvTabs').innerHTML=tabsHtml(tabs, r.cells, DOC.nowTab(r.cells,DOC.STEPS));
   $('dtIvTabs').querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ S.curTab=b.dataset.tab; renderIv(); }; });
   $('dtIvBody').innerHTML=dvWrap(S.curTab, ivTabHtml(r, S.curTab)); bindCommon($('dtIvBody'));   // v0.22 (V1): ACL · B/L Draft · FD = 左に書類
+  if(isNew()) v8HashSet(DOC.hashOf('iv', r.iv, S.curTab));   // v0.28 (U5): URL #iv=…&tab=…
   if(S.curTab==='log') renderLog(r.iv,'dtLogBody');
   if(S.curTab==='acl'&&typeof aclTabAfter==='function') aclTabAfter(r);
   if(S.curTab==='bl'&&typeof blTabAfter==='function') blTabAfter(r);   // v0.12
@@ -3001,6 +3396,7 @@ async function openCt(id, tab){
 }
 function renderCt(){
   const r=ctRow(S.cur.id);
+  if(isNew()) v8CtPanelHead(r);   // v0.28 (U5)
   const kv=(k,v,raw)=>'<div><div class="k">'+esc(k)+'</div><div class="v">'+(raw?v:esc(v||'—'))+'</div></div>';
   $('dtCtSum').innerHTML=kv('契約',r.ct)+kv('バイヤー',r.buyer+(r.buyerName&&r.buyerName!==r.buyer?' ('+r.buyerName+')':''))+kv('国',r.country)+kv('決済',r.pay+(r.term?' · '+r.term:''))+'<div title="'+esc(shipTip(r))+'"><div class="k">船積</div><div class="v">'+esc(DOC.shipLabel(r.shipped,r.bks.length))+'</div></div>'+
     '<div style="grid-column:span 5"><div class="k">L/C</div><div class="dt-row" style="gap:10px">'+lcLinks(r.id)+'</div></div>';
@@ -3014,6 +3410,7 @@ function renderCt(){
   else if(S.curTab==='si') h=(typeof siTabHtml==='function')?siTabHtml(r):box('<div class="dt-h">S/I</div><div class="dt-p">S/I 推薦（A1）と COMPASS 書き込みは準備中です。今は a1_bench で確認してください。</div>'+statusLine(r.cells.si)+'<div class="dt-actions">'+copyBtn(r.ct)+toolBtn('a1')+'</div>');
   else h=box('<div class="dt-h">履歴</div><div class="dt-p">この TOOL で行った記録（S/I 書き込み）。</div><div id="dtCtLog" class="dt-note">読み込み中…</div>');
   $('dtCtBody').innerHTML=h; bindCommon($('dtCtBody')); bindCommon($('dtCtSum'));
+  if(isNew()) v8HashSet(DOC.hashOf('ct', r.id, S.curTab));
   if(S.curTab==='log') renderLog(r.ct,'dtCtLog');
   if(S.curTab==='si'&&typeof siTabAfter==='function') siTabAfter(r);
   if(S.curTab==='lc'&&r.cells.lc.s==='done'&&S.lcJ[r.id]===undefined) lcSumLoad(r.id);   // v0.17 (F6)
@@ -3603,10 +4000,10 @@ async function signAdminModal(){
   modal('<div class="dt-h">署名の画像の確認（管理者）</div><div class="dt-note" id="dtSignSay">読み込み中…</div><div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>'); bindClose();
   const sv=await signLoad(true), rows=(sv.staff||[]).filter(r=>r&&r.active!==false);
   const body=rows.map(r=>{ const st=DOC.signState(sv.staff, r.email, sv.lastBy), has=!!st.path;
-    return '<tr><td>'+esc(r.name_ja||r.code)+'<div class="dt-note">'+esc(r.email||'')+'</div></td><td>'+esc(DOC.lgPerson(r)||'—')+'</td><td>'+(has?'<img class="sign-img" data-signimg="'+esc(st.path)+'" alt="">':'—')+'</td>'+
+    return '<tr><td>'+esc(r.name_ja||r.code)+'<div class="dt-note">'+esc(r.email||'')+'</div></td><td>'+esc(DOC.lgPerson(r)||'—')+(DOC.lgPersonNeed(r)?'<div class="dt-note dt-c-todo">英文フルネームなし（name_en で代わり · LG では確認）</div>':'')+'</td><td>'+(has?'<img class="sign-img" data-signimg="'+esc(st.path)+'" alt="">':'—')+'</td>'+
       '<td class="'+(st.ok?'dt-c-done':'dt-c-todo')+'">'+esc(st.ok?'確認済み':st.why)+'</td><td>'+(has&&!st.ok?'<button class="dt-btn sm" data-signok="'+esc(r.code)+'">確認済みにする</button>':'')+(st.ok?'<button class="dt-btn ghost sm" data-signoff="'+esc(r.code)+'">確認を外す</button>':'')+'</td></tr>'; }).join('');
   modal('<div class="dt-h">署名の画像の確認（管理者）</div><div class="dt-note">LG を作るとき 様式の署名の画像を ログインした人の画像に入れ替えます。確認済みの人だけ LG を作れます。画像の元 = 過去にその人がメールで送った LG（候補）。'+(sv.verOk?'':' ⚠ 版の記録を読めません — 確認済みの判定ができません')+'</div>'+
-    '<table class="dt-t"><thead><tr><th>職員</th><th>依頼者名（英）</th><th>署名の画像</th><th>状態</th><th></th></tr></thead><tbody>'+body+'</tbody></table><div id="dtSignSt" class="dt-note"></div><div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>');
+    '<table class="dt-t"><thead><tr><th>職員</th><th>依頼者名（英文フルネーム）</th><th>署名の画像</th><th>状態</th><th></th></tr></thead><tbody>'+body+'</tbody></table><div id="dtSignSt" class="dt-note"></div><div class="dt-actions"><button class="dt-btn ghost" data-close>閉じる</button></div>');
   bindClose(); for(const im of $('dtModalBox').querySelectorAll('img[data-signimg]')){ try{ im.src=await signImgUrl(im.dataset.signimg); }catch(e){} }
   const set=async(code, on, bt)=>{ bt.disabled=true; const st=$('dtSignSt'); st.textContent='保存しています…';
     try{ const cur=((await LEENAI.master.get('staff',{fresh:true}))||[]).find(x=>x&&x.code===code); if(!cur) throw new Error('職員マスターにありません: '+code);
@@ -3639,7 +4036,7 @@ async function lgPrepare(iv, say){
   say('署名の画像を確かめています…'); const sv=await signLoad(), sg=DOC.signState(sv.staff, LEENAI.user&&LEENAI.user.email, sv.lastBy);
   if(!sg.ok) return {stop:sg.why};
   if(!tpl.sign) return {stop:DOC.V26.SIGN_NO_PLACE+'（'+C.key+'）'};
-  const sign={path:sg.path, target:tpl.sign, bytes:await signBytes(sg.path, tpl), who:sg.row.name_ja||sg.row.code||'', person:DOC.lgPerson(sg.row)};
+  const sign={path:sg.path, target:tpl.sign, bytes:await signBytes(sg.path, tpl), who:sg.row.name_ja||sg.row.code||'', person:DOC.lgPerson(sg.row), personNeed:DOC.lgPersonNeed(sg.row)};   // v0.28 (N33)
   say('メールの Deposit 番号を探しています…'); const dep=viet?await lgDepoMail(b, iv):{cands:[], pick:'', sure:false, mails:0};
   /* メールをまだ読み終わっていない (今日やること の読み込み中) → 番号が無いのは まだ分からない */
   dep.pending=viet&&!dep.pick&&TODO.mailSt!=='ok';
@@ -3647,7 +4044,7 @@ async function lgPrepare(iv, say){
   const lines=lgDraftLines(B, last&&last.L), src={A:res.A||[], B:res.B||[], items, lines, depo:dep.pick, vietnam:viet};
   const cur={iv:DOC.up(iv), b, carrier:C.key, pat:C.pat, tpl, res, dep, src, viet, sign, bl:b.cr49f_bl_number||'', bkg:b.cr49f_booking_no||'', vessel:it('vessel')||b.cr49f_main_ship_name||'', pol:lgHead(lgDraftOne(lines,'pol'), it('pol')), pod:lgHead(lgDraftOne(lines,'pod'), it('pod')), edits:{}, saved:null, bytes:null};
   lgRecalc(cur); LGS.cur=cur; return cur; }
-function lgRecalc(cur){ cur.blocks=DOC.lgBlocks(cur.src); cur.vals=DOC.lgValues({cells:cur.tpl.cells.cells, blocks:cur.blocks, br:cur.tpl.cells.bracket, bl:cur.bl||cur.bkg, bkg:cur.bkg, vessel:cur.vessel, pol:cur.pol, pod:cur.pod, today:S.today, person:(cur.sign&&cur.sign.person)||''});   // v0.26 (N23): 依頼者名 = name_en
+function lgRecalc(cur){ cur.blocks=DOC.lgBlocks(cur.src); cur.vals=DOC.lgValues({cells:cur.tpl.cells.cells, blocks:cur.blocks, br:cur.tpl.cells.bracket, bl:cur.bl||cur.bkg, bkg:cur.bkg, vessel:cur.vessel, pol:cur.pol, pod:cur.pod, today:S.today, person:(cur.sign&&cur.sign.person)||'', personNeed:!!(cur.sign&&cur.sign.personNeed)});   // v0.26 (N23): 依頼者名 = name_en
   /* 直した欄 = 職員の文のまま (太字 · 赤 は付けない) */
   Object.keys(cur.edits).forEach(k=>{ if(cur.vals[k]){ cur.vals[k].v=cur.edits[k]; cur.vals[k].need=false; delete cur.vals[k].runs; } }); }
 const LG_LABEL = {date:'Date', vessel:'Vessel', voyage:'Voy. No.', bl:'B/L No.', pol:'Port of Loading', pod:'Port of Discharge', before:'Originally made out（訂正前）', after:'To be amended to read（訂正後）', person:'依頼者名'};
@@ -4475,11 +4872,12 @@ function bcOn(msg){ if(!msg||!msg.type) return;
   if(msg.type==='save'&&msg.key){ saveSeenApply(msg); } }
 if(BC) BC.onmessage=e=>bcOn(e.data);
 window.addEventListener('storage', e=>{ if(e.key==='doc_tool_bc'&&e.newValue){ try{ bcOn(JSON.parse(e.newValue)); }catch(x){} } });
-function renderTodoBanner(){ const el=$('dtTodoBar'); if(!el) return; el.innerHTML=todoBannerHtml(); const b=$('dtMailRetry'); if(b) b.onclick=()=>{ TODO.mailSeq++; loadTodoMail(TODO.mailSeq); }; }
+function renderTodoBanner(){ renderSync(); const el=$('dtTodoBar'); if(!el) return; el.innerHTML=todoBannerHtml(); const b=$('dtMailRetry'); if(b) b.onclick=()=>{ TODO.mailSeq++; loadTodoMail(TODO.mailSeq); }; }
 const todoMailNote = () => !S.me.admin?'':(TODO.fdSearch.st==='load'?'FD のメールを Invoice 番号で検索中 '+(TODO.fdSearch.done||0)+' / '+TODO.fdSearch.n+' · ':TODO.fdSearch.st==='ok'&&TODO.fdSearch.n?'FD のメール検索 '+TODO.fdSearch.n+' 件 → 送付済み '+TODO.fdSearch.hit+' 件 · ':'')+(TODO.mailSt==='load'?'メールを読み込み中… '+TODO.mailN+' 通 (先に COMPASS · フォルダ · PORTAL で表示しています)':TODO.mailSt==='error'?'⚠ '+TODO.mailErr+' — メールなしで計算 (COMPASS · フォルダ · PORTAL)':TODO.mailSt==='ok'?'メール '+TODO.mails+' 通 (直近 '+DOC.TODO_RULES.MAIL_DAYS+' 日 · '+(TODO.mailMs/1000).toFixed(0)+' 秒) も使って計算':'');
 /* v0.14: グループは開いておく (今日終わったもの だけ 閉じる) · 0 件のグループは 1 行 · v0.15 (A1): 「待ち」 の区域は最初は閉じる (押すと開く · このブラウザに記憶) */
 const TODO_OPEN_DEF = {done:false, zone_wait:false, man:false};
 function renderTodo(){
+  if(isNew()){ render(); return; }   // v0.28: 新しい画面 = 表を描き直す (同じ todoRows)
   if(S.view!=='list'||S.board!=='todo') return;
   const t0=perfNow(), R=DOC.TODO_RULES, box=$('dtTodoBox'), now=TODO.asof!=null?TODO.asof:DOC.jst(new Date().toISOString());
   if((!S.bk.length||!TODO.ctx)&&!S.doneMsg){ box.innerHTML='<div class="dt-card dt-empty">読み込み中…</div>'; return; }
@@ -4735,9 +5133,15 @@ function renderInbox(){
   const head='<div class="dt-between"><div class="dt-row"><span class="td-title">保存の入口</span><span class="dt-note">新しい書類 '+todo.length+' 件'+(SAVE.mailSt==='ok'?'（直近 '+R.BDAYS+' 営業日のメールを確認 · '+hm+'）':'')+(saveTest()?' · <b class="dt-c-todo">試験モード（doc_tool/save_test/ に保存）</b>':'')+(st?' · '+esc(st):'')+'</span></div>'+
     '<div class="dt-row">'+restBtn+'<button class="dt-btn ghost sm" id="dtSvMail" title="PDF（ACL · B/L Draft · FD · TO BANK · IV · PL）を画面のどこかに置いても入ります">メールを確認</button>'+(canAll.length?'<button class="dt-btn sm" id="dtSvAll">すべて保存（新規・新しい版のみ '+canAll.length+'）</button>':'')+'</div></div>';
   /* v0.14 (3-3): やることが 0 件 = 1 行 */
-  box.innerHTML='<section class="dt-card" style="padding:'+(todo.length?'12px 16px':'8px 16px')+';display:flex;flex-direction:column;gap:8px">'+head+
+  /* v0.28 (U9): 表の上の 畳む帯 「▸ 保存の入口 新しい書類 n 件」 (押すと 今の一覧) · 印 · 出所 の説明は 帯の右 (U3 · U7) — 一覧は畳んでも 画面の中にある (hidden) */
+  const fo=lsGet(DOC.V28.FOLD_KEY,'')==='1', V=DOC.V28, kinds=(()=>{ const c={}; todo.forEach(r=>{ const k=(r.kind&&(r.kind.label||r.kind.key||r.kind.name))||''; if(k) c[k]=(c[k]||0)+1; }); const e=Object.entries(c); return e.length?'（'+e.map(([k,n])=>k+' '+n).join(' · ')+'）':''; })();
+  const band='<div class="v8-sv"><button class="v8-sv-t" id="dtSvFold" aria-expanded="'+fo+'">'+(fo?'▾ ':'▸ ')+esc(V.SAVE_BAND)+'</button><span>'+V.NEW_DOCS.replace('{n}','<b>'+todo.length+'</b>')+esc(kinds)+'</span>'+
+    '<span class="dt-note">'+(SAVE.mailSt==='ok'?esc('直近 '+R.BDAYS+' 営業日のメール · '+hm):esc(st))+(saveTest()?' · <b class="dt-c-todo">試験モード</b>':'')+'</span><span class="v8-sp"></span>'+
+    '<span class="v8-lg">表示: '+V.LEGEND.map(([k,g,l])=>'<span><b class="mk mk-'+k+'">'+esc(g)+'</b> '+esc(l)+'</span>').join('')+'</span><span class="v8-lg">出所: '+V.SRC.map(([k,l])=>'<span><b>'+k+'</b> '+esc(l)+'</span>').join('')+'</span></div>';
+  box.innerHTML=band+'<div class="v8-sv-body" id="dtSvBody"'+(fo?'':' hidden')+'><section class="dt-card" style="padding:'+(todo.length?'12px 16px':'8px 16px')+';display:flex;flex-direction:column;gap:8px">'+head+
     (todo.length?'<div class="dt-note">PDF（ACL · B/L Draft · FD · TO BANK · IV · PL）を画面のどこかに置くと、ここに入ります（保存はボタンを押したときだけ · 新しいファイルを作るだけ · 名前は {Invoice}_FD などに TOOL が付けます）。</div><div class="sv-rows">'+todo.map(row).join('')+'</div>':'')+
-    (rest.length&&SAVE.showRest?'<div class="sv-rows sv-done">'+rest.map(row).join('')+'</div>':'')+'</section>';
+    (rest.length&&SAVE.showRest?'<div class="sv-rows sv-done">'+rest.map(row).join('')+'</div>':'')+'</section></div>';
+  $('dtSvFold').onclick=()=>{ lsSet(DOC.V28.FOLD_KEY, fo?'':'1'); renderInbox(); };
   $('dtSvMail').onclick=()=>saveMailScan();
   const rb=$('dtSvRest'); if(rb) rb.onclick=()=>{ SAVE.showRest=!SAVE.showRest; renderInbox(); };
   const all=$('dtSvAll'); if(all) all.onclick=async()=>{ for(const r of canAll) await saveDo(r); };
@@ -4758,7 +5162,7 @@ function startPage(){
   const d=new Date(), p=n=>String(n).padStart(2,'0'); S.today=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
   let rg={before:30,after:45}; try{ rg=Object.assign(rg,JSON.parse(lsGet(LS.range,'{}'))); }catch(e){}
   S.range=DOC.defaultRange(S.today,+rg.before,+rg.after); $('dtFrom').value=S.range.from; $('dtTo').value=S.range.to;
-  S.who=lsGet(LS.who,'me'); S.board=lsGet(LS.board,'todo'); if(['todo','ct','iv'].indexOf(S.board)<0) S.board='todo';   // v0.7: 最初の画面 = 今日やること (前の版の記憶は使わない)
+  S.who=lsGet(LS.who,'me'); v8Start();   // v0.28: 最初の画面 = 表 1 つ (Invoice) · 前の版の 「今日やること / 契約別 / Invoice 別」 の記憶は使わない   // v0.7: 最初の画面 = 今日やること (前の版の記憶は使わない)
   try{ TODO.open=Object.assign({},TODO_OPEN_DEF,JSON.parse(lsGet(LS.todoOpen,'{}'))); }catch(e){ TODO.open=Object.assign({},TODO_OPEN_DEF); }
   S.hideFd=lsGet(LS.hidefd,'1')!=='0';   // 既定 ON (형님 D2)
   S.ctDays=+lsGet(LS.ctdays,String(DOC.CT_DAYS_DEFAULT)); if(!DOC.CT_PERIODS.some(p=>p[0]===S.ctDays)) S.ctDays=DOC.CT_DAYS_DEFAULT;   // v0.3 既定 直近1ヶ月 · v0.6: 日で数える (PORTAL と同じ · 前の 「月」 の記憶は使わない)
@@ -4766,11 +5170,10 @@ function startPage(){
   let ptRz=0; window.addEventListener('resize',()=>{ if(ptRz) return; ptRz=1; requestAnimationFrame(()=>{ ptRz=0; ptFit(); }); });   // v0.16.1: 窓の幅が変わったら畳み直す
   $('dtIvPortal').onclick=()=>{ S.ivMode='portal'; lsSet(LS.ivMode,'portal'); render(); }; $('dtIvEtd').onclick=()=>{ S.ivMode='etd'; lsSet(LS.ivMode,'etd'); render(); };
   $('dtHideFd').onchange=()=>{ S.hideFd=$('dtHideFd').checked; lsSet(LS.hidefd,S.hideFd?'1':'0'); render(); };
-  $('dtBIv').onclick=()=>{ S.board='iv'; lsSet(LS.board,'iv'); render(); }; $('dtBCt').onclick=()=>{ S.board='ct'; lsSet(LS.board,'ct'); render(); }; $('dtBTodo').onclick=()=>{ S.board='todo'; lsSet(LS.board,'todo'); render(); };
   $('dtTodo').onclick=()=>{ S.todoOnly=true; render(); }; $('dtAll').onclick=()=>{ S.todoOnly=false; render(); };
   $('dtReload').onclick=()=>{ const f=$('dtFrom').value, t=$('dtTo').value; if(!f||!t||f>t){ prog('ETD の範囲が正しくありません'); return; } S.range={from:f,to:t}; loadAll(); };
   $('dtGo').onclick=runSearch; $('dtQ').addEventListener('keydown',e=>{ if(e.key==='Enter') runSearch(); });
-  document.querySelectorAll('[data-back]').forEach(b=>{ b.onclick=()=>{ S.board=S.prevBoard==='todo'?'todo':b.dataset.back==='ct'?'ct':'iv'; show('list'); }; });   // v0.7: 今日やること から開いたら 今日やること へ戻る
+  document.querySelectorAll('[data-back]').forEach(b=>{ b.onclick=()=>{ if(!isNew()) S.board=S.prevBoard==='todo'?'todo':b.dataset.back==='ct'?'ct':'iv'; show('list'); }; });   // v0.7: 今日やること から開いたら 今日やること へ戻る
   $('dtModal').addEventListener('click',e=>{ if(e.target===$('dtModal')) closeModal(); });
   saveDropZone(); renderInbox();
   renderMe(); renderWho(); loadAll();
@@ -4908,7 +5311,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.27', date:'2026-11-26',
+  sys:'D-00', name:'書類ツール', version:'0.28', date:'2026-11-26',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',
