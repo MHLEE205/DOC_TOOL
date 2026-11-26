@@ -1,7 +1,7 @@
 /* DOC_TOOL 시험 전부 — node run_all.js [html]. 마지막 줄 ✅ ALL PASS 면 통과. 네트워크 없음 · 가짜 데이터만 */
 const cp=require('child_process'),path=require('path');
 const html=process.argv[2]||path.join(__dirname,'../index.html');
-const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.31']],
+const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.32']],
   ['core.js','#1~#5 상태 규칙 · 대상 외 · 담당 · 정렬/범위 · B/L 파일 고르기',[html]],
   ['app.js','#3 기억 · #4 · #9 화면 흐름 (현황판 → 상세 → 탭 → 돌아가기 · 검색 → 상세 · 설정 · 쓰기 0)',[html]]];
 const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 결과 · DR 이름 · 관리자 버튼'],['si.js','#7 S/I 쓰기 — 쓰기 전 저장 → 쓰기 → 다시 읽기 · 취소 · S/I 済 지금 표 먼저'],
@@ -34,6 +34,7 @@ const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 
   ['v29.js','v0.29 — U10 ETD 맨 왼쪽 · 순서 · U11 要対応 = やること + 催促 · U12 국내 0 · U13 通関 체크 하나 · U14 FD 済 빠짐 · +14 일 · 접힘 · 접힌 줄 폴더 0 · N35 OBL → 入金 → SWB (着金日 · 依頼 · 끝 · 下書き) · 送金 ③ 手入力 · 쓰기 0',[html]],
   ['v30.js','v0.30 — D1 ETD = 늦은 쪽 (E1 · E2 出港済 · E3 「計画」 회색 · E4 엔진 그대로) · B1 CUT 전 = CUT 後に送金 (기한 없음 · 要対応 아님) · B2 なるべく早く（ETD まで）· B3 ETD まで · ETD 당일 빨강 · B4 手入力 그대로 · 14:30 · 15:00 없음 · R1 船社 受付 (CNC · Webform) · R2 B/L発行申請 · F-1 FD送付日を入力 · 쓰기 0'],
   ['v31.js','v0.31 — W1 ~ W3 B/L 待ち 催促 = ETD 당일부터 (ETD 전 ◐ 出港後発行 · ETD 0:00 부터 세기 · ETD 모름 = 그대로) · R2 선사 Web 접수 (KMTC · 興亜 / SINOKOR Pending · CNC B/L処理申請 · カウンター訪問) · L1 「B/L MM/DD」 · 「計画 MM/DD」 · H1 loadHon v0.30 = v0.31 (기억 · 실패 경로 포함)'],
+  ['v32.js','v0.32 — S1 T/T · D/P S/I 작성 줄 (LC 제외 · +24 시간 · S/I 있으면 안 띄움 · 기한 CY CUT 전날) · S2 최근 3 건 (같음 一致 · 다름 · 1 · 2 건 要確認 · 계약 칸 그대로) · S3 PO 番号待ち · S4 베트남 번호 늘 要確認 · 이력 · 仮 S/I = v0.31 같음 · 쓰기 0'],
   ['width.js','v0.16.1 한 화면 — 실제 Chrome (headless) 1,920 · 1,366 폭에서 Invoice 別 가로 넘침 0 · 1 줄 높이 · 열 머리 고정 (Chrome · puppeteer-core 없으면 SKIP)'],
   ['hangul.js','v0.13 한글 0 — 화면에 나갈 수 있는 문자열 · HTML 본문 (주석 · 정규식 제외)'],
   ['v12.js','v0.12 B/L Draft 탭 — 保存の入口 B/L Draft (FRT MEMO · N版目 · 문지기) · 메일 下書き 3 · 엔진 고정 (ACL v0.12 · bl_bench v0.2) · 照合 화면 · CP 번호 · 試験 줄 관리자만 · バイヤー用 확인 · 쓰기 0'],

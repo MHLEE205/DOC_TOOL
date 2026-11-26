@@ -57,7 +57,7 @@ console.log('7 이름 · 補助 · FD 本日');
   const a=row({blDate:'2026-11-24'},{bl:at('2026-11-24','09:30')},now); ok(a.group==='today'&&a.gkey==='fdlc'&&a.when==='期限 11/26'&&a.whenSub==='B/L 受領 11/24 · 18:00 宅配'&&DOC.dayOf(a.due)==='2026-11-26','B/L 오늘 받음 → 맨 위 묶음 · 왼쪽 = 期限 (v0.17 D4) · 2 행 = B/L 受領',a);
   const b=row({blDate:'2026-11-20'},{bl:at('2026-11-20','18:00')},now); ok(b.group==='today'&&b.when==='期限 11/25'&&b.whenSub==='B/L 受領 11/20 · 18:00 宅配','다음 영업일 (11/20 금 → 11/24 화 · 주말 · 11/23 건너뜀) → 期限 11/25 · 2 행 B/L 受領 11/20 (v0.17 D4)',b);
   const c=row({blDate:'2026-11-18'},{bl:at('2026-11-18','18:00')},now); ok(c.group==='late','마감 지남 → 期限切れ',c);
-  ok(DOC.TODO_RULES.TGROUPS.filter(g=>g[1]==='do').map(g=>g[0]).join()==='sichk,si,fname,acl,depo,draft,blreq,insrr,fd,fdlc,swb','v0.14 묶음 순서 (v0.15: 앞에 S/I 更新 · ファイル名) = 일의 순서 (ACL → Deposit → Draft → B/L 依頼 → 保険・RR → FD → L/C 原本)'); }
+  ok(DOC.TODO_RULES.TGROUPS.filter(g=>g[1]==='do').map(g=>g[0]).join()==='sichk,si,sitt,fname,acl,depo,draft,blreq,insrr,fd,fdlc,swb','v0.14 묶음 순서 (v0.15: 앞에 S/I 更新 · ファイル名) = 일의 순서 (ACL → Deposit → Draft → B/L 依頼 → 保険・RR → FD → L/C 原本)'); }
 console.log('7 원본 통수 (엔진과 같은 함수)');
 /* v0.10: 保管所の判読 (lc_read/1) は エンジン lcOriginalsText で出した bl.originals を持つ → 書類ツールはそれを読む (같은 규칙 · 한 곳) */
 const RO=t=>({bl:{originals:E.lcOriginalsText(t)}});

@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 · v0.31 = 2026-11-26)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 · v0.31 · v0.32 = 2026-11-26)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -234,6 +234,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - R2 선사 Web 접수 (`blRcvLink` · `V31.RCV_SUBJ`): KMTC 「B/L Issue Request Has Been Pending」 · 興亜 / SINOKOR 「B/L Issue Pending Notice」 · CNC 「B/L処理申請・入金連絡通知」 (선사 답장) · CNC formzu 「カウンター訪問のご依頼を承りました」 (ご来社目的 = B/L 発行일 때만 · 본문을 읽고 정함). 「…Confirmed」 · 「Issue Approval」 = 발행 알림 (그대로) · Maersk 「Proof of payment」 · 「Payer details」 = 입금 (依頼 아님).
   - L1 ETD 옆 회색 = `DOC.etdOtherLabel(b)` — 다른 쪽이 B/L date = 「B/L MM/DD」 · 計画 ETD = 「計画 MM/DD」 (표 · 패널).
   - H1 ~ H4 `loadHon`: 판정 재료는 v0.30 과 같음 (`$search "本登録"` 결과 = 서버 상한 약 275 통 · 회사 사람 · since). 느린 원인 = 검색 결과 전부의 `uniqueBody` → ① 같은 검색을 본문 없이 ② 동시에 `"本登録 AND from:{도메인}"` 검색 1 페이지로 본문 ③ 빠진 것만 1 통씩 (동시 3 · 실패 = 앞부분 + `S.honErr`) ④ 같은 날 다시 = localStorage `doc_tool_hon_v31` (그날 · 도메인 · 그 메일 본문만 · 깨지면 처음부터). `HONP` = 시간 (管理者 「読み込み完了」 의 「本登録メール n 秒」). `$batch` 는 메일함 동시 4 한도로 429 → 쓰지 않음.
+
+- **v0.32 (지시서 `THOR_30_지시서_D00_書類ツールv0.32` · 묶음 v0.28 N48 · N48-a · N48-b)** — 낱말 · 정규식 = doc-core `DOC.V32` 한 곳. **쓰기 경로 · L/C 계약 · 仮 S/I 변화 0.**
+  - S1 `DOC.ttTodo` + 앱 `ttTodoRows` (`todoRows` 끝): 支払 ≠ LC · 계약 `createdon` + 24 시간 · S/I 0 → 「S/I 作成（T/T|D/P）— 確認して登録」 (`sitt` · 要対応 · 기한 = 안 나간 부킹의 가장 이른 CY CUT 전날 18:00 · 없으면 노랑) · 계약 = 契約別과 같은 `S.ct` (180 일 · `CT_REAL` · 국내 제외 · 다 나간 계약 제외) · COMPASS 새로 읽기 0. S/I 탭을 열면 (T/T · S/I 없음 · 추천 없음) 「前回の S/I から作る」 자동 (`S.siAuto`) · 쓰기는 「COMPASS に書き込む」 뒤만. `CT_SEL` 에 `createdon` · `S.ctBk` 에 `cr49f_cy_cut` (읽기 칸).
+  - S2 `ttRecommend` (T/T 만 · `lcTent` = 그대로): 계약 칸 밖 (`V32.KEEP_COLS` 아닌 머리 칸) = 같은 바이어 · 같은 sino 최근 3 S/I 모두 같음 = 一致 「最近 3 件 同じ」 · 다름 = 직전 값 + 「要確認 · 最近 3 件で違う (…)」 · 1 · 2 건 = 「要確認 · 前回 n 件のみ」. PO · VO = `ttPoKind` (one · blank · same · ctno · changes — 판정 1 곳).
+  - S3 PO = changes 바이어 · S/I 있음 · sino 1 PO 빈칸 → ◐ 「PO 番号待ち（バイヤーから）」 (`w_buyer` · 기한 · 催促 없음) · PO 메일 감지 없음.
+  - S4 베트남 (`x.country`) = `licLines` (`#` · 줄바꿈 단위 · TAX CODE / ID · MST · IMPORT LI…E NO/NUMBER (오타 LINECE 포함) · LICENSE NO · GPMT · PERMIT NO + 숫자 · DEPOSIT 제외) 가 있는 칸은 3 건 같아도 「要確認 · ライセンス番号（前回 …）」 · 3 건 안에서 바뀌면 「· 履歴: 옛 → 새」.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

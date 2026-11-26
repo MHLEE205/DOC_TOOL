@@ -181,7 +181,7 @@ const $=id=>w.document.getElementById(id);
 $('dtQ').value='LRS-2610BB1'; $('dtGo').click(); await X.until(()=>$('dtCt').style.display==='flex'&&/LRS-2610BB1/.test(txt(w,'dtCtSum')));
 ok(w.document.querySelector('#dtCtTabs button.on').dataset.tab==='si','T/T 계약 → S/I 탭 (LC 대상 외)');
 await X.until(()=>$('dtSiRun')&&$('dtSiRun').onclick,5000);
-ok(/前回の S\/I から作る/.test($('dtSiRun').textContent)&&!$('dtSiRun').disabled&&/AI なし/.test(txt(w,'dtCtBody')),'T/T → 「前回の S/I から作る」 (키 없어도 누를 수 있음)',txt(w,'dtCtBody').slice(0,200));
+ok((/前回の S\/I から作る/.test($('dtSiRun').textContent)||/作り直す/.test($('dtSiRun').textContent))&&/AI なし|前回 S\/I/.test(txt(w,'dtCtBody')),'T/T → 「前回の S/I から作る」 (키 없어도 · v0.32 S1: S/I 없는 T/T 는 탭을 열면 자동으로 계산)',txt(w,'dtCtBody').slice(0,200));
 ok(!w.document.querySelector('#dtCtBody [data-open="a1"]'),'T/T 에는 a1_bench 버튼 없음');
 const w0=W.writes.length; $('dtSiRun').click(); await X.until(()=>/ほか \d+ 項目/.test(txt(w,'dtCtBody'))||/推薦できません/.test(txt(w,'dtCtBody')),8000).catch(e=>{ console.log('DEBUG',txt(w,'dtCtBody').slice(0,700)); throw e; });
 ok(/ほか \d+ 項目/.test(txt(w,'dtCtBody')),'T/T 추천 완료',txt(w,'dtSiSt'));

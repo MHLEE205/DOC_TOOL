@@ -62,8 +62,8 @@ console.log('1-4 乙仲 ACL 訂正依頼');
   ok(DOC.todoRow(X0(),s4,NOW,null).gkey==='acl','폴더에 새 ACL (REV) 이 訂正依頼 뒤에 들어옴 → ACL 確認',s4); }
 
 console.log('2 그룹 · 정렬 · 기한 색');
-{ eq(R.TGROUPS.map(g=>g[0]),['sichk','si','fname','acl','depo','draft','blreq','insrr','fd','fdlc','swb','w_otsu','w_carrier','w_buyer'],'그룹 순서 = 일의 순서 · 待ち = 乙仲 · 船社 · バイヤー (v0.15: 앞에 si · fname)');
-  eq(R.TGROUPS.map(g=>g[1]).join(''),'dododododododododododowaitwaitwait','구역 (do 11 · wait 3 · v0.23 sichk · v0.29 swb)');
+{ eq(R.TGROUPS.map(g=>g[0]),['sichk','si','sitt','fname','acl','depo','draft','blreq','insrr','fd','fdlc','swb','w_otsu','w_carrier','w_buyer'],'그룹 순서 (v0.32: si 뒤 sitt) = 일의 순서 · 待ち = 乙仲 · 船社 · バイヤー (v0.15: 앞에 si · fname)');
+  eq(R.TGROUPS.map(g=>g[1]).join(''),'dodododododododododododowaitwaitwait','구역 (v0.32 sitt · do 12 · wait 3 · v0.23 sichk · v0.29 swb)');
   ok(R.TGROUPS.every(g=>g[3]&&g[2])&&R.TGROUPS.filter(g=>g[4]).map(g=>g[0]).join()==='acl,draft'&&/^https:\/\/claude\.ai\/artifact\//.test(R.MANUAL),'그룹마다 한 줄 안내 · 매뉴얼 장 (있는 것만) · 링크만');
   const bl=at('2026-11-19','18:00');
   eq([row({blDate:'2026-11-19',term:'CIF'},{bl}).gkey,row({blDate:'2026-11-19',country:'KOREA'},{bl}).gkey,row({blDate:'2026-11-19'},{bl}).gkey,row({blDate:'2026-11-19',pay:'LC'},{bl}).gkey],['insrr','insrr','fd','fdlc'],'B/L 뒤: 保険 · RR → FD / L/C 원본');
