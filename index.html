@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.30</title>
+<title>LEENAI D-00 書類ツール v0.31</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -1293,7 +1293,12 @@ const DOC = (()=>{
         {due, action:kr&&S.rr==null?TR.ACTION.rr:TR.ACTION.fd, fdToday:true, blDay:dayOf(S.bl)});
     }
     /* ⑤ B/L 依頼 済 → 待ち · 船社 */
-    if(S.bmail!=null) return wait(6,'w_carrier','B/L',S.bmail,'bl',x.carrier,'B/L 待ち','B/L 依頼済 '+md(S.bmail)+(S.bmailSrc==='rcv'?V30.RCV_WHY:'')+' · 未着');
+    /* v0.31 (W1 ~ W3 · 형님 D2 「모든 선사의 OBL은 출항뒤 발행되 … 정확히는 ETD 날 부터 하면 되」): B/L 待ち の 催促 = ETD 当日から (全船社 · OBL · SWB · Surrender 同じ · ETD = 遅い方)
+       ETD 前 = ◐ 「B/L 待ち（出港後発行 · ETD MM/DD）」 (要対応ではない · 催促ではない · 赤 0) · ETD 当日から = 今の催促の規則を ETD 0:00 から数える · ETD 不明 = 今まで通り (依頼の時刻から) */
+    if(S.bmail!=null){ const bwhy='B/L 依頼済 '+md(S.bmail)+(S.bmailSrc==='rcv'?V30.RCV_WHY:'')+' · 未着', eD=String(x.etd||'').slice(0,10);
+      if(eD&&dayOf(now)<eD) return R(6,'w_carrier',V31.BLW_PRE.replace('{d}',md(at(eD))),bwhy,{since:S.bmail, nudge:null, action:null, dueText:V31.BLW_PRE_DUE, blPre:true, etd:eD});
+      const s0=eD?Math.max(S.bmail, at(eD,'00:00')):S.bmail;
+      return Object.assign(wait(6,'w_carrier','B/L',s0,'bl',x.carrier,'B/L 待ち',bwhy+(eD&&s0>S.bmail?V31.BLW_FROM.replace('{d}',md(at(eD))):'')),{etd:eD||undefined}); }
     /* ④ 送金 済 (予定日を含む · 1-1) → B/L 発行依頼 */
     if(S.pay!=null&&!noPay&&S.payManual) return R(5,'blreq','B/L 発行依頼（振込明細）','振込 確認済（手入力 · Invoice 別）· COMPASS 支払日なし · 依頼メールなし',{dueText:'手入力', payManual:true});   // v0.29 (追加 2 ③)
     /* v0.30 (B3 · D3 · D4): 送金の後の B/L 依頼 = ETD まで (ETD 当日から 期限切れ) — 送金日 18:00 の期限はやめた */
@@ -2361,10 +2366,28 @@ const DOC = (()=>{
     TICKET:/(\d{4}-\d{4}-\d{3})/, RCV_MAX:40,
     FD_IN:'FD送付日を入力', FD_IN_WHY:'{src} {d} · FD送付日未入力'
   };
+  /* ══════════ v0.31 (指示書 THOR_29 · W1 ~ W4 · R1 ~ R4 · L1 · H1 ~ H4) ══════════ */
+  const V31 = {
+    BLW_PRE:'B/L 待ち（出港後発行 · ETD {d}）', BLW_PRE_DUE:'出港後', BLW_FROM:' · 催促は ETD {d} から',
+    /* L1 (R-Q5): ETD の横の灰色の日付 = もう一方が B/L date → 「B/L MM/DD」 · 計画 ETD → 「計画 MM/DD」 */
+    OTHER_BL:'B/L {d}', OTHER_PLAN:'計画 {d}', OTHER_TIP:'もう一つの日付（参考）— 表の ETD は 計画 ETD と B/L date の遅い方',
+    /* R2 (形님 D3 「akwdk.」 = 「맞아」): 船社 Web の B/L 依頼 受付 — 실데이터 8 주 (rcp@ CC · 형님 メールボックス)
+       KMTC 「[KMTC] Your B/L Issue Request Has Been Pending. (B/L No.…)」 · 興亜 / SINOKOR 「B/L Issue Pending Notice [番号]」 (ebiz · 発行待ち = 依頼は受けた)
+       CNC 「【輸出】B/L処理申請・入金連絡通知（…カウンター訪問…）」 (船社の返信) · CNC formzu 「カウンター訪問のご依頼を承りました」 (ご来社目的 = Original B/L発行 のときだけ)
+       ※ 「…Has Been Confirmed」 · 「B/L Issue Approval Notice」 = 発行の知らせ (今まで通り B/L 受領の側) · Maersk 「Proof of payment accepted」 · 「Payer details verification」 = 入金 (依頼ではない) */
+    RCV_SUBJ:/B\/?L\s*Issue\s*Request\s*Has\s*Been\s*Pending|B\/?L\s*Issue\s*Pending\s*Notice|B\/?L\s*処理\s*申請|カウンター訪問の\s*ご依頼を\s*承りました/i,
+    /* 件名に番号がある形 (KMTC · 興亜 / SINOKOR) = 本文は読まない (本文に番号なし · 「本文を読む」 40 通の枠を v0.30 の受付メールに残す) */
+    RCV_SUBJ_NO:/B\/?L\s*Issue\s*Request\s*Has\s*Been\s*Pending|B\/?L\s*Issue\s*Pending\s*Notice/i,
+    COUNTER:/カウンター訪問の\s*ご依頼を\s*承りました/, COUNTER_REQ:/B\/?L\s*発行|Waybill|Surrender|SWB/i,
+    HON_CACHE:'doc_tool_hon_v31'
+  };
+  function etdOtherLabel(b){ const a=isoDay((b&&b.cr49f_etd)||''), c=isoDay((b&&b.crcf9_bl_etd)||''); if(!(a&&c&&a!==c)) return '';
+    const o=a>c?c:a; return (o===c?V31.OTHER_BL:V31.OTHER_PLAN).replace('{d}',fmtMD(o)); }
   /* R1: 船社の受付メールか — m = {subj, skind, fromDom, body} → {rcv, req (依頼の受付), ticket} */
   function blRcvLink(m){ const x=m||{}, s=String(x.subj||''), dom=String(x.fromDom||'');
-    if(!V30.RCV_SUBJ.test(s)||!(x.skind==='carrier'||V30.RCV_FROM.test(dom))) return {rcv:false, req:false, ticket:''};
+    if(!(V30.RCV_SUBJ.test(s)||V31.RCV_SUBJ.test(s))||!(x.skind==='carrier'||V30.RCV_FROM.test(dom))) return {rcv:false, req:false, ticket:''};
     const tk=(s.match(V30.TICKET)||String(x.body||'').match(V30.TICKET)||[])[1]||'';
+    if(V31.COUNTER.test(s)){ const seg=String(x.body||'').split(/ご来社目的/)[1]; const v=seg?seg.slice(0,80).split('■')[0]:''; return {rcv:true, req:V31.COUNTER_REQ.test(v), ticket:tk}; }   // v0.31 (R2): CNC カウンター訪問 = Original B/L発行 のときだけ 依頼
     if(/Webform/i.test(s)){ const seg=String(x.body||'').split('申請内容')[1]; const v=seg?seg.slice(0,60).split(/B\/?L\s*発行地|■|\n\s*\n|\s\d{1,2}\s/)[0]:''; return {rcv:true, req:V30.RCV_FORM_REQ.test(v), ticket:tk}; }
     return {rcv:true, req:true, ticket:tk}; }
   /* F-1 (D6 형님 「담당이 안 넣은 거야. 넣게 해야지」): 段階がすべて終わって FD は済み (フォルダ · メール) なのに PORTAL FD送付日 が空 → 「FD送付日を入力」 (要対応 · 黄 · 期限なし) */
@@ -2374,7 +2397,7 @@ const DOC = (()=>{
     return {stage:12, gkey:'fd', zone:'do', what:V30.FD_IN, why:V30.FD_IN_WHY.replace('{src}',Sg.fdSrc||'FD').replace('{d}',md(Sg.fd)), due:null, dueText:'—', soon:true, group:null, action:null, nudge:null, fdIn:true}; }   // 下書き なし (「提案」 ボタンで入れる)
   function ctEtd(bks, today){ const L=(bks||[]).map(b=>String(b.etd||'').slice(0,10)).filter(Boolean).sort(), n=L.find(e=>e>=today); return n||L[L.length-1]||''; }
 
-  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, /* v0.30 */ etdPick, etdOther, shippedOut, V30, fdInputRow, blRcvLink, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, /* v0.30 */ etdPick, etdOther, shippedOut, V30, fdInputRow, blRcvLink, /* v0.31 */ V31, etdOtherLabel, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     /* v0.29 */ V29, oblFlow, swbRow, v29Zone, reqRow, ctEtd,
     /* v0.28 */ V28, mark, staffColor, polStaffOrder, bandOf, reqSort, sort28, hay28, hit28, hashOf, hashParse, lgPersonNeed, lgHead28,
     /* v0.27 */ MAIL30, mailGreeting, mailSigCompany, mailCleanName, mailGuess, mailCompose, greetOk, mailHtml, mailInsert, htmlText, mailVerify, replyAllTo, ctRowOpt, ctIvsLabel,
@@ -2674,15 +2697,36 @@ async function loadMails(){
    読むだけ (送る · 移す · 既読にする はしない) · 判断の語 = acl_bench MAIL_RULE (エンジン mailKind) · 会社の人 (ログインした人と同じドメイン) が送ったものだけ
    メールを読めないとき · 古い分 = メール一覧 CSV (mail_docstaff · 件名規則 本登録依頼) で補う ── */
 async function loadHon(){
-  S.honRaw=[]; S.honErr='';
+  S.honRaw=[]; S.honErr=''; HONP.t0=Date.now(); HONP.st={};
   try{ const since=DOC.addDays(S.range.from,-60), dom=String((LEENAI.user&&LEENAI.user.email)||'').toLowerCase().split('@')[1]||'';
-    let url=GRAPH+'me/messages?$search='+encodeURIComponent('"本登録"')+'&$select=subject,from,sentDateTime,uniqueBody,bodyPreview&$top=100', n=0;
-    while(url&&n<10){ const r=await graphFetch(url,{headers:{Accept:'application/json',Prefer:'outlook.body-content-type="text"'}}); if(!r.ok) throw new Error('メールを読めない ('+r.status+')'); const j=await r.json(); n++;
-      (j.value||[]).forEach(m=>{ const from=String(m.from&&m.from.emailAddress&&m.from.emailAddress.address||'').toLowerCase(); if(!dom||from.split('@')[1]!==dom) return; if(String(m.sentDateTime||'').slice(0,10)<since) return;
-        S.honRaw.push({at:m.sentDateTime, from, subject:m.subject||'', body:(m.uniqueBody&&m.uniqueBody.content)||m.bodyPreview||''}); });
-      url=j['@odata.nextLink']||null; }
+    /* v0.31 (H1 · H2): 判定の材料 (どのメール · 本文) は v0.30 と同じ — 「"本登録"」 の検索結果 (100 通 × 最大 10 回) の中の 会社の人 · since 以降.
+       遅かったのは 検索のたびに 全部 (約 275 通) の uniqueBody を作ること (実測 4 ~ 5 秒) → ① 同じ検索を 本文なし (id · 送り手 · 時刻 · 先頭) ② 同時に 会社の人だけの検索 (KQL from:) で uniqueBody (1 ページ)
+       ③ ② に無いものだけ 1 通ずつ GET · ④ 同じ日にもう一度開いたら 前に読んだ本文 (ブラウザ · その日だけ · 読めなければ最初から) */
+    const HD={headers:{Accept:'application/json',Prefer:'outlook.body-content-type="text"'}}, page=async url=>{ const r=await graphFetch(url,HD); if(!r.ok) throw new Error('メールを読めない ('+r.status+')'); return r.json(); };
+    const day=S.today||'', cache=(()=>{ try{ const c=JSON.parse(lsGet(DOC.V31.HON_CACHE,'{}')); return c&&c.day===day&&c.dom===dom&&c.b?c.b:{}; }catch(e){ return {}; } })();
+    const lightP=(async()=>{ let url=GRAPH+'me/messages?$search='+encodeURIComponent('"本登録"')+'&$select=id,subject,from,sentDateTime,bodyPreview&$top=100', n=0; const L=[];
+      while(url&&n<10){ const j=await page(url); n++; L.push(...(j.value||[])); url=j['@odata.nextLink']||null; } HONP.st.light=Date.now()-HONP.t0; HONP.st.pages=n; return L; })();
+    const bodies={}; let compUrl=dom?GRAPH+'me/messages?$search='+encodeURIComponent('"本登録 AND from:'+dom+'"')+'&$select=id,sentDateTime,uniqueBody&$top=100':null, compOld=null, compN=0;
+    const compPage=async()=>{ const j=await page(compUrl); compN++; (j.value||[]).forEach(m=>{ bodies[m.id]=(m.uniqueBody&&m.uniqueBody.content)||''; const s=String(m.sentDateTime||''); if(compOld==null||s<compOld) compOld=s; }); compUrl=j['@odata.nextLink']||null; };
+    const fromOf=m=>String(m.from&&m.from.emailAddress&&m.from.emailAddress.address||'').toLowerCase();
+    let L; const needC=!dom||Object.keys(cache).length===0;
+    if(needC&&compUrl){ const cp=compPage().catch(e=>{ HONP.st.compErr=e.message||String(e); compUrl=null; }); L=await lightP; await cp; } else L=await lightP;
+    const keep=L.filter(m=>{ const from=fromOf(m); if(!dom||from.split('@')[1]!==dom) return false; return String(m.sentDateTime||'').slice(0,10)>=since; });
+    /* ② 足りなければ 会社の人の検索を 次のページへ (keep の一番古いものより前まで · 最大 10 ページ) */
+    const miss=()=>keep.filter(m=>cache[m.id]==null&&bodies[m.id]==null);
+    const oldest=keep.reduce((a,m)=>{ const s=String(m.sentDateTime||''); return a==null||s<a?s:a; },null);
+    while(miss().length&&(compN>0||miss().length>3)&&compUrl&&compN<10&&!(compOld!=null&&oldest!=null&&compOld<oldest)) await compPage().catch(e=>{ HONP.st.compErr=e.message||String(e); compUrl=null; });
+    /* ③ それでも無いもの = 1 通ずつ (同時 3) */
+    const rest=miss(); HONP.st.single=rest.length;
+    let bad=0; await mapLimit(rest,3,async m=>{ try{ const r=await graphFetch(GRAPH+'me/messages/'+encodeURIComponent(m.id)+'?$select=uniqueBody',HD); if(!r.ok) throw new Error(String(r.status)); const j=await r.json(); bodies[m.id]=(j.uniqueBody&&j.uniqueBody.content)||''; }catch(e){ bad++; } });
+    if(bad) S.honErr='メール本文を読めない '+bad+' 通（先頭だけで判断）';
+    keep.forEach(m=>{ const ub=cache[m.id]!=null?cache[m.id]:bodies[m.id]; S.honRaw.push({at:m.sentDateTime, from:fromOf(m), subject:m.subject||'', body:ub||m.bodyPreview||''}); });
+    HONP.st.cacheHit=keep.filter(m=>cache[m.id]!=null).length; HONP.st.comp=compN; HONP.st.keep=keep.length;
+    try{ const nb={}; keep.forEach(m=>{ const ub=cache[m.id]!=null?cache[m.id]:bodies[m.id]; if(ub!=null) nb[m.id]=ub; }); lsSet(DOC.V31.HON_CACHE, JSON.stringify({day, dom, b:nb})); }catch(e){}
   }catch(e){ S.honErr=e.message||String(e); }
+  HONP.ms=Date.now()-HONP.t0; PERF.mark('hon');
 }
+const HONP={t0:0, ms:null, st:{}};   // v0.31 (H3): 本登録メールの読み込みの時間 (管理者の 「読み込み完了」 · 試験)
 function buildHon(){
   S.hon=[]; S.honCsvN=0; if(S.engine!=='ok') return;
   const nameOf=em=>{ const st=S.staff.find(x=>String(x.email||'').trim().toLowerCase()===String(em||'').toLowerCase()); return st?DOC.shortName(st.name_ja)||st.code:String(em||'').split('@')[0]; };
@@ -3000,7 +3044,7 @@ function v8IvRowH(o){ const x=o.x, P=DOC.PT, sp=x.sp||P.DEF, noIv=!x.ivRaw, dS=v
     (x.prop?'<button class="pt-prop" data-pt-prop="'+esc(x.ivRaw)+'" data-date="'+esc(x.prop.date)+'" title="'+esc('TOOL が見つけた FD 送付 ('+x.prop.src+') '+DOC.ptDate(x.prop.date)+' — 押すと入力します')+'">提案 '+esc(dS(x.prop.date))+'</button>':'');
   const tip=['契約 '+(x.ct||'—'),'ETA(E) '+DOC.ptDate(x.eta),'CNTR '+x.cnt+' 本 · '+x.cntr,'BKG_NO '+x.bkg].concat(x.r&&x.r.vchg.length?['本船変更: '+x.r.vchg.join(' · ')]:[]).join('\n');
   return '<tr class="v8-r" data-row="iv" data-id="'+esc(x.iv)+'"><td class="v8-bd'+(bd?' b-'+bd:'')+'"></td>'+
-    '<td class="m" data-c="etd">'+v8D(x.etd,dS(x.etd))+(x.etdO?'<span class="v30-plan" title="'+esc(DOC.V30.PLAN_TIP)+'">'+esc(DOC.V30.PLAN.replace('{d}',DOC.fmtMD(x.etdO)))+'</span>':'')+'</td><td class="m m2" data-c="eta">'+v8D(x.eta,dS(x.eta))+'</td><td class="m" data-c="cut">'+v8D(x.cut,dS(x.cut))+'</td><td data-c="pol" title="'+esc(x.pol)+'">'+esc(x.pol)+'</td>'+
+    '<td class="m" data-c="etd">'+v8D(x.etd,dS(x.etd))+(x.etdO?'<span class="v30-plan" title="'+esc(DOC.V31.OTHER_TIP)+'">'+esc(DOC.etdOtherLabel(x.b))+'</span>':'')+'</td><td class="m m2" data-c="eta">'+v8D(x.eta,dS(x.eta))+'</td><td class="m" data-c="cut">'+v8D(x.cut,dS(x.cut))+'</td><td data-c="pol" title="'+esc(x.pol)+'">'+esc(x.pol)+'</td>'+
     '<td class="v8-iv" data-c="iv">'+(x.iv?'<button class="dt-link" data-iv="'+esc(x.iv)+'" data-tab="" title="'+esc(tip)+'">'+esc(x.ivRaw)+'</button>':'<span>—</span>')+'<span class="v8-ct">'+esc(x.ct||'—')+(x.r&&x.r.vchg.length?' · 本船変更':'')+'</span></td>'+
     '<td class="m" data-c="bkg">'+esc(x.bkg)+'</td><td data-c="ship" title="'+esc(x.ship+(vessel?' '+vessel:''))+'">'+esc(x.ship)+(vessel?' <span class="v8-sub">'+esc(vessel)+'</span>':'')+'</td><td data-c="staff">'+v8Staff(x.staff, x.pstaff)+'</td>'+st+v8Next(o)+
     '<td data-c="pay">'+(noIv?'—':v8Sel(x,'furikomi',P.FURI_OPTS,P.FURI_OPTS.indexOf(sp.furikomi)>=0?sp.furikomi:'未'))+'</td><td data-c="fd">'+fd+'</td>'+
@@ -3231,7 +3275,7 @@ const PERF = {t0:null, marks:{}, lt:[], renderMax:0,
   mark(k){ if(this.t0!=null&&this.marks[k]==null) this.marks[k]=Math.round(perfNow()-this.t0); },
   render(ms){ if(ms>this.renderMax) this.renderMax=Math.round(ms); },
   stall(){ return this.lt.filter(x=>this.t0==null||x[0]>=this.t0).reduce((a,x)=>Math.max(a,x[1]),0); },
-  note(){ const m=this.marks, s=v=>v==null?'—':(v/1000).toFixed(1)+' 秒'; return '初回表示 '+s(m.first)+' · フォルダ '+s(m.folders)+' · メール '+s(m.mail)+' · 保存の入口 '+s(m.save)+(m.fdsearch!=null?' · FD 検索 '+s(m.fdsearch):'')+' · 画面が止まった最長 '+s(this.stall()); }};
+  note(){ const m=this.marks, s=v=>v==null?'—':(v/1000).toFixed(1)+' 秒'; return '初回表示 '+s(m.first)+' · フォルダ '+s(m.folders)+' · メール '+s(m.mail)+' · 保存の入口 '+s(m.save)+(m.fdsearch!=null?' · FD 検索 '+s(m.fdsearch):'')+(m.hon!=null?' · 本登録メール '+s(m.hon):'')+' · 画面が止まった最長 '+s(this.stall()); }};
 try{ new PerformanceObserver(l=>{ l.getEntries().forEach(e=>PERF.lt.push([Math.round(e.startTime), Math.round(e.duration)])); }).observe({type:'longtask', buffered:true}); }catch(e){}
 async function openIv(iv, tab){
   iv=DOC.up(iv); const seq=S.openSeq=(S.openSeq||0)+1, P={iv, at:new Date().toISOString()}, t0=perfNow(); let b=S.bk.find(x=>DOC.up(x.cr49f_invoice_no)===iv);
@@ -3270,7 +3314,7 @@ function renderIvSum(){
   const r=ivRow(S.cur.b), b=r.b;
   const kv=(k,v,raw)=>'<div><div class="k">'+esc(k)+'</div><div class="v">'+(raw?v:esc(v||'—'))+'</div></div>';
   $('dtIvSum').innerHTML=kv('Invoice',r.iv)+kv('契約','<button class="dt-a" data-goct="'+esc(r.ctId)+'" style="font-size:14px;font-weight:500">'+esc(r.ct||'—')+'</button>',true)+kv('国',r.country)+
-    kv('POL → POD',(S.pols[b._cr49f_region_japan_id_value]||'?')+' → '+(r.pod||'?'))+kv('ETD',r.etd+(DOC.etdOther(b)?' (計画 '+DOC.etdOther(b)+')':''))+
+    kv('POL → POD',(S.pols[b._cr49f_region_japan_id_value]||'?')+' → '+(r.pod||'?'))+kv('ETD',r.etd+(DOC.etdOther(b)?' ('+DOC.etdOtherLabel(b)+')':''))+
     kv('条件',r.term)+kv('本船',b.cr49f_main_ship_name)+kv('コンテナ',b._cntr||'…')+'<div style="grid-column:span 2"><div class="k">L/C</div><div class="dt-row" style="gap:10px">'+lcLinks(r.ctId)+'</div></div>'+
     (r.vchg.length?'<div style="grid-column:span 5"><span class="dt-tag" style="margin:0">本船変更</span> <span class="dt-note">'+esc(r.vchg.join(' · '))+'</span></div>':'')+
     (()=>{ const L=ivFdDone(b)?ivRefLines(b):[]; return L.length?'<div style="grid-column:span 5"><span class="dt-tag" style="margin:0">参考</span> <span class="dt-note">'+esc(L.join(' / '))+'</span></div>':''; })();   // v0.17 (G3)
@@ -4888,7 +4932,8 @@ async function loadTodoMail(seq){
     m.fromAddr=from; m.toBuyer=(g.toRecipients||[]).map(adr).filter(a=>DOC.senderKind(a,ctx)==='buyer');   // v0.12: B/L Draft のメールの下書きの宛先 (船社 = Draft メールの送り手 · バイヤー = 前にバイヤーへ送ったメールの宛先)
     const rc=DOC.blRcvLink(m); if(rc.rcv){ m.rcv=true; m.rcvReq=rc.req; } m.ticket=rc.ticket||((m.subj.match(DOC.V30.TICKET)||[])[1]||'');   // v0.30 (R1)
     if(!m.uses.length&&!m.kind&&!m.rcv) return;
-    const bk=DOC.linkMails(m, I); if((m.rcv&&(!bk.length||/Webform/i.test(m.subj)))||(!m.rcv&&m.kind==='b'&&m.ticket&&!bk.length)){ rcvMs.push(m); return; }   // v0.30 (R1): 船社の受付 = 本文を読んでから (下)
+    const bk=DOC.linkMails(m, I); if(m.rcv&&!bk.length&&DOC.V31.RCV_SUBJ_NO.test(m.subj)) return;   /* v0.31 (R2) */
+    if((m.rcv&&(!bk.length||/Webform/i.test(m.subj)))||(!m.rcv&&m.kind==='b'&&m.ticket&&!bk.length)){ rcvMs.push(m); return; }   // v0.30 (R1): 船社の受付 = 本文を読んでから (下)
     if(!bk.length||bk.length>DOC.linkMax(m)) return;   // v0.23 (N9): 送金 · B/L 依頼は 件名の B/L 番号 (8 件まで)
     m.bk=bk; bk.forEach(id=>{ (by[id]=by[id]||[]).push(m); }); });
   /* v0.30 (R1): 船社の受付メール — 先頭 (bodyPreview) に番号が無いので 本文を読む (GET · 数通) → B/L · ブッキング番号で結ぶ · 番号の無い受付通知は 同じチケット番号のメールの船積へ */
@@ -5467,7 +5512,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.30', date:'2026-11-26',
+  sys:'D-00', name:'書類ツール', version:'0.31', date:'2026-11-26',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

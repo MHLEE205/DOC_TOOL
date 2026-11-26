@@ -14,8 +14,8 @@ const txt=(w,id)=>w.document.getElementById(id).textContent;
   /* ── 일반 담당자 (STAFF_A) ── */
   let W=X.world(), w=await P(W,{html});
   ok(/読み込み完了/.test(txt(w,'dtProg')),'읽기 완료',txt(w,'dtProg'));
-  ok(w.document.title==='LEENAI D-00 書類ツール v0.30','title · version 0.30');
-  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.30','LEENAI.init 설정 (redirectUri · sys · version)');
+  ok(w.document.title==='LEENAI D-00 書類ツール v0.31','title · version 0.31');
+  ok(w.__cfg.redirectUri==='https://mhlee205.github.io/DOC_TOOL/'&&w.__cfg.sys==='D-00'&&w.__cfg.version==='0.31','LEENAI.init 설정 (redirectUri · sys · version)');
   ok(/試験運用/.test(txt(w,'ln-hdr-right'))&&/山田/.test(txt(w,'ln-hdr-right')),'오른쪽 위 試験運用 · 내 이름',txt(w,'ln-hdr-right'));
   ok(!w.document.querySelector('#dtMain input[type=password]'),'평소 화면에 API 키 칸 없음');
   ok(JSON.stringify(ivs(w))===JSON.stringify(['NAA2611-01','NAA2611-02']),'自分の担当 = 내 Invoice 만 (ETD 순)',ivs(w));

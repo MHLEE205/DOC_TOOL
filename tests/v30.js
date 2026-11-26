@@ -10,7 +10,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const at=DOC.at, V=DOC.V30, T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z';
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.30<\/title>/.test(HTML)&&/version:'0\.30'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.30 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[01]<\/title>/.test(HTML)&&/version:'0\.3[01]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.30 · 푸터');
 
 console.log('E1 · E2 · E3 ETD = 늦은 쪽');
 const B=(e,b)=>({cr49f_etd:e, crcf9_bl_etd:b});
@@ -61,7 +61,7 @@ const base={iv:'NTE2699-01', carrier:'SAMPLE LINE', term:'CFR', pay:'TT', files:
 const m=(t,o)=>Object.assign({t, subj:'', att:[], hasAtt:false, body:'', skind:'carrier', uses:[], kind:''},o);
 const sg=DOC.todoSignals(Object.assign({},base,{mails:[m(at('2026-11-18','16:16'),{subj:cnc1.subj, uses:['BLISSUE'], rcv:true, rcvReq:true})]}));
 ok(sg.bmail===at('2026-11-18','16:16')&&sg.bmailSrc==='rcv'&&sg.bl==null,'R1 受付 메일 = S.bmail (B/L 依頼 済) · B/L 受領 으로는 안 셈',sg);
-const r4=DOC.todoRow(Object.assign({},X0(),{payDate:'2026-11-17'}),sg,NOW,null); ok(r4&&r4.gkey==='w_carrier'&&r4.what==='B/L 待ち'&&/（船社の受付）/.test(r4.why),'R4 = B/L 依頼 済 → 다음 단계 (B/L 待ち)',r4);
+const r4=DOC.todoRow(Object.assign({},X0(),{payDate:'2026-11-17'}),sg,NOW,null); ok(r4&&r4.gkey==='w_carrier'&&/^B\/L 待ち/.test(r4.what)&&/（船社の受付）/.test(r4.why),'R4 = B/L 依頼 済 → 다음 단계 (B/L 待ち · v0.31: ETD 전 = 「出港後発行」)',r4);
 const sg2=DOC.todoSignals(Object.assign({},base,{mails:[m(at('2026-11-18','16:16'),{subj:'<SAMPLE LINE> Webform 受け付け完了のお知らせ', skind:'other', rcv:true, rcvReq:false})]}));
 ok(sg2.bmail==null,'依頼 아닌 受付 (入金連絡) = 신호 아님');
 
@@ -82,7 +82,7 @@ const w=await X.page(W,{first:true, ls:{doc_tool_who:'all'}}); const d=w.documen
 await X.until(()=>ev('TODO.mailSt')==='ok'||ev('TODO.mailSt')==='error',20000).catch(()=>{}); await X.until(()=>/読み込み完了/.test(ev('S.doneMsg')||''),20000).catch(()=>{}); await X.sleep(400); ev('render()'); await X.sleep(100);
 const tr=id=>d.querySelector('#dtTable tr.v8-r[data-id="'+id+'"]');
 const e31=tr('NAA2611-31'), e32=tr('NAA2611-32');
-ok(e31&&new RegExp(DOC.fmtMD(X.addDays(T,13)).replace('/','\\/')).test(e31.querySelector('[data-c=etd]').textContent)&&e31.querySelector('.v30-plan')&&e31.querySelector('.v30-plan').textContent==='計画 '+DOC.fmtMD(X.addDays(T,6)),'E3 표 ETD = 늦은 쪽 · 옆 회색 「計画 MM/DD」 (B/L date 가 앞 · 計画 ETD 가 뒤)',e31&&e31.querySelector('[data-c=etd]').innerHTML);
+ok(e31&&new RegExp(DOC.fmtMD(X.addDays(T,13)).replace('/','\\/')).test(e31.querySelector('[data-c=etd]').textContent)&&e31.querySelector('.v30-plan')&&e31.querySelector('.v30-plan').textContent==='B/L '+DOC.fmtMD(X.addDays(T,6)),'E3 표 ETD = 늦은 쪽 · 옆 회색 (v0.31 L1: 다른 쪽 = B/L date → 「B/L MM/DD」)',e31&&e31.querySelector('[data-c=etd]').innerHTML);
 ok(e32&&e32.querySelector('[data-c=etd]').textContent.indexOf(DOC.fmtMD(X.addDays(T,3)))===0&&e32.querySelector('.v30-plan').textContent==='計画 '+DOC.fmtMD(X.addDays(T,1)),'E3 B/L date 가 뒤 = B/L date 표시 · 計画 = 計画 ETD',e32&&e32.querySelector('[data-c=etd]').innerHTML);
 const ks=ev('V8.last.filter(o=>o.kind==="iv").map(o=>o.key.etd)'); ok(ks.every((e,i)=>i===0||!ks[i-1]||e>=ks[i-1]),'정렬 = 고른 ETD 오름차순',ks);
 { const cb=d.body.cloneNode(true); cb.querySelectorAll('script,style').forEach(e=>e.remove()); ok(!/14:30/.test(cb.textContent),'화면에 14:30 마감 문구 없음'); }

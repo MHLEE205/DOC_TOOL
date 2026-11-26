@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 = 2026-11-26)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 · v0.31 = 2026-11-26)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -228,6 +228,12 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - B/L 依頼 済 신호 더함: 담당 → 선사 「B/L発行申請」 (`KIND.B_SUBJ`) · 선사 Web 접수 메일 (`blRcvLink` — CNC 「B/L発行依頼受付通知」 · 「【輸出】B/L発行申請（…）」 · Hapag-Lloyd Webform (formzu · 申請内容 = B/L 発行 · Waybill · Surrender 만)). 앞부분 (bodyPreview) 에 번호가 없어 **그 메일만 본문을 더 읽음** (GET `me/messages/{id}?$select=body` · 40 통까지) → B/L · 부킹 번호로 연결 · 번호 없는 접수 통지는 같은 티켓 번호의 메일의 船積으로. 접수 메일은 「B/L 受領」 으로 세지 않음.
   - 「FD送付日を入力」 (`fdInputRow`) = 단계 끝 · FD 済 (폴더 · 메일) · PORTAL FD送付日 빈칸 → 要対応 노랑 · 기한 없음 (`todoRow` → `swbRow` → `fdInputRow` 순서).
   - ACL 照合結果 줄여 읽기 (D8) 는 **안 함** — 실측: ACL 결과 읽기 약 2 초 (동시) · 「読み込み完了」 를 붙잡는 것은 本登録 메일 검색 `loadHon` 약 10 초.
+
+- **v0.31 (지시서 `THOR_29_지시서_D00_書類ツールv0.31` · 묶음 v0.26 N44 ~ N47)** — 낱말 · 정규식 = doc-core `DOC.V31` 한 곳.
+  - W1 ~ W3 「B/L 待ち」 (`todoRow` ⑤ 한 곳): ETD (= `etdOf` 늦은 쪽) 전 = ◐ 「B/L 待ち（出港後発行 · ETD MM/DD）」 (`nudge:null` · 要対応 · 催促 아님 · `blPre`) · ETD 당일부터 = 지금 催促 규칙을 **max(依頼 시각, ETD 0:00)** 부터 셈 · ETD 모름 = 그대로. 모든 선사 · OBL · SWB · Surrender 같음. 다른 待ち 는 그대로.
+  - R2 선사 Web 접수 (`blRcvLink` · `V31.RCV_SUBJ`): KMTC 「B/L Issue Request Has Been Pending」 · 興亜 / SINOKOR 「B/L Issue Pending Notice」 · CNC 「B/L処理申請・入金連絡通知」 (선사 답장) · CNC formzu 「カウンター訪問のご依頼を承りました」 (ご来社目的 = B/L 発行일 때만 · 본문을 읽고 정함). 「…Confirmed」 · 「Issue Approval」 = 발행 알림 (그대로) · Maersk 「Proof of payment」 · 「Payer details」 = 입금 (依頼 아님).
+  - L1 ETD 옆 회색 = `DOC.etdOtherLabel(b)` — 다른 쪽이 B/L date = 「B/L MM/DD」 · 計画 ETD = 「計画 MM/DD」 (표 · 패널).
+  - H1 ~ H4 `loadHon`: 판정 재료는 v0.30 과 같음 (`$search "本登録"` 결과 = 서버 상한 약 275 통 · 회사 사람 · since). 느린 원인 = 검색 결과 전부의 `uniqueBody` → ① 같은 검색을 본문 없이 ② 동시에 `"本登録 AND from:{도메인}"` 검색 1 페이지로 본문 ③ 빠진 것만 1 통씩 (동시 3 · 실패 = 앞부분 + `S.honErr`) ④ 같은 날 다시 = localStorage `doc_tool_hon_v31` (그날 · 도메인 · 그 메일 본문만 · 깨지면 처음부터). `HONP` = 시간 (管理者 「読み込み完了」 의 「本登録メール n 秒」). `$batch` 는 메일함 동시 4 한도로 429 → 쓰지 않음.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

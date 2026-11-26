@@ -13,7 +13,7 @@ const V=DOC.V26, PT=DOC.PT, T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z';
 const qa=(w,s)=>[...w.document.querySelectorAll(s)];
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[6789]|30)<\/title>/.test(HTML)&&/version:'0\.(?:2[6789]|30)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.26 (title · CFG) · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[6789]|3[01])<\/title>/.test(HTML)&&/version:'0\.(?:2[6789]|3[01])'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.26 (title · CFG) · 푸터');
 
 console.log('N17 「通関依頼済」 — 그 칸만 (records) · 시각 · 해제 시각');
 { const base={last_updated:'2026-11-20T00:00:00.000Z', records:{'TST2699-01':{tsukan_irai:true, tsukan_status:'ED未', tsukan_irai_at:'2026-11-19T01:00:00.000Z', updated_by:'PORTAL USER'}, 'TST2699-09':{tsukan_irai:false, tsukan_status:'未'}}, cotecna:{'K':{report_status:'済'}}, shipping:{'TST2699-01':{dep:'確認',furikomi:'未',fd_date:'',fd_note:'メモ'}}};

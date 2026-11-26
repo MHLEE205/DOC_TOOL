@@ -10,7 +10,7 @@ const T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z', PT_PATH='古紙/-. AI �
 const J=iso=>DOC.jst(iso);
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.(?:29|30)<\/title>/.test(HTML)&&/version:'0\.(?:29|30)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.29 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:29|3[01])<\/title>/.test(HTML)&&/version:'0\.(?:29|3[01])'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.29 · 푸터');
 
 console.log('U14 보이는 범위 (순수)');
 const z=(etd,fd,obl)=>DOC.v29Zone({etd, fd, obl, today:'2026-11-26'});
