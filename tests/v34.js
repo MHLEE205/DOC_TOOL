@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V34, at=DOC.at;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.34<\/title>/.test(HTML)&&/version:'0\.34'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.34 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.34\.1<\/title>/.test(HTML)&&/version:'0\.34\.1'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.34 · 푸터');
 
 console.log('A1 · A2 · A3 保存の入口 자동 저장 (N55)');
 const R=o=>Object.assign({res:'新規', iv:'NTE2699-01', target:'NTE2699-01_ACL.pdf', cands:['NTE2699-01'], name:'NTE2699-01 仮ACL.pdf', subject:'ACL', kind:DOC.saveKind('NTE2699-01 仮ACL.pdf','NACCS')},o||{});
@@ -26,7 +26,7 @@ const T=[{path:'古紙/-. 古紙書類/▲ 書類作成中/NTE2699-01/NTE2699-01
 ok(DOC.guardUndo(T[0].path,T)===true,'A3 取り消す = 오늘 자동 저장한 파일만');
 let thr=null; try{ DOC.guardUndo('古紙/-. 古紙書類/▲ 書類作成中/NTE2699-01/NTE2699-01_FD.pdf',T); }catch(e){ thr=e.message; } ok(/今日の自動保存ではありません/.test(thr||''),'A3 다른 파일 = 막음',thr);
 thr=null; try{ DOC.guardUndo(T[0].path,[{path:T[0].path, undone:true}]); }catch(e){ thr=e.message; } ok(!!thr,'A3 이미 취소한 것 = 막음');
-ok(/const saveAuto = \(\) => lsGet\(DOC\.V34\.AUTO_KEY,'0'\)==='1'/.test(HTML)&&/on=lsGet\(DOC\.V34\.PT_AUTO_KEY,'0'\)==='1'/.test(HTML),'A1 · D3 자동 쓰기 = 형님 확인까지 기본 切 (관리자 설정으로 入)');
+ok(/const saveAuto = \(\) => lsGet\(DOC\.V34\.AUTO_KEY,'1'\)==='1'/.test(HTML)&&/on=lsGet\(DOC\.V34\.PT_AUTO_KEY,'1'\)==='1'/.test(HTML),'A1 · D3 자동 쓰기 = v0.34.1 기본 入 (형님 Q1 · 관리자 설정으로 切)');
 ok(/async function saveAutoPass\(\)/.test(HTML)&&/if\(saveAuto\(\)&&!SAVE\.scanning&&DOC\.autoOk\(row\)\) await saveDo\(row,\{auto:true\}\)/.test(HTML),'A2 메일을 다 읽은 뒤 묶음을 받은 순으로 다시 판단 → 자동');
 ok(/if\(auto&&\/409\|nameAlreadyExists\|already exists\/i\.test\(e\.message\)\)\{ row\.res='再確認'/.test(HTML),'A4 같은 이름 (다른 사람이 먼저) = 건너뜀 · 겹쳐 쓰지 않음');
 

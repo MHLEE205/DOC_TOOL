@@ -166,7 +166,8 @@ async function page(W, opt){
     /* v0.7: 最初の画面は 今日やること — v0.6 までの試験は 前の現況板 (doc_tool_board · 既定 Invoice 別) で開く (opt.first なら何も入れない = 本当の最初の画面) */
     const L=Object.assign({},opt.ls||{}); if(!opt.first&&L.doc_tool_board_v7===undefined) L.doc_tool_board_v7=L.doc_tool_board||'iv';
     if(!opt.first&&L.doc_tool_iv_mode_v16===undefined) L.doc_tool_iv_mode_v16='etd';
-    if(L.doc_tool_autosave_v34===undefined) L.doc_tool_autosave_v34=opt.autosave?'1':'0';   /* v0.34 (N55): 保存の入口 の自動保存 = 前の試験は切 (opt.autosave で入) */
+    if(L.doc_tool_autosave_v34===undefined) L.doc_tool_autosave_v34=opt.autosave?'1':'0';
+    if(L.doc_tool_pt_auto_v34===undefined) L.doc_tool_pt_auto_v34=opt.ptauto?'1':'0';   /* v0.34.1: 앱 기본 = 入 · 앞의 시험은 切 (opt.ptauto 로 入) */   /* v0.34 (N55): 保存の入口 の自動保存 = 前の試験は切 (opt.autosave で入) */
     /* v0.28: 新しい画面 (表 1 つ) は doc_tool_board_v28 = 'main' (既定) — v0.27 までの試験は 旧画面 (同じ値を v28 の鍵に · opt.first は v0.28 の最初の画面) */
     if(!opt.first&&L.doc_tool_board_v28===undefined) L.doc_tool_board_v28=L.doc_tool_board_v7;   // v0.16: v0.15 までの試験は 「ETD 範囲で見る」 の表
     Object.entries(L).forEach(([k,v])=>w.localStorage.setItem(k,v)); w.scrollTo=()=>{}; if(opt.init) opt.init(w); }});

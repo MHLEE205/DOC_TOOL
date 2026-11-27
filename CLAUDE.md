@@ -257,6 +257,8 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - N60 베트남 공장 = L/C 문 (`lcText` · MST 또는 이름) · POD 공장과 다르면 「L/C の工場と違う」 · L/C 전 = 「L/C 着で確定」.
   - N61 T/T 첫 건 = 지금도 `si_backup` (전) · `log/{契約}/…_si.json` (쓴 것 · 다시 읽기) 에 남음 (변경 0).
 
+- **v0.34.1 (지시서 `THOR_33_지시서_D00_書類ツールv0.34.1` · 형님 「Q1 자동으로 켜줘」)** — 자동 저장 (`doc_tool_autosave_v34`) · PORTAL 자동 쓰기 (`doc_tool_pt_auto_v34`) 기본값만 「入」 (관리자 설정으로 切 · 조건 · 앞 단계만 · 取り消す · 기록 변경 0) · 시험 `fake.js` 는 두 자동 쓰기 모두 기본 切 (`opt.autosave` · `opt.ptauto` 로 入) · 시험 jsdom = 28 ~ 30 (27 이하 = Blob.text 없음 · 31 = v12 3a 순서 다름).
+
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
 1. Drive `LEENAI(CLAUDE)/1. THOR/THOR_작업현황.md` 를 **먼저 읽는다**. 다른 PC 가 「작업 중」 이면 **시작하지 않고 형님께 보고**.

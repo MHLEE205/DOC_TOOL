@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.34</title>
+<title>LEENAI D-00 書類ツール v0.34.1</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -1054,7 +1054,7 @@ const DOC = (()=>{
     CT_SORTS:[['date','契約日順'],['latest','最終船積日順'],['buyer','バイヤー順']],
     /* N58 (형님 「앞으로는 자동으로 여기서 표시되게 하면 좋겠거든. 누가 입력해서 하는 것이 아니라 메일에서 회수해서 말이야.」): 振込 · DEP = TOOL の判定を字で (選ぶ欄はやめる · 例外は 「直す」) */
     PAY_OK:'✓ {d}（{s}）', PAY_PLAN:'予定 {d}（COMPASS）', PAY_POST:'後払い', DEP_REQ:'依頼中 {d}', DEP_OK:'確認 {d}', MAN:'{v}（入力）', FIX:'直す',
-    AUTO_BY:{COMPASS:'自動（COMPASS）', mail:'自動（メール）'}, AUTO_MAX_KEY:'doc_tool_pt_auto_max', PT_AUTO_KEY:'doc_tool_pt_auto_v34',   /* PORTAL への自動書き込み — 形님の確認まで 既定 = 切 */
+    AUTO_BY:{COMPASS:'自動（COMPASS）', mail:'自動（メール）'}, AUTO_MAX_KEY:'doc_tool_pt_auto_max', PT_AUTO_KEY:'doc_tool_pt_auto_v34',   /* PORTAL への自動書き込み — v0.34.1 既定 = 入 (管理者の設定で 切) */
     FURI_RANK:['未','確認済'], DEP_RANK:['未','依頼中','確認'],
     /* N56-4 (F1 NAS2610-09 · 메일 = NAS2611-07): 同じ BKG# のメールの Invoice 番号 ≠ COMPASS の Invoice */
     /* N56-5 (NCA2611-01 「메일을 못 잡은 거라고 봐야해」): 乙仲の ACL メール (添付 仮ACL · ACL · DR) は着いているのに Invoice フォルダに無い → ACL の欄 = ●「ACL メール着 · フォルダ未保存」 */
@@ -3025,7 +3025,7 @@ async function ptAutoRun(){
     [['furikomi',DOC.autoPay(I.x,I.sig,S.today)],['dep',DOC.autoDep(I.x,I.sig)]].forEach(([f,a])=>{ if(!a||!a.val) { if(a&&!a.post&&man&&sp[f]&&sp[f]!=='未'&&f==='furikomi') diffs.push({iv:raw, field:f, man:sp[f], auto:a?a.txt:'—'}); return; }
       if(DOC.autoAhead(f, sp[f], a.val)) ch.push({iv:raw, field:f, value:a.val, by:DOC.V34.AUTO_BY[a.by]||'自動', from:sp[f]||'未', txt:a.txt});
       else if(man&&sp[f]&&sp[f]!==a.val&&sp[f]!=='未') diffs.push({iv:raw, field:f, man:sp[f], auto:a.txt}); }); });
-  const cap=+lsGet(DOC.V34.AUTO_MAX_KEY,'')||0, on=lsGet(DOC.V34.PT_AUTO_KEY,'0')==='1', todo=on?(cap>0?ch.slice(0,cap):ch):[];
+  const cap=+lsGet(DOC.V34.AUTO_MAX_KEY,'')||0, on=lsGet(DOC.V34.PT_AUTO_KEY,'1')==='1', todo=on?(cap>0?ch.slice(0,cap):ch):[];
   S.ptAuto={changes:on?todo:ch, all:ch.length, diffs, at:new Date().toISOString(), err:'', off:!on};   /* 切 = 候補だけ (書かない · 管理者の 「？」 に表) */
   if(!todo.length) return;
   const test=saveTest(), path=test?P.TEST_PATH:P.PATH;
@@ -3848,7 +3848,7 @@ function openSettings(){
     (S.me.admin?'<div><div style="font-weight:500;font-size:14px">保存の入口（管理者）</div><div class="dt-note">試験モード = 保存先を doc_tool/save_test/{Invoice}/ にする（本当の Invoice フォルダには保存しない）。</div>'+
       '<div class="dt-row" style="margin-top:6px"><label class="dt-row"><input type="checkbox" id="dtSvTest"'+(lsGet(LS.saveTest,'0')==='1'?' checked':'')+'> 試験モード</label>'+
       '<label class="dt-row"><input type="checkbox" id="dtSvAuto"'+(saveAuto()?' checked':'')+'> 確かなものは自動で保存（Invoice 番号が件名 · ファイル名にあり 1 つ · 種類が名前で分かる · 新しいファイルだけ）</label>'+
-      '<label class="dt-row"><input type="checkbox" id="dtPtAuto"'+(lsGet(DOC.V34.PT_AUTO_KEY,'0')==='1'?' checked':'')+'> 振込 · DEP を PORTAL に自動で書く（先の段階だけ · 人の値は下げない）</label></div></div>':'')+
+      '<label class="dt-row"><input type="checkbox" id="dtPtAuto"'+(lsGet(DOC.V34.PT_AUTO_KEY,'1')==='1'?' checked':'')+'> 振込 · DEP を PORTAL に自動で書く（先の段階だけ · 人の値は下げない）</label></div></div>':'')+
     (S.me.admin?'<div><button class="dt-a" id="dtSignAdm">署名の画像の確認（管理者）</button></div>':'')+   // v0.26 (N21)
     '<div><button class="dt-a" id="dtMaster">マスター設定を開く（担当者 · 書類担当）</button></div>'+
     '<div class="dt-actions"><button class="dt-btn" data-close="1">閉じる</button></div>');
@@ -5345,7 +5345,7 @@ function renderTodo(){
    保存は 「新規作成」 だけ (conflictBehavior=fail · 上書き · 削除 · 名前変更 0) · 確認 (「保存する」) が既定 · 試験 = doc_tool/save_test/{IV}/ (管理者) */
 const SAVE = {rows:[], seq:0, idn:0, extra:{}, logKeys:null, logLocal:new Set(), mailSt:'', mailMs:0, mailN:0, hashCache:{}};
 const saveTest = () => S.me.admin&&lsGet(LS.saveTest,'0')==='1';
-const saveAuto = () => lsGet(DOC.V34.AUTO_KEY,'0')==='1';   /* v0.34 (N55): 確かなものは 自動で保存 — 形님の確認まで 既定 = 切 (管理者の設定で 入 · 確認後に既定を入にする) */
+const saveAuto = () => lsGet(DOC.V34.AUTO_KEY,'1')==='1';   /* v0.34.1 (形님 「Q1 自動で」): 確かなものは 自動で保存 — 既定 = 入 (管理者の設定で 切) · 旧: 形님の確認まで 既定 = 切 (管理者の設定で 入 · 確認後に既定を入にする) */
 async function sha256Hex(buf){ const h=await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join(''); }
 async function readPdfBytes(buf){ await ensurePdfJs(); let task=null, pdf=null;
   try{ task=window.pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0)), cMapUrl:CMAPS, cMapPacked:true}); pdf=await task.promise; const pages=[];
@@ -5752,7 +5752,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.34', date:'2026-11-27',
+  sys:'D-00', name:'書類ツール', version:'0.34.1', date:'2026-11-27',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

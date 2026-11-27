@@ -9,7 +9,7 @@ let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.lo
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V32, at=DOC.at;
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[2-4]<\/title>/.test(HTML)&&/version:'0\.3[2-4]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[2-4](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[2-4](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
 
 console.log('S1 자동으로 띄우기');
 const NOW=at('2026-11-26','10:00'), T0=o=>Object.assign({no:'LRS-2699ZZ4', pay:'TT', created:'2026-11-24T23:00:00Z', sis:[], hist:3, poKind:'ctno', cut:'2026-12-03', allShipped:false},o||{});
