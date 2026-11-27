@@ -274,6 +274,10 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - N68 자동 갱신: `autoRefresh` (마지막 동기화 15 분 · 1 분마다 확인 · 창으로 돌아올 때 · `arBlocked` = 확인 창 · 입력 중 · S/I 생성 · 등록 중 (`S.siWriting`) · 저장 중 · 읽는 중 → 기다림) = `loadAll` (메일 · 자동 저장 · PORTAL 자동 포함) · 스크롤 유지 · 右上 「↻ 更新」.
   - LG 이름 `{IV}_LG_REV.xlsx` (읽기 = 둘 다 · `lgName` = `nmKey`).
 
+- **v0.36.1 (지시서 `THOR_36_지시서_D00_書類ツールv0.36.1` · 묶음 v0.45 N70 · N71 · 토르_35 Q3)** — L/C 읽기 · S/I 추천 규칙 변화 0 (N71 = 측정만 · 실행 기록 `doc_tool/si_measure/`).
+  - N70 Maersk 44B: `DOC.blMaersk44Only(res)` (선사 Maersk · 相違 가 44B 하나) → 결론 = `V36.FD44B_ONLY` 「相違 · 44B 最終仕向地がない（Place of Delivery 空欄）」 · 「船社への訂正依頼の下書きを作る」 버튼 없음 · `blMailDraft` 에서 Maersk 44B 블록 · 줄 0 · 今日やること 의 「B/L Draft 訂正依頼 — Place of Delivery」 줄 0 (`todoExtraOf` 의 선사 = `TODO.carriers`) · 다른 선사 = v0.36 그대로.
+  - 스캔 L/C: `DOC.lcScanAsk` (이름 `V36.SCAN_NAME` + 글자 0) → 입구 「L/C ですか？」 · 「はい（L/C）」 = `lcScanAnswer` (`DOC.lcNoFromName` · 계약 ① 이름 ② L/C 번호 · 못 읽으면 `data-svlcno` 입력 · 판독 = a1_bench 이미지 L/C) · 「いいえ」 = 対象外 기록.
+
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
 1. Drive `LEENAI(CLAUDE)/1. THOR/THOR_작업현황.md` 를 **먼저 읽는다**. 다른 PC 가 「작업 중」 이면 **시작하지 않고 형님께 보고**.

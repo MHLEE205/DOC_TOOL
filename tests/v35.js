@@ -11,7 +11,7 @@ const sha=b=>nodeCrypto.createHash('sha256').update(Buffer.from(b)).digest('hex'
 const SR=DOC.SAVE_RULES, IV='NTE2699-01', WIP='古紙/-. 古紙書類/▲ 書類作成中', OUT=DOC.OUT_ROOT;
 (async()=>{
 console.log('버전 · 푸터 · 엔진');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[56]<\/title>/.test(HTML)&&(HTML.match(/version:'0\.3[56]'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.35 (title · CFG 1 곳) · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[56](?:\.1)?<\/title>/.test(HTML)&&(HTML.match(/version:'0\.3[56](?:\.1)?'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.35 (title · CFG 1 곳) · 푸터');
 ok(/const BL_ENGINE = \{commit:'(?:1744bec6367d4a6e8c97eac17fe3275f7bce9684'.*ver:'0\.8|2324aea35eba5c02454e4fb9a686f715db8be010'.*ver:'0\.9)'\}/.test(HTML)&&/const FD_ENGINE = \{commit:'2cc68da1abee0a8be35e852ba097bb30372e690a'.*ver:'0\.4'\}/.test(HTML),'엔진 = bl v0.8 (1744bec) · fd v0.4 (2cc68da) · 「_」 이름');
 const B=ENG.blEngine?ENG.blEngine(HTML):null, F=ENG.fdEngine(HTML);
 if(B) eq([B.draftName(IV+'_FRT_MEMO.pdf',IV),B.draftName(IV+'_BL_DRAFT_REV.pdf',IV),B.draftName(IV+'_FD_DRAFT.pdf',IV).excl],[{kind:'MEMO',rev:0},{kind:'DRAFT',rev:1},'FD/DHL/FREE TIME'],'bl-core v0.8 — _FRT_MEMO · _BL_DRAFT_REV · _FD_DRAFT 제외');

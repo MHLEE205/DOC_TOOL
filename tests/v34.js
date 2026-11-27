@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V34, at=DOC.at;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3(?:4\.1|5|6)<\/title>/.test(HTML)&&/version:'0\.3(?:4\.1|5|6)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.34 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3(?:4\.1|5|6|6\.1)<\/title>/.test(HTML)&&/version:'0\.3(?:4\.1|5|6|6\.1)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.34 · 푸터');
 
 console.log('A1 · A2 · A3 保存の入口 자동 저장 (N55)');
 const R=o=>Object.assign({res:'新規', iv:'NTE2699-01', target:'NTE2699-01_ACL.pdf', cands:['NTE2699-01'], name:'NTE2699-01 仮ACL.pdf', subject:'ACL', kind:DOC.saveKind('NTE2699-01 仮ACL.pdf','NACCS')},o||{});

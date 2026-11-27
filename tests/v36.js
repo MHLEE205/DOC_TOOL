@@ -13,7 +13,7 @@ const G=(p,n)=>(p+'00000000').slice(0,8)+'-0000-4000-8000-'+String(n).padStart(1
 const REPO=process.env.ACL_REPO||path.join(__dirname,'../../CONTRACT_SEND'), V=DOC.V36;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.36<\/title>/.test(HTML)&&(HTML.match(/version:'0\.36'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.36 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.36(?:\.1)?<\/title>/.test(HTML)&&(HTML.match(/version:'0\.36(?:\.1)?'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.36 · 푸터');
 
 console.log('L1 인식 (1 頁目の文字 · 11/23 の語) · 제외');
 { const K=(n,t)=>DOC.lcKind(n,t).kind;
@@ -138,7 +138,7 @@ console.log('B ★ 같은 판독 — 브라우저 (書類ツール) ↔ lc_read_
   const r2={no, image:false, retried:[false,false], extract:[j[0],j[1]], checks:A1C.r2Check(j[0],j[1],text,false)};
   const want=got&&LIB.buildRecord(r2, lcText, {A1:A1C, ACL:ACLN, run:got.source.run, now:got.created_at}); if(want) want.source.lc_text=V.READ_DIR+'/_text/'+no+'.txt';
   ok(got&&got.schema==='lc_read/1'&&JSON.stringify(got,null,1)===JSON.stringify(want,null,1),'_READ/{契約}.json = Node lc_read_lib buildRecord 와 문자 단위 같음 (lc_read/1)',got&&{got:Object.keys(got),v:got.version});
-  ok(/^書類ツール v0\.36 \d{4}-\d{2}-\d{2} \(claude-opus-5-5 · high · 2 回\)$/.test(got&&got.source.run||''),'source.run = 書類ツール v0.36 (모델 · high · 2 回)',got&&got.source.run);
+  ok(/^書類ツール v0\.36(?:\.1)? \d{4}-\d{2}-\d{2} \(claude-opus-5-5 · high · 2 回\)$/.test(got&&got.source.run||''),'source.run = 書類ツール v0.36 (모델 · high · 2 回)',got&&got.source.run);
   const md=put(no+'.md'), tx=put('_text/'+no+'.txt'), ix=put('_index.json'); const bt=async x=>typeof x.b==='string'?x.b:Buffer.from(await x.b.arrayBuffer()).toString('utf8');   // Blob.text() は BOM を落とすので バイトで
   const mdT=md&&await bt(md), txT=tx&&await bt(tx), ixT=ix&&await bt(ix);
   ok(mdT===LIB.renderMd(got)&&txT===lcText&&ixT&&JSON.parse(ixT).items.some(r=>r.contract===no),'.md = renderMd · _text = lc_text · _index 한 줄',{md:!!md,mdSame:mdT===LIB.renderMd(got),tx:!!tx,txSame:txT===lcText,txLen:[txT&&txT.length,lcText.length],ix:!!ix});
