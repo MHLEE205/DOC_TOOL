@@ -9,7 +9,7 @@ let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.lo
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V32, at=DOC.at;
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.32<\/title>/.test(HTML)&&/version:'0\.32'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[23]<\/title>/.test(HTML)&&/version:'0\.3[23]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
 
 console.log('S1 자동으로 띄우기');
 const NOW=at('2026-11-26','10:00'), T0=o=>Object.assign({no:'LRS-2699ZZ4', pay:'TT', created:'2026-11-24T23:00:00Z', sis:[], hist:3, poKind:'ctno', cut:'2026-12-03', allShipped:false},o||{});
@@ -35,9 +35,9 @@ const rd=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3,()=>({crcf9_noti
 ok(rd.rec.sinos[1].crcf9_notify_party==='OTHER NOTIFY'&&/^要確認 · 最近 3 件で違う \(/.test(bd.flag)&&DOC.siFieldState({value:'OTHER NOTIFY', basis:bd}).s==='check','S2 다름 = 직전 값 + 要確認 · 最近 3 件で違う',bd);
 const r1=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(3)], sale:[], term:'CFR', pod:'', country:'KOREA'}), r2=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(2),P(3)], sale:[], term:'CFR', pod:'', country:'KOREA'});
 eq([r1.rec.basis[1].crcf9_consignee.flag, r2.rec.basis[1].crcf9_consignee.flag],['要確認 · 前回 1 件のみ','要確認 · 前回 2 件のみ'],'S2 1 · 2 건뿐 = 要確認 · 前回 n 件のみ');
-ok(!b3.cr49f_payment_terms.flag&&!b3.crcf9_payment_deadline.flag&&r3.rec.sinos[1].cr49f_lc_no===''&&b3.cr49f_lc_no.ok==='一致','S2 계약에서 오는 칸 (支払 · Trade Term · L/C 공란) = 지금 규칙 그대로',[b3.cr49f_payment_terms,b3.cr49f_lc_no]);
+ok(/^要確認 · Trade Term（前回: /.test(b3.cr49f_payment_terms.flag||'')&&!b3.crcf9_payment_deadline.flag&&r3.rec.sinos[1].cr49f_lc_no===''&&b3.cr49f_lc_no.ok==='一致','S2 계약에서 오는 칸 (支払 · L/C 공란) = 그대로 · Trade Term = v0.33 늘 要確認',[b3.cr49f_payment_terms,b3.cr49f_lc_no]);
 ok(/PO = 契約番号/.test(b3.crcf9_po_vo.flag)&&r3.rec.sinos[1].crcf9_po_vo==='LRS-2699ZZ4','S2 PO · VO = 지금 규칙 (ctno)',b3.crcf9_po_vo);
-const rt=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3)], sale:[], term:'FOB', pod:'', country:'KOREA'}); ok(/今回の契約は FOB/.test(rt.rec.basis[1].cr49f_payment_terms.flag),'S2 Trade Term 다름 = 지금 규칙 그대로');
+const rt=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3)], sale:[], term:'FOB', pod:'', country:'KOREA'}); ok(/今回の契約: FOB/.test(rt.rec.basis[1].cr49f_payment_terms.flag),'S2 Trade Term 다름 = 要確認 (v0.33 K2 · 이번 계약 조건 표시)');
 ok(r3.tt.n3===3&&eq.length,'최근 3 건 수');
 
 console.log('S3 PO 番号待ち');

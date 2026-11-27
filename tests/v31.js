@@ -12,7 +12,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const at=DOC.at, V=DOC.V31;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[12]<\/title>/.test(HTML)&&/version:'0\.3[12]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.31 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[1-3]<\/title>/.test(HTML)&&/version:'0\.3[1-3]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.31 · 푸터');
 
 console.log('W1 ~ W4 B/L 待ち 催促 = ETD 당일부터');
 const S0=o=>Object.assign({sub:null, subKnown:false, acl:null, hon:null, vchg:false, depoReq:null, depoRep:null, bmail:null, drafts:[], cmail:null, pay:null, payPlan:false, bl:null, ins:null, rr:null, fd:null},o||{});
@@ -56,7 +56,7 @@ eq(L('[CNC] カウンター訪問のご依頼を承りました (SDL-DOC)','othe
 eq(L('[CNC] カウンター訪問のご依頼を承りました (SDL-DOC)','other','formzu.com',ctr.replace('Original B/L発行','書類受け取り')),{rcv:true,req:false,ticket:''},'カウンター訪問 · B/L 발행이 아님 = 依頼 아님');
 eq(L('[CNC] カウンター訪問のご依頼を承りました (SDL-DOC)','other','formzu.com',''),{rcv:true,req:false,ticket:''},'カウンター訪問 · 본문 읽기 전 = 依頼 아님 (본문을 읽고 정함)');
 eq([L('[KMTC] Your B/L Issue Request Has Been Confirmed. (B/L No.TST0000001)','carrier','ekmtc.example.test','').rcv,L('B/L Issue Approval Notice [TESTBK0000000001]','carrier','heungaline.example.test','').rcv,
-    L('Proof of payment accepted','carrier','maersk.example.test','').rcv,L('Payer details verification for Tpdoc number 999999999','carrier','maersk.example.test','').rcv],[false,false,false,false],'발행 알림 (Confirmed · Approval) · 입금 (Maersk) = 접수 아님 (그대로)');
+    L('Proof of payment accepted','carrier','maersk.example.test','').rcv,L('Payer details verification for Tpdoc number 999999999','carrier','maersk.example.test','').rcv],[false,false,true,false],'발행 알림 (Confirmed · Approval) · Payer details = 접수 아님 · v0.33 (M1): Maersk Proof of payment accepted = 依頼 済');
 ok(!L('[KMTC] Your B/L Issue Request Has Been Pending. (B/L No.TST0000001)','staff','example.test','').rcv,'선사 · formzu 밖에서 온 같은 제목 = 아님');
 /* 접수 메일은 B/L 受領 아님 · 依頼 済 = 다음 단계 B/L 待ち */
 const sg=DOC.todoSignals?null:null;

@@ -85,7 +85,7 @@ ok(R3.rec.sinos[1].crcf9_po_vo==='PO-ONLY'&&/前回 1 件のみ/.test(R3.rec.bas
 ok(s1.cr49f_lc_no===''&&/T\/T なので空欄 \(前回: OLDLC-1\)/.test(b1.cr49f_lc_no.flag),'L/C 칸 → 빈칸 · 前回 값 있으면 要確認');
 ok(R2.rec.sinos[1].cr49f_lc_no===''&&!R2.rec.basis[1].cr49f_lc_no.flag,'L/C 칸 前回도 빈칸 → 一致');
 ok(/今回のブッキング POD: SAMPLE PORT KR/.test(b1.crcf9_port_of_discharge.flag||'')&&!b1.crcf9_place_of_delivery_1.flag,'POD 다른 칸만 要確認 (참고)');
-const R4=DOC.ttRecommend({prev:[P('LRS-2601TT1','2026-01-05')],sale:[],term:'CIF'}); ok(/今回の契約は CIF/.test(R4.rec.basis[1].cr49f_payment_terms.flag||''),'Trade Term 이 이번 계약과 다름 → 要確認');
+const R4=DOC.ttRecommend({prev:[P('LRS-2601TT1','2026-01-05')],sale:[],term:'CIF'}); ok(/今回の契約: CIF/.test(R4.rec.basis[1].cr49f_payment_terms.flag||''),'Trade Term = 要確認 (v0.33 K2: 늘 · 이번 계약 조건 표시)');
 eq(R.rec.details.map(d=>[d.crcf9_productname,d.crcf9_hs_code]),[['SAMPLE ITEM A (PREV)','HS 0000.00'],['SAMPLE ITEM B','']],'명세 = 이번 판매 명세 (품명 · HS 는 前回 같은 품목)');
 ok(R.rec.details[1].crcf9_hs_code__flag&&!R.rec.details[0].crcf9_hs_code__flag,'前回에 없는 품목 → 要確認');
 const R5=DOC.ttRecommend({no:'LRS-2604TT1',prev:[P('LRS-2601TT1','2026-01-05',{crcf9_po_vo:'PO NO: LRS-2601TT1'}),P('LRS-2602TT1','2026-02-05',{crcf9_po_vo:'PO NO: LRS-2602TT1'}),P('LRS-2603TT1','2026-03-05',{crcf9_po_vo:'PO NO: lrs-2603tt1'})],sale:[]});

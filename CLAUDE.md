@@ -241,6 +241,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - S3 PO = changes 바이어 · S/I 있음 · sino 1 PO 빈칸 → ◐ 「PO 番号待ち（バイヤーから）」 (`w_buyer` · 기한 · 催促 없음) · PO 메일 감지 없음.
   - S4 베트남 (`x.country`) = `licLines` (`#` · 줄바꿈 단위 · TAX CODE / ID · MST · IMPORT LI…E NO/NUMBER (오타 LINECE 포함) · LICENSE NO · GPMT · PERMIT NO + 숫자 · DEPOSIT 제외) 가 있는 칸은 3 건 같아도 「要確認 · ライセンス番号（前回 …）」 · 3 건 안에서 바뀌면 「· 履歴: 옛 → 새」.
 
+- **v0.33 (지시서 `THOR_31_지시서_D00_書類ツールv0.33` · 묶음 v0.30 N49 ~ N54)** — 낱말 · 정규식 = doc-core `DOC.V33` 한 곳. **쓰기 경로 · L/C 推薦 · 仮 S/I · 메일 문구 변화 0.**
+  - D1 베트남 라이선스 = 공장별 (`licFactories` · `licFacName` · `licPick`): 공장 = 라이선스 행이 있는 칸의 **10 자리 번호 (MST)** · 공장이 2 개 이상이면 「직전 값」 대신 「그 공장의 최근 S/I 문」 — 이번 POD (부킹 · 없으면 계약 POD 1 · 2) 가 한 공장의 仕向地 1 · 揚地 에만 맞으면 그 공장 (「要確認 · ライセンス番号（{工場} · 前回 …）」) · 못 정하면 「要確認 · 工場を選んでください」 + 후보 버튼 (`siFacBtns` · `data-sifac` → `S.siEdit` 만 · 쓰기는 「COMPASS に書き込む」 뒤). 공장 1 개 = v0.32 그대로.
+  - K2 `ttRecommend` Trade Term (`cr49f_payment_terms`) = 늘 要確認 (前回 글 · 이번 계약 조건 둘 다) · 仮 S/I = 그대로.
+  - M1 Maersk 「Proof of payment accepted」 (선사) = `blRcvLink` 의 受付 (`maersk:true` · B/L 번호 = 본문 표 → v0.30 「본문 더 읽기」 자리) · M2 `todoRow`: MAERSK · 依頼 済 → ETD 전 = ◐ 「B/L 印刷（出港後に Maersk サイトから）」 (`cutWait` · 要対応 아님) · ETD 당일부터 = 「B/L 印刷（Maersk サイトからダウンロード）」 (要対応 · 노랑 · 기한 · 재촉 없음) · B/L PDF (폴더) = B/L 受領 (지금 규칙). 「Payer details」 = 그대로 (依頼 아님).
+  - K1 `linkIndex`: COMPASS B/L 번호의 선사 접두어 (`BL_PREFIX` · 예 KMTC) 를 뗀 번호도 키로 (6 자 이상 · 숫자 포함).
+  - 넣지 않은 것: P1 (송금 메일 본문 문구) = 이미 `<振込明細書送付>` 메일이 `B_SUBJ` → kind `b` = B/L 依頼 済 (실자료 확인) · Part ② TEST01 T/T 쓰기 시험 = TEST01 바이어에 前回 S/I 가 없어 안 함 · 本登録 `from:` 넓히기 = 비교만 (코드 0).
+
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
 1. Drive `LEENAI(CLAUDE)/1. THOR/THOR_작업현황.md` 를 **먼저 읽는다**. 다른 PC 가 「작업 중」 이면 **시작하지 않고 형님께 보고**.
