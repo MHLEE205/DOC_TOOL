@@ -89,7 +89,7 @@ ok((await re.file('xl/styles.xml').async('string'))==='<styleSheet/>','서식 �
 ok(/lgBuild[\s\S]*calcChain\.xml[\s\S]*Content_Types/.test(HTML),'앱: calcChain 지우면 Content_Types · rels 도');
 
 console.log('판 번호 · 문지기');
-eq(DOC.lgName('TST2699-01',[]),'TST2699-01_LG.xlsx','첫 판'); eq(DOC.lgName('TST2699-01',['tst2699-01_lg.xlsx']),'TST2699-01_LG REV.xlsx','두 번째 = REV'); eq(DOC.lgName('TST2699-01',['TST2699-01_LG.xlsx','TST2699-01_LG REV.xlsx']),'TST2699-01_LG REV2.xlsx','세 번째 = REV2');
+eq(DOC.lgName('TST2699-01',[]),'TST2699-01_LG.xlsx','첫 판'); eq(DOC.lgName('TST2699-01',['tst2699-01_lg.xlsx']),'TST2699-01_LG_REV.xlsx','두 번째 = REV (v0.36 「_」)'); eq(DOC.lgName('TST2699-01',['TST2699-01_LG.xlsx','TST2699-01_LG REV.xlsx']),'TST2699-01_LG_REV2.xlsx','세 번째 = REV2 (옛 _LG REV 를 같은 이름으로 셈)');
 const W='古紙/-. 古紙書類/▲ 書類作成中/TST2699-01';
 ok(DOC.guardSave(W+'/TST2699-01_LG REV.xlsx',{iv:'TST2699-01', folder:W, kind:'LG'}),'본번 = Invoice 폴더 · 정해진 이름');
 ok(DOC.guardSave(DOC.OUT_ROOT+'save_test/TST2699-01/TST2699-01_LG.xlsx',{iv:'TST2699-01', test:true, kind:'LG'}),'시험 = save_test/{IV}/');

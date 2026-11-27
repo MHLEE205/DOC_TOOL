@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V33, at=DOC.at;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[35](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[35](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.33 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[356](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[356](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.33 · 푸터');
 
 console.log('V2 베트남 라이선스 = 공장별');
 /* 가짜 바이어 · 가짜 MST (10 자리) · 가짜 GPMT 번호 — 공장 A (1111111111 · 801 · DA NANG) · 공장 B (2222222222 · 802 · CAT LAI) */

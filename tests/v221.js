@@ -9,13 +9,13 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const INIT={init:w=>{ w.pdfjsLib=R.pdfjsForWindow(); }};
 (async()=>{
 console.log('버전 · ②-3 L/C 42C 원문');
-{ ok(/<title>LEENAI D-00 書類ツール v0\.(22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1|35)<\/title>/.test(HTML)&&/version:'0\.(22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1|35)'/.test(HTML),'버전 v0.22.1 이상 (title · CFG)');
+{ ok(/<title>LEENAI D-00 書類ツール v0\.(22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1|35|36)<\/title>/.test(HTML)&&/version:'0\.(22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1|35|36)'/.test(HTML),'버전 v0.22.1 이상 (title · CFG)');
   eq(DOC.lc42({payment:{tenor_text:'  90 DAYS AFTER\nBILL OF LADING DATE '}}),'90 DAYS AFTER BILL OF LADING DATE','lc42 = L/C 保管所 42C 원문 (공백만 정리)');
   const res={fieldHead:['crcf9_payment_deadline','crcf9_consignee'], rec:{sinos:{1:{crcf9_payment_deadline:'90 DAYS AFTER B/L DATE FOR 100PCT OF INVOICE VALUE'},2:{crcf9_payment_deadline:'90 DAYS AFTER BILL OF LADING DATE'}}}};
   const out=DOC.siDeadlineFix(res,'90 DAYS AFTER BILL OF LADING DATE');
   eq([res.rec.sinos[1].crcf9_payment_deadline, res.rec.sinos[2].crcf9_payment_deadline, out.length, res.deadlineFix&&res.deadlineFix[0].sino],['90 DAYS AFTER BILL OF LADING DATE','90 DAYS AFTER BILL OF LADING DATE',1,'1'],'siDeadlineFix — 추천 · 仮 S/I 의 payment_deadline = 42C 원문 (다른 것만 고침 · 기록)');
   eq([DOC.siDeadlineFix({fieldHead:['crcf9_consignee'], rec:{sinos:{1:{crcf9_payment_deadline:'X'}}}},'Y').length, DOC.siDeadlineFix({rec:{sinos:{1:{}}}},'').length],[0,0],'칸이 없거나 42C 가 없으면 그대로');
-  ok(/const res=lc\?await siRecommend\(id,say\):await siTtRecommend\(id,say,\{tent\}\); await siDeadlineApply\(id,res\);/.test(HTML)&&/if\(saved\)\{ await siDeadlineApply\(id,saved\);/.test(HTML),'推薦 · 前回 · 仮 S/I · 저장한 추천 모두 siDeadlineApply'); }
+  ok(/const res=lc\?await siRecommend\(id,say(?:,\{pre:opt&&opt\.pre\})?\):await siTtRecommend\(id,say,\{tent\}\); await siDeadlineApply\(id,res\);/.test(HTML)&&/if\(saved\)\{ await siDeadlineApply\(id,saved\);/.test(HTML),'推薦 · 前回 · 仮 S/I · 저장한 추천 모두 siDeadlineApply'); }
 
 console.log('②-1 試験 줄 = 1 묶음');
 { const W=X.world(), w=await X.page(W,{...INIT}); await X.until(()=>typeof w.eval('typeof trialAppend')==='string',5000);

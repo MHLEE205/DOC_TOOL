@@ -28,7 +28,7 @@ const body=w=>w.document.getElementById('dtIvBody');
 (async()=>{
 console.log('③-1 엔진 고정');
 { const a=ENG.pin(HTML), b=ENG.blPin(HTML), f=ENG.fdPin(HTML);
-  ok((a.commit===b.commit&&b.commit===f.commit&&a.ver==='0.21'&&b.ver==='0.6'&&f.ver==='0.3')||(a.ver==='0.22'&&b.ver==='0.7'&&f.ver==='0.3')||(a.ver==='0.22'&&b.ver==='0.8'&&f.ver==='0.4'),'acl v0.21 · bl v0.6 · fd v0.3 = 같은 커밋 (v0.24) · v0.27 = acl v0.22 · bl v0.7 (ACL 고정만)',[a,b,f]);
+  ok((a.commit===b.commit&&b.commit===f.commit&&a.ver==='0.21'&&b.ver==='0.6'&&f.ver==='0.3')||(a.ver==='0.22'&&b.ver==='0.7'&&f.ver==='0.3')||(a.ver==='0.22'&&(b.ver==='0.8'||b.ver==='0.9')&&f.ver==='0.4'),'acl v0.21 · bl v0.6 · fd v0.3 = 같은 커밋 (v0.24) · v0.27 = acl v0.22 · bl v0.7 (ACL 고정만)',[a,b,f]);
   const F=ENG.fdEngine(HTML); ok((F.VERSION==="0.3"||F.VERSION==="0.4")&&typeof F.check==='function'&&F.CHECKS.length===44,'fd-core v0.3 (sha256 일치) · 항목 44',F.CHECKS.length);
   const A=ENG.engine(HTML); ok(typeof A.siCheck==='function'&&Object.keys(A.CP_CODE).length===16,'acl-core v0.18 · CP_CODE 16 · siCheck'); }
 

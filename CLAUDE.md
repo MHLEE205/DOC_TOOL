@@ -266,6 +266,14 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - `NAME.CUSTOMS` · `NAME.LG` · TO BANK 찾기 · 메일 첨부 B/L 이름 = `[\s_]`. 엔진 고정: **bl_bench v0.8 `1744bec`** (draftName 「_」) · **fd_bench v0.4 `2cc68da`** (TO_BANK · FRT_MEMO · ED_REV 「_」 · `_BL_DRAFT` = `_BL DRAFT` 같은 판정) · acl v0.22 그대로 (`_ACL_REV` 원래 읽음).
   - 시험 `tests/v35.js` · 옛 시험의 기대값 = 새 이름 (입력의 옛 이름 파일은 그대로 = 옛 이름 읽기 시험) · v31 · v32 의 메일 문구 비교 = 괄호 단위 (전: 다음 「  };」 까지 잘라 SAVE_RULES 까지 들어갔음).
 
+- **v0.36 (지시서 `THOR_35_지시서_D00_書類ツールv0.36` · 묶음 v0.42 N67 · N67-a · N68 · N69 · 34-Q3)** — 낱말 · 정규식 = doc-core `DOC.V36`. **T/T S/I · 자동 저장 조건 · 이름 규칙 · 판정 · 기한 · PORTAL 자동 · 메일 문구 (下書き 44B 1 줄 외) · `siWrite` · `dvWrite` 변화 0.**
+  - ★ L/C 넣기: 保存の入口 (메일 첨부 이름 `V36.ATT_NAME` · 드롭) → `DOC.lcKind` (1 頁目 · 11/23 의 낱말 · 販売契約 · PO · L/C 案 제외) → `lcProcess` (0 복원 글자 = a1_bench `extractLcPdfExact` · `lcNoOf` :20 · `lcAmendNoOf` :26E) → `DOC.lcCands` (① 이름 LRS ② L/C 번호 = S/I `cr49f_lc_no` · `_READ/_index` · LC/2026 이름 ③ 中身 = Applicant ↔ 바이어 + 단가 · 수량 · 금액 · 계약번호 · 44C · L/C 없는 LC 계약만 · 하나 = 자동 · 0 / 여럿 = 「どの契約？」 (`data-svct` · 기록 `契約を選んだ`)) → `lcJudge` (같은 해시 = 重複 · 같은 이름 다른 中身 = 再確認 · 덮어쓰기 0) → 「保存する」 `lcSaveDo` (`古紙/LC/2026/{契約}_{L/C番号}[_AMEND{n}].pdf` · `conflictBehavior=fail` · 다시 받아 해시) → `lcAfterSave` → `lcReadNow` → `openCt(id,'si')` · `siRun(id,{pre})`. **자동 저장 아님 (사람이 「保存する」).**
+  - 읽기 `lcReadNow` = **`lc_read_one.mjs` 와 같은 판독**: a1_bench `parseContractLc` → `runR2Extract` ×2 (순서대로 · claude-opus-5-5 · high · 32000) → `A1C.r2Check` → CONTRACT_SEND `tools/lc_read_lib.mjs` (`LC_LIB` 커밋 + sha256 고정 · import 2 줄만 떼고 그대로 실행) `buildRecord` (Amend + 이전 판 = `mergeRecords`) → `_READ/{契約}.json` · `.md` · `_text/{契約}.txt` · `_index.json` (덮어쓰기 = eTag If-Match · 이전 판 = `_old/{契約}_v{n}.json` 새 파일 · 같은 내용 = 안 씀) · 비용 = `doc_tool/ai_cost/`. 문지기 `DOC.guardLc` (`save.lc` = pdf / read · 그 계약만). 시험 `tests/v36.js` B = AI 요청 · 기록이 lc_read_one 공식 · ESM buildRecord 와 문자 단위 같음.
+  - S/I (L5 · L6): `siRecommend(id,say,{pre})` = 읽은 직후의 2 회 판독을 다시 씀 (AI = 조립 1 회) · `res.lcRead` (`lcReadSlim`) · `res.prevSi` (`lcPrevSi`) → `lcBasisMix` → `siFieldState`: 2 회 판독이 다른 칸 = 要確認 (COMPASS 같아도) · L/C 계약에서 근거 없는 칸 = 要確認 · 前回 S/I 와 다른 칸 (`V36.WARN_COLS`) = 要確認 (COMPASS 와 같으면 一致) · 근거 칸에 L/C 위치 + 인용.
+  - N69 44B: bl_bench **v0.9 `2324aea`** (44B ↔ Place of Delivery · 빈칸 = 相違 · 44B 는 `lc_text` 에서 · 書類ツール 은 이미 `cpCtx.lcText` 로 넘김) · 今日やること `x.bl44b` → 「B/L Draft 訂正依頼 — Place of Delivery（L/C 44B 最終仕向地）」 · 下書き `BL_MAIL.LC_LABEL` + `V36.FD44B_LINE` 1 줄.
+  - N68 자동 갱신: `autoRefresh` (마지막 동기화 15 분 · 1 분마다 확인 · 창으로 돌아올 때 · `arBlocked` = 확인 창 · 입력 중 · S/I 생성 · 등록 중 (`S.siWriting`) · 저장 중 · 읽는 중 → 기다림) = `loadAll` (메일 · 자동 저장 · PORTAL 자동 포함) · 스크롤 유지 · 右上 「↻ 更新」.
+  - LG 이름 `{IV}_LG_REV.xlsx` (읽기 = 둘 다 · `lgName` = `nmKey`).
+
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
 1. Drive `LEENAI(CLAUDE)/1. THOR/THOR_작업현황.md` 를 **먼저 읽는다**. 다른 PC 가 「작업 중」 이면 **시작하지 않고 형님께 보고**.
