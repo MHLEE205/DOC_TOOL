@@ -33,14 +33,14 @@ console.log('2 Invoice 정하기');
   eq(DOC.saveCands(ships,{booking:'',cntrs:[],text:''},{prefer:'TEST2699-02'}).cands,['TEST2699-02'],'ACL 탭에 놓음 + 단서 없음 → 그 Invoice'); }
 
 console.log('3 · 4 중복 · 같은 내용 · 새 판 · 이름');
-{ eq([0,1,2,3].map(n=>DOC.SAVE_RULES.NAME('test2699-01',n)),['TEST2699-01_ACL.pdf','TEST2699-01_ACL REV.pdf','TEST2699-01_ACL REV2.pdf','TEST2699-01_ACL REV3.pdf'],'이름: {IV}_ACL.pdf · REV · REV2 …');
+{ eq([0,1,2,3].map(n=>DOC.SAVE_RULES.NAME('test2699-01',n)),['TEST2699-01_ACL.pdf','TEST2699-01_ACL_REV.pdf','TEST2699-01_ACL_REV2.pdf','TEST2699-01_ACL_REV3.pdf'],'이름: {IV}_ACL.pdf · REV · REV2 …');
   const ex=[{name:'TEST2699-01 ACL TESTBK901.pdf',hash:'h1',tkey:'T1'}];
   eq(DOC.saveJudge('TEST2699-01',ex,['TEST2699-01 ACL TESTBK901.pdf'],'h1','Tx'),{res:'重複',same:'TEST2699-01 ACL TESTBK901.pdf'},'같은 해시 = 重複 (저장 안 함)');
   eq(DOC.saveJudge('TEST2699-01',ex,[],'h2','T1').res,'同じ内容','다른 파일 · 같은 글자 = 同じ内容');
-  eq(DOC.saveJudge('TEST2699-01',ex,['TEST2699-01 ACL TESTBK901.pdf'],'h2','T2'),{res:'2版目',name:'TEST2699-01_ACL REV.pdf',n:1},'옛 이름 파일 = 1판 → 새 것 = 2版目 · REV');
+  eq(DOC.saveJudge('TEST2699-01',ex,['TEST2699-01 ACL TESTBK901.pdf'],'h2','T2'),{res:'2版目',name:'TEST2699-01_ACL_REV.pdf',n:1},'옛 이름 파일 = 1판 → 새 것 = 2版目 · REV');
   eq(DOC.saveJudge('TEST2699-01',[],[],'h','T'),{res:'新規',name:'TEST2699-01_ACL.pdf',n:0},'없음 → 新規');
-  eq(DOC.saveJudge('TEST2699-01',ex,['TEST2699-01_ACL REV.pdf'],'h2','T2').name,'TEST2699-01_ACL REV2.pdf','다음 이름이 이미 있으면 건너뜀');
-  eq(DOC.saveBump('TEST2699-01','TEST2699-01_ACL REV.pdf',['TEST2699-01_ACL.pdf']),'TEST2699-01_ACL REV2.pdf','409 → 다음 이름');
+  eq(DOC.saveJudge('TEST2699-01',ex,['TEST2699-01_ACL REV.pdf'],'h2','T2').name,'TEST2699-01_ACL_REV2.pdf','다음 이름이 이미 있으면 건너뜀');
+  eq(DOC.saveBump('TEST2699-01','TEST2699-01_ACL REV.pdf',['TEST2699-01_ACL.pdf']),'TEST2699-01_ACL_REV2.pdf','409 → 다음 이름');
   eq(DOC.textKeyOf([{items:[{s:'Abc  d'},{s:'E'}]}]),DOC.textKeyOf([{items:[{s:'ab'},{s:'cdE'}]}]),'같은 내용 열쇠 = 공백 · 대소문자 무시'); }
 
 console.log('5 저장 문지기');
@@ -97,7 +97,7 @@ console.log('6 메일 입구');
   const rows=rowsOf(w), box=w.document.getElementById('dtInbox').textContent;
   ok(SV(w).mailSt==='ok','메일 확인 끝',SV(w).mailErr);
   ok(rows.length===2,'ACL 첨부 2 건 (ED 첨부 · 담당자 (회사 도메인) 메일 = 빠짐)',rows);
-  ok(rows.some(t=>/2版目/.test(t)&&/NAA2611-01 の ACL（2版目）として保存します: NAA2611-01_ACL REV\.pdf/.test(t)),'새 판 → 「{IV} の ACL（2版目）として保存します: {이름}」',rows);
+  ok(rows.some(t=>/2版目/.test(t)&&/NAA2611-01 の ACL（2版目）として保存します: NAA2611-01_ACL_REV\.pdf/.test(t)),'새 판 → 「{IV} の ACL（2版目）として保存します: {이름}」',rows);
   ok(rows.some(t=>/重複/.test(t)&&/同じファイルが保存済み: NAA2611-01_ACL\.pdf/.test(t)),'폴더에 있는 것과 같은 파일 → 重複 (저장 버튼 없음)',rows);
   ok(/新しい書類 1 件/.test(box)&&/済み 1 件/.test(box)&&/すべて保存（新規・新しい版のみ 1）/.test(box)&&/試験モード/.test(box),'「新着 ACL（未保存）n 件」 · 「すべて保存」 · 시험 모드 표시',box.slice(0,300));
   const mailUrls=W.req.filter(r=>/\/me\/messages/.test(r));
@@ -110,11 +110,11 @@ console.log('6 메일 입구');
   const btn=w.document.querySelector('#dtInbox [data-svsave]'); btn.click();
   await X.until(()=>rowsOf(w).some(t=>/保存しました/.test(t)),20000);
   const puts=W.writes.slice(w1).map(x=>({m:x.method,u:decodeURIComponent(x.url),b:x.body}));
-  ok(puts[0]&&puts[0].m==='PUT'&&puts[0].u.indexOf(OUT+'save_test/NAA2611-01/NAA2611-01_ACL REV.pdf:/content?@microsoft.graph.conflictBehavior=fail')>0,'시험 모드 → doc_tool/save_test/{IV}/ 에 새 파일 (conflictBehavior=fail)',puts.map(p=>p.u));
+  ok(puts[0]&&puts[0].m==='PUT'&&puts[0].u.indexOf(OUT+'save_test/NAA2611-01/NAA2611-01_ACL_REV.pdf:/content?@microsoft.graph.conflictBehavior=fail')>0,'시험 모드 → doc_tool/save_test/{IV}/ 에 새 파일 (conflictBehavior=fail)',puts.map(p=>p.u));
   ok(puts.every(p=>p.u.indexOf(WIP)<0),'Invoice 폴더 (書類作成中) 쓰기 0',puts.map(p=>p.u));
   const log=puts.find(p=>/doc_tool\/save_log\/\d{8}\/\d{8}-\d{6}_NAA2611-01_[a-z0-9]+\.json/.test(p.u)); ok(!!log,'저장 기록 = save_log/{날짜}/ 새 파일 1 개',puts.map(p=>p.u));
   const rec=log&&JSON.parse(typeof log.b==='string'?log.b:await log.b.text());
-  ok(rec&&rec.invoice==='NAA2611-01'&&rec.saved==='NAA2611-01_ACL REV.pdf'&&rec.result==='保存'&&rec.kind==='ACL'&&rec.mailId==='m1'&&rec.att==='ACL_TESTBK1.pdf'&&rec.hash===sha(PDF2)&&rec.user==='boss@example.test'&&rec.test===true&&rec.src==='メール','기록 칸: 시각 · IV · 이름 · 종류 · 메일 id · 첨부 · 해시 · 누가 · 결과',rec);
+  ok(rec&&rec.invoice==='NAA2611-01'&&rec.saved==='NAA2611-01_ACL_REV.pdf'&&rec.result==='保存'&&rec.kind==='ACL'&&rec.mailId==='m1'&&rec.att==='ACL_TESTBK1.pdf'&&rec.hash===sha(PDF2)&&rec.user==='boss@example.test'&&rec.test===true&&rec.src==='メール','기록 칸: 시각 · IV · 이름 · 종류 · 메일 id · 첨부 · 해시 · 누가 · 결과',rec);
   ok(puts.every(p=>p.m==='PUT'),'쓰기 = PUT (새 파일) 만 · DELETE · PATCH 0',puts.map(p=>p.m));
 
   console.log('9 기록된 것은 다시 안 냄');
@@ -144,7 +144,7 @@ console.log('7 끌어다 놓기');
   const sel=[...w.document.querySelectorAll('#dtInbox .sv-row')].find(r=>/x\.pdf/.test(r.textContent)).querySelector('[data-svsel]'); sel.value='NBB2611-01'; sel.dispatchEvent(new w.Event('change'));
   const fx=()=>rowsOf(w).find(t=>/x\.pdf/.test(t))||'';
   await X.until(()=>/NBB2611-01 の ACL（3版目）として保存します: NBB2611-01_ACL REV2\.pdf/.test(fx()),20000).catch(()=>{});
-  ok(/NBB2611-01_ACL REV2\.pdf/.test(fx()),'Invoice 고름 → 그 폴더 기준 판단 (ACL · ACL REV 있음 → 3版目 REV2)',fx());
+  ok(/NBB2611-01_ACL_REV2\.pdf/.test(fx()),'Invoice 고름 → 그 폴더 기준 판단 (ACL · ACL REV 있음 → 3版目 REV2)',fx());
   /* ACL 탭에서 놓기 — Booking 다르면 경고 */
   SV(w).rows=[]; SS(w).view='iv'; SS(w).cur={type:'iv',iv:'NBB2611-01'}; SS(w).curTab='acl';
   await w.saveDrop([file('acl2.pdf',PDF2)]);
@@ -158,20 +158,20 @@ console.log('8 같은 Invoice 의 여러 행 — 저장 후 다시 판단');
   W.attBytes['n1|b1']=PDF2; W.attBytes['n2|b2']=PDF2; W.attBytes['n3|b3']=PDF3b;
   const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all', doc_tool_save_test:'1'}}); prep(w);
   await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>rowsOf(w).length===3&&rowsOf(w).every(t=>!/判断中/.test(t)),20000);
-  { const R0=rowsOf(w), nm=R0.map(t=>(t.match(/NAA2611-01_ACL REV\d*\.pdf/)||[''])[0]).filter(Boolean); ok(JSON.stringify(nm.slice().sort())==='["NAA2611-01_ACL REV.pdf","NAA2611-01_ACL REV.pdf","NAA2611-01_ACL REV2.pdf"]'&&R0.every(t=>/同じまとまりで同じ名前/.test(t)),'저장 전 — v0.34 (N55 A2) 같은 묶음 = 받은 순 판 (같은 내용 2 = REV · 다른 내용 = REV2 · 전 = 모두 REV) · 자동 아님 표시',R0); }
+  { const R0=rowsOf(w), nm=R0.map(t=>(t.match(/NAA2611-01_ACL_REV\d*\.pdf/)||[''])[0]).filter(Boolean); ok(JSON.stringify(nm.slice().sort())==='["NAA2611-01_ACL_REV.pdf","NAA2611-01_ACL_REV.pdf","NAA2611-01_ACL_REV2.pdf"]'&&R0.every(t=>/同じまとまりで同じ名前/.test(t)),'저장 전 — v0.34 (N55 A2) 같은 묶음 = 받은 순 판 (같은 내용 2 = REV · 다른 내용 = REV2 · 전 = 모두 REV) · 자동 아님 표시',R0); }
   w.document.getElementById('dtSvAll').click();
   await X.until(()=>rowsOf(w).filter(t=>/保存しました/.test(t)).length===2,20000).catch(()=>{});
   const r=SV(w).rows.map(x=>x.res+' '+(x.target||x.same||'')); 
-  ok(JSON.stringify(r.filter(x=>/^保存済/.test(x)).sort())==='["保存済 NAA2611-01_ACL REV.pdf","保存済 NAA2611-01_ACL REV2.pdf"]'&&r.filter(x=>/^重複 /.test(x)).length===1,'すべて保存 — 같은 파일 2 통 = 1 번만 (다른 하나 重複) · 다른 판 = REV2 · 409 0',r);
+  ok(JSON.stringify(r.filter(x=>/^保存済/.test(x)).sort())==='["保存済 NAA2611-01_ACL_REV.pdf","保存済 NAA2611-01_ACL_REV2.pdf"]'&&r.filter(x=>/^重複 /.test(x)).length===1,'すべて保存 — 같은 파일 2 통 = 1 번만 (다른 하나 重複) · 다른 판 = REV2 · 409 0',r);
   { const tp=W.writes.map(x=>decodeURIComponent(x.url)).filter(u=>/save_test/.test(u)); ok(tp.length===2&&new Set(tp).size===2,'겹치는 이름으로 PUT 하지 않음 (save_test PUT 2 번 · 다른 이름)',tp); } }
 
 console.log('8 409 → 다음 이름 다시 제안');
-{ const W=mkWorld(); W.putFail=u=>/save_test\/NAA2611-01\/NAA2611-01_ACL REV\.pdf/.test(u)?409:0;
+{ const W=mkWorld(); W.putFail=u=>/save_test\/NAA2611-01\/NAA2611-01_ACL_REV\.pdf/.test(u)?409:0;
   const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all', doc_tool_save_test:'1'}}); prep(w);
   await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>rowsOf(w).length>=2&&rowsOf(w).every(t=>!/判断中/.test(t)),20000);
   w.document.querySelector('#dtInbox [data-svsave]').click();
   await X.until(()=>rowsOf(w).some(t=>/その名前はもう使われていました/.test(t)),20000).catch(()=>{});
-  ok(rowsOf(w).some(t=>/その名前はもう使われていました — 次の名前で確認してください: NAA2611-01_ACL REV2\.pdf/.test(t)),'409 → 덮어쓰지 않고 다음 이름으로 다시 확인',rowsOf(w));
+  ok(rowsOf(w).some(t=>/その名前はもう使われていました — 次の名前で確認してください: NAA2611-01_ACL_REV2\.pdf/.test(t)),'409 → 덮어쓰지 않고 다음 이름으로 다시 확인',rowsOf(w));
   { let saved=0; for(const x of W.writes.filter(x=>/save_log/.test(decodeURIComponent(x.url)))) if(JSON.parse(await bodyOf(x.body)).result==='保存') saved++; ok(!saved,'409 → 「保存」 기록 안 씀 (저장 안 됨)'); } }
 
 console.log('10 자동 저장 · 관리자 · 補助');

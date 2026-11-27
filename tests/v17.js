@@ -63,8 +63,8 @@ console.log('1 규칙 (doc-core)');
 { const k=n=>DOC.saveKind(n,''), SR=DOC.SAVE_RULES;
   eq(['NAA2699-01_FD.pdf','NAA2699-01_TO BANK.pdf','NAA2699-01_IV.pdf','NAA2699-01_PL.pdf','COMMERCIAL INVOICE NAA2699-01.pdf','PACKING LIST.pdf'].map(n=>k(n).key),['FD','TOBANK','IV','PL','IV','PL'],'B9 종류 = FD · TO BANK · IV · PL');
   eq(['NAA2699-01_IV_PL_SI.pdf','INVOICE FOR FREIGHT.pdf','DHL INVOICE.pdf','NAA2699-01_FD DRAFT.pdf'].map(n=>k(n).ok),[false,false,false,false],'B9 IV+PL 묶음 · 운임 청구서 · FD Draft = 저장 안 함');
-  eq([SR.NAME_DOC('naa2699-01','FD',0),SR.NAME_DOC('NAA2699-01','TO BANK',1),SR.NAME_DOC('NAA2699-01','IV',2)],['NAA2699-01_FD.pdf','NAA2699-01_TO BANK REV.pdf','NAA2699-01_IV REV2.pdf'],'B9 이름 = {IV}_FD · REV · REV2 (ACL 규칙과 같음)');
-  const j=DOC.saveJudge('NAA2699-01',[{name:'NAA2699-01_FD.pdf',hash:'h1',tkey:'t1'}],['NAA2699-01_FD.pdf'],'h2','t2','FD'); eq([j.res,j.name],['2版目','NAA2699-01_FD REV.pdf'],'B9 같은 이름 있음 → 2版目 (덮어쓰기 0)');
+  eq([SR.NAME_DOC('naa2699-01','FD',0),SR.NAME_DOC('NAA2699-01','TO BANK',1),SR.NAME_DOC('NAA2699-01','IV',2)],['NAA2699-01_FD.pdf','NAA2699-01_TO_BANK_REV.pdf','NAA2699-01_IV_REV2.pdf'],'B9 이름 = {IV}_FD · REV · REV2 (ACL 규칙과 같음)');
+  const j=DOC.saveJudge('NAA2699-01',[{name:'NAA2699-01_FD.pdf',hash:'h1',tkey:'t1'}],['NAA2699-01_FD.pdf'],'h2','t2','FD'); eq([j.res,j.name],['2版目','NAA2699-01_FD_REV.pdf'],'B9 같은 이름 있음 → 2版目 (덮어쓰기 0)');
   eq(DOC.saveJudge('NAA2699-01',[{name:'X.pdf',hash:'h1',tkey:'t1'}],[],'h1','t9','TOBANK').res,'重複','B9 같은 파일 = 重複');
   ok(DOC.guardSave(OUT+'save_test/NAA2699-01/NAA2699-01_TO BANK.pdf',{iv:'NAA2699-01',test:true,kind:'TOBANK'})===true,'B9 문지기 — 시험 폴더 · 정해진 이름 OK');
   thr(()=>DOC.guardSave(OUT+'save_test/NAA2699-01/NAA2699-01_ACL.pdf',{iv:'NAA2699-01',test:true,kind:'FD'}),'B9 문지기 — FD 인데 다른 이름 = 거부');
@@ -187,7 +187,7 @@ function world17(){
   const TB=await BF.mkPdf([[{x:40,y:60,t:'INVOICE NO. NAA2611-01'},{x:40,y:80,t:'TO BANK DOCUMENTS'}]]); W.attBytes={'mb|ab':TB, 'mx|ax':await BF.mkPdf([[{x:40,y:60,t:'INVOICE TEST-0041 AMOUNT DUE'}]])};
   const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_board_v28:'todo', doc_tool_who:'all', doc_tool_save_test:'1'}}); w.pdfjsLib=R.pdfjsForWindow();
   await X.until(()=>w.eval('SAVE.mailSt')==='ok'||w.eval('SAVE.mailSt')==='error',20000); await X.until(()=>w.eval('SAVE.rows').every(r=>r.res&&r.res!=='')||false,20000).catch(()=>{});
-  const mrow=w.eval('SAVE.rows').find(r=>r.mailId==='mb'); ok(mrow&&mrow.kind&&mrow.kind.key==='TOBANK'&&mrow.iv==='NAA2611-01'&&mrow.res==='新規'&&mrow.target==='NAA2611-01_TO BANK.pdf','B9 메일 첨부 TO BANK → {IV}_TO BANK.pdf (新規)',mrow&&{k:mrow.kind,iv:mrow.iv,res:mrow.res,t:mrow.target,msg:mrow.msg});
+  const mrow=w.eval('SAVE.rows').find(r=>r.mailId==='mb'); ok(mrow&&mrow.kind&&mrow.kind.key==='TOBANK'&&mrow.iv==='NAA2611-01'&&mrow.res==='新規'&&mrow.target==='NAA2611-01_TO_BANK.pdf','B9 메일 첨부 TO BANK → {IV}_TO BANK.pdf (新規)',mrow&&{k:mrow.kind,iv:mrow.iv,res:mrow.res,t:mrow.target,msg:mrow.msg});
   { const xr=w.eval('SAVE.rows').find(r=>r.mailId==='mx'); ok(xr&&xr.res==='対象外'&&/Invoice 番号のない書類/.test(xr.msg),'B9 메일의 IV 인데 당사 Invoice 번호 없음 (상대 청구서) = 対象外 (기록 · 다시 안 나옴)',xr&&{res:xr.res,msg:xr.msg}); }
   const FD1=await BF.mkPdf([[{x:40,y:60,t:'COMMERCIAL INVOICE'},{x:40,y:80,t:'INVOICE NO. NAA2611-01'}]]), FD2=await BF.mkPdf([[{x:40,y:60,t:'FINAL DOCUMENTS'},{x:40,y:80,t:'NAA2611-01 REVISED'}]]);
   const file=(name,b)=>({name, arrayBuffer:async()=>{ const u=new Uint8Array(b); return u.buffer.slice(u.byteOffset,u.byteOffset+u.length); }});
@@ -198,7 +198,7 @@ function world17(){
   const puts=W.writes.slice(w0).map(x=>decodeURIComponent(x.url)); ok(puts.some(u=>u.indexOf(OUT+'save_test/NAA2611-01/NAA2611-01_FD.pdf:/content?@microsoft.graph.conflictBehavior=fail')>0)&&puts.every(u=>u.indexOf(WIP)<0),'B9 시험 모드 저장 = save_test/{IV}/ 새 파일 · Invoice 폴더 쓰기 0',puts);
   ok(puts.some(u=>/doc_tool\/save_log\/\d{8}\/\d{8}-\d{6}_NAA2611-01_[a-z0-9]+\.json/.test(u)),'B9 같은 기록 (save_log)');
   await w.saveDrop([file('NAA2611-01_FD.pdf',FD1),file('FD_new.pdf',FD2)]); const rs=w.eval('SAVE.rows'), r2=rs[1], r3=rs[2];
-  ok(r2.res==='重複','B9 같은 파일 다시 = 重複',r2.res); ok(r3.res==='2版目'&&r3.target==='NAA2611-01_FD REV.pdf','B9 다른 FD = 2版目 → {IV}_FD REV.pdf (덮어쓰기 0)',[r3.res,r3.target]);
+  ok(r2.res==='重複','B9 같은 파일 다시 = 重複',r2.res); ok(r3.res==='2版目'&&r3.target==='NAA2611-01_FD_REV.pdf','B9 다른 FD = 2版目 → {IV}_FD_REV.pdf (덮어쓰기 0)',[r3.res,r3.target]);
   ok(W.writes.every(x=>x.method==='PUT'),'B9 쓰기 = PUT 새 파일뿐');
   w.close(); }
 

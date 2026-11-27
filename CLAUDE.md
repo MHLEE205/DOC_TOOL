@@ -259,6 +259,13 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 - **v0.34.1 (지시서 `THOR_33_지시서_D00_書類ツールv0.34.1` · 형님 「Q1 자동으로 켜줘」)** — 자동 저장 (`doc_tool_autosave_v34`) · PORTAL 자동 쓰기 (`doc_tool_pt_auto_v34`) 기본값만 「入」 (관리자 설정으로 切 · 조건 · 앞 단계만 · 取り消す · 기록 변경 0) · 시험 `fake.js` 는 두 자동 쓰기 모두 기본 切 (`opt.autosave` · `opt.ptauto` 로 入) · 시험 jsdom = 28 ~ 30 (27 이하 = Blob.text 없음 · 31 = v12 3a 순서 다름).
 
+- **v0.35 (지시서 `THOR_34_지시서_D00_書類ツールv0.35` · 묶음 v0.39 N66 · 리나이 R1 · R2)** — 낱말 · 정규식 = doc-core `DOC.V35` · `nmKey` · `blMemoOf` · `undoneHit`. **판정 규칙 · 자동 저장 조건 · PORTAL 자동 · 메일 문구 · S/I · 쓰기 경로 변화 0 · 옛 파일 이름 바꾸기 0.**
+  - 저장 = 새 이름만 (`SAVE_RULES.NAME` `_ACL_REV` · `NAME_BL` `_FRT_MEMO` · **`NAME_BLD` `_BL_DRAFT`** · `NAME_DOC` `_TO_BANK` · `_FD_REV` …) · 읽기 · 문지기 = 옛 (띄어쓰기) + 새 (`[ _]`) · 판 번호 = 두 이름 합쳐 셈 (`nmKey` = 띄어쓰기 · 「_」 같게 · `existing` 의 `other` = 다른 가족 · 중복만 봄).
+  - B/L Draft ↔ FRT MEMO: `saveKind` 의 `bl` = M (MEMO · FREIGHT · 운임 · 둘 다 한 파일) / D (DRAFT 만) / ? (이름으로 모름 → 메일 제목 → 그래도 모름 = 자동 0 · 「B/L Draft か FRT MEMO か 分かりません」 · 이름 안 = FRT_MEMO) · `saveKd` = `BLD` / `BL` · 입구 버튼 「BL_DRAFT にする / FRT_MEMO にする」 (`data-svbl` · 고른 줄 = `blChosen` = 자동 0) · `pickBl` 의 `also` = `{IV}_BL[ _]DRAFT` 와 FRT MEMO 둘 다 표시.
+  - 取り消した 것 = 자동 0: `autoRecord` 에 `mid` (메일 id) · `autoUndoneLoad` = `doc_tool/autosave/{日}/` 의 undo 기록 (최근 14 일) → `SAVE.undone` · `DOC.undoneHit` (해시 + 메일 id · 옛 기록 = 해시만) · 입구 「取り消し済み — 必要なら 保存する」 · 기록을 다 읽기 전 = 자동 0 (`SAVE.undoneOk`).
+  - `NAME.CUSTOMS` · `NAME.LG` · TO BANK 찾기 · 메일 첨부 B/L 이름 = `[\s_]`. 엔진 고정: **bl_bench v0.8 `1744bec`** (draftName 「_」) · **fd_bench v0.4 `2cc68da`** (TO_BANK · FRT_MEMO · ED_REV 「_」 · `_BL_DRAFT` = `_BL DRAFT` 같은 판정) · acl v0.22 그대로 (`_ACL_REV` 원래 읽음).
+  - 시험 `tests/v35.js` · 옛 시험의 기대값 = 새 이름 (입력의 옛 이름 파일은 그대로 = 옛 이름 읽기 시험) · v31 · v32 의 메일 문구 비교 = 괄호 단위 (전: 다음 「  };」 까지 잘라 SAVE_RULES 까지 들어갔음).
+
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
 1. Drive `LEENAI(CLAUDE)/1. THOR/THOR_작업현황.md` 를 **먼저 읽는다**. 다른 PC 가 「작업 중」 이면 **시작하지 않고 형님께 보고**.

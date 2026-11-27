@@ -12,7 +12,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const at=DOC.at, V=DOC.V31;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[1-4](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[1-4](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.31 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[1-5](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[1-5](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.31 · 푸터');
 
 console.log('W1 ~ W4 B/L 待ち 催促 = ETD 당일부터');
 const S0=o=>Object.assign({sub:null, subKnown:false, acl:null, hon:null, vchg:false, depoReq:null, depoRep:null, bmail:null, drafts:[], cmail:null, pay:null, payPlan:false, bl:null, ins:null, rr:null, fd:null},o||{});
@@ -110,7 +110,7 @@ ok(/S\.aclE\.mailKind\(m\.body\)!=='本登録'/.test(HTML)&&HTML.indexOf(old.sli
 
 console.log('쓰기 · 문구');
 ok(!/\$search=[^']*'\s*,\s*\{\s*method\s*:\s*'(?:POST|PUT|PATCH|DELETE)/.test(HTML),'本登録 읽기 = GET 만');
-['MAIL30','ACL_MAIL','MAIL19'].forEach(k=>{ const re=new RegExp('const '+k+' *= *\\{[\\s\\S]*?\\n  \\};'); const x=(HTML.match(re)||[''])[0], y=(old.match(re)||[''])[0]; ok(x&&x===y,'문구 '+k+' 문자 단위 같음'); });
+['MAIL30','ACL_MAIL','MAIL19'].forEach(k=>{ /* v0.35: 괄호 단위로 그 객체만 (전 = 다음 「  };」 까지 — 뒤의 SAVE_RULES 까지 잘렸음) */ const obj=S=>{ const i=S.indexOf('const '+k+' = {'); if(i<0) return ''; let d=0; for(let p=S.indexOf('{',i);p<S.length;p++){ if(S[p]==='{') d++; else if(S[p]==='}'&&!--d) return S.slice(i,p+1); } return ''; }; const x=obj(HTML), y=obj(old); ok(x&&x===y,'문구 '+k+' 문자 단위 같음'); });
 
 console.log(`\nv31 pass ${pass} fail ${fail}`); process.exitCode=fail?1:0;
 })().catch(e=>{ console.error(e); process.exit(1); });

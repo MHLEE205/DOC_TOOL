@@ -14,7 +14,7 @@ const X0=o=>Object.assign({iv:'NAA2699-01', country:'VIETNAM', term:'CIF', pay:'
 const go=(x,now)=>{ x=X0(Object.assign({},x,{now})); const S=DOC.todoSignals(x), r=DOC.todoRow(x,S,now,null); if(r){ r.group=DOC.todoGroup(r,now); r.when=DOC.whenLabel(r,now); } return {S,r}; };
 (async()=>{
 console.log('버전');
-ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[456789]|3[0-4](?:\.1)?)<\/title>/.test(HTML)&&/version:'0\.(?:2[456789]|3[0-4](?:\.1)?)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.24 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[456789]|3[0-5](?:\.1)?)<\/title>/.test(HTML)&&/version:'0\.(?:2[456789]|3[0-5](?:\.1)?)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.24 · 푸터');
 ok(/const ACL_ENGINE = \{commit:'(cedc44849b025aef88f78de71552ae7c65cf391f|249317df8aaa5b48b63b75c59570168a57f9a923)'.*ver:'0\.2[12]'\}/.test(HTML),'엔진 = CONTRACT_SEND cedc448 (acl v0.21) · v0.27 = 249317d (acl v0.22)');
 
 console.log('N15 Deposit 依頼 기한 = 通関依頼済 + 1 영업일');

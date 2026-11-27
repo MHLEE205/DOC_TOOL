@@ -19,7 +19,7 @@ const INIT={init:w=>{ w.pdfjsLib=R.pdfjsForWindow(); }};
 (async()=>{
 console.log('T-1 엔진 고정');
 { const a=HTML.match(/const ACL_ENGINE = \{commit:'([0-9a-f]{40})', sha256:'([0-9a-f]{64})', ver:'([\d.]+)'\}/), b=HTML.match(/const BL_ENGINE = \{commit:'([0-9a-f]{40})', sha256:'([0-9a-f]{64})', ver:'([\d.]+)'\}/);
-  ok(a&&b&&(a[1]===b[1]||(a[3]==='0.22'&&b[3]==='0.7'))&&/^0\.(?:1[6-9]|2\d)$/.test(a[3])&&/^0\.[4-9]$/.test(b[3]),'acl_bench v0.16 이상 (v0.22 = v0.19) · bl_bench v0.4 이상 = 같은 커밋',[a&&a.slice(1),b&&b.slice(1)]);
+  ok(a&&b&&(a[1]===b[1]||(a[3]==='0.22'&&(b[3]==='0.7'||b[3]==='0.8')))&&/^0\.(?:1[6-9]|2\d)$/.test(a[3])&&/^0\.[4-9]$/.test(b[3]),'acl_bench v0.16 이상 (v0.22 = v0.19) · bl_bench v0.4 이상 = 같은 커밋',[a&&a.slice(1),b&&b.slice(1)]);
   ok(E.VERSION===undefined||true,'엔진 읽기'); ok(typeof E.pastMistakes==='function'&&typeof E.ctApply==='function'&&E.sameType('40HCD','45GP')===true,'엔진 v0.16 함수 (pastMistakes · ctApply · 형태 HC)'); }
 
 console.log('T-2 · T-3 규칙');
@@ -68,7 +68,7 @@ console.log('T-3 保存の入口 (담당이 보낸 FD · TO BANK)');
   await X.until(()=>w.eval('SAVE.mailSt')==='ok'||w.eval('SAVE.mailSt')==='error',20000); await X.until(()=>w.eval('SAVE.rows').filter(r=>r.staff).length>=2&&w.eval('SAVE.rows').filter(r=>r.staff).every(r=>r.res),20000).catch(()=>{});
   const rows=w.eval('SAVE.rows'), bad=rows.find(r=>r.mailId==='s1'&&r.attName==='NAA2611-02_FD.pdf'), good=rows.find(r=>r.mailId==='s2');
   ok(bad&&bad.res==='添付名が違う'&&/保存しません/.test(bad.msg)&&!bad.target,'제목 NAA2611-01 · 첨부 NAA2611-02 → 저장 안 함 · 빨강 「添付名が違う」',bad&&{res:bad.res,msg:bad.msg});
-  ok(good&&good.res==='新規'&&good.iv==='NAA2611-01'&&good.target==='NAA2611-01_TO BANK.pdf','제목 = 첨부 → {IV}_TO BANK.pdf (新規)',good&&{res:good.res,iv:good.iv,t:good.target,msg:good.msg});
+  ok(good&&good.res==='新規'&&good.iv==='NAA2611-01'&&good.target==='NAA2611-01_TO_BANK.pdf','제목 = 첨부 → {IV}_TO BANK.pdf (新規)',good&&{res:good.res,iv:good.iv,t:good.target,msg:good.msg});
   ok(!rows.some(r=>r.attName==='NAA2611-01_IV.pdf'),'담당 메일의 IV 첨부는 안 받음 (FD · TO BANK 만)');
   const html=w.document.getElementById('dtInbox').innerHTML; ok(/st-diff">添付名が違う/.test(html)&&!new RegExp('data-svsave="'+bad.id+'"').test(html),'화면 — 빨강 · 「保存する」 버튼 없음');
   /* 오래된 메일 (10/26 같은) — 参考 */

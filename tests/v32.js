@@ -9,7 +9,7 @@ let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.lo
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V32, at=DOC.at;
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[2-4](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[2-4](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[2-5](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[2-5](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
 
 console.log('S1 자동으로 띄우기');
 const NOW=at('2026-11-26','10:00'), T0=o=>Object.assign({no:'LRS-2699ZZ4', pay:'TT', created:'2026-11-24T23:00:00Z', sis:[], hist:3, poKind:'ctno', cut:'2026-12-03', allShipped:false},o||{});
@@ -66,7 +66,7 @@ if(old){ const O=core(old); const inp={no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3,()=
   eq(JSON.stringify(DOC.ttRecommend(Object.assign({},inp)).rec),JSON.stringify(O.ttRecommend(Object.assign({},inp)).rec),'仮 S/I (L/C 未着) 결과 = v0.31 과 문자 단위 같음 (S2 · S4 는 T/T 만)');
   const fn=(h,n)=>{ const i=h.indexOf('async function '+n+'('); return i<0?'':h.slice(i,h.indexOf('\n}\n',i)); };
   ['siRecommend','siWrite','dvWrite'].forEach(n=>ok(fn(HTML,n)&&fn(HTML,n)===fn(old,n),'L/C 추천 · 쓰기 경로 '+n+' = v0.31 과 같음'));
-  ['MAIL30','ACL_MAIL','MAIL19'].forEach(k=>{ const re=new RegExp('const '+k+' *= *\\{[\\s\\S]*?\\n  \\};'); const x=(HTML.match(re)||[''])[0], y=(old.match(re)||[''])[0]; ok(x&&x===y,'문구 '+k+' 문자 단위 같음'); }); }
+  ['MAIL30','ACL_MAIL','MAIL19'].forEach(k=>{ /* v0.35: 괄호 단위로 그 객체만 (전 = 다음 「  };」 까지 — 뒤의 SAVE_RULES 까지 잘렸음) */ const obj=S=>{ const i=S.indexOf('const '+k+' = {'); if(i<0) return ''; let d=0; for(let p=S.indexOf('{',i);p<S.length;p++){ if(S[p]==='{') d++; else if(S[p]==='}'&&!--d) return S.slice(i,p+1); } return ''; }; const x=obj(HTML), y=obj(old); ok(x&&x===y,'문구 '+k+' 문자 단위 같음'); }); }
 else console.log('  (b5d286b 없음 — 비교 생략)');
 
 console.log('쓰기 0');

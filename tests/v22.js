@@ -19,9 +19,9 @@ const open=async(w,tab)=>{ w.document.getElementById('dtQ').value=IV; w.document
 (async()=>{
 console.log('엔진 고정 · 버전');
 { const a=ENG.pin(HTML), b=ENG.blPin(HTML), f=ENG.fdPin(HTML);
-  ok((a.commit===b.commit&&b.commit===f.commit&&a.ver==='0.21'&&b.ver==='0.6'&&f.ver==='0.3')||(a.ver==='0.22'&&b.ver==='0.7'&&f.ver==='0.3'),'acl v0.21 · bl v0.6 · fd v0.3 = 같은 커밋 (v0.24) · v0.27 = acl v0.22 · bl v0.7 (ACL 고정만)',[a,b,f]);
-  const A=ENG.engine(HTML), F=ENG.fdEngine(HTML); ok(typeof A.scanApplyR3==='function'&&typeof A.partyNotation==='function'&&typeof F.insMerge==='function'&&F.VERSION==='0.3','엔진 v0.20 (scanApplyR3 · partyNotation) · fd v0.3 (insMerge)');
-  ok(/<title>LEENAI D-00 書類ツール v0\.(22|22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1)<\/title>/.test(HTML)&&/version:'0\.(22|22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.22 (title · CFG) · 푸터'); }
+  ok((a.commit===b.commit&&b.commit===f.commit&&a.ver==='0.21'&&b.ver==='0.6'&&f.ver==='0.3')||(a.ver==='0.22'&&b.ver==='0.7'&&f.ver==='0.3')||(a.ver==='0.22'&&b.ver==='0.8'&&f.ver==='0.4'),'acl v0.21 · bl v0.6 · fd v0.3 = 같은 커밋 (v0.24) · v0.27 = acl v0.22 · bl v0.7 (ACL 고정만)',[a,b,f]);
+  const A=ENG.engine(HTML), F=ENG.fdEngine(HTML); ok(typeof A.scanApplyR3==='function'&&typeof A.partyNotation==='function'&&typeof F.insMerge==='function'&&(F.VERSION==='0.3'||F.VERSION==='0.4'),'엔진 v0.20 (scanApplyR3 · partyNotation) · fd v0.3 (insMerge)');
+  ok(/<title>LEENAI D-00 書類ツール v0\.(22|22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1|35)<\/title>/.test(HTML)&&/version:'0\.(22|22\.1|23|24|25|26|27|28|29|30|31|32|33|34|34\.1|35)'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.22 (title · CFG) · 푸터'); }
 
 console.log('V8 国内 · V7 完了 — 규칙 한 곳');
 { eq([DOC.isDomestic({iv:'LTEST2699-01'}), DOC.isDomestic({ct:'LS-2611AA1'}), DOC.isDomestic({country:'japan'}), DOC.isDomestic({iv:'NAA2611-01', ct:'LRS-2611AA1', country:'VIETNAM'})],[true,true,true,false],'V8 isDomestic — Invoice L · 契約 LS- · 国 JAPAN');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.34.1</title>
+<title>LEENAI D-00 書類ツール v0.35</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -489,10 +489,10 @@ const DOC = (()=>{
   const NAME = {
     ED:       /_ED(?:[ _\-]*(?:REV\s*\d*|修正版))?\.pdf$/i,                       // 輸出許可 (Export Declaration) — {IV}_ED.pdf · _ED REV2 · _ED修正版
     ED_NOT:   /再輸入|取止/,
-    CUSTOMS:  /_(?:IV_PL_SI|IV_PL|IV,PL|SI|IV|PL)(?:\s*REV\s*\d*)?\.pdf$/i,         // 乙仲へ送る通関書類 ({IV}_IV_PL_SI.pdf など)
+    CUSTOMS:  /_(?:IV_PL_SI|IV_PL|IV,PL|SI|IV|PL)(?:[\s_]*REV\s*\d*)?\.pdf$/i,   /* v0.35: _IV_REV も */         // 乙仲へ送る通関書類 ({IV}_IV_PL_SI.pdf など)
     CUSTOMS_DIR: /^(?:通関|つうかん)$/,
     BL_FINAL: /_(?:SWB|OBL|SURRENDER|BL)(?:[ _\-]*REV\s*\d*)?\.pdf$/i,             // 発行済み B/L (Sea Waybill · 原本 · Surrender)
-    LG:       /(?:^|_)LG(?:\s*\(.*|(?:\s*REV\d*)?)\.xlsx?$/i,                       // LG (B/L 訂正の保証状) — LG({B/L番号}).xlsx · {船社}_LG(…).xls · v0.25: {IV}_LG.xlsx · {IV}_LG REV.xlsx
+    LG:       /(?:^|_)LG(?:\s*\(.*|(?:[\s_]*REV\d*)?)\.xlsx?$/i,                       // LG (B/L 訂正の保証状) — LG({B/L番号}).xlsx · {船社}_LG(…).xls · v0.25: {IV}_LG.xlsx · {IV}_LG REV.xlsx
     RR:       /_RR(?:[ _\-]*REV)?\s*\d*\.pdf$/i,                                    // 放射線測定報告書
     RR_DIR:   /^_?RR/i,
     VCHG:     /船名変更|本船変更/,
@@ -557,8 +557,8 @@ const DOC = (()=>{
     const c=(files||[]).filter(f=>!f.sub).map(f=>({f, k:blKind(f.name, iv)}));
     const D=c.filter(x=>x.k.k==='D').sort((a,b)=>(b.k.rev-a.k.rev)||String(b.f.name).localeCompare(a.f.name));
     const M=c.filter(x=>x.k.k==='M').sort((a,b)=>(b.k.rev-a.k.rev)||String(b.f.name).localeCompare(a.f.name));
-    const p=D[0]||M[0]||null;
-    return p?{file:p.f, name:p.f.name, kind:p.k.k, rev:p.k.rev, lg:p.k.lg, edition:edition(p.k), excluded:c.filter(x=>x.k.k==='X'&&/DRAFT|MEMO|旧/i.test(x.f.name)).map(x=>x.f.name+' ('+x.k.why+')')}:
+    const p=D[0]||M[0]||null, also=p&&p.k.k==='D'&&M[0]&&/_BL[ _]DRAFT/i.test(p.f.name)?M[0].f.name:'';   // v0.35 (R-2): 職員が別に置いた {IV}_BL_DRAFT と FRT MEMO = 両方を見せる
+    return p?{file:p.f, name:p.f.name, also, kind:p.k.k, rev:p.k.rev, lg:p.k.lg, edition:edition(p.k), excluded:c.filter(x=>x.k.k==='X'&&/DRAFT|MEMO|旧/i.test(x.f.name)).map(x=>x.f.name+' ('+x.k.why+')')}:
       {file:null, excluded:c.filter(x=>x.k.k==='X'&&/DRAFT|MEMO|旧/i.test(x.f.name)).map(x=>x.f.name+' ('+x.k.why+')')};
   }
   /* ── ACL の名前 (v0.3) — 規則は acl_bench v0.5 エンジンの aclScan · aclPick (DR · ACL-番号 · 本登録 · 再送 · 仮 …) を使う。
@@ -663,7 +663,7 @@ const DOC = (()=>{
     const bl=F?pickBl(F, x.iv):null;
     if(!F) out.bl=noF(); else {
       const fin=top.filter(f=>NAME.BL_FINAL.test(f.name)), fd=fdFiles(F, x.iv);
-      out.bl=fin.length?cell('done','B/L 発行済',fin.map(f=>f.name)):fd.length&&bl.file?cell('done','FD 作成済 (B/L 確定後) — 最後の B/L: '+bl.edition,[bl.name].concat(fd.map(f=>f.name))):bl.file?cell('todo',bl.edition+(bl.kind==='M'?' (FRT MEMO の中の B/L ページは未確認)':''),[bl.name]):cell('wait','B/L Draft 未着',bl.excluded);
+      out.bl=fin.length?cell('done','B/L 発行済',fin.map(f=>f.name)):fd.length&&bl.file?cell('done','FD 作成済 (B/L 確定後) — 最後の B/L: '+bl.edition,[bl.name].concat(fd.map(f=>f.name))):bl.file?cell('todo',bl.edition+(bl.kind==='M'?' (FRT MEMO の中の B/L ページは未確認)':'')+(bl.also?' + FRT MEMO':''),[bl.name].concat(bl.also?[bl.also]:[])):cell('wait','B/L Draft 未着',bl.excluded);
       out.bl.pick=bl;
     }
     const na=k=>{ const r=NA[k](x); return r?cell('na',r):null; };
@@ -1067,6 +1067,18 @@ const DOC = (()=>{
     PLUS:'＋{s}', PLUS_TIP:'段階の印が ●（今やる）で 次にやること に無い段階',
     IV_MIS:'⚠ Invoice 番号が違う（COMPASS {a} · メール {b}）', IV_MIS_WHY:'BKG# {k} のメール 「{s}」 · COMPASS の Invoice 番号を直してください（書類ツールは書かない）'
   };
+  /* ══════════ v0.35 (指示書 THOR_34 · 形さん N66 「빈칸은 만들지 말고 " _ " 이걸 붙이면 어떨까? 통일을 시키면 좋겠지.」) ══════════
+     保存 = 新しい名前だけ ({IV}_ACL · _ACL_REV · _ACL_REV2 · _FRT_MEMO · _BL_DRAFT · _FD · _TO_BANK · _IV · _PL) · 読む = 古い名前 (空白) と 新しい名前 (「_」) の両方
+     · 版の番号 = 両方の名前を合わせて数える · B/L Draft と FRT MEMO が別に来たら 別に保存 (名前 · 件名で分ける · 分からない = 自動にしない → 入口で選ぶ)
+     · 取り消した添付 (メール id + ハッシュ) は 二度と自動にしない (入口に 「取り消し済み」 · 手で 保存する は できる) — 古いファイルの名前は変えない */
+  const V35 = {
+    MEMO_RE:/F[RLE]?T\.?[\s_]*MEMO|FREIGHT|FRTMEMO|フレートメモ|運賃/i, DRAFT_RE:/DRAFT|DARFT|ドラフト/i,
+    BL_ASK:'B/L Draft か FRT MEMO か 分かりません — 名前を確かめて 保存してください（自動にしません）',
+    BL_TO_D:'BL_DRAFT にする', BL_TO_M:'FRT_MEMO にする', BL_LBL:{M:'FRT MEMO', D:'B/L Draft', '?':'B/L Draft か FRT MEMO（不明）'},
+    UNDONE:'取り消し済み — 必要なら 保存する（自動にしません）', UNDONE_DAYS:14
+  };
+  /* 名前の比べ方 — 空白 · 「_」 を同じに (版の番号を 古い名前 + 新しい名前 で数える) */
+  const nmKey = s => up(s).replace(/[\s_]+/g,'_');
   /* N56-4: 件名に この船積の BKG# (または B/L 番号) があり 別の Invoice 番号だけが書いてある メール (その番号の船積は 表にない) → {other, subj, t} · 無ければ null
      (2 つの Invoice を並べたメール · 自分の Invoice も書いてあるメール = 対象外) */
   /* N56-6 (NA2611-03 「ACL ● 인데 次にやること 에 ACL 없음」): 段階の印が ● (今やる) なのに 今日やること の行に無い段階 → 次にやること の後ろに 「＋ACL · RR」 (短く · 判定はそのまま)
@@ -1076,12 +1088,14 @@ const DOC = (()=>{
     (rows||[]).forEach(r=>{ (PLUS_COVER[r.gkey]||[]).forEach(k=>cov.add(k)); if(r.gkey==='insrr'){ if(/保険/.test(r.what||'')) cov.add('ins'); if(/RR/.test(r.what||'')) cov.add('rr'); } });
     return V28.ST_HEAD.filter(([k])=>C[k]&&C[k].s==='todo'&&!cov.has(k)).map(([,n])=>n); }
   /* N55 (A1): 自動で保存してよいか — 全部: ① Invoice 番号が メールの件名 か ファイル名に書いてあり 候補が 1 つ ② 種類が 名前で分かる (中身だけで決めたものは聞く) ③ 新しいファイル (新規 · n 版目) ④ 同じまとまりで同じ名前が重ならない (dup) · 担当の FD · TO BANK も同じ */
-  function autoOk(row){ const r=row||{}; if(!/^(新規|\d+版目)$/.test(r.res||'')||!r.iv||!r.target||r.dup) return false; if(!(r.cands&&r.cands.length===1&&up(r.cands[0])===up(r.iv))) return false;
+  function autoOk(row){ const r=row||{}; if(!/^(新規|\d+版目)$/.test(r.res||'')||!r.iv||!r.target||r.dup||r.undone||r.blChosen||(r.kind&&r.kind.bl==='?')) return false;   /* v0.35: 取り消し済み · B/L Draft か FRT MEMO か不明 = 聞く */ if(!(r.cands&&r.cands.length===1&&up(r.cands[0])===up(r.iv))) return false;
     if(up((r.name||'')+' '+(r.subject||'')).indexOf(up(r.iv))<0) return false;
     const kn=saveKind(r.name,''); return !!(kn&&kn.ok&&r.kind&&kn.key===r.kind.key); }
   /* A3: 自動保存の記録の場所 — doc_tool/autosave/{YYYYMMDD}/{UTC}_{Invoice}.json */
   function autoLogPath(iv, d){ const x=d||new Date(), p=n=>String(n).padStart(2,'0'), day=x.getFullYear()+p(x.getMonth()+1)+p(x.getDate()); return OUT_ROOT+V34.AUTO_DIR+day+'/'+stamp(x)+'_'+safeKey(iv)+'.json'; }
   /* A3: 取り消し = 今日 自動で保存したファイルだけ · 同じフォルダの OLD/ へ (消さない) */
+  /* v0.35 (R1): 取り消した添付か — undone = [{hash, mid}] (doc_tool/autosave/ の取り消しの記録) · 記録に mid が無い (v0.34 の記録) = ハッシュだけで */
+  function undoneHit(row, undone){ const r=row||{}; if(!r.hash) return false; return (undone||[]).some(u=>u&&u.hash===r.hash&&(!u.mid||!r.mailId||u.mid===r.mailId)); }
   function guardUndo(path, today){ const t=(today||[]).find(e=>e&&e.path===path&&!e.undone); if(!t) throw new Error('今日の自動保存ではありません: '+path); if(/\/OLD\//.test(path)) throw new Error('もう OLD です: '+path); return true; }
   /* N56-5: その船積のメールに 乙仲 (· 船社) からの ACL の添付 (ACL · 仮ACL · DR · 仮登録 の名前) があるか → {t, att} (いちばん新しい) */
   function aclMailIn(mails){ let hit=null; (mails||[]).forEach(m=>{ if(!(m.uses||[]).includes('ACL')||!(m.skind==='otsu'||m.skind==='carrier')) return; const a=(m.att||[]).filter(n=>/ACL|(?:^|[^A-Z])D\/?R(?:[^A-Z]|$)|仮登録/i.test(n)&&!/請求|INVOICE/i.test(n)); if(!a.length) return; if(!hit||m.t>hit.t) hit={t:m.t, att:a.join(' · ')}; }); return hit; }
@@ -1185,7 +1199,7 @@ const DOC = (()=>{
       ['HON',['staff'], /本登録/i, null, /本登録をお願い|本登録お願い|本登録を御願い|本登録を依頼|本登録の程/i, false],
       ['CUSTREQ',null, /通関書類|通関依頼|通関のご依頼|新規通関/i, null, null, false],
       ['BLDRAFT',null, /DRAFT\s*B\/?L|B\/?L\s*DRAFT|Draft\s*BL|DRAFT\s*BILL|BL\s*DRAFT|FREIGHT\s*MEMO|FRT\.?\s*MEMO|フレートメモ|INFORMATION OF BILL|COPY NOTICE|TPDoc|Draft BL available|B\/L確認|BL内容確認|SI・BL|Invoice\s*B\/L\s*#|Proforma\s*Bill|^BL\s+HLCL|BILL\s*OF\s*LADING|ドラフト/i,
-        /DRAFT|F[RE]?T\.?\s*MEMO|FREIGHT\s*MEMO|INVNCOPY|NONCOPY|WDMFT\d*_BL|_BL_|^MDRA/i, null, false],
+        /DRAFT|F[RE]?T\.?[\s_]*MEMO|FREIGHT[\s_]*MEMO|INVNCOPY|NONCOPY|WDMFT\d*_BL|_BL_|^MDRA/i, null, false],
       ['DEPO',null, /DEPOSIT/i, /DEPOSIT/i, null, false],
       ['VCHG',null, /本船変更|船名変更|本船名の変更|VESSEL\s*CHANGE|CHANGE\s*OF\s*VESSEL|ROLL\s*OVER|ROLLOVER|ROLLING|VOYAGE変更|VESSEL\s*DELAY|抜港|スキップ/i, /船名変更|本船変更/i, null, false],
       ['INS',null, /保険|INSURANCE|CERTIFICATE\s*OF\s*INS|保険証券|付保|Policy\s*No/i, /保険|INSURANCE|POLICY/i, null, false],
@@ -1634,9 +1648,9 @@ const DOC = (()=>{
     KINDS:[
       ['ED','輸出許可', n=>/輸出許可|許可通知|許可書|(?:^|[_\s])ED(?:[_\s.\-]|$)|_ED\./i.test(n), false, true],
       ['ACL','ACL', n=>/ACL|(?:^|[^A-Z])D\/?R(?:[^A-Z]|$)|ドック|仮登録|本登録/i.test(n), true, false],
-      ['BL','B/L Draft · FRT MEMO', n=>/DRAFT|F[RE]?T\.?\s*MEMO|FREIGHT\s*MEMO|フレートメモ/i.test(n), true, false],   // v0.12: 保存する (名前 = {IV}_FRT MEMO …)
+      ['BL','B/L Draft · FRT MEMO', n=>/DRAFT|F[RE]?T\.?[\s_]*MEMO|FREIGHT[\s_]*MEMO|フレートメモ/i.test(n), true, false],   // v0.35: _FRT_MEMO · _BL_DRAFT も   // v0.12: 保存する (名前 = {IV}_FRT MEMO …)
       /* v0.17 (B9): FD · TO BANK · IV · PL も保存する (名前 = {IV}_FD.pdf · {IV}_TO BANK.pdf · {IV}_IV.pdf · {IV}_PL.pdf · 同じ名前があれば REV · REV2 …) — TO BANK は FD より先に見る */
-      ['TOBANK','TO BANK', n=>/TO\s*BANK/i.test(n), true, false],
+      ['TOBANK','TO BANK', n=>/TO[\s_]*BANK/i.test(n), true, false],   // v0.35: _TO_BANK も
       ['FD','FD', n=>/(?:^|[^A-Z])FD(?:[^A-Z]|$)|_FD/i.test(n), true, false],
       ['SWB','B/L (SWB · 原本)', n=>/SWB|SURRENDER|(?:^|[_\s])O?BL(?:[_\s.\-]|$)/i.test(n), false, false],
       ['RR','RR', n=>/RADIATION|_RR|放射線/i.test(n), false, false],
@@ -1645,14 +1659,18 @@ const DOC = (()=>{
     /* v0.17 (B9): 名前の書類の印 (key → 名前の中の語) · 船社 · 乙仲 · 宅配の 請求書 などは 書類ではない */
     DOCS:{TOBANK:'TO BANK', FD:'FD', IV:'IV', PL:'PL'},
     DOC_NOT:/INVOICE\s*FOR|請求書|DEBIT|FREIGHT|運賃|DHL|COURIER|FEDEX|\bOCR\b/i,
-    NAME_DOC:(iv,tag,n)=>up(iv)+'_'+tag+(n<=0?'':n===1?' REV':' REV'+n)+'.pdf',
-    NAME_DOC_RE:(iv,tag)=>new RegExp('^'+up(iv).replace(/[-]/g,'\\-')+'_'+tag+'(?: REV\\d*)?\\.pdf$'),
+    /* v0.35 (N66): 保存の名前 = 「_」 だけ ({IV}_TO_BANK.pdf · _FD_REV.pdf · _IV_REV2.pdf …) · 門番 · 家族 = 古い名前 (空白) も */
+    NAME_DOC:(iv,tag,n)=>up(iv)+'_'+String(tag).replace(/\s+/g,'_')+(n<=0?'':n===1?'_REV':'_REV'+n)+'.pdf',
+    NAME_DOC_RE:(iv,tag)=>new RegExp('^'+up(iv).replace(/[-]/g,'\\-')+'_'+String(tag).replace(/\s+/g,'[ _]')+'(?:[ _]REV\\d*)?\\.pdf$'),
     /* 決まった名前 — 1 版目 {IV}_ACL.pdf · 2 版目 {IV}_ACL REV.pdf · 3 版目 {IV}_ACL REV2.pdf … (仮 · 本 · DR は名前に入れず 保存の記録へ) */
-    NAME:(iv,n)=>up(iv)+'_ACL'+(n<=0?'':n===1?' REV':' REV'+n)+'.pdf',
-    NAME_RE:iv=>new RegExp('^'+up(iv).replace(/[-]/g,'\\-')+'_ACL(?: REV\\d*)?\\.pdf$'),
+    NAME:(iv,n)=>up(iv)+'_ACL'+(n<=0?'':n===1?'_REV':'_REV'+n)+'.pdf',   // v0.35: {IV}_ACL_REV.pdf · _ACL_REV2.pdf
+    NAME_RE:iv=>new RegExp('^'+up(iv).replace(/[-]/g,'\\-')+'_ACL(?:[ _]REV\\d*)?\\.pdf$'),
     /* v0.12 B/L Draft — フォルダで一番多い名前 (2026 の Invoice フォルダ 836 件) · 1 版目 {IV}_FRT MEMO.pdf · 2 版目 {IV}_FRT MEMO REV.pdf · 3 版目 … REV2.pdf */
-    NAME_BL:(iv,n)=>up(iv)+'_FRT MEMO'+(n<=0?'':n===1?' REV':' REV'+n)+'.pdf',
-    NAME_BL_RE:iv=>new RegExp('^'+up(iv).replace(/[-]/g,'\\-')+'_FRT MEMO(?: REV\\d*)?\\.pdf$'),
+    NAME_BL:(iv,n)=>up(iv)+'_FRT_MEMO'+(n<=0?'':n===1?'_REV':'_REV'+n)+'.pdf',   // v0.35: {IV}_FRT_MEMO.pdf · _FRT_MEMO_REV.pdf
+    NAME_BL_RE:iv=>new RegExp('^'+up(iv).replace(/[-]/g,'\\-')+'_FRT[ _]MEMO(?:[ _]REV\\d*)?\\.pdf$'),
+    /* v0.35 (N66 D1): B/L Draft だけ (FRT MEMO と別に来たもの) = {IV}_BL_DRAFT.pdf · _BL_DRAFT_REV.pdf … */
+    NAME_BLD:(iv,n)=>up(iv)+'_BL_DRAFT'+(n<=0?'':n===1?'_REV':'_REV'+n)+'.pdf',
+    NAME_BLD_RE:iv=>new RegExp('^'+up(iv).replace(/[-]/g,'\\-')+'_BL[ _]DRAFT(?:[ _]REV\\d*)?\\.pdf$'),
     BL_NOT:/DRAFT ?D[O0]C|DOC ?DRAFT|FD ?DRAFT|DHL|FREE ?TIME/i,   // 当社の書類 · FD の Draft — B/L Draft ではない (bl-core draftName と同じ除外)
     TEST_DIR:'save_test/', LOG_DIR:'save_log/',
     /* v0.14 (3-1 · 3-2) — 開いて見せる判断 (やること) · 記録して 次から飛ばす判断 (メールの添付) */
@@ -1668,13 +1686,15 @@ const DOC = (()=>{
     if(SAVE_RULES.DOC_NOT.test(n)) return {key:'X', label:'その他 ('+n+')', ok:false, skip:false};
     const k=hit[0]==='IV'&&hit.indexOf('PL')>=0?'':hit[0]; if(!k) return {key:'X', label:'通関書類（IV · PL）', ok:false, skip:false};
     return {key:k, label:SAVE_RULES.DOCS[k], sub:SAVE_RULES.DOCS[k], ok:true, skip:false, doc:true}; }
+  /* v0.35 (N66 D1 · S3): 名前 → M (FRT MEMO · Draft と運賃が 1 つ = FRT_MEMO) · D (B/L Draft だけ = BL_DRAFT) · ? (名前で分からない) */
+  function blMemoOf(t){ const n=String(t||''); return V35.MEMO_RE.test(n)?'M':V35.DRAFT_RE.test(n)?'D':'?'; }
   function saveKind(name, fmt){
     const n=String(name||''), nac=fmt==='NACCS';
     /* v0.17 (B9): FD · TO BANK · IV · PL は 名前で決める (FD の PDF に B/L の頁があっても FD) */
     if(!nac&&!SAVE_RULES.KINDS[2][2](n)){ const d=docKind(n); if(d) return d; }
     /* v0.12: B/L Draft — 名前 (DRAFT · FRT MEMO …) か 中身 (fmt = 'BLDRAFT' : B/L の頁がある PDF) · 当社書類 (DRAFT DOC …) は除く */
     if(!nac&&(fmt==='BLDRAFT'||SAVE_RULES.KINDS[2][2](n))){ if(SAVE_RULES.BL_NOT.test(n)) return {key:'X', label:'当社書類 · FD の Draft ('+n+')', ok:false, skip:false};
-      if(fmt==='BLDRAFT'||!SAVE_RULES.KINDS[1][2](n)) return {key:'BL', label:'B/L Draft', sub:'B/L Draft', ok:true, skip:false}; }
+      if(fmt==='BLDRAFT'||!SAVE_RULES.KINDS[1][2](n)){ const bl=blMemoOf(n); return {key:'BL', label:'B/L Draft', sub:V35.BL_LBL[bl], ok:true, skip:false, bl}; } }
     const k=SAVE_RULES.KINDS.find(([key,,t])=>t(n))||null;
     if(k&&k[0]==='ED'&&!nac) return {key:'ED', label:k[1], ok:false, skip:true};
     if(nac||(k&&k[0]==='ACL')){ const sub=AE&&AE.ACL_TEMP_RE&&AE.ACL_TEMP_RE.test(n.toUpperCase())||/仮/.test(n)?'仮ACL':/(?:^|[^A-Z])D\/?R(?:[^A-Z]|$)/i.test(n)?'DR':'ACL';
@@ -1702,21 +1722,21 @@ const DOC = (()=>{
   }
   /* 重複 · 版 — existing = その Invoice フォルダの ACL 家族 [{name, hash, tkey}] · names = フォルダの全ファイル名 */
   /* v0.12: kind = 'BL' のとき B/L Draft の名前 (existing = その Invoice フォルダの B/L Draft 家族) */
-  const nameOf = kind => kind==='BL'?SAVE_RULES.NAME_BL:SAVE_RULES.DOCS[kind]?(iv,n)=>SAVE_RULES.NAME_DOC(iv,SAVE_RULES.DOCS[kind],n):SAVE_RULES.NAME;   // v0.17 (B9)
+  const nameOf = kind => kind==='BLD'?SAVE_RULES.NAME_BLD:kind==='BL'?SAVE_RULES.NAME_BL:SAVE_RULES.DOCS[kind]?(iv,n)=>SAVE_RULES.NAME_DOC(iv,SAVE_RULES.DOCS[kind],n):SAVE_RULES.NAME;   // v0.17 (B9)
   function saveJudge(iv, existing, names, hash, tkey, kind){
     const same=(existing||[]).find(e=>e.hash&&e.hash===hash); if(same) return {res:'重複', same:same.name};
     const sameT=(existing||[]).find(e=>e.tkey&&e.tkey===tkey); if(sameT) return {res:'同じ内容', same:sameT.name};
-    let n=(existing||[]).length; const used=new Set((names||[]).map(x=>up(x))), NM=nameOf(kind);
-    while(used.has(up(NM(iv,n)))) n++;
+    let n=(existing||[]).filter(e=>!e.other).length; const used=new Set((names||[]).map(nmKey)), NM=nameOf(kind);   // v0.35: 古い名前 (空白) と 新しい名前 (「_」) を同じに · other = 別の家族 (重複を見るだけ · 版に数えない)
+    while(used.has(nmKey(NM(iv,n)))) n++;
     return {res:n===0?'新規':(n+1)+'版目', name:NM(iv,n), n};
   }
   /* 名前がもう使われていた (保存の瞬間に) → 次の名前 */
-  function saveBump(iv, name, names, kind){ const used=new Set((names||[]).concat([name]).map(x=>up(x))), NM=nameOf(kind); let n=0; while(used.has(up(NM(iv,n)))) n++; return NM(iv,n); }
+  function saveBump(iv, name, names, kind){ const used=new Set((names||[]).concat([name]).map(nmKey)), NM=nameOf(kind); let n=0; while(used.has(nmKey(NM(iv,n)))) n++; return NM(iv,n); }
   /* 保存の門番 — save = {iv, folder (Invoice フォルダのパス), test} : 試験 = doc_tool/save_test/{IV}/ · 本番 = その Invoice フォルダ (書類作成中 / _OLD_DOC) の 決まった名前 だけ */
   function guardSave(p, save){
     const s=String(p||''), iv=up(save&&save.iv), base=s.split('/').pop(), dir=s.slice(0,s.length-base.length-1);
     /* v0.25: LG = {IV}_LG.xlsx · {IV}_LG REV.xlsx … */
-    const D=SAVE_RULES.DOCS[save&&save.kind], RE=save.kind==='LG'?V25.NAME_RE(iv):save.kind==='BL'?SAVE_RULES.NAME_BL_RE(iv):D?SAVE_RULES.NAME_DOC_RE(iv,D):SAVE_RULES.NAME_RE(iv);   // v0.17 (B9): {IV}_FD · TO BANK · IV · PL
+    const D=SAVE_RULES.DOCS[save&&save.kind], RE=save.kind==='LG'?V25.NAME_RE(iv):save.kind==='BLD'?SAVE_RULES.NAME_BLD_RE(iv):save.kind==='BL'?SAVE_RULES.NAME_BL_RE(iv):D?SAVE_RULES.NAME_DOC_RE(iv,D):SAVE_RULES.NAME_RE(iv);   // v0.17 (B9): {IV}_FD · TO BANK · IV · PL
     if(!iv||/(^|\/)\.\.(\/|$)/.test(s)||!RE.test(base)) throw new Error('保存できない名前: '+base);   // v0.12: B/L Draft = {IV}_FRT MEMO …
     if(save.test){ if(dir!==OUT_ROOT+SAVE_RULES.TEST_DIR+iv) throw new Error('試験の保存先ではない: '+dir); return true; }
     const f=String(save.folder||''); if(dir!==f||up(f.split('/').pop())!==iv||!(f.indexOf(SRC.wip+'/')===0||f.indexOf(SRC.old+'/')===0)) throw new Error('Invoice フォルダではない: '+dir);
@@ -2563,7 +2583,7 @@ const DOC = (()=>{
     /* v0.7 */ TODO_RULES, jst, at, dayOf, hmOf, bday, badd, nextBday, bhours, postpaid, mailHead, senderKind, mailUses, mailKind, kindTarget, linkIndex, linkMail, linkMails, linkMax, siFieldIssues, cxBadWords, nudgeH, todoSignals, todoRow, todoGroup, whenLabel, whenSub, todoSort, parseAsof, /* v0.14 */ gzone, todoDone,
     /* v0.6 */ SI_TENT, SI_TENT_WHY, ACL_TENT_NOTE, siTent, CT_DAYS_DEFAULT,
     /* v0.3 */ useAclEngine, aclReady, aclPick, FD_TENT, fdFiles, fdBundle, honIndex, jstDay, CT_REAL, CT_PERIODS, monthsAgo, sortCtDate,
-    blKind, pickBl, aclScan, fdDone, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, /* v0.32 */ V32, ttPoKind, licLines, ttTodo, /* v0.33 */ V33, licFactories, licFacName, licPick, /* v0.34 */ V34, sortCt34, autoPay, autoDep, autoAhead, ivMismatch, cellPlus, aclMailIn, autoOk, autoLogPath, guardUndo, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
+    blKind, pickBl, aclScan, fdDone, nowTab, shipLabel, TT_PO, ttEarlier, ttRecommend, /* v0.32 */ V32, ttPoKind, licLines, ttTodo, /* v0.33 */ V33, licFactories, licFacName, licPick, /* v0.34 */ V34, sortCt34, autoPay, autoDep, autoAhead, ivMismatch, cellPlus, aclMailIn, autoOk, autoLogPath, guardUndo, /* v0.35 */ V35, nmKey, blMemoOf, undoneHit, judgeIv, vesselChange, judgeCt, needs, sortIv, sortCt, inRange, defaultRange, queryKind, parseCsv, mailRulesByIv, guardOut, stamp, safeKey, logPath, baseName,
     utcStamp, aclResultPath, /* v0.24 */ SI_LC_FIXED, SI_LC_TEXT, lcSpan, lcExpect, siLcFix, /* v0.22.1 */ lc42, siDeadlineFix, /* v0.22 */ V22, isDomestic, ctDone, fdHash, dvFind, aclTarget, aclSplit, blSplit, /* v0.21 */ V21, latestAcl, runStamp, aclGroups, mailDraft, mailtoUrl,
     SI_HEAD_COLS, SI_DET_COLS, SI_LABEL, nv, siFieldState, siPlan, isGuid, guardDv, siVerify, siEdits};
 })();
@@ -3643,7 +3663,7 @@ function dvDocsFor(r, tab){ const f=S.folders[r.iv], files=(f&&f.files)||[], byN
   if(tab==='bl'){ const X=S.blRes&&S.blRes[r.iv], res=X&&X.res, x=res&&res.fileId?files.find(y=>y.id===res.fileId)||{id:res.fileId, name:res.file||'Draft', webUrl:res.webUrl}:null; if(x) return [dvItemDoc(x)];
     const pk=r.cells.bl&&r.cells.bl.pick&&r.cells.bl.pick.file; return pk&&pk.id?[dvItemDoc(pk)]:[]; }
   if(tab==='fd'){ const X=S.fdRes[r.iv], out=[], seen=new Set(); ((X&&X.res&&X.res.read)||[]).forEach(d=>{ const x=byName(d.file); if(x&&!seen.has(x.id)){ seen.add(x.id); const o=dvItemDoc(x); o.name=d.file; o.label=((FDX&&FDX.TYPES[d.type])||d.type)+' · '+d.file; out.push(o); } });
-    const tb=files.filter(x=>!x.sub&&/TO ?BANK/i.test(x.name)&&/\.pdf$/i.test(x.name)).sort((a,b)=>String(b.lastModified||'').localeCompare(String(a.lastModified||'')))[0]; if(tb&&!seen.has(tb.id)){ const o=dvItemDoc(tb); o.label='TO BANK · '+tb.name; out.push(o); }
+    const tb=files.filter(x=>!x.sub&&/TO[ _]?BANK/i.test(x.name)&&/\.pdf$/i.test(x.name)).sort((a,b)=>String(b.lastModified||'').localeCompare(String(a.lastModified||'')))[0]; if(tb&&!seen.has(tb.id)){ const o=dvItemDoc(tb); o.label='TO BANK · '+tb.name; out.push(o); }
     return out; }
   return []; }
 /* 結果の行を押す → 書類のその場所 */
@@ -4150,8 +4170,8 @@ function aclTabAfter(r){
 /* ══════════ v0.12 P2b — B/L Draft タブ (指示書 D00 B/L Draft 2 段階 Step 3 · 原指示書 Step 3 · 5 · 형님 D1 ~ D8 · D2 ~ D4 (2 段階)) ══════════
    エンジン = CONTRACT_SEND/bl_bench.html の <script id="bl-core"> を コミット固定 + sha256 で読み込み、ACL エンジン (同じく固定) を BL.useEngine で渡す (コピーしない)
    基準 = COMPASS (S/I · ブッキング · コンテナ) + L/C 保管所 · ACL は参考 (D1) · 運賃の金額は比べない · チェックポイント (stage BL_DRAFT) は cpLoad のマスター (承認の安全装置つき)
-   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @d733fb5 · v0.2 から変わっていない) */
-const BL_ENGINE = {commit:'d733fb51bbf7500fce1c1e6aecbf774233025481', sha256:'a0d1e940e1dd0288c36f80a65adaf8699c51a6a078722771e4c049c2ab224790', ver:'0.7'};   // v0.27: bl_bench v0.7 (ACL エンジン固定だけ — 判定は v0.6 と同じ)   // v0.22: bl_bench v0.6   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
+   バイヤー用 Draft (運賃を隠した画像 PDF) は この PC に保存だけ — 下の buildBuyerPdf は bl_bench v0.4 bl-app の写し (source: CONTRACT_SEND/bl_bench.html @1744bec · v0.35: bl-app は d733fb5 と同じ · v0.2 から変わっていない) */
+const BL_ENGINE = {commit:'1744bec6367d4a6e8c97eac17fe3275f7bce9684', sha256:'20e2771a6e667c9a278acc7de91023801c9ac71d33d98cf49e98be3f61dadeca', ver:'0.8'};   // v0.35: bl_bench v0.8 (Draft の名前 「_」 も · 判定は v0.7 と同じ) · 旧 = v0.27: bl_bench v0.7   // v0.27: bl_bench v0.7 (ACL エンジン固定だけ — 判定は v0.6 と同じ)   // v0.22: bl_bench v0.6   // v0.21: bl_bench v0.5 (Draft の全部の文字を試験の行に)   // v0.18 (T-1 · T-4): bl_bench v0.4 (Draft の 別の契約番号 · ほかは v0.3 と同じ)
 BL_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+BL_ENGINE.commit+'/bl_bench.html';
 const JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';   // バイヤー用 Draft (画像 PDF) — bl_bench と同じ固定版
 const BL_DPI = 200;
@@ -4484,7 +4504,7 @@ async function lgMailOpen(cur){ if(!cur.saved) return;   // v0.27 (N30 · N31): 
    TO BANK AI (F3 · 自動): TO BANK があり 保存本 (ACL_bench/_fd_ai/{sha256}.json) がなく 設定に API キー → この画面を開いた人のブラウザで 頁の判別 (枚数 · 原本/写し · 署名) を 2 回
      → 保存本を SharePoint に (他の人は 呼ばない) · 費用 = doc_tool/ai_cost/ · キーがない → 管理者に 「AI 未実行（キーなし）」
    新しい確認は 全部 試験 (判定に入れない · 赤にしない · 灰色の枠) · 試験の行に 「誤検知」 (doc_tool/cp_trial_log/) · 結果 = doc_tool/fd/{IV}_{UTC}_d{相違数}.json (新規だけ) */
-const FD_ENGINE = {commit:'cedc44849b025aef88f78de71552ae7c65cf391f', sha256:'463bc7bbb44e9a8cbba4041ad1c79a7e11dfd966fb810950cedaa3357b7de846', ver:'0.3'};   // v0.22: fd_bench v0.2 (保険証券 AI · 提出期限 = FD送付日)
+const FD_ENGINE = {commit:'2cc68da1abee0a8be35e852ba097bb30372e690a', sha256:'96653a95d5c67956b63cdc0f2b178034561fa5e59663d5dce4ba5056b91306c7', ver:'0.4'};   // v0.35: fd_bench v0.4 (TO_BANK · FRT_MEMO · ED_REV の 「_」 の名前も 空白の名前と同じ · 判定は v0.3 と同じ) · 旧 = v0.22: fd_bench v0.3   // v0.22: fd_bench v0.2 (保険証券 AI · 提出期限 = FD送付日)
 FD_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+FD_ENGINE.commit+'/fd_bench.html';
 let FDX=null, FDX_P=null;
 async function loadFdEngine(){
@@ -4573,7 +4593,7 @@ async function fdRun(iv, opt){
       try{ const r=await graphFetch(drv()+'/items/'+x.id+'/content'); if(!r.ok) continue; const pages=await readPdfBl(new Uint8Array(await r.arrayBuffer())); files.push({name, modified:x.lastModified||'', pages, webUrl:x.webUrl||''}); }catch(e){} }
     const cp=await aclFetchCompass(iv); const meta=cp.ok?Object.assign({},cp.meta,{blDate:String(cp.booking.crcf9_bl_etd||cp.booking.cr49f_etd||'').slice(0,10)}):{};
     const lc=cp.ok?cp.lc||null:null, lcText=await lcTextOf(lc), cpx=await cpLoad();
-    const tb=f.files.filter(x=>!x.sub&&/TO ?BANK/i.test(x.name)&&/\.pdf$/i.test(x.name)).sort((a,b)=>String(b.lastModified||'').localeCompare(String(a.lastModified||'')))[0]||null;
+    const tb=f.files.filter(x=>!x.sub&&/TO[ _]?BANK/i.test(x.name)&&/\.pdf$/i.test(x.name)).sort((a,b)=>String(b.lastModified||'').localeCompare(String(a.lastModified||'')))[0]||null;
     let ai=null, aiNote='', aiRan=false;
     if(tb){ st('TO BANK の頁の判別 (AI) を確認しています…'); try{ const A=await fdTbAi(F, iv, tb, (d,n)=>st('TO BANK の頁の判別 (AI) '+d+' / '+n+' 頁')); ai=A.ai; S.fdAi[iv]=A; aiRan=A.from==='run';
         aiNote=A.from==='saved'?'TO BANK: 保存した判別を使いました':A.from==='run'?'TO BANK: 判別しました ('+(S.me.admin?'US$'+(Math.round(A.cost*1000)/1000):'保存しました')+')':S.me.admin?'AI 未実行（キーなし）':''; }
@@ -5358,14 +5378,16 @@ async function saveExisting(iv, kind){
   if(S.folders[iv]===undefined){ if(!Object.keys(S.wip).length) await loadRoots(); await loadFolder(iv); }
   const f=S.folders[iv]; if(!f||f==='missing'||!f.files) return {folder:null, list:[], names:[]};
   const DK=DOC.SAVE_RULES.DOCS[kind];   // v0.17 (B9): FD · TO BANK · IV · PL の家族 = フォルダ直下の その種類の PDF (名前で)
-  const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv)||{}, sc=kind!=='BL'&&!DK&&DOC.aclReady()?DOC.aclPick(f.files,iv,{booking:b.cr49f_booking_no||''}).scan:{formal:[],temp:[]};
+  const b=S.bk.concat(S.extraBk||[]).find(x=>DOC.up(x.cr49f_invoice_no)===iv)||{}, sc=kind!=='BL'&&kind!=='BLD'&&!DK&&DOC.aclReady()?DOC.aclPick(f.files,iv,{booking:b.cr49f_booking_no||''}).scan:{formal:[],temp:[]};
   /* v0.12: B/L Draft の家族 = bl-core の名前の規則 (DRAFT · FRT MEMO … · 当社書類 · FD Draft などは除く) */
-  const BX=kind==='BL'?await loadBlEngine():null, fam=DK?f.files.filter(x=>!x.sub&&/\.pdf$/i.test(x.name)&&DOC.saveKind(x.name,'').key===kind):kind==='BL'?f.files.filter(x=>{ if(x.sub) return false; const d=BX.draftName(x.name,iv); return d&&!d.excl; }):sc.formal.concat(sc.temp).map(a=>a.f), list=[];
+  /* v0.35 (N66): FRT_MEMO の家族 = 名前が MEMO · BL_DRAFT の家族 = 名前が DRAFT (bl-core v0.8 = 「_」 も) · もう一方 = 重複だけ見る (other · 版に数えない) */
+  const BX=(kind==='BL'||kind==='BLD')?await loadBlEngine():null, blK=x=>{ if(x.sub) return ''; const d=BX.draftName(x.name,iv); return d&&!d.excl?d.kind:''; }, want=kind==='BLD'?'DRAFT':'MEMO';
+  const fam=DK?f.files.filter(x=>!x.sub&&/\.pdf$/i.test(x.name)&&DOC.saveKind(x.name,'').key===kind):BX?f.files.filter(x=>blK(x)):sc.formal.concat(sc.temp).map(a=>a.f), list=[];
   for(const x of fam){ let c=SAVE.hashCache[x.id];
     if(!c){ try{ const r=await graphFetch(drv()+'/items/'+x.id+'/content'); if(!r.ok) throw new Error(r.status); const buf=await r.arrayBuffer(); c={hash:await sha256Hex(buf), tkey:DOC.textKeyOf(await readPdfBytes(buf))}; SAVE.hashCache[x.id]=c; }catch(e){ c={hash:'', tkey:'', err:e.message}; } }   // v0.14: 読めなかったものは覚えない (次の確認で読み直す)
-    list.push({name:x.name, hash:c.hash, tkey:c.tkey, err:c.err||''}); }
+    list.push({name:x.name, hash:c.hash, tkey:c.tkey, err:c.err||'', other:!!BX&&blK(x)!==want}); }
   /* 試験モードで保存したもの (doc_tool/save_test/) も 「もうある版」 として数える — 同じ Invoice の次の行が 同じ名前にならない */
-  const X=(SAVE.extra[iv]||[]).filter(x=>(x.kind||'ACL')===(kind||'ACL'));
+  const X=(SAVE.extra[iv]||[]).filter(x=>(x.kind||'ACL')===(kind||'ACL')||(BX&&(x.kind==='BL'||x.kind==='BLD'))).map(x=>BX&&x.kind!==kind?Object.assign({},x,{other:true}):x);
   return {folder:f.path, list:list.concat(X), names:f.files.filter(x=>!x.sub).map(x=>x.name).concat((SAVE.extra[iv]||[]).map(x=>x.name))};
 }
 /* 1 つの PDF → 判断 (保存はしない) */
@@ -5376,6 +5398,8 @@ async function saveProcess(row){
     /* v0.12: NACCS でない PDF — B/L の頁があれば B/L Draft (名前に DRAFT · FRT MEMO がなくても) */
     if(fm!=='NACCS'){ try{ const B=await loadBlEngine(), Lb=B.linesOf(await readPdfBl(new Uint8Array(row.bytes))); if(B.blPages(Lb).length) fm='BLDRAFT'; }catch(e){} }
     row.kind=DOC.saveKind(row.name, fm);
+    /* v0.35 (S3): 名前で B/L Draft か FRT MEMO か分からない (中身で B/L) → 件名で · それでも不明 = 聞く (名前の案 = FRT_MEMO) */
+    if(row.kind.key==='BL'&&row.kind.bl==='?'){ const b=DOC.blMemoOf(row.subject||''); if(b!=='?'){ row.kind.bl=b; row.kind.sub=DOC.V35.BL_LBL[b]; } }
     if(row.kind.skip){ row.res='対象外'; row.msg='輸出許可は C-01 で扱います'; return row; }
     if(!row.kind.ok){ row.res='対象外'; row.msg='この書類はまだ対応していません（'+row.kind.label+'）'; return row; }
     const acl=E&&fm==='NACCS'?E.readNaccs(row.pages):null, text=row.pages.map(p=>p.items.map(i=>i.s).join(' ')).join('\n');
@@ -5392,7 +5416,7 @@ async function saveProcess(row){
   }catch(e){ row.res='Invoice 不明'; row.msg='読めません: '+e.message; return row; }
 }
 /* v0.17 (B9): 保存の種類 — ACL · BL · FD · TOBANK · IV · PL */
-const saveKd = row => { const k=row&&row.kind&&row.kind.key; return k==='BL'||DOC.SAVE_RULES.DOCS[k]?k:'ACL'; };
+const saveKd = row => { const k=row&&row.kind&&row.kind.key; return k==='BL'?(row.kind.bl==='D'?'BLD':'BL'):DOC.SAVE_RULES.DOCS[k]?k:'ACL'; };   /* v0.35: BLD = {IV}_BL_DRAFT の家族 */
 async function saveJudgeRow(row){
   if(!row.iv){ row.res='Invoice 不明'; row.msg=row.cands&&row.cands.length>1?'どの Invoice か選んでください（候補 '+row.cands.length+'）':'Invoice が決まりません — 選んでください'; return row; }
   const kd=saveKd(row), ex=await saveExisting(row.iv, kd); row.folder=ex.folder; row.names=ex.names;
@@ -5402,9 +5426,11 @@ async function saveJudgeRow(row){
   /* v0.34 (N55 A2 · NSK2611-01 「仮ACL.pdf」 · 「仮ACL_REV.pdf」 が 2 つとも 新規 → _ACL.pdf だった): 同じまとまりの 同じ Invoice · 同じ種類で 先に受けた行の名前を 使った名前として数える → 受けた順に 版 · 自動にしない */
   const before=o=>String(o.at||'')<String(row.at||'')||(String(o.at||'')===String(row.at||'')&&o.id<row.id);
   const taken=SAVE.rows.filter(o=>o!==row&&o.iv===row.iv&&saveKd(o)===kd&&/^(新規|\d+版目)$/.test(o.res||'')&&o.target&&before(o)&&o.hash!==row.hash).map(o=>o.target);
-  const j=DOC.saveJudge(row.iv, ex.list, ex.names.concat(taken), row.hash, DOC.textKeyOf(row.pages), kd); row.res=j.res; row.same=j.same||''; row.target=j.name||''; row.dup=taken.length>0||!!row.grpDup; if(row.dup&&/^(新規|\d+版目)$/.test(row.res)) row.msg2=DOC.V34.AUTO_DUP;
-  row.msg=j.same?(j.res==='重複'?'同じファイルが保存済み: ':'同じ内容のファイルが保存済み: ')+j.same:row.iv+' の '+(kd==='BL'?'B/L Draft':DOC.SAVE_RULES.DOCS[kd]||'ACL')+(j.n?'（'+(j.n+1)+'版目）':'')+(j.n?'':' ')+'として保存します: '+j.name;
-  if(saveAuto()&&!SAVE.scanning&&DOC.autoOk(row)) await saveDo(row,{auto:true});   /* v0.34 (N55 A1): 確かなもの = 自動 · ほかは入口に残して聞く */
+  const j=DOC.saveJudge(row.iv, ex.list, ex.names.concat(taken), row.hash, DOC.textKeyOf(row.pages), kd); row.res=j.res; row.same=j.same||''; row.target=j.name||''; row.dup=taken.length>0||!!row.grpDup; row.msg2=''; if(row.dup&&/^(新規|\d+版目)$/.test(row.res)) row.msg2=DOC.V34.AUTO_DUP;
+  /* v0.35 (R1): 取り消した添付 = 自動にしない · (S3) B/L Draft か FRT MEMO か不明 = 聞く */
+  row.undone=/^(新規|\d+版目)$/.test(row.res)&&DOC.undoneHit(row, SAVE.undone); if(row.undone) row.msg2=DOC.V35.UNDONE; else if(row.kind&&row.kind.bl==='?'&&/^(新規|\d+版目)$/.test(row.res)) row.msg2=DOC.V35.BL_ASK;
+  row.msg=j.same?(j.res==='重複'?'同じファイルが保存済み: ':'同じ内容のファイルが保存済み: ')+j.same:row.iv+' の '+(kd==='BLD'?'B/L Draft':kd==='BL'?'FRT MEMO':DOC.SAVE_RULES.DOCS[kd]||'ACL')+(j.n?'（'+(j.n+1)+'版目）':'')+(j.n?'':' ')+'として保存します: '+j.name;
+  if(saveAuto()&&!SAVE.scanning&&SAVE.undoneOk&&DOC.autoOk(row)) await saveDo(row,{auto:true});   /* v0.34 (N55 A1): 確かなもの = 自動 · ほかは入口に残して聞く · v0.35: 取り消しの記録を読み終えてから */
   return row;
 }
 /* 保存 — 新規作成だけ · 名前が使われていたら 次の名前を 「確認」 に戻す */
@@ -5425,13 +5451,24 @@ async function saveDo(row, opt){
 }
 /* v0.34 (N55 A3): 自動保存の記録 (doc_tool/autosave/{日}/) · 今日の一覧 · 取り消し (OLD へ移す · 今日のものだけ) */
 SAVE.autoToday=null;
-async function autoRecord(row, path, test){ const d=new Date(), rec={schema:'doc_tool_autosave/1', at:d.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', iv:row.iv, path, name:row.target, kind:saveKd(row), src:row.src, subject:row.subject||'', attName:row.attName||row.name, hash:row.hash, test:!!test};
+async function autoRecord(row, path, test){ const d=new Date(), rec={schema:'doc_tool_autosave/1', at:d.toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', iv:row.iv, path, name:row.target, kind:saveKd(row), src:row.src, subject:row.subject||'', attName:row.attName||row.name, hash:row.hash, mid:row.mailId||'', test:!!test};   /* v0.35: mid = 取り消しの記憶 (メール id + ハッシュ) */
   try{ await spPut(DOC.autoLogPath(row.iv,d), JSON.stringify(rec)); }catch(e){ row.msg+=' · 記録に失敗: '+e.message; } (SAVE.autoToday=SAVE.autoToday||[]).push(rec); }
 async function autoTodayLoad(){ const d=new Date(), p=n=>String(n).padStart(2,'0'), dir=DOC.OUT_ROOT+DOC.V34.AUTO_DIR+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate());
   try{ const k=await spChildren(dir), L=[]; for(const f of (k||[]).filter(x=>x.file&&/\.json$/.test(x.name))){ const t=await spText(dir+'/'+f.name).catch(()=>null); if(t){ try{ L.push(Object.assign(JSON.parse(t),{logName:f.name})); }catch(e){} } }
     const undone=new Set(L.filter(e=>e.undo).map(e=>e.path)); SAVE.autoToday=L.filter(e=>!e.undo).map(e=>Object.assign(e,{undone:undone.has(e.path)})); }catch(e){ SAVE.autoToday=SAVE.autoToday||[]; } }
+/* v0.35 (R1): 取り消しの記録 (doc_tool/autosave/{日}/ · undo) — 直近 UNDONE_DAYS 日 · 読めない = 自動にしない (SAVE.undoneOk = false) */
+SAVE.undone=null; SAVE.undoneOk=false; SAVE.undoneP=null;
+function autoUndoneLoad(){ if(SAVE.undoneP) return SAVE.undoneP;
+  SAVE.undoneP=(async()=>{ const root=DOC.OUT_ROOT+DOC.V34.AUTO_DIR.replace(/\/$/,''), d=new Date(Date.now()-DOC.V35.UNDONE_DAYS*864e5), p=n=>String(n).padStart(2,'0'), from=d.getFullYear()+p(d.getMonth()+1)+p(d.getDate()), U=[];
+    try{ const days=((await spChildren(root))||[]).filter(x=>!x.file&&/^\d{8}$/.test(x.name)&&x.name>=from);
+      for(const dy of days){ const k=await spChildren(root+'/'+dy.name);
+        await mapLimit((k||[]).filter(x=>x.file&&/\.json$/.test(x.name)),4,async f=>{ const t=await spText(root+'/'+dy.name+'/'+f.name).catch(()=>null); if(!t) return; try{ const e=JSON.parse(t); if(e&&e.undo&&e.hash) U.push({hash:e.hash, mid:e.mid||'', path:e.path||''}); }catch(x){} }); }
+      SAVE.undone=(SAVE.undone||[]).concat(U); SAVE.undoneOk=true; }
+    catch(e){ SAVE.undone=SAVE.undone||[]; SAVE.undoneOk=false; SAVE.undoneP=null; } })();
+  return SAVE.undoneP; }
 async function autoUndo(path){ const T=SAVE.autoToday||[]; const e=T.find(x=>x.path===path); await spMoveOld(path, T);
-  e.undone=true; try{ await spPut(DOC.autoLogPath(e.iv), JSON.stringify(Object.assign({}, e, {undo:true, undoAt:new Date().toISOString(), undoBy:(LEENAI.user&&LEENAI.user.email)||''}))); }catch(x){} }
+  e.undone=true; (SAVE.undone=SAVE.undone||[]).push({hash:e.hash, mid:e.mid||'', path:e.path});   /* v0.35 (R1) */
+  try{ await spPut(DOC.autoLogPath(e.iv), JSON.stringify(Object.assign({}, e, {undo:true, undoAt:new Date().toISOString(), undoBy:(LEENAI.user&&LEENAI.user.email)||''}))); }catch(x){} }
 /* v0.34 (N55 A3): 取り消し の移動 — 書き込みの門番 2 つめ (ここだけ · DOC.guardUndo = 今日 自動で保存したファイルだけ · 同じフォルダの OLD/ へ · 消さない · 上書きしない) */
 async function spMoveOld(path, today){ DOC.guardUndo(path, today);
   const it=await graphJson(drv()+'/root:/'+spEnc(path)+'?$select=id,parentReference'); if(!it||!it.id) throw new Error('ファイルがありません: '+path);
@@ -5498,7 +5535,7 @@ async function saveRemember(row){
 }
 /* 入口 A — 最近 N 営業日の メール (添付あり) から ACL の添付 (名前の形) · 輸出許可は C-01 (入れない) · 同じメール + 添付が記録にあれば出さない */
 async function saveMailScan(days){
-  SAVE.scanning=true;
+  SAVE.scanning=true; autoUndoneLoad().catch(()=>{});   /* v0.35 (R1) */
   if(SAVE.autoToday===null){ SAVE.autoToday=[]; autoTodayLoad().then(()=>renderInbox()).catch(()=>{}); }   /* v0.34 (N55 A3): 今日の自動保存 (ほかの人の分も) */
   /* 確認中にもう一度押しても 1 回だけ (同じ添付が 2 行にならない) */
   if(SAVE.mailSt==='load') return;
@@ -5534,7 +5571,8 @@ async function saveMailScan(days){
   SAVE.scanning=false; renderInbox();
 }
 /* v0.34 (N55 A2): 同じ Invoice · 同じ種類の 開いている行 (新規 · n 版目) に 中身の違うものが 2 つ以上 = 「同じまとまりで同じ名前」 → 受けた順に 判断し直して 版 · 自動にしない (聞く) · 1 つだけ = A1 の条件で自動 */
-async function saveAutoPass(){ const open=SAVE.rows.filter(r=>/^(新規|\d+版目)$/.test(r.res||'')&&r.iv&&!r.busy), G={};
+async function saveAutoPass(){ await (SAVE.undoneP||autoUndoneLoad()).catch(()=>{});   /* v0.35 (R1): 取り消しの記録を読んでから */
+  const open=SAVE.rows.filter(r=>/^(新規|\d+版目)$/.test(r.res||'')&&r.iv&&!r.busy), G={};
   open.forEach(r=>{ const k=r.iv+'|'+saveKd(r); (G[k]=G[k]||[]).push(r); });
   for(const k of Object.keys(G)){ const L=G[k].sort((a,b)=>String(a.at||'').localeCompare(String(b.at||''))||(a.id-b.id)), dupG=new Set(L.map(r=>r.hash)).size>1;
     for(const r of L){ r.grpDup=dupG; await saveJudgeRow(r).catch(()=>{}); } }
@@ -5563,7 +5601,7 @@ function renderInbox(){
     '<div><div class="td-what">'+esc(r.iv||'—')+(r.kind&&r.kind.sub?' <span class="dt-note">'+esc(r.kind.sub)+'</span>':'')+'</div><div class="dt-note">'+esc(r.src+' · '+(r.attName||r.name)+(r.at?' · '+DOC.fmtMD(DOC.isoDay(r.at)):''))+'</div></div>'+
     '<div><div class="dt-p">'+esc(r.msg||'判断中…')+'</div>'+(!saveAuto()&&DOC.autoOk(r)?'<div class="dt-note dt-c-done">'+esc(DOC.V34.AUTO_WOULD)+'</div>':'')+(r.msg2?'<div class="dt-note dt-c-todo">'+esc(r.msg2)+'</div>':'')+(r.note?'<div class="dt-note dt-c-todo">'+esc(r.note)+'</div>':'')+(r.verdict?'<div class="dt-note">照合: '+esc(r.verdict)+'</div>':'')+(r.after?'<div class="dt-note dt-c-diff">'+esc(r.after)+'</div>':'')+'</div>'+
     '<div class="td-act">'+(/\.pdf$/i.test(r.attName||r.name||'')&&(r.bytes||(r.mailId&&r.attId))?'<button class="dt-btn ghost sm" data-svview="'+r.id+'">'+esc(DOC.V22.VIEW_BTN)+'</button> ':'')+(r.busy?'<span class="dt-note">保存中…</span>':/^(新規|\d+版目)$/.test(r.res)?'<button class="dt-btn sm" data-svsave="'+r.id+'">保存する</button> ':'')+
-      (r.bytes&&r.res!=='保存済'&&r.res!=='対象外'&&r.res!=='取消'?ivOpts(r)+' ':'')+(act(r)&&r.res!=='保存済'?'<button class="dt-btn ghost sm" data-svno="'+r.id+'">保存しない</button>':'')+'</div></div>';
+      (r.bytes&&r.res!=='保存済'&&r.res!=='対象外'&&r.res!=='取消'?ivOpts(r)+' ':'')+(r.kind&&r.kind.key==='BL'&&/^(新規|\d+版目)$/.test(r.res)&&!r.busy?'<button class="dt-btn ghost sm" data-svbl="'+r.id+'">'+esc(r.kind.bl==='D'?DOC.V35.BL_TO_M:DOC.V35.BL_TO_D)+'</button> ':'')+(act(r)&&r.res!=='保存済'?'<button class="dt-btn ghost sm" data-svno="'+r.id+'">保存しない</button>':'')+'</div></div>';   /* v0.35 (S3): B/L Draft ↔ FRT MEMO */
   const hm=SAVE.mailAt?String(SAVE.mailAt.getHours()).padStart(2,'0')+':'+String(SAVE.mailAt.getMinutes()).padStart(2,'0'):'';
   const st=SAVE.mailSt==='load'?'メールを確認中…':SAVE.mailSt==='error'?'⚠ '+SAVE.mailErr:'';
   const AT=(SAVE.autoToday||[]).filter(e=>!e.test||saveTest()), autoBtn=AT.length?'<button class="dt-btn ghost sm" id="dtSvAutoT">'+esc(DOC.V34.AUTO_TODAY.replace('{n}',AT.filter(e=>!e.undone).length))+'（'+(SAVE.showAuto?'閉じる':'開く')+'）</button>':'';   /* v0.34 (N55 A3) */
@@ -5588,6 +5626,7 @@ function renderInbox(){
   const all=$('dtSvAll'); if(all) all.onclick=async()=>{ for(const r of canAll) await saveDo(r); };
   box.querySelectorAll('[data-svsave]').forEach(b=>{ b.onclick=()=>saveDo(SAVE.rows.find(r=>r.id===+b.dataset.svsave)); });
   box.querySelectorAll('[data-svview]').forEach(b=>{ b.onclick=()=>saveView(SAVE.rows.find(r=>r.id===+b.dataset.svview)); });   // v0.22 (V2)
+  box.querySelectorAll('[data-svbl]').forEach(b=>{ b.onclick=async()=>{ const r=SAVE.rows.find(x=>x.id===+b.dataset.svbl); if(!r||!r.kind) return; r.kind.bl=r.kind.bl==='D'?'M':'D'; r.kind.sub=DOC.V35.BL_LBL[r.kind.bl]; r.blChosen=true; await saveJudgeRow(r).catch(()=>{}); renderInbox(); }; });   /* v0.35 (S3) */
   box.querySelectorAll('[data-svno]').forEach(b=>{ b.onclick=async()=>{ const r=SAVE.rows.find(x=>x.id===+b.dataset.svno); r.res='取消'; r.remembered=true; await saveLog(r,'取消'); renderInbox(); }; });
   box.querySelectorAll('[data-svsel]').forEach(s=>{ s.onchange=async()=>{ const r=SAVE.rows.find(x=>x.id===+s.dataset.svsel); r.iv=s.value; r.res=''; r.msg='判断中…'; renderInbox(); await saveJudgeRow(r); await saveRemember(r); renderInbox(); }; });
 }
@@ -5752,7 +5791,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.34.1', date:'2026-11-27',
+  sys:'D-00', name:'書類ツール', version:'0.35', date:'2026-11-27',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',
