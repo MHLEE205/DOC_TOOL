@@ -12,7 +12,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const at=DOC.at, V=DOC.V31;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[1-3]<\/title>/.test(HTML)&&/version:'0\.3[1-3]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.31 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[1-4]<\/title>/.test(HTML)&&/version:'0\.3[1-4]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.31 · 푸터');
 
 console.log('W1 ~ W4 B/L 待ち 催促 = ETD 당일부터');
 const S0=o=>Object.assign({sub:null, subKnown:false, acl:null, hon:null, vchg:false, depoReq:null, depoRep:null, bmail:null, drafts:[], cmail:null, pay:null, payPlan:false, bl:null, ins:null, rr:null, fd:null},o||{});

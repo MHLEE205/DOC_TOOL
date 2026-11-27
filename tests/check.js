@@ -13,7 +13,8 @@ const putCalls=(code.match(/method:'PUT'/g)||[]).length;
 const batchLines=code.split('\n').filter(l=>/[fF]etch\(GRAPH\+'\$batch'/.test(l)), batchGetOnly=/requests:todo\.map\(x=>\(\{id:x\.id, method:'GET', url:x\.url\}\)\)/.test(code);
 const mailLines=code.split('\n').filter(l=>/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)&&/DOC\.guardMail\(/.test(l));   // v0.19: Outlook 下書き (門番 guardMail を同じ行で通る) — 送る API は門番が止める
 const aiLines=code.split('\n').filter(l=>/fetch\('https:\/\/api\.anthropic\.com\/v1\/messages',\{method:'POST'/.test(l));   // v0.21: TO BANK の頁判別 (AI) 1 行だけ — データの書き込みではない
-const sendLines=code.split('\n').filter(l=>/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)&&batchLines.indexOf(l)<0&&mailLines.indexOf(l)<0&&aiLines.indexOf(l)<0), dvWrites=sendLines.filter(l=>!/method:'PUT'/.test(l)).length;   // 보내는 요청 (fetch 에 method) 줄
+const moveLines=code.split('\n').filter(l=>/spMoveGo=/.test(l)&&/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)), moveGuarded=/async function spMoveOld\(path, today\)\{ DOC\.guardUndo\(path, today\);/.test(code);   // v0.34 (N55): 取り消し の移動 = 1 か所 · 門番 guardUndo
+const sendLines=code.split('\n').filter(l=>/[fF]etch\(/.test(l)&&/\bmethod\b/.test(l)&&batchLines.indexOf(l)<0&&mailLines.indexOf(l)<0&&aiLines.indexOf(l)<0&&moveLines.indexOf(l)<0), dvWrites=sendLines.filter(l=>!/method:'PUT'/.test(l)).length;   // 보내는 요청 (fetch 에 method) 줄
 const dvWriteFns=(code.match(/async function dvWrite\(/g)||[]).length;
 const dvGuarded=/async function dvWrite\([^)]*\)\{[^\n]*\n\s*DOC\.guardDv\(method, set, id, body, ctx\);/.test(code);
 const deletes=(code.match(/'DELETE'/g)||[]).length;
@@ -27,5 +28,5 @@ const res={scripts:n, syntaxFail:fail,
   spPutGuarded:!!sp, putCalls, batchLines:batchLines.length, batchGetOnly, sendLines:sendLines.length, mailLines:mailLines.length, aiLines:aiLines.length, dvWrites, dvWriteFns, dvGuarded, deletes};   // 실제 거래 값 점검은 레포 밖 목록으로 (실제 이름을 공개 레포에 두지 않음)
 console.log(JSON.stringify(res));
 const ok=!fail&&batchLines.length<=1&&(batchLines.length===0||batchGetOnly)&&res.versionTarget===1&&res.versionAny===1&&res.commonJs===1&&!res.confirmAlertCalls&&!res.secrets&&res.footer&&res.spPutGuarded&&putCalls===1&&
-  sendLines.length===1+dvWrites&&mailLines.length<=1&&aiLines.length<=1&&dvWrites===dvWriteFns&&dvWriteFns<=1&&(dvWriteFns===0||dvGuarded)&&!deletes;
+  sendLines.length===1+dvWrites&&mailLines.length<=1&&aiLines.length<=1&&dvWrites===dvWriteFns&&dvWriteFns<=1&&(dvWriteFns===0||dvGuarded)&&!deletes&&moveLines.length<=1&&(moveLines.length===0||moveGuarded);
 console.log(ok?'CHECK PASS':'CHECK FAIL'); process.exitCode=ok?0:1;

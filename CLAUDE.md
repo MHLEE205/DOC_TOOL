@@ -248,6 +248,15 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - K1 `linkIndex`: COMPASS B/L 번호의 선사 접두어 (`BL_PREFIX` · 예 KMTC) 를 뗀 번호도 키로 (6 자 이상 · 숫자 포함).
   - 넣지 않은 것: P1 (송금 메일 본문 문구) = 이미 `<振込明細書送付>` 메일이 `B_SUBJ` → kind `b` = B/L 依頼 済 (실자료 확인) · Part ② TEST01 T/T 쓰기 시험 = TEST01 바이어에 前回 S/I 가 없어 안 함 · 本登録 `from:` 넓히기 = 비교만 (코드 0).
 
+- **v0.34 (지시서 `THOR_32_지시서_D00_書類ツールv0.34` · 묶음 v0.37 N55 ~ N61)** — 낱말 · 정규식 = doc-core `DOC.V34` 한 곳. **메일 문구 · `siWrite` · `dvWrite` · 서류 대조 엔진 변화 0.**
+  - N55 保存の入口 자동 저장: `DOC.autoOk` (Invoice 가 메일 제목 · 파일 이름에 있고 후보 1 · 종류가 이름으로 (`saveKind(name,'')` = 판정 종류) · 新規 / n 版目 · `dup` 아님) · 메일을 다 읽은 뒤 `saveAutoPass` 가 같은 Invoice · 같은 종류 묶음을 받은 순으로 다시 판단 (내용이 2 종 이상 = `grpDup` · 판 번호 = 받은 순 · 자동 0 · 「同じまとまりで同じ名前」) · 자동 = `saveDo(row,{auto:true})` → `doc_tool/autosave/{日}/` 기록 (`autoRecord`) · 「今日の自動保存 n 件」 · 「取り消す」 = `spMoveOld` (쓰기 문지기 2 번째 · `DOC.guardUndo` = 오늘 자동 저장한 파일만 · 같은 폴더 `OLD/` 로 · `check.js` 의 `moveLines` 규칙) · 409 (다른 사람이 먼저) = 건너뜀. **형님 확인까지 기본 切** (`doc_tool_autosave_v34` = 관리자 설정 · 꺼져 있으면 행에 「自動保存の対象」).
+  - N56: 계약 줄 (`ctRow` · S/I 作成 · PO 番号待ち · S/I 相違) = 契約 화면에만 · 契約 要対応 = L/C · S/I 판정 + 계약 줄 · 契約 화면 ETD 없음 · 並び = `sortCt34` (契約日 · 最終船積日 · バイヤー) · `ivMismatch` (제목에 이 BKG# / B/L + 다른 Invoice 하나 · 그 Invoice 船積 없음) → 要対応 「⚠ Invoice 番号が違う」 (폴더 · 本登録 의 부킹 연결은 안 함 — 파일 이름 · 엔진 의존) · `aclMailIn` (乙仲 ACL 첨부 메일 · 폴더에 없음) → ACL 칸 ● 「ACL メール着 · フォルダ未保存」 · `cellPlus` (● 인데 할 일에 없는 단계) → 次にやること 뒤 「＋ACL · RR」 · `ptDateS` 다른 해 = 「2027/01/15」.
+  - N57 `V28.BAND` = `{late:'late'}` (빨강만) · 「左の赤 = 期限切れ」.
+  - N58 振込 · DEP = `autoPay` (COMPASS 支払日 · 담당 振込明細 / 依頼 메일 · 후불 · FOB = 「後払い」) · `autoDep` (Deposit 依頼 · 회신) 글자 + 「直す」 (`S.ptFix` → 옛 고르는 칸) · `ptAutoRun` = 앞 단계만 (`autoAhead`) · 한 번의 eTag PUT · `updated_by` = 自動（…）· 관리자 상한 `doc_tool_pt_auto_max` · **형님 확인까지 기본 切** (`doc_tool_pt_auto_v34`) · 사람 ↔ 자동 다른 줄 = 관리자 「？」 (`ptAutoHtml`).
+  - N59 NAMSUNG · PAN OCEAN (`V34.DL_RE`) = Draft (또는 依頼) 뒤 ETD 전 ◐ 「出港後に … サイトから」 · ETD 당일부터 要対応 「B/L ダウンロード（… サイト）」.
+  - N60 베트남 공장 = L/C 문 (`lcText` · MST 또는 이름) · POD 공장과 다르면 「L/C の工場と違う」 · L/C 전 = 「L/C 着で確定」.
+  - N61 T/T 첫 건 = 지금도 `si_backup` (전) · `log/{契約}/…_si.json` (쓴 것 · 다시 읽기) 에 남음 (변경 0).
+
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 
 1. Drive `LEENAI(CLAUDE)/1. THOR/THOR_작업현황.md` 를 **먼저 읽는다**. 다른 PC 가 「작업 중」 이면 **시작하지 않고 형님께 보고**.

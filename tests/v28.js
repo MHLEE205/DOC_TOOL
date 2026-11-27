@@ -10,7 +10,7 @@ const T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z', PT_PATH='古紙/-. AI �
 const V=DOC.V28;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[89]|3[0-3])<\/title>/.test(HTML)&&/version:'0\.(?:2[89]|3[0-3])'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.28 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:2[89]|3[0-4])<\/title>/.test(HTML)&&/version:'0\.(?:2[89]|3[0-4])'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.28 · 푸터');
 
 console.log('U3 표시 대응 (지금 판정 → 印 · 판정 변경 0)');
 eq(Object.keys(DOC.ST).map(k=>[k,DOC.mark({s:k}).k,DOC.mark({s:k}).g]),[['done','ok','✓'],['todo','now','●'],['diff','ng','◆'],['wait','wait','◐'],['not','todo','○'],['na','na','―'],['unk','unk','?'],['load','load','…']],'ST 8 가지 → 印 (済 ✓ · 確認 ● · 相違 ◆ · 待ち ◐ · 未 ○ · — ― · ? · …)');
@@ -96,6 +96,7 @@ const q=d.getElementById('dtQ'); q.value='NBB'; q.dispatchEvent(new w.Event('inp
 const qr=[...d.querySelectorAll('#dtTable tbody tr.v8-r')].map(t=>t.dataset.id); ok(qr.length>=1&&qr.every(x=>/NBB/.test(x)),'검색 = 표를 거름',qr);
 q.value=''; q.dispatchEvent(new w.Event('input')); await X.sleep(300);
 /* 입력 저장 = 지금과 같은 방식 (칸 단위 · eTag) */
+{ const fx=[...d.querySelectorAll('#dtTable button[data-ptfix$="|furikomi"]')][0]; ok(!!fx&&!d.querySelector('#dtTable select[data-f=furikomi]'),'v0.34 (N58): 振込 = 字 + 「直す」 (처음엔 고르는 칸 없음)'); fx.click(); await X.sleep(150); }
 const n0=W.writes.length, sel=[...d.querySelectorAll('#dtTable select[data-f=furikomi]')][0]; const ivS=sel.dataset.pt; sel.value='確認済'; sel.dispatchEvent(new w.Event('change')); await X.sleep(300);
 const wr=W.writes.slice(n0); ok(wr.length===1&&/clearance_status\.json/.test(decodeURIComponent(wr[0].url)),'振込 저장 = PORTAL 같은 파일 1 번',wr.map(x=>x.method+' '+decodeURIComponent(x.url)));
 const saved=JSON.parse(W.content[PT_PATH]); eq(saved.shipping[ivS]&&saved.shipping[ivS].furikomi,'確認済','그 Invoice 그 칸만');

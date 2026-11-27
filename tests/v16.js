@@ -30,7 +30,7 @@ ok(PT.TEST_PATH===DOC.OUT_ROOT+'save_test/clearance_status_test.json','시험 �
 ok(DOC.ptTsukan({tsukan_irai:true},null)&&DOC.ptTsukan(null,'2026-08-17T00:00:00Z')&&!DOC.ptTsukan(null,'2026-08-18T00:00:00Z')&&!DOC.ptTsukan({tsukan_irai:false},null),'通関 ✅ = 通関依頼済 · CY_CUT 8/17 이전');
 eq([DOC.ptPol({crcf9_pol:'TEST PORT, JAPAN'}),DOC.ptPol({crcf9_region_japan:'TEST AREA'}),DOC.ptPol(null)],['TEST PORT','TEST AREA','—'],'POL = crcf9_pol · 없으면 crcf9_region_japan · 「, JAPAN」 뺌');
 eq(DOC.ptDate('2026-11-05T00:00:00Z'),'2026/11/05','날짜 = PORTAL 모양 (title · 提案 설명)');
-eq([DOC.ptDateS('2026-12-01T00:00:00Z','2026-11-24'),DOC.ptDateS('2027-01-02','2026-11-24'),DOC.ptDateS('','2026-11-24')],['12/01','27/01/02','—'],'v0.16.1 표 날짜 = 올해 MM/DD · 다른 해 YY/MM/DD');
+eq([DOC.ptDateS('2026-12-01T00:00:00Z','2026-11-24'),DOC.ptDateS('2027-01-02','2026-11-24'),DOC.ptDateS('','2026-11-24')],['12/01','2027/01/02','—'],'v0.16.1 표 날짜 = 올해 MM/DD · 다른 해 = v0.34 (N56-9) 2027/01/02');
 eq(PT.FOLD,['f-eta','f-cntr','f-bkg'],'v0.16.1 접는 순서 = ETA → CNTR → BKG_NO');
 eq(DOC.ptDep({dep:'確認'},{s:'wait'},true),{sel:true,val:'確認',hint:''},'DEP — PORTAL 값 있으면 그것');
 eq(DOC.ptDep(null,{s:'done'},true),{sel:true,val:'未',hint:'済'},'DEP — 없으면 書類ツール 판정 (済)');

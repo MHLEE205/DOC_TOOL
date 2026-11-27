@@ -10,7 +10,7 @@ const T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z', PT_PATH='古紙/-. AI �
 const J=iso=>DOC.jst(iso);
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.(?:29|3[0-3])<\/title>/.test(HTML)&&/version:'0\.(?:29|3[0-3])'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.29 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.(?:29|3[0-4])<\/title>/.test(HTML)&&/version:'0\.(?:29|3[0-4])'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.29 · 푸터');
 
 console.log('U14 보이는 범위 (순수)');
 const z=(etd,fd,obl)=>DOC.v29Zone({etd, fd, obl, today:'2026-11-26'});
@@ -20,7 +20,7 @@ eq([z('2026-08-01',''),z('2026-11-25',''),z('2026-11-26',''),z('2026-12-10',''),
 console.log('U11 要対応 = やること + 催促');
 eq([{zone:'do'},{zone:'wait',group:'chase'},{zone:'wait',group:'wait'},null].map(DOC.reqRow),[true,true,false,false],'do · 催促 = 要対応 · 그냥 待ち 아님');
 ok(W9.CHASE==='催促: ','「次にやること」 = 「催促: …」');
-ok(DOC.bandOf('chase')==='soon'&&/\.v8-bd\.b-soon\{background:var\(--bd-soon\)\}/.test(HTML)&&/--bd-soon:#3b82f6/.test(HTML),'催促 줄 왼쪽 띠 = 파랑');
+ok(DOC.bandOf('chase')===''&&DOC.bandOf('late')==='late','催促 줄 왼쪽 띠 = v0.34 (N57) 없음 · 빨강 (期限切れ) 만');
 
 console.log('U12 국내 (규칙 한 곳)');
 eq([DOC.isDomestic({iv:'LTO2611-01'}),DOC.isDomestic({iv:'NAA2611-01',ct:'LS-2611AA1'}),DOC.isDomestic({iv:'NAA2611-01',carrier:'国内転売'}),DOC.isDomestic({iv:'NAA2611-01',pod:'国内転売'}),DOC.isDomestic({iv:'NAA2611-01',carrier:'SAMPLE LINE'})],[true,true,true,true,false],'L 시작 · LS- · 船社 / POD 「国内転売」 = 국내 · 보통 = 아님');
@@ -128,7 +128,7 @@ eq(ev('(()=>{ const R=v8Compute(); return R.req.length+R.farReq.length; })()'),e
 
 console.log('U10 契約 표 · 패널');
 d.getElementById('dtBCt').click(); await X.sleep(80);
-eq([...d.querySelectorAll('#dtTable thead th')].map(t=>t.textContent).slice(1,3),['ETDC','契約 · バイヤーC'],'契約 표 = ETD 맨 왼쪽');
+eq([...d.querySelectorAll('#dtTable thead th')].map(t=>t.textContent).slice(1,3),['契約 · バイヤーC','契約日C'],'契約 표 = v0.34 (N56-12) ETD 없음 · 契約 · 契約日');
 d.getElementById('dtBIv').click(); await X.sleep(80);
 nr('NAA2611-01').querySelector('td[data-c=pol]').dispatchEvent(new w.MouseEvent('click',{bubbles:true})); await X.sleep(500);
 const sr=d.querySelector('#dtSide .v8-sr'); ok(sr&&sr.querySelector('.c').getAttribute('title')==='ETD','오른쪽 패널 왼쪽 목록 = ETD 먼저',sr&&sr.innerHTML);

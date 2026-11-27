@@ -158,7 +158,7 @@ console.log('8 같은 Invoice 의 여러 행 — 저장 후 다시 판단');
   W.attBytes['n1|b1']=PDF2; W.attBytes['n2|b2']=PDF2; W.attBytes['n3|b3']=PDF3b;
   const w=await X.page(W,{...INIT, html:HFILE, first:true, email:'boss@example.test', ls:{doc_tool_who:'all', doc_tool_save_test:'1'}}); prep(w);
   await X.until(()=>SV(w).mailSt==='ok',20000); await X.until(()=>rowsOf(w).length===3&&rowsOf(w).every(t=>!/判断中/.test(t)),20000);
-  ok(rowsOf(w).filter(t=>/NAA2611-01_ACL REV\.pdf/.test(t)).length===3,'저장 전 — 3 행 모두 2版目 REV (폴더 기준)',rowsOf(w));
+  { const R0=rowsOf(w), nm=R0.map(t=>(t.match(/NAA2611-01_ACL REV\d*\.pdf/)||[''])[0]).filter(Boolean); ok(JSON.stringify(nm.slice().sort())==='["NAA2611-01_ACL REV.pdf","NAA2611-01_ACL REV.pdf","NAA2611-01_ACL REV2.pdf"]'&&R0.every(t=>/同じまとまりで同じ名前/.test(t)),'저장 전 — v0.34 (N55 A2) 같은 묶음 = 받은 순 판 (같은 내용 2 = REV · 다른 내용 = REV2 · 전 = 모두 REV) · 자동 아님 표시',R0); }
   w.document.getElementById('dtSvAll').click();
   await X.until(()=>rowsOf(w).filter(t=>/保存しました/.test(t)).length===2,20000).catch(()=>{});
   const r=SV(w).rows.map(x=>x.res+' '+(x.target||x.same||'')); 
@@ -186,7 +186,7 @@ console.log('10 자동 저장 · 관리자 · 補助');
   ok(DOC.TODO_RULES.ASSIST_ROLE==='書類補助','補助 = master staff doc_role 「書類補助」 (v0.8 코드 · 마스터 값은 형님 확인)'); }
 
 console.log('11 쓰기 범위 grep');
-{ const app=HTML.split('<script id="doc-app">')[1]||'', sv=app.slice(app.indexOf('v0.9 保存の入口'), app.indexOf('function startPage'));
+{ const app=HTML.split('<script id="doc-app">')[1]||'', sv=(t=>t.replace(/async function spMoveOld\([\s\S]*?\n(?=\/\*)/,''))(app.slice(app.indexOf('v0.9 保存の入口'), app.indexOf('function startPage')));   /* v0.34: 取り消し の移動 (spMoveOld · 門番 guardUndo) は除いて数える */
   ok(sv.length>3000,'保存の入口 코드 찾음');
   ok(!/sendMail|createReply|\/send\b|isRead|\/move\b|\/copy\b|method\s*:\s*['"](?:POST|PATCH|DELETE)/.test(sv),'保存の入口: 메일 쓰기 · 이동 · 복사 · PATCH · DELETE 0');
   ok(!/graphFetch\([^)]*method/.test(sv)&&(sv.match(/spPut\(/g)||[]).length>=2,'保存の入口: 쓰기는 spPut (문지기) 로만');

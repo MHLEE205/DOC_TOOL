@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V33, at=DOC.at;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.33<\/title>/.test(HTML)&&/version:'0\.33'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.33 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[34]<\/title>/.test(HTML)&&/version:'0\.3[34]'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.33 · 푸터');
 
 console.log('V2 베트남 라이선스 = 공장별');
 /* 가짜 바이어 · 가짜 MST (10 자리) · 가짜 GPMT 번호 — 공장 A (1111111111 · 801 · DA NANG) · 공장 B (2222222222 · 802 · CAT LAI) */
@@ -22,7 +22,7 @@ const rB=DOC.ttRecommend({no:'LRS-2699VN5', prev, sale:[], term:'CFR', pod:'', p
 ok(/2222222222#802/.test(rB.rec.sinos[1].crcf9_consignee)&&bB.fac&&bB.fac.pick==='2222222222'&&/^要確認 · ライセンス番号（SAMPLE FACTORY BETA CO\., LTD · 802\/GPMT · 前回 LRS-2699VN3）$/.test(bB.flag),'V2 POD 가 한 공장에만 맞음 = 그 공장 번호 (직전 값 아님) + 「要確認 · ライセンス番号（○○ · 前回 …）」',bB);
 ok(DOC.siFieldState({value:rB.rec.sinos[1].crcf9_consignee, basis:bB}).s==='check','V2 공장 번호도 늘 要確認');
 const rU=DOC.ttRecommend({no:'LRS-2699VN5', prev, sale:[], term:'CFR', pod:'', pods:[], country:'VIETNAM'}), bU=rU.rec.basis[1].crcf9_consignee;
-ok(/1111111111#801/.test(rU.rec.sinos[1].crcf9_consignee)&&bU.fac&&bU.fac.cands.length===2&&bU.flag===V.LIC_PICK.replace('{n}','2'),'V2 못 정함 (POD 없음) = 「要確認 · 工場を選んでください」 + 후보 2 (칸 = 직전 값)',bU);
+ok(/1111111111#801/.test(rU.rec.sinos[1].crcf9_consignee)&&bU.fac&&bU.fac.cands.length===2&&bU.flag.indexOf(V.LIC_PICK.replace('{n}','2'))===0,'V2 못 정함 (POD 없음) = 「要確認 · 工場を選んでください」 + 후보 2 (칸 = 직전 값)',bU);
 eq(bU.fac.cands.map(c=>[c.tax,c.no,/#80[12]\//.test(c.val)]),[['1111111111','LRS-2699VN4',true],['2222222222','LRS-2699VN3',true]],'V2 후보 = 공장마다 그 공장 최근 문 (누르면 이 문으로)');
 const rS=DOC.ttRecommend({no:'LRS-2699VN5', prev:[P(4,Object.assign(A(),{crcf9_port_of_discharge:'CAT LAI', crcf9_place_of_delivery_1:'CAT LAI'})),P(3,Bf())], sale:[], term:'CFR', pod:'', pods:['CAT LAI'], country:'VIETNAM'});
 ok(rS.rec.basis[1].crcf9_consignee.fac&&rS.rec.basis[1].crcf9_consignee.fac.cands,'V2 POD 가 두 공장 다 맞음 = 못 정함 (후보)');
