@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 · v0.31 · v0.32 = 2026-11-26 · v0.33 ~ v0.36.1 = 2026-11-27 · v0.37 = 2026-11-28)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 · v0.31 · v0.32 = 2026-11-26 · v0.33 ~ v0.36.1 = 2026-11-27 · v0.37 · v0.38 = 2026-11-28)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -64,7 +64,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 | ACL 대조 (acl_bench v0.22 · v0.27 — N28 S/I 「**」 이어쓰기 = 그 칸 안에서만 · ACL 에만 있는 연락처 줄 = 表記差 · 주요 칸 못 비교 = 読取確認 / N29 D-03 기본값 = D-03 원문 · 기본값 글 = 一致) | `CONTRACT_SEND/acl_bench.html` `<script id="acl-core">` | `249317df8aaa5b48b63b75c59570168a57f9a923` | `a7eb06ce5b5db3f6dbe9d838c2d0e331dba5434fa75d2bdc9f78ab8272f99e90` |
 | B/L Draft 대조 (bl_bench v0.7 · v0.27 = ACL 엔진 고정만 바꿈 · bl-core 판정 = v0.6 과 같음) | `CONTRACT_SEND/bl_bench.html` `<script id="bl-core">` (+ ACL 엔진을 `BL.useEngine`) | `d733fb51bbf7500fce1c1e6aecbf774233025481` | `a0d1e940e1dd0288c36f80a65adaf8699c51a6a078722771e4c049c2ab224790` |
 | FD 확인 (fd_bench v0.3 · v0.24 = 같은 커밋 · 내용 변화 없음) | `CONTRACT_SEND/fd_bench.html` `<script id="fd-core">` | `cedc44849b025aef88f78de71552ae7c65cf391f` | `463bc7bbb44e9a8cbba4041ad1c79a7e11dfd966fb810950cedaa3357b7de846` |
-| S/I 추천 (a1_bench v0.13 · v0.37 — 조립에 L/C 원문의 칸 · 옮기는 법 R1 ~ R8 · 支払期限 N72) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `6e7e0f9` (전체 해시 = index.html `A1_ENGINE`) | `48bef69a41bb76b04ab016ae1a856a065d0458e76726b64aeea4701fd7768ae3` |
+| S/I 추천 (a1_bench v0.14 · v0.38 — R6 Notify = 46A (N76) · R2 受益者証明 CONTRACT NUMBER (N78) · 45A 줄 자리 = 같은 바이어 S/I (37-Q1) · 번호 = 같은 바이어만 (37-Q3) · 過去の修正 (L4) · 画像 L/C 書き写し `transcribeImageLc` (37-Q6)) | `CONTRACT_SEND/a1_bench.html` (a1-core · a1-d01 · a1-master · a1-app) | `a1d01c3` (전체 해시 = index.html `A1_ENGINE`) | `4b8a0c6ff52e140cb1578f074f80fcd4f10c66a19ef9953800b648217161c5de` |
 
 - 엔진을 못 읽으면 (raw 막힘 · sha256 다름) 직원 화면은 「今は使えません。社長に連絡してください」 만, 이유와 시험 페이지 버튼은 관리자에게만.
 - v0.3: ACL 파일 고르기 (`aclPick` — DR · ACL-번호 · 本登録 · 仮 …) · 本登録 메일 판단 (`mailKind`) · 결과 화면 (`viewHtml` — acl_bench 결과 화면과 같은 것) 도 엔진에서. 엔진은 **현황판을 열 때** 읽는다 (못 읽으면 ACL 칸 = ?).
@@ -283,6 +283,14 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - 書類ツール 후처리 `DOC.siLc37` (`siRecommend` 끝 · AI 뒤 · 코드): N72 支払期限 = `payDeadline37` (`{AT }{n} DAYS {AFTER|FROM} {기준일 문구}` · 원문 낱말 · DATE 빼지 않음 · 割合 · 通数 · WILL BE PAID · 呈示 · 앞 0 · DAYS DAYS 뺌 · 출처 42C → 42P → 47A → 46A) · N73 · R3 44B (없으면 44F) 후보 2 개 이상 (`lcPodCands37` · 뒤 공통 낱말 붙임 · SP-ITC 맨 뒤) = place_of_delivery_1 ~ 3 비움 + `basis.pick` · `cands` (「港を選んでください」 · 「BKG の POD」) · 44F 항구와 같은 값은 둠 · port_of_discharge = 44F 후보와 다르면 (섞기) 비움 · R7 후보 1 = 원문 그대로 · R6 Notify 주소 빈칸 = :50 주소. `siDeadlineApply` 도 N72 패턴 (`payDeadline37(lc42)` · 없으면 원문).
   - S/I 탭: 후보 칸 = 버튼 (`.si-pick` · `data-pick` → 그 입력에 그대로 · 쓰기는 「COMPASS に書き込む」 뒤).
   - 측정 판정 (M2): `DOC.dlSame` (支払期限 패턴 · AT 유무 같음) · `DOC.podInCands` (후보 안 = 일치 · 후보 + 뒤 낱말 「PORT, JAKARTA」 도). 측정 도구 = 레포 밖 (`THOR_37_run/`).
+
+- **v0.38 (지시서 `THOR_38_지시서_D00_書類ツールv0.38` · N74 ~ N79 · 37-Q1/Q3/Q4/Q6)** — 낱말 · 표 = doc-core `DOC.V38`. **쓰기 경로 (`siWrite` · `siWrite0` · `dvWrite` · `siExecute`) · 계약 찾기 · L/C 저장 · 판정 · 기한 · 자동 저장 · 메일 문구 · 옛 화면 변화 0** (`tests/v38.js` 가 v0.37 `60b32ed` 와 함수 단위로 비교 · 바뀐 함수 = S/I 영역만).
+  - C 안 (N74 · U1 ~ U6): S/I 추천 표 = 項目 | 前回 | 今回の推薦 | 状態 · 입력 = textarea (줄바꿈 · 높이 = 내용) · 행 누르면 근거 · 今の COMPASS (회색) · 前回 = T/T 같은 바이어 前回 S/I / L/C 같은 바이어 + 같은 은행 (`lcPrevSi` · 없으면 「この銀行は初めて」) · 不明 위 · 前回와 같은 確定 접기 · 위 요약 「不明 n」 만.
+  - 상태 (N75) = `DOC.siState38` — 確定 (짧은 출처 前回 · 契約 · L/C 46A · 規則 · マスター · 学習) / 不明 (이유 1 줄 · 黄). 不明 = 값 없음 (前回 있음) · 후보 고르기 · 2 회 판독 다름 · 출처 不一致 / 마스터 다름 (前回와 같으면 確定) · L/C 근거 없이 前回와 다름 · PO 毎回変わる · Trade Term 계약과 다름 · 부킹 POD 다름 (항구 별명 `V38.PORT_SYN` · `portSyn`) · 공장 · 라이선스 번호 · HS 마스터 공백. Trade Term = 같으면 確定 (v0.33 「늘 要確認」 없앰). **실명 (바이어 · 乙仲) 을 별명 표에 넣지 말 것** (v07 시험).
+  - N76 Notify = 46A (`notify46` · `siNotify38` · `siRecommend` 끝) — explicit = 46A 주소 · NOTIFY APPLICANT = :50 · 지시 없음 = 前回 → 없으면 不明 · v0.37 R6 (빈칸 = :50) 없앰.
+  - N77 HS = 販売明細 GRADE → `master_hscode` (6 자리) · 모양 = L/C 45A/46A → 같은 GRADE 前回 S/I → 아무 前回 (`siHs38` · `hsFmt`) · L/C 분류 다름 / 마스터 공백 / GRADE 모름 = 不明 · 본문의 다른 분류 숫자 = GRADE 1 개면 고침 · 여럿이면 不明. 마스터를 못 읽으면 아무것도 안 함. U5 = 前回 S/I 에 없는 품목 → 3 개월 S/I 명세 (같은 바이어 → 다른 바이어 · `u5Items`).
+  - 37-Q4 「L/C の文言で直す」 = `payDeadline37` 모양. 37-Q6 画像 L/C = `lcReadNow` 에서 a1 `transcribeImageLc` 2 회 → `_text` (비교 = 본문 `lcBodyKey`) · S/I 추천은 `_text` 를 읽어 `lcMtText` (MT `:45A:` → 통지서 모양) 로.
+  - 학습 (N79) = `doc_tool/si_learn/{yyyymm}/{契約}_{UTC}[_post].json` (1 건 = 새 파일 · `si_learn/1`) — L1 「COMPASS に書き込む」 뒤 (`siExecute` 를 밖에서 감쌈 → 다시 읽어 등록된 칸만) · 등록 뒤 COMPASS 에서 고친 칸 = 今の S/I 를 읽을 때 (`learnPostCheck`) · L2 표기 차이 · L/C 원문 값을 L/C 에 없는 값으로 = 안 배움 (다음 不明) · L3 같은 바이어 · (L/C) 같은 은행 · 같은 칸 · 같은 방향 2 계약 = 규칙 (確定 「学習」) · L4 a1 입력 `r2Extra.learn` (5 개) · L5 ⚙ 「学習した規則」 切 / 削除 = `si_learn/_off/` 새 파일 · L6 관리자 월별 비율.
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

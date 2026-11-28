@@ -80,7 +80,7 @@ const HEAD=['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','
   const kinds=FX.prompts.map(p=>p.kind); ok(W.req.filter(r=>r==='AI').length-ai0===3&&kinds.filter(x=>x==='r2_extract').length===2&&kinds.filter(x=>x==='r2_assemble').length===1,'AI 3번 (L/C 판독 ×2 · 조립 ×1 = a1_bench R2)',kinds);
   ok(FX.prompts.every(p=>p.lcNo==='ILC0003'),'대상 계약의 LC 로 (ILC0003)');
   ok(!/a1_bench/.test(txt('dtCtBody'))&&!/US\$ \d+\.\d\d/.test(txt('dtCtBody'))&&/\d{1,2}\/\d\d \d\d:\d\d/.test(txt('dtCtBody')),'v0.17 (B1 · D10): 직원 = 엔진 출처 · 비용 없음 · 시각 = 일본 시간');
-  ok(/根拠あり \d+/.test(txt('dtSiPills'))&&/要確認 \d+/.test(txt('dtSiPills')),'S/I 없음 → 根拠あり · 要確認 수',txt('dtSiPills'));
+  ok(/^不明 \d+$/.test(txt('dtSiPills').trim()),'S/I 없음 → 위 요약 = 「不明 n」 만 (v0.38 N75)',txt('dtSiPills'));
   ok(/直前 S\/I LRS-2604SG1/.test(txt('dtCtBody')),'직전 S/I = 같은 바이어 앞 계약 (2604SG1)');
   const recPut=writesAfter(wr0); ok(recPut.length===1&&/D-00\/doc_tool\/si_rec\/LRS-2605SG1_\d{8}-\d{6}\.json/.test(decodeURIComponent(recPut[0].url))&&/conflictBehavior=fail/.test(recPut[0].url),'추천 저장 (doc_tool/si_rec · 덮어쓰지 않음)',recPut.map(x=>x.url));
   /* 고치기 */
@@ -115,8 +115,8 @@ const HEAD=['crcf9_consignee','crcf9_notify_party','crcf9_address','crcf9_tel','
   ok(/今の S\/I（COMPASS · 読むだけ）/.test(txt('dtCtBody'))&&/S\/I sino 1/.test(txt('dtCtBody'))&&/明細 \(sino 1\)/.test(txt('dtCtBody'))&&/推薦を作る/.test(txt('dtSiRun')),'S/I 済 → 지금 S/I 표 먼저 (머리 칸 · 명세) · 그 아래 推薦を作る (v0.2 #4)');
   ok(!w.document.querySelector('#dtCtBody [data-col]'),'지금 S/I 표 = 읽기 전용 (입력칸 없음)');
   await recommend();
-  ok(/一致 \d+/.test(txt('dtSiPills'))&&/要確認 \d+/.test(txt('dtSiPills')),'S/I 있음 → 一致 · 要確認 (COMPASS 와 비교)',txt('dtSiPills'));
-  ok(/今の値 \(COMPASS\)/.test(txt('dtCtBody'))&&/推薦/.test(txt('dtCtBody')),'추천 후 = 今の値 · 推薦 · 状態 열 (v0.2 #4)');
+  ok(/^不明 \d+$/.test(txt('dtSiPills').trim()),'S/I 있음 → 「不明 n」 만 (v0.38 N75 · COMPASS 값은 행을 누르면)',txt('dtSiPills'));
+  ok(/今回の推薦/.test(txt('dtCtBody'))&&/前回/.test(txt('dtCtBody'))&&/状態/.test(txt('dtCtBody'))&&/今の COMPASS/.test(txt('dtCtBody')),'추천 후 = 項目 · 前回 · 今回の推薦 · 状態 (v0.38 C 안 · 今の COMPASS = 행 자세히)');
   const wr2=W.writes.length; $('dtSiWrite').click(); await X.until(()=>!$('dtModal').hidden||/書き込むものはありません/.test(txt('dtCtBody')),8000);
   if(!$('dtModal').hidden){ ok(/変更 S\/I sino 1/.test(txt('dtModalBox')),'변경 확인 화면'); $('dtSiOk').checked=true; $('dtSiOk').dispatchEvent(new w.Event('change')); $('dtSiGo').click();
     await X.until(()=>/書き込みました|途中で止めました|書き込めません/.test(txt('dtCtBody')),20000);

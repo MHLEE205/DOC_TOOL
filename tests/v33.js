@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V33, at=DOC.at;
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[3567](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[3567](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.33 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[35678](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[35678](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.33 · 푸터');
 
 console.log('V2 베트남 라이선스 = 공장별');
 /* 가짜 바이어 · 가짜 MST (10 자리) · 가짜 GPMT 번호 — 공장 A (1111111111 · 801 · DA NANG) · 공장 B (2222222222 · 802 · CAT LAI) */
@@ -34,7 +34,7 @@ ok(/function siFacBtns\(x\)/.test(HTML)&&/data-sifac=/.test(HTML)&&/\(E\.sinos\[
 
 console.log('K2 Trade Term = 늘 要確認');
 const rt=DOC.ttRecommend({no:'LRS-2699VN5', prev:[P(1,A())], sale:[], term:'CFR', pod:'', country:'KOREA'}), bt=rt.rec.basis[1].cr49f_payment_terms;
-ok(bt.flag==='要確認 · Trade Term（前回: CFR · 今回の契約: CFR）'&&DOC.siFieldState({value:'CFR', basis:bt}).s==='check','K2 같아도 要確認 · 前回 글 · 이번 계약 조건 둘 다',bt);
+ok(bt.ok==='一致'&&!bt.flag&&/CFR/.test(bt.basis)&&DOC.siState38({col:'cr49f_payment_terms', value:'CFR', basis:bt}).s==='ok','K2 (v0.38): 같으면 確定 · 根拠에 이번 계약 조건',bt);
 const rtt=DOC.ttRecommend({no:'LRS-2699VN5', prev:[P(1,A())], sale:[], term:'CFR', pod:'', country:'KOREA', lcTent:true}); ok(!/Trade Term（/.test(rtt.rec.basis[1].cr49f_payment_terms.flag||''),'仮 S/I (L/C) = v0.32 그대로');
 
 console.log('M1 ~ M3 MAERSK');

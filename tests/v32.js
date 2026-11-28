@@ -9,7 +9,7 @@ let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.lo
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V32, at=DOC.at;
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[2-7](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[2-7](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[2-8](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[2-8](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.32 · 푸터');
 
 console.log('S1 자동으로 띄우기');
 const NOW=at('2026-11-26','10:00'), T0=o=>Object.assign({no:'LRS-2699ZZ4', pay:'TT', created:'2026-11-24T23:00:00Z', sis:[], hist:3, poKind:'ctno', cut:'2026-12-03', allShipped:false},o||{});
@@ -35,9 +35,9 @@ const rd=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3,()=>({crcf9_noti
 ok(rd.rec.sinos[1].crcf9_notify_party==='OTHER NOTIFY'&&/^要確認 · 最近 3 件で違う \(/.test(bd.flag)&&DOC.siFieldState({value:'OTHER NOTIFY', basis:bd}).s==='check','S2 다름 = 직전 값 + 要確認 · 最近 3 件で違う',bd);
 const r1=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(3)], sale:[], term:'CFR', pod:'', country:'KOREA'}), r2=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(2),P(3)], sale:[], term:'CFR', pod:'', country:'KOREA'});
 eq([r1.rec.basis[1].crcf9_consignee.flag, r2.rec.basis[1].crcf9_consignee.flag],['要確認 · 前回 1 件のみ','要確認 · 前回 2 件のみ'],'S2 1 · 2 건뿐 = 要確認 · 前回 n 件のみ');
-ok(/^要確認 · Trade Term（前回: /.test(b3.cr49f_payment_terms.flag||'')&&!b3.crcf9_payment_deadline.flag&&r3.rec.sinos[1].cr49f_lc_no===''&&b3.cr49f_lc_no.ok==='一致','S2 계약에서 오는 칸 (支払 · L/C 공란) = 그대로 · Trade Term = v0.33 늘 要確認',[b3.cr49f_payment_terms,b3.cr49f_lc_no]);
+ok(b3.cr49f_payment_terms.ok==='一致'&&!b3.cr49f_payment_terms.flag&&!b3.crcf9_payment_deadline.flag&&r3.rec.sinos[1].cr49f_lc_no===''&&b3.cr49f_lc_no.ok==='一致','S2 계약에서 오는 칸 (支払 · L/C 공란) = 그대로 · Trade Term = v0.38 같으면 確定 (v0.33 「늘 要確認」 은 N75 로 없앰)',[b3.cr49f_payment_terms,b3.cr49f_lc_no]);
 ok(/PO = 契約番号/.test(b3.crcf9_po_vo.flag)&&r3.rec.sinos[1].crcf9_po_vo==='LRS-2699ZZ4','S2 PO · VO = 지금 규칙 (ctno)',b3.crcf9_po_vo);
-const rt=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3)], sale:[], term:'FOB', pod:'', country:'KOREA'}); ok(/今回の契約: FOB/.test(rt.rec.basis[1].cr49f_payment_terms.flag),'S2 Trade Term 다름 = 要確認 (v0.33 K2 · 이번 계약 조건 표시)');
+const rt=DOC.ttRecommend({no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3)], sale:[], term:'FOB', pod:'', country:'KOREA'}); ok(/今回の契約は FOB/.test(rt.rec.basis[1].cr49f_payment_terms.flag||'')&&DOC.siState38({col:'cr49f_payment_terms', value:'CFR', basis:rt.rec.basis[1].cr49f_payment_terms}).s==='unk','S2 Trade Term 다름 = 不明 (v0.38 · 이번 계약 조건 표시)',rt.rec.basis[1].cr49f_payment_terms);
 ok(r3.tt.n3===3&&eq.length,'최근 3 건 수');
 
 console.log('S3 PO 番号待ち');
@@ -66,9 +66,9 @@ if(old){ const O=core(old); const inp={no:'LRS-2699ZZ4', prev:[P(1),P(2),P(3,()=
   eq(JSON.stringify(DOC.ttRecommend(Object.assign({},inp)).rec),JSON.stringify(O.ttRecommend(Object.assign({},inp)).rec),'仮 S/I (L/C 未着) 결과 = v0.31 과 문자 단위 같음 (S2 · S4 는 T/T 만)');
   const fn=(h,n)=>{ const i=h.indexOf('async function '+n+'('); return i<0?'':h.slice(i,h.indexOf('\n}\n',i)); };
   /* v0.36 (N67 L5 · L6 · N68): siRecommend = 「L/C を読んだ直後の 2 回読みを使い回す (pre)」 · 「_READ · 前回 S/I (lcRead · prevSi)」 の 3 か所だけ · siWrite = 中身は siWrite0 (登録中の印で包むだけ) — それを外すと v0.31 と同じ */
-  const v36=(n,t)=>n==='siRecommend'?t.replace('async function siRecommend(id, say, opt){','async function siRecommend(id, say){').split('\n').filter(l=>!/const pre=opt&&opt\.pre/.test(l)&&!/lcRead:await lcReadSlim/.test(l)&&!/v0\.37 \(N72|out\.lcSecRaw=|^  return out;$/.test(l)).join('\n').replace('const out={no, id, at:','return {no, id, at:').replace('const [x1,x2]=pre?[pre.x1,pre.x2]:await Promise.all(','const [x1,x2]=await Promise.all('):t;
+  const v36=(n,t)=>n==='siRecommend'?t.replace('async function siRecommend(id, say, opt){','async function siRecommend(id, say){').split('\n').filter(l=>!/const pre=opt&&opt\.pre/.test(l)&&!/lcRead:await lcReadSlim/.test(l)&&!/v0\.37 \(N72|out\.lcSecRaw=|^  return out;$/.test(l)&&!/v0\.38|lctx|raw38|siNotify38|prevDetailsOf|siHsApply|learnCtx|input\.r2Extra\.learn=/.test(l)).join('\n').replace('const out={no, id, at:','return {no, id, at:').replace('const [x1,x2]=pre?[pre.x1,pre.x2]:await Promise.all(','const [x1,x2]=await Promise.all('):t;
   const cur=n=>n==='siWrite'&&fn(HTML,'siWrite0')?fn(HTML,'siWrite0').replace('async function siWrite0(','async function siWrite('):fn(HTML,n);
-  ['siRecommend','siWrite','dvWrite'].forEach(n=>ok(cur(n)&&v36(n,cur(n))===fn(old,n),'L/C 추천 · 쓰기 경로 '+n+' = v0.31 과 같음 (v0.36 의 pre · lcRead · 登録中 의 印 · v0.37 의 L/C 규칙 3 줄 만 다름)'));
+  ['siRecommend','siWrite','dvWrite'].forEach(n=>ok(cur(n)&&v36(n,cur(n))===fn(old,n),'L/C 추천 · 쓰기 경로 '+n+' = v0.31 과 같음 (v0.36 의 pre · lcRead · 登録中 의 印 · v0.37 의 L/C 규칙 3 줄 · v0.38 의 Notify · HS · 학습 줄 만 다름)'));
   ['MAIL30','ACL_MAIL','MAIL19'].forEach(k=>{ /* v0.35: 괄호 단위로 그 객체만 (전 = 다음 「  };」 까지 — 뒤의 SAVE_RULES 까지 잘렸음) */ const obj=S=>{ const i=S.indexOf('const '+k+' = {'); if(i<0) return ''; let d=0; for(let p=S.indexOf('{',i);p<S.length;p++){ if(S[p]==='{') d++; else if(S[p]==='}'&&!--d) return S.slice(i,p+1); } return ''; }; const x=obj(HTML), y=obj(old); ok(x&&x===y,'문구 '+k+' 문자 단위 같음'); }); }
 else console.log('  (b5d286b 없음 — 비교 생략)');
 

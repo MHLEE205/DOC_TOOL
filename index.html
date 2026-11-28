@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.37</title>
+<title>LEENAI D-00 書類ツール v0.38</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -43,6 +43,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui
 .v34-plus{margin-left:6px;font-size:11px;font-weight:700;color:var(--text2);white-space:nowrap}.v34-auto{font-size:12px;white-space:nowrap}.v34-man{color:var(--text3)}.v34-fix{margin-left:4px;padding:0 6px;height:20px;font-size:10px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text3);cursor:pointer}   /* v0.34 (N58) */
 .v33-fac{display:flex;flex-direction:column;gap:6px;margin-top:8px}   /* v0.33 (D1): 工場の候補ボタン */
 .v33-fac .dt-btn{height:auto;min-height:30px;padding:5px 10px;white-space:normal;text-align:left;line-height:1.35;font-size:12px;color:var(--text)}
+.si38 .si-why{color:var(--st-todo-fg)}.si38 tr.si38-r>td{vertical-align:top}.si38 textarea.si38-in{min-height:34px;line-height:1.45}   /* v0.38 (N74 · N75): C 안 · 不明 の理由 = 黄 */
 .si-picks{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.si-pick.on{outline:2px solid var(--accent,currentColor)}.si-pick-bkg b{font-weight:700;margin-left:4px}   /* v0.37 (N73): 港の候補 */
 .v30-plan{margin-left:4px;font-size:10px;color:var(--text3);font-weight:400;white-space:nowrap}   /* v0.30 (E3): ETD の下に 選ばなかった方の日付 (参考 · 灰色) */
 .dt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -847,7 +848,7 @@ const DOC = (()=>{
     const set=(sn,col,v,why,extra)=>{ const o=res.rec.sinos[sn], b0=String(o[col]==null?'':o[col]); const bs=(B[sn]=B[sn]||{}), bb=bs[col]=Object.assign({},bs[col]||{}, extra||{});
       if(why){ bb.basis=why; bb.source=bb.source||'LC'; } if(v!==b0){ o[col]=v; fixes.push({sino:sn, col, from:b0, to:v, why}); } };
     Object.keys(res.rec.sinos).forEach(sn=>{ const o=res.rec.sinos[sn]||{};
-      if(dl&&'crcf9_payment_deadline' in o){ const m=dl.value.match(/^(AT )?(\d+) DAYS (AFTER|FROM) (.+)$/); set(sn,'crcf9_payment_deadline',dl.value,V37.DL_WHY.replace('{n}',m[2]).replace('{after}',m[3]).replace('{base}',m[4]).replace('{tag}',dl.tag),{flag:undefined}); }
+      if(dl&&'crcf9_payment_deadline' in o){ const m=dl.value.match(/^(AT )?(\d+) DAYS (AFTER|FROM) (.+)$/); set(sn,'crcf9_payment_deadline',dl.value,V37.DL_WHY.replace('{n}',m[2]).replace('{after}',m[3]).replace('{base}',m[4]).replace('{tag}',dl.tag),{flag:undefined, master_check:undefined}); }   /* v0.38: 支払期限 = 42C の核心 (コード) → マスターの検査は使わない */
       if(pc.cands.length>=2){ const cands=pc.cands.map(c=>({v:c, bkg:bk.some(k=>podKey(c).indexOf(k)===0)}));   /* 부킹 POD (港名だけ) が 候補の頭と同じ */
         const f44=pc.tag==='44B'?lcPodCands37(raw,'44F').cands:[];
         ['crcf9_place_of_delivery_1','crcf9_place_of_delivery_2','crcf9_place_of_delivery_3'].forEach(col=>{ if(!(col in o)) return; if(o[col]&&f44.length&&!podInCands(o[col],pc.cands)&&podInCands(o[col],f44)) return;
@@ -855,11 +856,146 @@ const DOC = (()=>{
       }
       { const pf=lcPodCands37(raw,'44F'), v=String(o.crcf9_port_of_discharge||''); if(v&&pf.cands.length&&!podInCands(v,pf.cands)){ const cf=pf.cands.map(c=>({v:c, bkg:bk.some(k=>podKey(c).indexOf(k)===0)})); set(sn,'crcf9_port_of_discharge','',null,{cands:cf, pick:true, flag:V37.MIXED, ok:undefined, basis:V37.MIXED}); } }
       if(pc.cands.length===1&&'crcf9_place_of_delivery_1' in o){ const v=String(o.crcf9_place_of_delivery_1||''); if(!v||podKey(v)!==podKey(pc.cands[0])) set(sn,'crcf9_place_of_delivery_1',pc.cands[0],V37.POD1_WHY.replace('{tag}',pc.tag)); }
-      if(addr&&'crcf9_address' in o&&!String(o.crcf9_address||'').trim()) set(sn,'crcf9_address',addr,V37.ADDR_WHY); });
+      /* v0.38 (N76): Notify 住所は siNotify38 (46A) — v0.37 R6 「空 = :50」 はやめた */ });
     if(fixes.length) res.lc37=(res.lc37||[]).concat(fixes); return fixes; }
   /* M2 (測定 · 形님 N72 · N73): 支払期限 = 패턴 (AT 有無 · 語は原文) で同じなら 一致 · 44B 候補の欄 = 職員の値が候補の中なら 一致 */
   const dlSame = (a, b) => { const n=s=>{ const v=payDeadline37(s)||up(s).replace(/\s+/g,' ').trim(); return v.replace(/^AT /,''); }; return !!(a||b)&&n(a)===n(b); };
   const podInCands = (v, cands) => { const k=podKey(v); if(!k) return false; return (cands||[]).some(c=>{ const ck=podKey(c); return ck===k||(ck.length>=4&&k.indexOf(ck)===0&&!(cands||[]).some(d=>d!==c&&podKey(d).length>ck.length&&k.indexOf(podKey(d))===0)); }); };
+  /* ══════════ v0.38 (指示書 THOR_38 · N74 ~ N79) — Notify = 46A (N76) ══════════ */
+  const V38 = {
+    PORT_SYN:[['BUSAN','PUSAN'],['INCHEON','INCHON'],['HOCHIMINH','HO CHI MINH'],['HAIPHONG','HAI PHONG'],['KEELUNG','CHILUNG','JILONG'],['KAOHSIUNG','GAOXIONG']],
+    UNK:'不明', IMG_ST:'画像 L/C の本文を AI で書き写す', S_PREV:'前回', S_CT:'契約', S_MASTER:'マスター', S_RULE:'規則', S_LEARN:'学習',
+    HS_NOGRADE:'HS: GRADE が分からない（販売明細の品目なし）', HS_NOMASTER:'HS: {g} がマスター（master_hscode）にない', HS_BLANK:'HS: {g} の HS がマスターにない（マスター入力必要）',
+    HS_LCDIFF:'HS: {g} の HS（{m} · マスター）と L/C の {l} が合わない', HS_FIXED:'HS = {g} → {m}（マスター · 別の品目の HS を直した）', HS_MULTI:'HS: 本文の {n} が今回の GRADE のどれとも合わない', SRC_MASTER:'マスター（GRADE → HS）',
+    R2DIFF:'{f}: 2 回の判読が違う（{v}）', MASTER_DIFF:'マスターと違う', TT_SAME:'前回と同じ（今回の契約: {t}）', NOSRC_DIFF:'L/C に根拠がなく 前回と違う', PO_CHANGES:'PO: 毎回変わる — バイヤーからの番号を入れてください（前回 {v}）', SRC_BAD:'根拠の文が L/C にない（AI の推薦を確かめてください）', REJECTED:'根拠のない番号を外した — 番号を確かめてください',
+    EMPTY:'{f}: 値がない（前回はあり）', FIRST_BANK:'この銀行は初めて', FIRST_BUYER:'初めてのバイヤー — 45A の行の置き場所を確かめてください',
+    LEARN_N:2, LEARN_WHY:'学習（前回 {n} 回 直した）', LEARN_LC:'前回 L/C と違う値に直された（{v}）', LEARN_DIR:'si_learn/', OFF_DIR:'si_learn/_off/', LEARN_TTL:10*60e3,
+    UNK_N:'不明 {n}', FOLD:'ほか {n} 項目 前回と同じ', PREV_H:'前回', PREV_NONE:'(なし)', NOW_H:'今回の推薦', STATE_H:'状態', ITEM_H:'項目', CUR:'今の COMPASS', SRC_H:'根拠', U5_SAME:'最近 3 か月の S/I（同じバイヤー）', U5_OTHER:'最近 3 か月の S/I（別のバイヤー）',
+    L_TITLE:'学習した規則', L_NOTE:'担当が推薦を直して登録した値 — 同じバイヤー（L/C は同じ銀行）· 同じ欄 · 同じ直し方が 2 回で 次から推薦に使います（表記だけの違い · L/C と違う値は 学ばない）', L_NONE:'まだありません', L_OFF:'切', L_ON:'入', L_DEL:'削除', L_LOG:'記録', L_STATS:'推薦そのまま登録された欄の割合（月ごと）',
+    N_APPLICANT:'Notify = :50（46A「NOTIFY APPLICANT」）', N_46A:'Notify 住所 = 46A の Notify 文のまま（:50 は使わない · N76）', N_NONE:'Notify: 46A に指示なし · 前回の値', N_UNK:'Notify: 46A に指示なし · 前回もない'
+  };
+  /* N76: 46A の B/L 条項の Notify — {kind:'applicant'|'explicit'|'format'|'none', name, address, tel, fax, text}
+     applicant = 「NOTIFY (THE) APPLICANT」 (… WITH FULL NAME AND ADDRESS) · format = 「APPLICANT AS FOLLOWING FORMAT」 (形の指定 · AI の値のまま) · explicit = 名前 (:50 の名前の頭と同じ) + 住所 の文 · none = B/L 条項に NOTIFY なし */
+  function notify46(raw){ const a46=lcSec(raw,'46A').replace(/\s+/g,' '), a50=lcSec(raw,'50').split('\n').map(x=>x.trim()).filter(Boolean);
+    const name50=a50[0]||'', items=a46.split(/(?=(?:^|\s)(?:\d{1,2}[.)\/]|\+)\s)/), bl=items.filter(x=>/BILLS? OF LADING|\bB\/L\b|TRANSPORT DOCUMENT/i.test(x)&&/NOTIFY/i.test(x));
+    if(!bl.length) return {kind:'none'};
+    const m=bl[0].match(/NOTIFY(?:ING)?\s*(?:PARTY)?\s*:?\s*([\s\S]*)$/i); if(!m) return {kind:'none'};
+    const s=m[1].trim();
+    if(/^APPLICANT\s+AS\s+FOLLOWING\s+FORMAT/i.test(s)) return {kind:'format', text:s};
+    if(/^(?:THE\s+)?APPLICANT\b/i.test(s)||/^PARTY\s+WITH\b/i.test(s)) return {kind:'applicant', name:name50, address:a50.slice(1).join('\n')};
+    const w0=up(name50).replace(/[^A-Z0-9 ]/g,' ').split(/\s+/).filter(x=>x.length>=2).slice(0,2);
+    const head=up(s).replace(/[^A-Z0-9 ]/g,' ');
+    if(!w0.length||!w0.every(w=>head.indexOf(w)>=0&&head.indexOf(w)<40)) return {kind:'applicant', name:name50, address:a50.slice(1).join('\n'), guess:true};
+    /* 名前 = 最初の 「,」 まで (名前の語を含む所まで) · 文の終わり = 次の書類の条件 (MARKED · MENTIONING · B/L MUST · AND STATING …) */
+    let body=s.split(/\s+(?:AND\s+)?(?:MARKED|MENTIONING|STATING|SHOWING|INDICATING|B\/L\s+MUST|BILLS?\s+OF\s+LADING\s+MUST)\b/i)[0].replace(/[.\s]+$/,'');
+    const parts=body.split(/,\s*/); let ni=0; for(let i=0;i<parts.length&&i<4;i++){ if(w0.every(w=>up(parts.slice(0,i+1).join(' ')).replace(/[^A-Z0-9 ]/g,' ').indexOf(w)>=0)){ ni=i; break; } }
+    while(ni+1<parts.length&&/^(?:TBK|LTD|LIMITED|CO|INC|CORP|CORPORATION|JSC|PLC|SDN\s+BHD|BHD)\.?$/i.test(parts[ni+1].trim())) ni++;   /* 会社の後ろの語 (TBK. · LTD …) は名前 */
+    let name=parts.slice(0,ni+1).join(', ').trim(), rest=parts.slice(ni+1).join(', ').trim(); { const sm=rest.match(/^(TBK|LTD|CO|INC|CORP|JSC|PLC)\.?\s+/i); if(sm){ name+=' '+sm[0].trim(); rest=rest.slice(sm[0].length); } }
+    const tel=(rest.match(/\bTEL\s*[:.]?\s*([+\d][\d\-\s()+]{5,}\d)/i)||[])[1]||'', fax=(rest.match(/\bFAX\s*[:.]?\s*([+\d][\d\-\s()+]{5,}\d)/i)||[])[1]||'';
+    rest=rest.replace(/,?\s*\bTEL\s*[:.]?\s*[+\d][\d\-\s()+]{5,}\d/i,'').replace(/,?\s*\bFAX\s*[:.]?\s*[+\d][\d\-\s()+]{5,}\d/i,'').replace(/\s*,\s*,/g,',').replace(/^[,\s]+|[,\s]+$/g,'');
+    return {kind:'explicit', name, address:rest, tel:tel.trim(), fax:fax.trim(), text:body}; }
+  /* N76 を推薦に — explicit = 住所を 46A の文に (前と同じ語なら そのまま) · applicant = 空なら :50 (v0.37 と同じ) · none = 空なら 前回 (prev) → なければ 不明 · format = AI のまま */
+  /* v0.38 (N75): 港の別名 = 同じ (BUSAN = PUSAN …) — 別名の表は V38.PORT_SYN */
+  const portSyn = (a,b) => { const k=s=>{ let x=up(s).replace(/[^A-Z]/g,' ').replace(/\s+/g,' ').trim(); V38.PORT_SYN.forEach(g=>g.slice(1).forEach(w=>{ x=x.replace(new RegExp('\\b'+w+'\\b','g'),g[0]); })); return x; }; const A=k(a), B=k(b); return !!A&&!!B&&(A.indexOf(B)>=0||B.indexOf(A)>=0); };
+  const nKey = s => up(s).replace(/\b(?:FLOOR)\b/g,'FL').replace(/[^A-Z0-9]/g,'');
+  function siNotify38(res, ctx){ const fixes=[]; if(!res||!res.rec||!res.rec.sinos) return fixes; const raw=String((ctx&&ctx.raw)||''); if(!raw.trim()) return fixes;
+    const N=notify46(raw), B=res.rec.basis=res.rec.basis||{}, prev=(ctx&&ctx.prev)||{};
+    Object.keys(res.rec.sinos).forEach(sn=>{ const o=res.rec.sinos[sn]||{}; if(!('crcf9_address' in o)) return; const v=String(o.crcf9_address||''), bs=(B[sn]=B[sn]||{});
+      const put=(val,why,unk)=>{ if(val!==v){ o.crcf9_address=val; fixes.push({sino:sn, col:'crcf9_address', from:v, to:val, why}); } bs.crcf9_address=Object.assign({},bs.crcf9_address||{}, unk?{flag:why, unk:true, ok:undefined, basis:why}:{basis:why, source:'LC'}); };
+      if(N.kind==='explicit'&&N.address){ if(nKey(v).indexOf(nKey(N.address))<0) put(N.address, V38.N_46A); }
+      else if(N.kind==='applicant'){ if(!v.trim()&&N.address) put(N.address, V38.N_APPLICANT); }
+      else if(N.kind==='none'){ if(!v.trim()){ const pv=String(((prev[sn]||{}).crcf9_address)||''); if(pv.trim()) put(pv, V38.N_NONE); else put('', V38.N_UNK, true); } } });
+    if(fixes.length) res.lc38=(res.lc38||[]).concat(fixes); return fixes; }
+  /* v0.38 (37-Q6): 画像 L/C の書き写し (MT の形 「:45A:DESCRIPTION …」) → 通知書の形 「DESCRIPTION … :45A」 (lcSections で読めるように) · 2 回の比べ = 本文だけ (最初の欄 ~ END OF TEXT の前) */
+  const MT_LABEL = /^(?=.*\b(?:APPLICANT|BENEFICIARY|DOCUMENTS|DESCRIPTION|CONDITIONS|NUMBER|DATE|DRAFTS?|PLACE|PORT|SHIPMENT|CREDIT|CHARGES|PERIOD|INSTRUCTIONS?|RULES|AMOUNT|TOTAL|BANK|DRAWEE|CONFIRMATION|PARTIAL|TRANSHIPMENT|AVAILABLE|FORM|SEQUENCE|TOLERANCE|REIMBURS\w*|ADVIS\w*|EXPIRY|ISSUE|DEFERRED|MIXED|PAYMENT|REQUESTED|PRESENTATION|SPECIAL|NARRATIVE)\b)[A-Z][A-Z ,.\/()&'-]*$/;
+  function lcMtText(t){ return String(t||'').replace(/\r\n/g,'\n').split('\n').map(l=>{ const m=l.match(/^\s*:(\d{2}[A-Z]?)\s*:\s*(.*)$/); if(!m) return l; const x=m[2].trim();
+      return MT_LABEL.test(x)?x+' :'+m[1]:'FIELD :'+m[1]+(x?'  '+x:''); }).join('\n'); }
+  const lcBodyKey = t => { const s=String(t||''), i=s.search(/^\s*:\d{2}[A-Z]?\s*:/m), e=s.search(/-->\s*END OF TEXT/i); return nv(s.slice(i<0?0:i, e<0?s.length:e)).replace(/\s+/g,' '); };
+  /* ── v0.38 N77: HS = 今回の明細の GRADE (item_code) → マスター master_hscode (6 桁の分類) · 表記の形 = L/C 45A/46A → 同じバイヤー · 同じ GRADE の前回 S/I の形 ── */
+  const hsDigits = s => String(s||'').replace(/[^0-9]/g,'');
+  const hsClass = s => { const d=hsDigits(s); return d.length>=6?d.slice(0,4)+'.'+d.slice(4,6):''; };
+  function hsOfGrade(grade, master){ const g=up(grade).trim(); if(!g) return {ok:false, why:V38.HS_NOGRADE};
+    const r=(master||[]).find(x=>up(x.item_code).trim()===g); if(!r) return {ok:false, grade:g, why:V38.HS_NOMASTER.replace('{g}',g)};
+    const c=hsClass(r.hs_code); if(!c) return {ok:false, grade:g, why:V38.HS_BLANK.replace('{g}',g)}; return {ok:true, grade:g, hs6:c, hs:r.hs_code}; }
+  /* 分類 (4707.10) を 見本の形に — 見本 「47071000」 「4707.10.0000」 「4707 10 00」 「4707.10」 · 見本なし = 「4707.10」 */
+  function hsFmt(hs6, sample){ const d6=hsDigits(hs6); if(d6.length<6) return ''; const s=String(sample||'').trim(); if(!s||hsDigits(s).length<6) return d6.slice(0,4)+'.'+d6.slice(4,6);
+    const sd=hsDigits(s), want=(d6+'0000000000').slice(0,sd.length); let k=0; return s.replace(/[0-9]/g,()=>want[k++]); }
+  const HS_NUM_RE = /\b(?:47\d{2}|63\d{2})(?:[ .\-]?\d{2})(?:[ .\-]?\d{2,4})?(?:[ .\-]?\d{2})?\b/g;   // 本文の HS らしい数字 (4707 · 6309 …)
+  function lcHsList(raw){ const t=[lcSec(raw,'45A'), lcSec(raw,'46A'), lcSec(raw,'47A')].join('\n'), out=[]; (t.match(/HS\s*(?:CODE|NO)?\.?\s*[:.]?\s*([0-9][0-9 .\-]{5,14}[0-9])/gi)||[]).forEach(m=>{ const v=(m.match(/([0-9][0-9 .\-]{5,14}[0-9])/)||[])[1]; if(v) out.push(v.trim()); }); return out; }
+  /* 明細の HS · 本文の HS — ctx = {master, sale:[{item}], raw, prevHs:{GRADE:見本}, anyHs (どれかの前回の HS 見本)} → 直したもの · 不明は basis.unk */
+  function siHs38(res, ctx){ const fixes=[]; if(!res||!res.rec) return fixes; const c=ctx||{}, raw=String(c.raw||''), lcHs=raw?lcHsList(raw):[], sale=c.sale||[], dets=res.rec.details||[];
+    const grades=sale.map(sd=>hsOfGrade(sd.item, c.master)), okG=grades.filter(g=>g.ok), classes=[...new Set(okG.map(g=>g.hs6))];
+    dets.forEach((d,i)=>{ const g=grades[i]; if(!g||!('crcf9_hs_code' in d)) return; const b0=String(d.crcf9_hs_code||'');
+      if(!g.ok){ d.crcf9_hs_code__flag=g.why; d.crcf9_hs_code__unk=true; return; }
+      const lc1=lcHs.find(v=>hsClass(v)===g.hs6), lcX=lcHs.find(v=>hsClass(v)&&hsClass(v)!==g.hs6);
+      if(!lc1&&lcX&&classes.length===1){ d.crcf9_hs_code__flag=V38.HS_LCDIFF.replace('{g}',g.grade).replace('{m}',g.hs6).replace('{l}',lcX); d.crcf9_hs_code__unk=true; return; }
+      const v=hsFmt(g.hs6, lc1||(c.prevHs||{})[g.grade]||c.anyHs||b0); if(v&&v!==b0){ d.crcf9_hs_code=v; fixes.push({line:i, col:'crcf9_hs_code', from:b0, to:v}); }
+      d.crcf9_hs_code__source=V38.SRC_MASTER; d.crcf9_hs_code__basis=g.grade+' → '+g.hs+(lc1?' · L/C '+lc1:''); d.crcf9_hs_code__flag=''; d.crcf9_hs_code__unk=false; });
+    /* 本文 (B/L 文言 · Invoice 文言 …) の HS: GRADE が 1 つ = 分類が違う数字を その数字の形のまま正しい分類に · GRADE が複数 = 合わない数字は 不明 */
+    if(res.rec.sinos&&classes.length) Object.keys(res.rec.sinos).forEach(sn=>{ const o=res.rec.sinos[sn], B=(res.rec.basis=res.rec.basis||{}), bs=(B[sn]=B[sn]||{});
+      Object.keys(o).forEach(col=>{ if(SI_HEAD_COLS.indexOf(col)<0||/po_vo|vo_no|lc_no/.test(col)) return; const v=String(o[col]||''); if(!v) return; let bad=[];
+        const nv2=v.replace(HS_NUM_RE, m=>{ const cl=hsClass(m); if(!cl||classes.indexOf(cl)>=0) return m; if(classes.length===1){ const f=hsFmt(classes[0], m); bad.push(m+' → '+f); return f; } bad.push(m); return m; });
+        if(!bad.length) return;
+        if(classes.length===1){ o[col]=nv2; fixes.push({sino:sn, col, from:v, to:nv2}); bs[col]=Object.assign({},bs[col]||{}, {basis:V38.HS_FIXED.replace('{g}',okG[0].grade).replace('{m}',classes[0])+' ('+bad.join(' · ')+')', hs38:true}); }
+        else bs[col]=Object.assign({},bs[col]||{}, {unk:true, flag:V38.HS_MULTI.replace('{n}',bad.join(' · '))}); }); });
+    if(fixes.length) res.hs38=fixes; return fixes; }
+  /* ── v0.38 N75: 欄の状態 = 確定 (色なし · 短い出所) / 不明 (黄 · 理由 1 行) の 2 つだけ ── */
+  const SRC38 = s => { const x=String(s||''); if(/^LC|L\/C/i.test(x)){ const m=x.match(/(4[0-9][A-Z]|50|59|20|31[CD]|32B|42[CPAD]|44[A-F]|45A|46A|47A)/); return 'L/C'+(m?' '+m[1]:''); }
+    if(/^PRIOR|前回|直前|最近/.test(x)) return V38.S_PREV; if(/CONTRACT|契約|販売明細/.test(x)) return V38.S_CT; if(/MASTER|マスター/.test(x)) return V38.S_MASTER; if(/学習/.test(x)) return V38.S_LEARN; if(/PLACEHOLDER|規則|T\/T/.test(x)) return V38.S_RULE; return x?x.slice(0,12):V38.S_RULE; };
+  /* o = {col, value, prev (前回の値 · null = 前回なし), basis, lc (L/C 契約), tt (T/T · 仮)} → {s:'ok'|'unk', label (確定 = 短い出所 · 不明 = '不明'), why (不明の理由 1 行)}
+     不明 = 値がない (前回はある) · 出所が合わない (前回 ↔ 契約 ↔ L/C) · 候補から選ぶ · 2 回の判読が違う · マスターが空 · 工場 / ライセンス番号 — その外 = 確定 */
+  function siState38(o){ const x=o||{}, b=x.basis||{}, v=nv(x.value), col=x.col||'', pv=x.prev==null?null:nv(x.prev), F=String(b.flag||''), lab=SI_LABEL[col]||col;
+    const U=why=>({s:'unk', label:V38.UNK, why:String(why||V38.UNK).replace(/^要確認 · /,'')}), K=src=>({s:'ok', label:src, why:''});
+    if(b.unk) return U(b.flag||b.basis);
+    if(b.pick||(b.fac&&b.fac.cands&&b.fac.cands.length)) return U(F);
+    if(b.r2diff&&b.r2diff.length) return U(V38.R2DIFF.replace('{f}',lab).replace('{v}',b.r2diff.map(d=>typeof d==='string'?d:[d.v1,d.v2].filter(Boolean).join(' / ')).join(' · ')));
+    if(b.tent) return U(F||V15.LC_TENT_MARK);
+    if(/毎回変わる/.test(F)) return U(V38.PO_CHANGES.replace('{v}',(F.match(/前回: ([^)]*)\)/)||[])[1]||''));
+    if(/今回の契約は|今回のブッキング POD|前回 S\/I にない品目|工場を選んで|L\/C の工場と違う|HS CODE を入れて/.test(F)) return U(F);
+    if(b.lic&&!(b.fac&&b.fac.lc)) return U(F);   // ライセンス番号 (ベトナム) = L/C で決まるまで 不明
+    const sameP=pv!=null&&v===pv;   // 前回と同じ値 = 出所 (前回) が合う → 確定
+    if(b.source_check==='出典不一致'&&!sameP) return U(V38.SRC_BAD);
+    if(b.master_check==='MASTER_DIFF'&&!sameP) return U(V38.MASTER_DIFF);
+    if(b.rejected&&b.rejected.length&&!sameP) return U(V38.REJECTED);
+    if(!v&&pv&&!/T\/T なので空欄/.test(F)) return U(V38.EMPTY.replace('{f}',lab));
+    if(b.learn) return K(V38.S_LEARN);
+    if(b.hs38) return K(V38.S_MASTER);
+    if(/PO = 契約番号|T\/T なので空欄/.test(F)||(/po_vo|vo_no/.test(col)&&/X{2,}/.test(v))) return K(V38.S_RULE);
+    const q=b.quote&&b.quote.length;
+    if(x.lc&&!x.tt&&!q&&!String(b.source||'').trim()&&pv!=null&&v!==pv) return U(V38.NOSRC_DIFF);   // L/C 契約 · 根拠なし · 前回と違う
+    if(q) return K(SRC38('LC '+((b.quote[0]||{}).loc||(b.quote[0]||{}).field||'')));
+    return K(SRC38(b.source||b.basis||(pv!=null?'前回':''))); }
+  /* ── v0.38 N79: 学習 — 推薦 ↔ 登録した値 (L1 記録 · L2 分類 · L3 自動の規則 (同じ方向 2 回) · L6 効果) ── */
+  const lnNorm = s => up(s).replace(/\bFLOOR\b/g,'FL').replace(/\bCOMPANY\b/g,'CO').replace(/\bLIMITED\b/g,'LTD').replace(/[^A-Z0-9]/g,'');
+  /* L2: 表記だけ = 'notation' (学ばない) · L/C 原文にある推薦を L/C にない値に直した = 'lc' (学ばない · 次は 不明) · その外 = 'learn' */
+  function learnClass(from, to, raw){ if(lnNorm(from)===lnNorm(to)) return 'notation'; const R=lnNorm(raw); if(!R) return 'learn';
+    const inR=v=>{ const parts=String(v||'').split(/\n|#/).map(lnNorm).filter(x=>x.length>=4); return parts.length>0&&parts.every(x=>R.indexOf(x)>=0); };
+    return inR(from)&&String(to||'').trim()&&!inR(to)?'lc':'learn'; }
+  /* L1: 1 回の登録 → 記録 {contract, buyer, bank, kind, at, user, total, kept, diffs:[{sino, col, from, to, src, cls}]} */
+  function learnDiff(rec, fin, ctx){ const c=ctx||{}, diffs=[]; let total=0, kept=0;
+    Object.keys((fin&&fin.sinos)||{}).forEach(sn=>Object.keys(fin.sinos[sn]).forEach(col=>{ if(SI_HEAD_COLS.indexOf(col)<0) return; total++; const a=String((((rec||{}).sinos||{})[sn]||{})[col]||''), b=String(fin.sinos[sn][col]||'');
+      if(nv(a)===nv(b)){ kept++; return; } const cls=learnClass(a,b,c.raw); diffs.push({sino:+sn, col, from:a, to:b, src:SRC38(((((rec||{}).basis||{})[sn]||{})[col]||{}).source||''), cls}); }));
+    return {schema:'si_learn/1', contract:c.contract||'', buyer:c.buyer||'', bank:c.bank||'', kind:c.kind||'', post:!!c.post, at:c.at||'', user:c.user||'', total, kept, diffs}; }
+  /* L3: 同じ (バイヤー · 銀行 (L/C) · sino · 欄 · 推薦 → 登録) が 2 回 → 規則 · 切った規則 (off) は使わない */
+  const learnKey = (r,d) => [up(r.buyer), r.kind==='tt'?'':up(r.bank), d.sino, d.col, lnNorm(d.from), lnNorm(d.to)].join('|');
+  function learnRules(records, off){ const m={}; (records||[]).forEach(r=>(r.diffs||[]).forEach(d=>{ if(d.cls!=='learn') return; const k=learnKey(r,d); const x=m[k]=m[k]||{key:k, buyer:r.buyer, bank:r.kind==='tt'?'':r.bank, kind:r.kind, sino:d.sino, col:d.col, from:d.from, to:d.to, n:0, first:r.at, last:r.at, contracts:[]};
+      x.n++; x.to=d.to; if(r.at<x.first) x.first=r.at; if(r.at>x.last) x.last=r.at; if(x.contracts.indexOf(r.contract)<0) x.contracts.push(r.contract); }));
+    const O=off||{}; return Object.values(m).filter(x=>x.n>=V38.LEARN_N&&x.contracts.length>=V38.LEARN_N&&!O[x.key]); }
+  /* L3 を推薦に · L2 「L/C と違う値に直された」 を 不明に — ctx = {buyer, bank, kind, records} */
+  function learnApply(res, rules, ctx){ const c=ctx||{}, fixes=[]; if(!res||!res.rec||!res.rec.sinos) return fixes; const B=res.rec.basis=res.rec.basis||{};
+    Object.keys(res.rec.sinos).forEach(sn=>{ const o=res.rec.sinos[sn], bs=(B[sn]=B[sn]||{});
+      Object.keys(o).forEach(col=>{ const v=String(o[col]||''), r=(rules||[]).find(x=>up(x.buyer)===up(c.buyer)&&(c.kind==='tt'||up(x.bank)===up(c.bank))&&+x.sino===+sn&&x.col===col&&lnNorm(x.from)===lnNorm(v));
+        if(r){ o[col]=r.to; fixes.push({sino:sn, col, from:v, to:r.to}); bs[col]=Object.assign({},bs[col]||{}, {learn:true, source:V38.S_LEARN, basis:V38.LEARN_WHY.replace('{n}',r.n)}); return; }
+        const lc=(c.records||[]).filter(x=>up(x.buyer)===up(c.buyer)&&(c.kind==='tt'||up(x.bank)===up(c.bank))).flatMap(x=>(x.diffs||[]).filter(d=>d.cls==='lc'&&+d.sino===+sn&&d.col===col&&lnNorm(d.from)===lnNorm(v)))[0];
+        if(lc) bs[col]=Object.assign({},bs[col]||{}, {unk:true, flag:V38.LEARN_LC.replace('{v}',String(lc.to).replace(/\n/g,' ').slice(0,40))}); }); });
+    if(fixes.length) res.learn38=fixes; return fixes; }
+  /* L4: AI に渡す 「過去の修正」 (同じバイヤー (· 銀行) · 新しい順 · 5 つまで · 学ぶものだけ) */
+  function learnExamples(records, ctx){ const c=ctx||{}; return (records||[]).filter(r=>up(r.buyer)===up(c.buyer)&&(c.kind==='tt'||!c.bank||up(r.bank)===up(c.bank))).sort((a,b)=>String(b.at).localeCompare(String(a.at)))
+      .flatMap(r=>(r.diffs||[]).filter(d=>d.cls==='learn').map(d=>({col:d.col, sino:d.sino, from:String(d.from).slice(0,200), to:String(d.to).slice(0,200)}))).slice(0,5); }
+  /* L6: 月ごと 「推薦そのまま登録された欄の割合」 (登録の記録だけ · 登録後の修正は別に数える) */
+  function learnStats(records){ const m={}; (records||[]).forEach(r=>{ const k=String(r.at||'').slice(0,7)||'?', x=m[k]=m[k]||{month:k, reg:0, total:0, kept:0, post:0};
+      if(r.post){ x.post+=(r.diffs||[]).length; return; } x.reg++; x.total+=r.total||0; x.kept+=r.kept||0; });
+    return Object.values(m).sort((a,b)=>a.month.localeCompare(b.month)).map(x=>Object.assign(x,{rate:x.total?x.kept/x.total:0})); }
   function siDeadlineFix(res, tenor){ const t=String(tenor||'').trim(), out=[]; if(!t||!res||!res.rec||!res.rec.sinos) return out;
     if(res.fieldHead&&res.fieldHead.indexOf('crcf9_payment_deadline')<0) return out;
     Object.keys(res.rec.sinos).forEach(sn=>{ const r=res.rec.sinos[sn]||{}, b=String(r.crcf9_payment_deadline==null?'':r.crcf9_payment_deadline); if(b!==t){ r.crcf9_payment_deadline=t; out.push({sino:sn, before:b, after:t}); } res.rec.sinos[sn]=r; });
@@ -1091,14 +1227,15 @@ const DOC = (()=>{
         TT_LC.forEach(c=>{ sinos[sn][c]=V15.LC_TENT_VAL; basis[sn][c]={source:'仮 S/I (L/C 未着)', tent:true, flag:V15.LC_TENT_MARK+' (前回: '+(short(h[c])||'空欄')+')'}; basis[sn][c].basis=basis[sn][c].flag; }); }
       else TT_LC.forEach(c=>{ const was=nv(h[c]); sinos[sn][c]=''; const b=basis[sn][c]={source:'T/T (L/C なし)'}; if(was){ b.flag='要確認 · T/T なので空欄 (前回: '+short(was)+')'; b.basis=b.flag; } else b.ok='一致'; });
       /* 今回と違う欄 — Trade Term (契約) · 仕向地 · 揚地 (今回のブッキング POD は参考) */
-      { const tt=sinos[sn].cr49f_payment_terms, bt=basis[sn].cr49f_payment_terms; if(!tent){ bt.ok=undefined; bt.flag=V33.TT_TERM.replace('{p}',short(nv(tt),30)||'空欄').replace('{t}',term||'—'); bt.basis=bt.flag; }   // v0.33 (K2 · R2): Trade Term = いつも要確認 (前回の文 · 今回の契約の条件)
+      { const tt=sinos[sn].cr49f_payment_terms, bt=basis[sn].cr49f_payment_terms; if(!tent&&!(term&&nv(tt)&&up(tt).indexOf(term)<0)){ bt.ok='一致'; bt.flag=undefined; bt.basis=V38.TT_SAME.replace('{t}',term||'—'); }   // v0.38 (N75): Trade Term = 前回と同じ (契約の条件を含む) なら 確定 — v0.33 の 「いつも要確認」 はやめた
         else if(term&&nv(tt)&&up(tt).indexOf(term)<0){ bt.flag='要確認 · 今回の契約は '+term; bt.basis=bt.flag; } }
-      if(pod) ['crcf9_place_of_delivery_1','crcf9_port_of_discharge'].forEach(c=>{ const v=nv(sinos[sn][c]); if(v&&up(v).indexOf(pod)<0&&pod.indexOf(up(v))<0){ basis[sn][c].flag='要確認 · 今回のブッキング POD: '+pod+' (参考)'; basis[sn][c].basis=basis[sn][c].flag; } });
+      if(pod) ['crcf9_place_of_delivery_1','crcf9_port_of_discharge'].forEach(c=>{ const v=nv(sinos[sn][c]); if(v&&up(v).indexOf(pod)<0&&pod.indexOf(up(v))<0&&!portSyn(v,pod)){ basis[sn][c].flag='要確認 · 今回のブッキング POD: '+pod+' (参考)'; basis[sn][c].basis=basis[sn][c].flag; } });
     });
     /* 明細 — 今回の販売明細 (品目 · 数量 · 単価)。品名 · HS は前回 S/I の同じ品目から、無ければ品目名 */
     const pd=P.details||[];
     const details=(x.sale||[]).map(sd=>{ const d=pd.find(q=>q._crcf9_item_id_value&&q._crcf9_item_id_value===sd._cr49f_item_id_value), o={};
       if(d){ o.crcf9_productname=sv(d.crcf9_productname); o.crcf9_hs_code=sv(d.crcf9_hs_code); o.crcf9_productname__source=o.crcf9_hs_code__source='前回 S/I 明細 ('+P.no+')'; }
+      else if(x.more&&x.more[sd._cr49f_item_id_value]){ const m=x.more[sd._cr49f_item_id_value]; o.crcf9_productname=sv(m.name); o.crcf9_hs_code=sv(m.hs); o.crcf9_productname__source=o.crcf9_hs_code__source=m.src; }   // v0.38 (U5)
       else { o.crcf9_productname=sv(sd.item); o.crcf9_hs_code=''; o.crcf9_productname__source='販売明細の品目名'; o.crcf9_hs_code__source='—';
         o.crcf9_productname__flag='要確認 · 前回 S/I にない品目'; o.crcf9_hs_code__flag='要確認 · HS CODE を入れてください'; }
       return o; });
@@ -2720,7 +2857,7 @@ const DOC = (()=>{
     return {stage:12, gkey:'fd', zone:'do', what:V30.FD_IN, why:V30.FD_IN_WHY.replace('{src}',Sg.fdSrc||'FD').replace('{d}',md(Sg.fd)), due:null, dueText:'—', soon:true, group:null, action:null, nudge:null, fdIn:true}; }   // 下書き なし (「提案」 ボタンで入れる)
   function ctEtd(bks, today){ const L=(bks||[]).map(b=>String(b.etd||'').slice(0,10)).filter(Boolean).sort(), n=L.find(e=>e>=today); return n||L[L.length-1]||''; }
 
-  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, /* v0.30 */ etdPick, etdOther, shippedOut, V30, fdInputRow, blRcvLink, /* v0.31 */ V31, etdOtherLabel, /* v0.37 */ V37, lcSections, lcSec, payDeadline37, payDeadlineOf, lcPodCands37, podKey, siLc37, dlSame, podInCands, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, /* v0.30 */ etdPick, etdOther, shippedOut, V30, fdInputRow, blRcvLink, /* v0.31 */ V31, etdOtherLabel, /* v0.37 */ V37, lcSections, lcSec, payDeadline37, payDeadlineOf, lcPodCands37, podKey, siLc37, dlSame, podInCands, /* v0.38 */ V38, portSyn, notify46, siNotify38, nKey, hsDigits, hsClass, hsOfGrade, hsFmt, lcHsList, siHs38, siState38, SRC38, learnClass, learnDiff, learnRules, learnApply, learnExamples, learnStats, lnNorm, lcMtText, lcBodyKey, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     /* v0.29 */ V29, oblFlow, swbRow, v29Zone, reqRow, ctEtd,
     /* v0.28 */ V28, mark, staffColor, polStaffOrder, bandOf, reqSort, sort28, hay28, hit28, hashOf, hashParse, lgPersonNeed, lgHead28,
     /* v0.27 */ MAIL30, mailGreeting, mailSigCompany, mailCleanName, mailGuess, mailCompose, greetOk, mailHtml, mailInsert, htmlText, mailVerify, replyAllTo, ctRowOpt, ctIvsLabel,
@@ -4027,8 +4164,10 @@ function openSettings(){
       '<label class="dt-row"><input type="checkbox" id="dtSvAuto"'+(saveAuto()?' checked':'')+'> 確かなものは自動で保存（Invoice 番号が件名 · ファイル名にあり 1 つ · 種類が名前で分かる · 新しいファイルだけ）</label>'+
       '<label class="dt-row"><input type="checkbox" id="dtPtAuto"'+(lsGet(DOC.V34.PT_AUTO_KEY,'1')==='1'?' checked':'')+'> 振込 · DEP を PORTAL に自動で書く（先の段階だけ · 人の値は下げない）</label></div></div>':'')+
     (S.me.admin?'<div><button class="dt-a" id="dtSignAdm">署名の画像の確認（管理者）</button></div>':'')+   // v0.26 (N21)
+    '<div><div style="font-weight:500;font-size:14px">'+esc(DOC.V38.L_TITLE)+'</div><div class="dt-note">'+esc(DOC.V38.L_NOTE)+'</div><div id="dtLearn" class="dt-note dt-tablewrap" style="margin-top:6px">…</div></div>'+   // v0.38 (N79 L5 · L6)
     '<div><button class="dt-a" id="dtMaster">マスター設定を開く（担当者 · 書類担当）</button></div>'+
     '<div class="dt-actions"><button class="dt-btn" data-close="1">閉じる</button></div>');
+  learnPanel();
   $('dtKeySave').onclick=()=>{ const v=$('dtKey').value.trim(); if(!v) return; lsSet(LS.apikey,v); $('dtKey').value=''; $('dtKeySt').textContent='✓ 保存済み'; };
   $('dtKeyDel').onclick=()=>{ try{ localStorage.removeItem(LS.apikey); }catch(e){} $('dtKeySt').textContent='未保存'; };
   $('dtRgSave').onclick=()=>{ const b=Math.max(0,Math.min(365,+$('dtBefore').value||30)), a=Math.max(0,Math.min(365,+$('dtAfter').value||45)); lsSet(LS.range,JSON.stringify({before:b,after:a})); S.range=DOC.defaultRange(S.today,b,a); $('dtFrom').value=S.range.from; $('dtTo').value=S.range.to; closeModal(); loadAll(); };
@@ -4824,7 +4963,7 @@ async function siTrialAppend(r){
     const sig=JSON.stringify(cp), changed=sig!==JSON.stringify(S.siCp[id]||[]); S.siCp[id]=cp;
     if(S.cur&&S.cur.id===id&&S.curTab==='si'){ if(changed&&S.siCur[id]&&S.siCur[id].sis&&!S.siRec[id]){ renderCt(); return; }
       const root=$('dtCtBody'); trialAppend(root, items, c.cr49f_sale_contract_no||id, 'S/I');
-      root.querySelectorAll('[data-sifix]').forEach(b=>{ b.onclick=()=>{ const it=items.find(i=>i.fixSi===b.dataset.sifix); if(it) siFixDeadline(id, it.fixSi, it.fixTo); }; }); }
+      root.querySelectorAll('[data-sifix]').forEach(b=>{ b.onclick=()=>{ const it=items.find(i=>i.fixSi===b.dataset.sifix); if(it) siFixDeadline(id, it.fixSi, DOC.payDeadline37(it.fixTo)||it.fixTo); }; }); }   // v0.38 (37-Q4): N72 の核心の形
   }catch(e){}
 }
 /* 今日やること 「FD 作成・送付」 の行 — FD 確認 — 相違 n（試験） (灰色の枠 · 赤にしない) */
@@ -4854,7 +4993,7 @@ async function cpTrialStatsModal(){
    エンジン = CONTRACT_SEND/a1_bench.html @6e7e0f9 (v0.13 · v0.37 で更新) の 4 つの script (a1-core · a1-d01 · a1-master · a1-app) をコミット固定 + sha256 で読み込み、
    別の関数の中で動かす (a1_bench は変えない · コピーしない)。a1_bench の画面部分は呼ばない — 呼ぶのは 1 件分の準備 · R2 ① ② ③ だけ。
    COMPASS 書き込み = compass_write_test v0.3 の手順 (書く前に控え → 変わる欄を見せて確認 → 書く → 読み直して確かめる → 履歴) · 門番 DOC.guardDv */
-const A1_ENGINE = {commit:'6e7e0f901dfeff24010dd769f194a16020b52ac8', sha256:'48bef69a41bb76b04ab016ae1a856a065d0458e76726b64aeea4701fd7768ae3', ver:'0.13'};   // v0.37: a1 v0.13 (組立に L/C 原文の欄 · 写し方 R1 ~ R8 · 支払期限 N72)
+const A1_ENGINE = {commit:'a1d01c352cbadd384c030020558fbefcd8a4bbd5', sha256:'4b8a0c6ff52e140cb1578f074f80fcd4f10c66a19ef9953800b648217161c5de', ver:'0.14'};   // v0.38: a1 v0.14 (Notify = 46A N76 · 受益者証明 N78 · 45A の置き場所 37-Q1 · 番号 37-Q3 · 過去の修正 L4 · 画像 L/C の書き写し 37-Q6)
 A1_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+A1_ENGINE.commit+'/a1_bench.html';
 let A1X = null;
 async function loadA1Engine(){
@@ -4872,7 +5011,7 @@ async function loadA1Engine0(){
   const shim={init:function(){}, auth:LEENAI.auth, master:LEENAI.master, SP:LEENAI.SP, get user(){ return LEENAI.user; }, toast:function(m,t){ toast(m,t); }, addHeaderButton:function(){}};
   const code=['a1-core','a1-d01','a1-master','a1-app'].map(blk).join('\n;\n')+
     '\n;return {S:S, A1C:A1C, A1M:A1M, checkSiFields:checkSiFields, loadCompass:loadCompass, spList:spList, loadSi:loadSi, loadSaleDetails:loadSaleDetails, parseContractLc:parseContractLc, ensureBuyerSis:ensureBuyerSis,'+
-    ' buildR1Input:buildR1Input, r2ExtraFor:r2ExtraFor, r2MasterFor:r2MasterFor, runR2Extract:runR2Extract, runR2Assemble:runR2Assemble, r2CompassFor:r2CompassFor, r2RawForCheck:r2RawForCheck,'+
+    ' buildR1Input:buildR1Input, transcribeImageLc:(typeof transcribeImageLc==="function"?transcribeImageLc:null), r2ExtraFor:r2ExtraFor, r2MasterFor:r2MasterFor, runR2Extract:runR2Extract, runR2Assemble:runR2Assemble, r2CompassFor:r2CompassFor, r2RawForCheck:r2RawForCheck,'+
     ' lcNumberShape:lcNumberShape, sumUsage:sumUsage, costOf:costOf, LC_DIR:A1_SP_LC_DIR, MODEL:A1_DEFAULT_MODEL, extractLcPdfExact:extractLcPdfExact, extractPdfText:extractPdfText,'+
     ' _testSetReadLc:function(f){ readLcFile=f; }};';   // 試験だけ: LC 原本の代わりに文字 (a1_bench 試験 harness と同じ差し替え) — 画面からは呼ばない
   return new Function('LEENAI', code)(shim);
@@ -4906,6 +5045,8 @@ async function siRecommend(id, say, opt){
   const pre=opt&&opt.pre&&opt.pre.no===no?opt.pre:null;   /* v0.36 (L5): L/C を入れて読んだ直後 = その 2 回読み (同じ質問 · 同じ設定) をそのまま使う (AI 2 回分 0) */
   const [x1,x2]=pre?[pre.x1,pre.x2]:await Promise.all([A.runR2Extract(t,lcp,opts,1),A.runR2Extract(t,lcp,opts,2)]);
   const checks=A.A1C.r2Check(x1.json,x2.json,A.r2RawForCheck(lcp),lcp.image), recon=A.A1C.r2Reconcile(checks,A.r2CompassFor(t,input,lcp));
+  const lctx={buyer:DOC.up(ctRow(id).buyer||c.buyer||''), bank:t.bankKey||'', kind:'lc'}, LR=await learnLoad().catch(()=>[]);   /* v0.38 (N79 L4): 過去の修正 (同じバイヤー · 同じ銀行 · 5 つまで) */
+  input.r2Extra.learn=DOC.learnExamples(LR, lctx); input.r2Extra.learnBank=true;
   say('AI: S/I を組み立てる (R2 ③) — 1〜2 分…');
   const rec=await A.runR2Assemble(t,{extract:[x1.json,x2.json],checks,recon,image:!!lcp.image},input,opts,1);
   const calls=[].concat(x1.calls||[],x2.calls||[],rec.calls||[]), usage=A.sumUsage(calls);
@@ -4916,7 +5057,13 @@ async function siRecommend(id, say, opt){
     fieldHead:X.fieldCheck.head.filter(cname=>DOC.SI_HEAD_COLS.indexOf(cname)>=0), current:X.siByContract[no]||[],
     sale:await saleWithItems(await A.loadSaleDetails(c))};
   /* v0.37 (N72 · N73 · R3 · R6 · R7): L/C 原文で決まる欄を コードで (支払期限 = 核心の形 · 44B 候補 = 職員が選ぶ · 1 港 = 原文 · Notify 住所 = :50) — 画像 L/C (文字なし) は何もしない */
-  out.lcSecRaw=lcp.image?'':A.r2RawForCheck(lcp); DOC.siLc37(out,{raw:out.lcSecRaw, bkgPods:((input.r2Extra||{}).podBookings||[])}); delete out.lcSecRaw;
+  out.lcSecRaw=lcp.image?'':A.r2RawForCheck(lcp); DOC.siLc37(out,{raw:out.lcSecRaw, bkgPods:((input.r2Extra||{}).podBookings||[])});
+  /* v0.38: Notify = 46A (N76 · 画像 L/C = _READ/_text の書き写し) · HS = GRADE → マスター (N77) · 学習 (N79 L3) · 前回がない = この銀行は初めて */
+  const raw38=out.lcSecRaw||(lcp.image?await lcImageText(no).catch(()=>''):''); delete out.lcSecRaw; out.firstBank=!out.prevSi;
+  DOC.siNotify38(out,{raw:raw38, prev:(out.prevSi||{}).sinos||{}});
+  const ph=out.prevSi?await prevDetailsOf(out.prevSi.no, out.sale).catch(()=>null):null; if(ph) out.prevDet=ph.det;
+  await siHsApply(out, raw38, ph);
+  out.learnCtx=Object.assign({}, lctx, {raw:raw38}); out.learnN=input.r2Extra.learn.length; DOC.learnApply(out, learnRulesNow(LR), Object.assign({records:LR}, lctx));
   return out;
 }
 /* 保存した推薦 (D-00/doc_tool/si_rec/{契約}_{UTC}.json) — 再読み込み · あとで でも残る */
@@ -4979,14 +5126,15 @@ function siFinal(id){
   (res.rec.details||[]).forEach((d,i)=>{ const o={}; ['crcf9_productname','crcf9_hs_code'].forEach(cn=>{ const e=E.details[i]&&E.details[i][cn]; o[cn]=e!=null?e:String(d[cn]==null?'':d[cn]); }); fin.details.push(o); });
   return fin;
 }
-function siRows(id){
-  const res=S.siRec[id], fin=siFinal(id), rows=[];
-  Object.keys(fin.sinos).forEach(sn=>{ const cur=(res.current||[]).find(h=>+h.crcf9_sino===+sn);
-    Object.keys(fin.sinos[sn]).forEach(cn=>{ const b=lcBasisMix(res, sn, cn, ((res.rec.basis||{})[sn]||{})[cn]||{}, fin.sinos[sn][cn]);
-      rows.push(Object.assign({sino:+sn, col:cn, value:fin.sinos[sn][cn], cur:cur?cur[cn]:undefined, hasCur:!!cur, basis:b}, DOC.siFieldState({col:cn, value:fin.sinos[sn][cn], cur:cur?cur[cn]:'', hasCur:!!cur, basis:b, lc:!!res.lcRead||(res.kind!=='tt'&&res.kind!=='tent')}))); }); });
-  fin.details.forEach((d,i)=>{ const cur0=(res.current||[]).find(h=>+h.crcf9_sino===1)||(res.current||[])[0], sd=(res.sale||[])[i]||{}, ex=cur0&&(cur0._details||[]).find(x=>x._crcf9_sale_detail_id_value===sd.cr49f_sale_detailid);
-    Object.keys(d).forEach(cn=>{ const rd=(res.rec.details||[])[i]||{}, b={source:rd[cn+'__source']||'', source_check:rd[cn+'__sc']||'', flag:rd[cn+'__flag']||''};
-      rows.push(Object.assign({sino:'明細'+(i+1), line:i, col:cn, value:d[cn], cur:ex?ex[cn]:undefined, hasCur:!!ex, basis:Object.assign(b,{basis:rd[cn+'__basis']||rd[cn+'__flag']||''})}, DOC.siFieldState({col:cn, value:d[cn], cur:ex?ex[cn]:'', hasCur:!!ex, basis:b}))); }); });
+function siRows(id){   /* v0.38 (N74 · N75): 行 = {sino, col, value, prev (前回 · null = なし), cur (今の COMPASS), basis, s:'ok'|'unk', label, why} */
+  const res=S.siRec[id], fin=siFinal(id), rows=[], lc=res.kind!=='tt'&&res.kind!=='tent', P=res.prevSi&&res.prevSi.sinos;
+  Object.keys(fin.sinos).forEach(sn=>{ const cur=(res.current||[]).find(h=>+h.crcf9_sino===+sn), pv=P?((P[sn]||P[1]||{})):null;
+    Object.keys(fin.sinos[sn]).forEach(cn=>{ const b=lcBasisMix(res, sn, cn, ((res.rec.basis||{})[sn]||{})[cn]||{}, fin.sinos[sn][cn]), prev=pv&&cn in pv?pv[cn]:null;
+      rows.push(Object.assign({sino:+sn, col:cn, value:fin.sinos[sn][cn], prev, cur:cur?cur[cn]:undefined, hasCur:!!cur, basis:b}, DOC.siState38({col:cn, value:fin.sinos[sn][cn], prev, basis:b, lc, tt:!lc}))); }); });
+  fin.details.forEach((d,i)=>{ const cur0=(res.current||[]).find(h=>+h.crcf9_sino===1)||(res.current||[])[0], sd=(res.sale||[])[i]||{}, ex=cur0&&(cur0._details||[]).find(x=>x._crcf9_sale_detail_id_value===sd.cr49f_sale_detailid), pd=(res.prevDet||[])[i];
+    Object.keys(d).forEach(cn=>{ const rd=(res.rec.details||[])[i]||{}, b={source:rd[cn+'__source']||'', source_check:rd[cn+'__sc']||'', flag:rd[cn+'__flag']||'', unk:!!rd[cn+'__unk'], hs38:cn==='crcf9_hs_code'&&!!rd[cn+'__source']&&rd[cn+'__source']===DOC.V38.SRC_MASTER};
+      const prev=pd?(pd[cn]==null?'':pd[cn]):null;
+      rows.push(Object.assign({sino:'明細'+(i+1), line:i, col:cn, value:d[cn], prev, cur:ex?ex[cn]:undefined, hasCur:!!ex, basis:Object.assign(b,{basis:rd[cn+'__basis']||rd[cn+'__flag']||''})}, DOC.siState38({col:cn, value:d[cn], prev, basis:b, lc, tt:!lc}))); }); });
   return rows;
 }
 /* v0.2 T/T 契約 (L/C でない決済) の S/I 推薦 — AI なし (형님 D3): 同じバイヤーの前の契約の S/I をそのまま + 今回の販売明細 + PO はバイヤーごとの最近 3 件で判断 (DOC.ttRecommend) */
@@ -5013,10 +5161,62 @@ async function siTtRecommend(id, say, opt){
   const pods=[...new Set(bks.map(b=>(S.regions[b._cr49f_region_id_value]||{}).pod).filter(Boolean))], cur=await siReadNow(id, DOC.SI_HEAD_COLS);
   const ctPods=[c._cr49f_pod1_value, c._cr49f_pod2_value].map(v=>(S.regions[v]||{}).pod).filter(Boolean);   /* v0.33 (D1): 工場を決める POD = ブッキング (無ければ 契約の POD) */
   let lcText=''; if(DOC.up(ctRow(id).country)==='VIETNAM'){ try{ if(!S.lcFiles) await loadLcFiles(); const L=await readLcJson(id); if(L&&L.lc) lcText=JSON.stringify(L.lc); }catch(e){} }   /* v0.34 (N60): 工場 = L/C の文 */
-  const out=DOC.ttRecommend({no, prev, sale, term:c.cr49f_terms_conditions, pod:pods.length===1?pods[0]:'', pods:pods.length?pods:ctPods, lcTent:tent, country:ctRow(id).country, lcText});   // v0.32 (S4): 国 = ベトナム向けの番号
-  return {no, id, at:new Date().toISOString(), kind:tent?'tent':'tt', engine:(tent?'仮 S/I · 前回 S/I コピー':'T/T 前回 S/I コピー')+' (書類ツール v'+CFG.version+' · AI なし)', model:'AI なし', usage:null, cost:0, ms:Date.now()-t0,
+  /* v0.38 (U5): 前回 S/I にない品目 = 最近 3 か月の S/I の明細 (同じバイヤー → 別のバイヤー) の 品名 · HS */
+  const P0=prev[0], more={}; if(P0){ const miss=sale.filter(sd=>sd._cr49f_item_id_value&&!(P0.details||[]).some(q=>q._crcf9_item_id_value===sd._cr49f_item_id_value)); if(miss.length){ say('最近 3 か月の S/I の明細…'); const mine=new Set(sis.map(h=>h.cr49f_s_iid)); await u5Items(miss, mine, more).catch(()=>{}); } }
+  const out=DOC.ttRecommend({no, prev, sale, term:c.cr49f_terms_conditions, pod:pods.length===1?pods[0]:'', pods:pods.length?pods:ctPods, lcTent:tent, country:ctRow(id).country, lcText, more});   // v0.32 (S4): 国 = ベトナム向けの番号
+  const lctx={buyer:DOC.up(ctRow(id).buyer||''), bank:'', kind:tent?'tent':'tt'}, LR=await learnLoad().catch(()=>[]);
+  const res={no, id, at:new Date().toISOString(), kind:tent?'tent':'tt', engine:(tent?'仮 S/I · 前回 S/I コピー':'T/T 前回 S/I コピー')+' (書類ツール v'+CFG.version+' · AI なし)', model:'AI なし', usage:null, cost:0, ms:Date.now()-t0,
     rec:out.rec, tt:Object.assign(out.tt,{pods}), priors:{same:[out.tt.prev]}, lc:null, fieldHead:DOC.SI_HEAD_COLS.slice(), current:cur.sis, sale};
+  if(P0){ res.prevSi={no:P0.no, sinos:{}}; P0.sis.forEach(h=>{ const o=res.prevSi.sinos[h.crcf9_sino]={}; DOC.SI_HEAD_COLS.forEach(cn=>{ o[cn]=h[cn]==null?'':String(h[cn]); }); });   // v0.38 (N74): 前回 = 同じバイヤーの前回 S/I
+    const ph=prevDetFrom(P0.details||[], sale); res.prevDet=ph.det; await siHsApply(res, lcText&&/^\s*\{/.test(lcText)?'':lcText, ph); }
+  res.learnCtx=lctx; if(!tent) DOC.learnApply(res, learnRulesNow(LR), Object.assign({records:LR}, lctx));
+  return res;
 }
+/* ══════════ v0.38 (THOR_38) — 前回の明細 · U5 · HS マスター · 画像 L/C の書き写し · 学習 (N79) ══════════ */
+function prevDetFrom(pd, sale){ const det=[], hs={}; let any=''; (sale||[]).forEach((sd,i)=>{ const d=(pd||[]).find(q=>q._crcf9_item_id_value&&q._crcf9_item_id_value===sd._cr49f_item_id_value); det[i]=d?{crcf9_productname:d.crcf9_productname||'', crcf9_hs_code:d.crcf9_hs_code||''}:null; if(d&&d.crcf9_hs_code){ hs[DOC.up(sd.item)]=d.crcf9_hs_code; any=any||d.crcf9_hs_code; } });
+  (pd||[]).forEach(d=>{ if(!any&&d.crcf9_hs_code) any=d.crcf9_hs_code; }); return {det, hs, any}; }
+async function prevDetailsOf(no, sale){ const c=Object.values(S.ct).find(x=>DOC.up(x.cr49f_sale_contract_no)===DOC.up(no)); let cid=c&&c.cr49f_sale_contractid;
+  if(!cid){ const r=await dvAll(`cr49f_sale_contracts?$filter=cr49f_sale_contract_no eq '${String(no).replace(/'/g,"''")}'&$select=cr49f_sale_contractid`); cid=r[0]&&r[0].cr49f_sale_contractid; } if(!cid) return null;
+  const h=(await dvAll(`cr49f_s_is?$filter=_cr49f_sale_contract_id_value eq ${cid}&$select=cr49f_s_iid,crcf9_sino&$orderby=crcf9_sino asc`))[0]; if(!h) return null;
+  return prevDetFrom(await dvAll(`crcf9_s_i_details?$filter=_crcf9_s_i_id_value eq ${h.cr49f_s_iid}&$select=crcf9_productname,crcf9_hs_code,_crcf9_item_id_value`), sale); }
+async function u5Items(miss, mine, more){ const since=new Date(Date.now()-90*864e5).toISOString().slice(0,10)+'T00:00:00Z';
+  for(const sd of miss){ const L=await dvAll(`crcf9_s_i_details?$filter=_crcf9_item_id_value eq ${sd._cr49f_item_id_value} and createdon ge ${since}&$select=crcf9_productname,crcf9_hs_code,_crcf9_s_i_id_value,createdon&$orderby=createdon desc&$top=40`).catch(()=>[]);
+    const a=L.find(d=>mine.has(d._crcf9_s_i_id_value)&&d.crcf9_productname), b=L.find(d=>d.crcf9_productname); const x=a||b; if(x) more[sd._cr49f_item_id_value]={name:x.crcf9_productname, hs:x.crcf9_hs_code||'', src:a?DOC.V38.U5_SAME:DOC.V38.U5_OTHER}; } }
+async function hsMaster(){ if(S.hsM&&S.hsM.length) return S.hsM; try{ const x=await LEENAI.master.get('hscode'); S.hsM=Array.isArray(x)?x:[]; }catch(e){ S.hsM=[]; } return S.hsM; }
+async function siHsApply(res, raw, ph){ const M=await hsMaster(); if(!M.length) return; DOC.siHs38(res,{master:M, sale:res.sale, raw:raw||'', prevHs:(ph&&ph.hs)||{}, anyHs:(ph&&ph.any)||''}); }   /* マスターが読めない = 何もしない (不明を増やさない) */
+/* 37-Q6: 画像 L/C の書き写し (lc_read が _READ/_text/{契約}.txt に残したもの · 読むだけ) */
+async function lcImageText(no){ const t=await spText(DOC.V36.READ_DIR+'/_text/'+DOC.safeKey(no)+'.txt'); if(!t) return ''; const i=t.indexOf('='.repeat(60)); return i>=0?DOC.lcMtText(t.slice(i+60).trim()):''; }   // MT の形 → 通知書の形
+const LEARN={recs:null, off:null, at:0};
+async function learnLoad(force){ if(LEARN.recs&&!force&&Date.now()-LEARN.at<DOC.V38.LEARN_TTL) return LEARN.recs; const root=DOC.OUT_ROOT+DOC.V38.LEARN_DIR.replace(/\/$/,''), recs=[], off={};
+  const top=(await spChildren(root).catch(()=>[]))||[], months=top.filter(x=>x.folder&&/^\d{6}$/.test(x.name)).map(x=>x.name).sort().slice(-12);
+  for(const m of months){ const fs=((await spChildren(root+'/'+m).catch(()=>[]))||[]).filter(x=>x.file&&/\.json$/.test(x.name)); await mapLimit(fs,4,async f=>{ try{ const j=JSON.parse(await spText(root+'/'+m+'/'+f.name)); if(j&&j.schema==='si_learn/1') recs.push(j); }catch(e){} }); }
+  if(top.some(x=>x.folder&&x.name==='_off')){ const fs=((await spChildren(root+'/_off').catch(()=>[]))||[]).filter(x=>x.file); const L=[]; await mapLimit(fs,4,async f=>{ try{ L.push(JSON.parse(await spText(root+'/_off/'+f.name))); }catch(e){} }); L.sort((a,b)=>String(a.at).localeCompare(String(b.at))).forEach(x=>{ if(x&&x.key) off[x.key]=x.act; }); }
+  LEARN.recs=recs; LEARN.off=off; LEARN.at=Date.now(); return recs; }
+function learnOffMap(){ const o={}; Object.keys(LEARN.off||{}).forEach(k=>{ if(LEARN.off[k]==='off'||LEARN.off[k]==='del') o[k]=1; }); return o; }
+function learnRulesNow(recs){ return DOC.learnRules(recs, learnOffMap()); }
+async function learnPut(rec){ const d=new Date(), m=rec.at.slice(0,4)+rec.at.slice(5,7); await spPut(DOC.OUT_ROOT+DOC.V38.LEARN_DIR+m+'/'+DOC.safeKey(rec.contract)+'_'+DOC.utcStamp(d)+(rec.post?'_post':'')+'.json', JSON.stringify(rec)); if(LEARN.recs) LEARN.recs.push(rec); }
+/* L1: 「COMPASS に書き込む」 の後 — COMPASS を読み直して 登録された値 ↔ 推薦 (書き込みの関数は変えない · 外から包む) */
+async function learnAfterWrite(id, snap, fin){ const now=await siReadNow(id, DOC.SI_HEAD_COLS), reg={sinos:{}};
+  Object.keys((fin&&fin.sinos)||{}).forEach(sn=>{ const h=now.sis.find(x=>+x.crcf9_sino===+sn); if(!h) return; Object.keys(fin.sinos[sn]).forEach(cn=>{ if(DOC.nv(h[cn])===DOC.nv(fin.sinos[sn][cn])) (reg.sinos[sn]=reg.sinos[sn]||{})[cn]=String(fin.sinos[sn][cn]); }); });
+  if(!Object.keys(reg.sinos).length) return null; const L=snap.learnCtx||{};
+  const rec=DOC.learnDiff(snap.rec, reg, {contract:snap.no, buyer:L.buyer||'', bank:L.bank||'', kind:L.kind||snap.kind||'', raw:L.raw||'', at:new Date().toISOString(), user:(LEENAI.user&&LEENAI.user.email)||''}); rec.final=reg.sinos;
+  await learnPut(rec); return rec; }
+{ const _siExec0=siExecute; siExecute=async function(id, ops, cur, fin, meta){ const res=S.siRec[id], snap=res?JSON.parse(JSON.stringify({rec:res.rec, no:res.no, kind:res.kind, learnCtx:res.learnCtx||null})):null; const r=await _siExec0(id, ops, cur, fin, meta);
+  if(snap&&snap.kind!=='tent') try{ await learnAfterWrite(id, snap, fin); }catch(e){} return r; }; }
+/* L1 (登録の後の直し): 今の S/I を読んだとき — 最後の記録 (登録 + 後の直し) と COMPASS が違う欄 = 担当が COMPASS で直した */
+async function learnPostCheck(id, cur){ if(!cur||!cur.sis||!cur.sis.length) return; const no=DOC.up((S.ct[id]||{}).cr49f_sale_contract_no); const recs=(await learnLoad().catch(()=>[])).filter(r=>DOC.up(r.contract)===no).sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+  const base=recs.filter(r=>!r.post&&r.final).pop(); if(!base) return; const st=JSON.parse(JSON.stringify(base.final)); recs.filter(r=>r.post&&r.at>base.at).forEach(r=>(r.diffs||[]).forEach(d=>{ (st[d.sino]=st[d.sino]||{})[d.col]=d.to; }));
+  const diffs=[]; Object.keys(st).forEach(sn=>{ const h=cur.sis.find(x=>+x.crcf9_sino===+sn); if(!h) return; Object.keys(st[sn]).forEach(cn=>{ if(DOC.nv(h[cn])!==DOC.nv(st[sn][cn])) diffs.push({sino:+sn, col:cn, from:String(st[sn][cn]), to:h[cn]==null?'':String(h[cn]), src:'登録後', cls:DOC.learnClass(st[sn][cn], h[cn], '')}); }); });
+  if(!diffs.length) return; await learnPut({schema:'si_learn/1', contract:no, buyer:base.buyer, bank:base.bank, kind:base.kind, post:true, at:new Date().toISOString(), user:(LEENAI.user&&LEENAI.user.email)||'', total:0, kept:0, diffs}); }
+/* L5 · L6: ⚙ 設定の 「学習した規則」 (いつ · 何を · 何回 · 切 / 削除 · 記録) · 管理者 = 月ごとの割合 */
+async function learnPanel(){ const el=$('dtLearn'); if(!el) return; try{ const recs=await learnLoad(true), all=DOC.learnRules(recs, {}).filter(r=>(LEARN.off||{})[r.key]!=='del').sort((a,b)=>String(b.last).localeCompare(String(a.last)));
+    const V=DOC.V38, sh=s=>esc(String(s||'').replace(/\n/g,' / ').slice(0,60))||'(空欄)';
+    let h=all.length?'<table class="dt-t"><thead><tr><th>いつ</th><th>バイヤー</th><th>欄</th><th>推薦 → 登録</th><th>回</th><th></th></tr></thead><tbody>'+all.map((r,i)=>{ const off=(LEARN.off||{})[r.key]==='off';
+      return '<tr'+(off?' style="opacity:.55"':'')+'><td>'+esc(jstHM(r.last))+'</td><td>'+esc(r.buyer)+(r.bank?' · '+esc(r.bank):'')+'</td><td>'+esc(DOC.SI_LABEL[r.col]||r.col)+' (sino '+esc(r.sino)+')</td><td>'+sh(r.from)+' → <b>'+sh(r.to)+'</b></td><td>'+r.n+'</td><td style="white-space:nowrap"><button class="dt-btn ghost sm" data-lrn="'+i+'" data-act="'+(off?'on':'off')+'">'+esc(off?V.L_ON:V.L_OFF)+'</button> <button class="dt-btn ghost sm" data-lrn="'+i+'" data-act="del">'+esc(V.L_DEL)+'</button> <span title="'+esc(r.contracts.join(' · '))+'">'+esc(V.L_LOG)+' '+r.contracts.length+'</span></td></tr>'; }).join('')+'</tbody></table>':esc(V.L_NONE);
+    if(S.me.admin){ const st=DOC.learnStats(recs); if(st.length) h+='<div style="margin-top:8px">'+esc(V.L_STATS)+'</div><table class="dt-t"><tbody>'+st.map(x=>'<tr><td>'+esc(x.month)+'</td><td>'+Math.round(x.rate*1000)/10+' %</td><td>'+x.kept+' / '+x.total+' 欄 · 登録 '+x.reg+' · 登録後の直し '+x.post+'</td></tr>').join('')+'</tbody></table>'; }
+    el.innerHTML=h; el.querySelectorAll('[data-lrn]').forEach(b=>{ b.onclick=async()=>{ const r=all[+b.dataset.lrn], at=new Date().toISOString(); b.disabled=true;
+      try{ await spPut(DOC.OUT_ROOT+V.OFF_DIR+DOC.utcStamp(new Date())+'_'+Math.random().toString(36).slice(2,8)+'.json', JSON.stringify({key:r.key, act:b.dataset.act, at, user:(LEENAI.user&&LEENAI.user.email)||'', rule:{buyer:r.buyer, bank:r.bank, sino:r.sino, col:r.col, from:r.from, to:r.to}})); LEARN.at=0; learnPanel(); }catch(e){ toast(e.message,'warn'); b.disabled=false; } }; });
+  }catch(e){ el.textContent=e.message; } }
 /* 今の S/I (COMPASS · 読むだけ) — S/I 済 の契約は まずこれを見せる (v0.2 #4) */
 S.siCur={}; S.siAuto={};
 const cellV = v => { const s=String(v==null?'':v); return s.trim()===''?'<span class="dt-empty-v">(空欄)</span>':esc(s).replace(/\bX{2,}\b/gi,m=>'<span class="dt-xx">'+m+'</span>'); };
@@ -5048,7 +5248,7 @@ function siTabHtml(r){
   const can=!busy&&(!lc||(key&&!noLc)), lcFix=lc&&tentNow&&arr==='yes';
   const runLabel=lc?'推薦を作る':'前回の S/I から作る';
   const head='<div class="dt-between" style="align-items:center"><div><div class="dt-h">S/I '+(lc?'推薦 (L/C)':'推薦 (T/T · AI なし)')+'</div><div class="dt-note" style="font-size:13px">'+
-    (lc?'LC と過去の S/I から作成します。':'同じバイヤーの最近 3 件の S/I で 同じ欄はそのまま使い、違う欄 · 1 〜 2 件しかない欄は黄色（要確認）にします。明細は今回の販売契約から作ります。')+'違うところだけ直して、COMPASS に書き込みます。</div></div><div class="dt-pills" id="dtSiPills"></div></div>';
+    (lc?'L/C と前回の S/I（同じバイヤー · 同じ銀行）から作成します。':'同じバイヤーの前回の S/I から作成します（AI なし）。明細は今回の販売契約から作ります。')+'黄色の「不明」の欄だけ確かめて、COMPASS に書き込みます。行を押すと根拠が見えます。</div></div><div class="dt-pills" id="dtSiPills"></div></div>';
   const ctIss=cur&&cur.sis?siIssues(id, cur.sis).filter(i=>i.kind==='ct'):[];   // v0.23 (N1): 帯を押すと その欄へ
   let body='<div>'+statusLine(r.cells.si)+'</div>'+((r.cells.si.otherCt||[]).length?'<div class="dt-p dt-c-diff'+(ctIss.length?' si-go':'')+'" style="font-weight:700"'+(ctIss.length?' data-sigo="'+esc(ctIss[0].field)+'" title="押すと その欄へ"':'')+'>'+esc(DOC.V17.OTHER_CT+r.cells.si.otherCt.join(' · '))+(ctIss.length?' → '+esc(DOC.SI_LABEL[ctIss[0].field]||ctIss[0].field):'')+'</div>':'');
   if(!res){
@@ -5064,31 +5264,34 @@ function siTabHtml(r){
       '<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions">'+(lc?benchBtn('a1'):'')+(noLc&&noSi?'<button class="dt-btn" id="dtSiTent"'+(busy?' disabled':'')+'>仮 S/I を作る</button>':'')+'<button class="dt-btn'+(noLc?' ghost':'')+'" id="dtSiRun"'+(can?'':' disabled')+'>'+runLabel+'</button></div></section>';
     return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+'</section>';
   }
-  /* 推薦のあと — 今の値 · 推薦 · 状態 (違う欄が上) */
-  const fixLc=DOC.siLcTent(res.current)&&res.kind!=='tent', rows0=siRows(id), rows=fixLc?DOC.siLcOrder(rows0):rows0, top=rows.filter(x=>x.s!=='match'), rest=rows.filter(x=>x.s==='match'), hasCur=rows.some(x=>x.hasCur), nc=hasCur?5:4;   // v0.15 (B5): 仮 S/I ↔ L/C 推薦 = L/C の欄が先 · 赤
-  const lcRed=x=>fixLc&&x.s!=='match'&&DOC.V15.LC_FIRST.indexOf(x.col)>=0;
-  const tag=x=>'<span class="st st-'+(x.s==='match'?'done':x.s==='todo'?'wait':'todo')+'">'+esc(x.label)+'</span>';
-  const tr=x=>{ const multi=String(x.value||'').indexOf('\n')>=0||String(x.value||'').length>60, attrs=' data-sn="'+esc(x.sino)+'" data-col="'+esc(x.col)+'" aria-label="'+esc(DOC.SI_LABEL[x.col]||x.col)+'"', cls='dt-in'+(x.s==='match'?'':' warn')+(x.s==='todo'?' dash':'');
-    const inp=multi?'<textarea'+attrs+' class="'+cls+'" rows="'+Math.min(8,String(x.value||'').split('\n').length+1)+'" style="padding:6px 10px;font-size:13px">'+esc(x.value)+'</textarea>'
-      :'<input'+attrs+' class="'+cls+'" value="'+esc(x.value)+'" style="height:36px;font-size:14px">';
+  /* v0.38 (N74 · N75 · U6): C 안 — 項目 | 前回 | 今回の推薦 | 状態 · 不明 (黄 · 理由 1 行) が上 · 前回と同じ 確定 の行は たたむ · 行を押すと くわしく (灰) */
+  const V=DOC.V38, fixLc=DOC.siLcTent(res.current)&&res.kind!=='tent', rows0=siRows(id), rows=fixLc?DOC.siLcOrder(rows0):rows0;
+  const sameP=x=>x.prev!=null&&DOC.nv(x.prev)===DOC.nv(x.value), unk=rows.filter(x=>x.s==='unk'), chg=rows.filter(x=>x.s!=='unk'&&!sameP(x)), same=rows.filter(x=>x.s!=='unk'&&sameP(x));
+  const lcRed=x=>fixLc&&x.s==='unk'&&DOC.V15.LC_FIRST.indexOf(x.col)>=0;
+  const tr=(x,k)=>{ const attrs=' data-sn="'+esc(x.sino)+'" data-col="'+esc(x.col)+'" aria-label="'+esc(DOC.SI_LABEL[x.col]||x.col)+'"', u=x.s==='unk';
+    const inp='<textarea'+attrs+' class="dt-in si38-in'+(u?' warn':'')+'" rows="1" style="padding:6px 10px;font-size:13px;width:100%;resize:vertical;white-space:pre-wrap;overflow:hidden">'+esc(x.value)+'</textarea>';
     const picks=(x.basis&&x.basis.pick&&x.basis.cands||[]).map(c=>'<button type="button" class="dt-btn ghost sm si-pick'+(c.bkg?' si-pick-bkg':'')+'" data-pick-sn="'+esc(x.sino)+'" data-pick-col="'+esc(x.col)+'" data-pick="'+esc(c.v)+'" title="'+esc(c.bkg?DOC.V37.BKG:'L/C')+'">'+esc(c.v)+(c.bkg?' <b>'+esc(DOC.V37.BKG)+'</b>':'')+'</button>').join('');
-    return '<tr'+(x.s==='match'?'':' class="hl"')+'><td style="padding:10px 14px;white-space:normal"'+(lcRed(x)?' class="dt-c-diff"':'')+'>'+(lcRed(x)?'<b>'+esc(DOC.SI_LABEL[x.col]||x.col)+'</b>':esc(DOC.SI_LABEL[x.col]||x.col))+'<div class="dt-note">'+esc(typeof x.sino==='number'?'sino '+x.sino:x.sino)+'</div></td>'+
-      (hasCur?'<td style="padding:10px 14px;white-space:pre-wrap;word-break:break-word;font-size:13px">'+(x.hasCur?cellV(x.cur):'<span class="dt-empty-v">(なし)</span>')+'</td>':'')+
-      '<td style="padding:8px 14px;white-space:normal">'+inp+(picks?'<div class="si-picks">'+picks+'</div>':'')+'</td><td style="padding:10px 14px;font-size:13px;color:var(--text3);white-space:normal">'+esc([x.basis.source,x.basis.basis&&x.basis.basis!==x.basis.source?x.basis.basis:''].filter(Boolean).join(' / ')||'—')+siFacBtns(x)+'</td><td style="padding:10px 14px" title="'+esc(x.why)+'">'+tag(x)+'</td></tr>'; };
-  const t='<div class="dt-card dt-tablewrap"><table class="dt-t" style="min-width:'+(hasCur?900:720)+'px"><thead><tr><th style="width:150px">項目</th>'+(hasCur?'<th style="width:24%">今の値 (COMPASS)</th>':'')+'<th>推薦</th><th style="width:190px">根拠</th><th style="width:110px">状態</th></tr></thead><tbody>'+
-    top.map(tr).join('')+'<tr><td colspan="'+nc+'" style="padding:10px 14px;font-size:13px;color:var(--text3)">ほか '+rest.length+' 項目一致 — <button class="dt-a" id="dtSiAll">'+(S.siShowAll?'閉じる':'すべて表示')+'</button></td></tr>'+(S.siShowAll?rest.map(tr).join(''):'')+'</tbody></table></div>';
+    const det=[[V.SRC_H, [x.basis.source,x.basis.basis&&x.basis.basis!==x.basis.source?x.basis.basis:''].filter(Boolean).join(' / ')||'—'], x.hasCur?[V.CUR, x.cur==null||x.cur===''?'(空欄)':String(x.cur)]:null].filter(Boolean);
+    return '<tr class="si38-r'+(u?' hl':'')+'" data-si38="'+k+'"><td style="padding:10px 14px;white-space:normal;cursor:pointer"'+(lcRed(x)?' class="dt-c-diff"':'')+'>'+esc(DOC.SI_LABEL[x.col]||x.col)+'<div class="dt-note">'+esc(typeof x.sino==='number'?'sino '+x.sino:x.sino)+'</div></td>'+
+      '<td class="si38-prev" style="padding:10px 14px;white-space:pre-wrap;word-break:break-word;font-size:13px;cursor:pointer">'+(x.prev==null?'<span class="dt-empty-v">'+esc(V.PREV_NONE)+'</span>':cellV(x.prev))+'</td>'+
+      '<td style="padding:8px 14px;white-space:normal">'+inp+(picks?'<div class="si-picks">'+picks+'</div>':'')+siFacBtns(x)+'</td>'+
+      '<td style="padding:10px 14px;font-size:13px;white-space:normal;cursor:pointer">'+(u?'<span class="st st-todo">'+esc(V.UNK)+'</span><div class="si-why">'+esc(x.why)+'</div>':'<span style="color:var(--text2)">'+esc(x.label)+'</span>')+'</td></tr>'+
+      '<tr class="si38-d" data-si38d="'+k+'" hidden><td colspan="4" style="padding:8px 14px;background:var(--dt-hl2,rgba(127,127,127,.08));color:var(--text3);font-size:12px;white-space:pre-wrap;word-break:break-word">'+det.map(d=>'<b>'+esc(d[0])+'</b> '+esc(d[1])).join('\n')+'</td></tr>'; };
+  const pno=res.prevSi&&res.prevSi.no, prevH=pno?V.PREV_H+' ('+pno+')':(res.kind==='tt'||res.kind==='tent'?V.PREV_H:V.PREV_H+' — '+V.FIRST_BANK);
+  let k=0; const t='<div class="dt-card dt-tablewrap"><table class="dt-t si38" style="min-width:760px;table-layout:fixed"><thead><tr><th style="width:150px">'+esc(V.ITEM_H)+'</th><th style="width:30%">'+esc(prevH)+'</th><th>'+esc(V.NOW_H)+'</th><th style="width:200px">'+esc(V.STATE_H)+'</th></tr></thead><tbody>'+
+    unk.concat(chg).map(x=>tr(x,k++)).join('')+(same.length?'<tr><td colspan="4" style="padding:10px 14px;font-size:13px;color:var(--text3)">'+esc(V.FOLD.replace('{n}',same.length))+' — <button class="dt-a" id="dtSiAll">'+(S.siShowAll?'閉じる':'すべて表示')+'</button></td></tr>'+(S.siShowAll?same.map(x=>tr(x,k++)).join(''):''):'')+'</tbody></table></div>';
   /* v0.17 (B1 · D10): エンジン名 (a1_bench) · モデル · 費用 · 秒 は 管理者だけ · 時刻 = 日本時間 */
   const ad=S.me.admin, meta=res.kind==='tt'||res.kind==='tent'?'<div class="dt-note">'+(ad?esc(res.engine)+' · 費用 0 · '+Math.max(1,Math.round((res.ms||0)/1000))+' 秒 · ':'')+esc(jstHM(res.at))+' · 前回 S/I '+esc(res.tt.prev)+' · 比べた S/I（最近 3 件） '+esc((res.tt.recent||[]).join(' · '))+'</div>'
     :'<div class="dt-note">'+(ad?esc(res.engine)+' · '+esc(res.model)+' · 今回 US$ '+(+res.cost||0).toFixed(2)+' · '+Math.round((res.ms||0)/1000)+' 秒 · ':'')+esc(jstHM(res.at))+(res.lc&&res.lc.lcNo?' · L/C '+esc(res.lc.lcNo):'')+
-    (res.priors&&res.priors.same&&res.priors.same.length?' · 直前 S/I '+esc(res.priors.same.join(' · ')):' · 直前 S/I なし (初回)')+(res.rec.notes?'<br>AI メモ: '+esc(res.rec.notes):'')+'</div>';
+    (res.priors&&res.priors.same&&res.priors.same.length?' · 直前 S/I '+esc(res.priors.same.join(' · ')):' · '+esc(DOC.V38.FIRST_BANK)+'（L/C から）')+(ad&&res.learnN?' · 過去の修正 '+res.learnN:'')+(res.rec.notes?'<br>AI メモ: '+esc(res.rec.notes):'')+'</div>';
   const fixHead=fixLc?'<div class="dt-p"><b class="dt-c-diff">仮 S/I ↔ L/C 推薦</b> — 違う欄だけ（L/C の欄が先）。確かめて「COMPASS に書き込む」と L/C 番号の '+esc(DOC.V15.LC_TENT_VAL)+' がなくなります。</div>':res.kind==='tent'?'<div class="dt-p"><b>仮 S/I</b> — L/C 番号 = '+esc(DOC.V15.LC_TENT_VAL)+' · 「'+esc(DOC.V15.LC_TENT_MARK)+'」の欄は前回の文のままです（L/C が届いたら更新）。</div>':'';
   return '<section style="display:flex;flex-direction:column;gap:12px">'+head+body+fixHead+t+meta+'<div id="dtSiSt" class="dt-note" style="font-size:13px">'+esc(busy||'')+'</div><div class="dt-actions"><button class="dt-btn ghost" id="dtSiRun"'+(can?'':' disabled')+'>作り直す</button><button class="dt-btn ghost" id="dtSiLater">あとで</button><button class="dt-btn" id="dtSiWrite"'+(busy?' disabled':'')+'>COMPASS に書き込む</button></div></section>';
 }
 /* v0.33 (D1 · V2): 工場が決まらない欄 = 候補の工場ボタン (押すと その工場の前回の文で欄を埋める · 書き込みは 「COMPASS に書き込む」 の後だけ) */
 function siFacBtns(x){ const c=x&&x.basis&&x.basis.fac&&x.basis.fac.cands; if(!c||!c.length||typeof x.sino!=='number') return '';
   return '<div class="v33-fac">'+c.map((f,i)=>'<button class="dt-btn ghost sm" data-sifac="'+esc(x.sino+'|'+x.col+'|'+i)+'" title="'+esc(f.no+' の文で埋める')+'">'+esc(f.label)+'</button>').join('')+'</div>'; }
-function siPills(id){ const el=$('dtSiPills'); if(!el||!S.siRec[id]) return; const rows=siRows(id), n=s=>rows.filter(x=>x.s===s).length, hasCur=rows.some(x=>x.hasCur);
-  el.innerHTML='<span class="p st-done">'+(hasCur?'一致 ':'根拠あり ')+n('match')+'</span><span class="p st-todo">要確認 '+n('check')+'</span>'+(n('todo')?'<span class="p st-wait">未完成 '+n('todo')+'</span>':''); }
+function siPills(id){ const el=$('dtSiPills'); if(!el||!S.siRec[id]) return; const n=siRows(id).filter(x=>x.s==='unk').length;   // v0.38 (N75): 不明 の数だけ
+  el.innerHTML='<span class="p '+(n?'st-todo':'st-done')+'">'+esc(DOC.V38.UNK_N.replace('{n}',n))+'</span>'; }
 async function siTabAfter(r){
   siTrialAppend(r);   // v0.21: S/I 段階の試験の行 (入力された S/I ↔ L/C)
   const id=r.id, here=()=>!!(S.cur&&S.cur.id===id&&S.curTab==='si');
@@ -5096,7 +5299,7 @@ async function siTabAfter(r){
     if(!here()) return; }   // 待っている間に別の画面へ移った → この契約のボタンを付けない
   if(!S.siRec[id]&&(S.sis[id]||[]).length&&S.siCur[id]===undefined){   // S/I 済 → 今の S/I を読んで先に見せる
     S.siCur[id]=null; if(here()) renderCt();
-    try{ S.siCur[id]=await siReadNow(id, DOC.SI_HEAD_COLS); }catch(e){ S.siCur[id]={error:e.message}; }
+    try{ S.siCur[id]=await siReadNow(id, DOC.SI_HEAD_COLS); learnPostCheck(id, S.siCur[id]).catch(()=>{}); }catch(e){ S.siCur[id]={error:e.message}; }   // v0.38 (N79 L1): 登録後に COMPASS で直した欄
     if(here()) renderCt(); return; }
   siPills(id);
   /* v0.23 (N1 · N2): 相違の帯 → その行へ · 「✏ 直す」 → その欄だけ COMPASS に */
@@ -5105,6 +5308,9 @@ async function siTabAfter(r){
   const run=$('dtSiRun'); if(run) run.onclick=()=>siRun(id);
   const tb=$('dtSiTent'); if(tb) tb.onclick=()=>siRun(id,{tent:true});   // v0.15 (B3)
   const all=$('dtSiAll'); if(all) all.onclick=()=>{ S.siShowAll=!S.siShowAll; renderCt(); };
+  /* v0.38 (N74): 長い文 = 全部 折り返す (入力欄の高さ = 中身) · 行 (入力欄の外) を押すと くわしく (灰) */
+  const fit=el=>{ el.style.height='auto'; el.style.height=(el.scrollHeight+2)+'px'; }; document.querySelectorAll('#dtCtBody textarea.si38-in').forEach(el=>{ fit(el); el.addEventListener('input',()=>fit(el)); });
+  document.querySelectorAll('#dtCtBody tr.si38-r').forEach(tr=>{ tr.addEventListener('click',ev=>{ if(ev.target.closest('textarea,button,input,a')) return; const d=document.querySelector('#dtCtBody [data-si38d="'+tr.dataset.si38+'"]'); if(d) d.hidden=!d.hidden; }); });
   const later=$('dtSiLater'); if(later) later.onclick=()=>{ S.board='ct'; show('list'); };
   const wr=$('dtSiWrite'); if(wr) wr.onclick=()=>siWrite(id);
   /* v0.37 (N73): 港の候補ボタン → その欄に L/C の港名をそのまま (混ぜない) */
@@ -5685,8 +5891,11 @@ async function lcReadNow(no, say){ say=say||(()=>{}); const A=await loadA1Engine
   const lcp=await A.parseContractLc(c), opts={r2Model:A.MODEL, effort:'high', maxTokens:32000}, t={no:c};
   say(DOC.V36.READ_ST+' 1 / 2'); const x1=await A.runR2Extract(t,lcp,opts,1); say(DOC.V36.READ_ST+' 2 / 2'); const x2=await A.runR2Extract(t,lcp,opts,2);
   const r2={no:c, image:!!lcp.image, retried:[!!x1.retried,!!x2.retried], extract:[x1.json,x2.json], checks:A.A1C.r2Check(x1.json,x2.json,A.r2RawForCheck(lcp),!!lcp.image)};
-  const lcText='\uFEFF'+lcp.view+'\n\n'+'='.repeat(60)+'\n'+lcp.rawRestored, now=new Date().toISOString();
-  const rec=LIB.buildRecord(r2, lcText, {A1:A.A1C, ACL, run:'書類ツール v'+CFG.version+' '+now.slice(0,10)+' ('+opts.r2Model+' · '+opts.effort+' · 2 回)', now}); rec.source.lc_text=DOC.V36.READ_DIR+'/_text/'+c+'.txt';
+  /* v0.38 (37-Q6): 画像 L/C (文字なし) = AI で本文を 2 回 書き写す → 同じなら その文 · 違えば 1 回目 + 印 (image_text.same=false) — _text に残して S/I 推薦 (Notify · HS) で使う */
+  let imgText=null; if(lcp.image&&!String(lcp.rawRestored||'').trim()&&A.transcribeImageLc){ say(DOC.V38.IMG_ST+' 1 / 2'); const t1=await A.transcribeImageLc(t,lcp,opts,1); say(DOC.V38.IMG_ST+' 2 / 2'); const t2=await A.transcribeImageLc(t,lcp,opts,2);
+    imgText={text:t1.text||t2.text, same:DOC.lcBodyKey(t1.text)===DOC.lcBodyKey(t2.text), calls:[].concat(t1.calls||[],t2.calls||[])}; x2.calls=(x2.calls||[]).concat(imgText.calls); }
+  const lcText='\uFEFF'+lcp.view+'\n\n'+'='.repeat(60)+'\n'+(imgText?imgText.text:lcp.rawRestored), now=new Date().toISOString();
+  const rec=LIB.buildRecord(r2, lcText, {A1:A.A1C, ACL, run:'書類ツール v'+CFG.version+' '+now.slice(0,10)+' ('+opts.r2Model+' · '+opts.effort+' · 2 回)', now}); rec.source.lc_text=DOC.V36.READ_DIR+'/_text/'+c+'.txt'; if(imgText) rec.source.image_text={reads:2, same:imgText.same, chars:imgText.text.length};
   const R=DOC.V36.READ_DIR, sv={lc:'read', contract:c}, meta=async p=>await graphJson(drv()+'/root:/'+spEnc(p)+'?$select=id,eTag').catch(()=>null);
   const pm=await meta(R+'/'+c+'.json'), prevText=pm?await spText(R+'/'+c+'.json'):null, prev=prevText?JSON.parse(prevText):null;
   let fin=prev&&(rec.source.amends||[]).length?LIB.mergeRecords(prev, rec, lcText, {A1:A.A1C, ACL, now:rec.created_at}):rec, same=false;
@@ -5705,7 +5914,7 @@ async function lcReadSlim(no){ const t=await spText(DOC.V36.READ_DIR+'/'+DOC.up(
   Object.values(DOC.V36.SI_LC).forEach(L=>L.forEach(k=>{ if(j.fields&&j.fields[k]) keep[k]={value:j.fields[k].value, loc:j.fields[k].loc||'', quote:j.fields[k].quote||''}; }));
   return {version:j.version, fields:keep, checks:(j.checks||[]).map(c=>({field:c.field}))}; }
 function lcPrevSi(X, input){ const p=input&&input.priorSame&&input.priorSame[0]; if(!p) return null; const sis=(X.siByContract[p.no]||[]), o={no:p.no, sinos:{}};
-  sis.forEach(h=>{ o.sinos[h.crcf9_sino]={}; DOC.V36.WARN_COLS.forEach(c=>{ o.sinos[h.crcf9_sino][c]=h[c]==null?'':String(h[c]); }); }); return o; }
+  sis.forEach(h=>{ o.sinos[h.crcf9_sino]={}; DOC.SI_HEAD_COLS.forEach(c=>{ o.sinos[h.crcf9_sino][c]=h[c]==null?'':String(h[c]); }); }); return o; }   // v0.38 (N74): 前回 = 全部の欄 (同じバイヤー · 同じ銀行)
 function lcBasisMix(res, sn, cn, b, value){ if(!res||(!res.lcRead&&!res.prevSi)) return b; const o=Object.assign({}, b), lb=DOC.lcBasisOf(res.lcRead, cn);
   if(lb.quote.length){ o.quote=lb.quote; const q=lb.quote[0]; o.basis=[o.basis, 'L/C '+(q.loc||q.field)+(q.quote?' 「'+String(q.quote).slice(0,70)+(String(q.quote).length>70?'…':'')+'」':'')].filter(Boolean).join(' · '); }
   if(lb.r2diff.length) o.r2diff=lb.r2diff;
@@ -6085,7 +6294,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.37', date:'2026-11-28',
+  sys:'D-00', name:'書類ツール', version:'0.38', date:'2026-11-28',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',

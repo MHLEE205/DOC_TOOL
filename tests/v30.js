@@ -10,7 +10,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const at=DOC.at, V=DOC.V30, T=X.todayIso(), D=n=>X.addDays(T,n)+'T00:00:00Z';
 (async()=>{
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[0-7](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[0-7](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.30 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[0-8](?:\.1)?<\/title>/.test(HTML)&&/version:'0\.3[0-8](?:\.1)?'/.test(HTML)&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.30 · 푸터');
 
 console.log('E1 · E2 · E3 ETD = 늦은 쪽');
 const B=(e,b)=>({cr49f_etd:e, crcf9_bl_etd:b});

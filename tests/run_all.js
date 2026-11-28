@@ -1,7 +1,7 @@
 /* DOC_TOOL 시험 전부 — node run_all.js [html]. 마지막 줄 ✅ ALL PASS 면 통과. 네트워크 없음 · 가짜 데이터만 */
 const cp=require('child_process'),path=require('path');
 const html=process.argv[2]||path.join(__dirname,'../index.html');
-const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.37']],
+const T=[['check.js','#8 기본 점검 (문법 · version · 공통 파일 · confirm/alert · 보안 grep · 푸터 · 쓰기 경로 문지기)',[html,'0.38']],
   ['core.js','#1~#5 상태 규칙 · 대상 외 · 담당 · 정렬/범위 · B/L 파일 고르기',[html]],
   ['app.js','#3 기억 · #4 · #9 화면 흐름 (현황판 → 상세 → 탭 → 돌아가기 · 검색 → 상세 · 설정 · 쓰기 0)',[html]]];
 const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 결과 · DR 이름 · 관리자 버튼'],['si.js','#7 S/I 쓰기 — 쓰기 전 저장 → 쓰기 → 다시 읽기 · 취소 · S/I 済 지금 표 먼저'],
@@ -41,6 +41,7 @@ const extra=[['acl.js','#6 ACL 탭 — acl_bench 엔진 (v0.9) 공유 · 같은 
   ['v36.js','v0.36 — ★ N67 L/C 넣기 → 계약 (이름 · L/C 번호 · 中身) → 古紙/LC/2026 → 읽기 (lc_read_one 와 같은 요청 · 같은 기록) → S/I 추천 (2 회 읽기 재사용) · L6 要確認 · N69 44B ↔ Place of Delivery (bl v0.9 · 下書き 1 행) · N68 자동 갱신 15 분 · LG _REV'],
   ['v361.js','v0.36.1 — N70 Maersk 44B = 「相違」 만 (訂正依頼 줄 · 下書き · 버튼 없음 · 다른 선사 그대로) · 스캔 L/C = 「L/C ですか？」 (はい → 계약 · L/C 번호 · いいえ → 対象外)'],
   ['v37.js','v0.37 — ★ L/C → S/I: N72 支払期限 = 핵심 · 원문 낱말 · N73 · R3 44B 후보 = 버튼 (SP-ITC 맨 뒤 · BKG の POD · 섞기 0) · R7 1 港 원문 · R6 Notify 주소 = :50 · L/C 원문 잘라내기 · a1 v0.13 (R1 ~ R8 문구 · 커밋 고정)'],
+  ['v38.js','v0.38 — C 안 (項目 | 前回 | 今回の推薦 | 状態) · 確定 / 不明 · N76 Notify = 46A · N77 HS = GRADE 마스터 · N78 · 37-Q1/Q3/Q4/Q6 · 학습 L1 ~ L6 · 바뀐 함수 = S/I 영역만 · 쓰기 함수 같음',[html]],
   ['width.js','v0.16.1 한 화면 — 실제 Chrome (headless) 1,920 · 1,366 폭에서 Invoice 別 가로 넘침 0 · 1 줄 높이 · 열 머리 고정 (Chrome · puppeteer-core 없으면 SKIP)'],
   ['hangul.js','v0.13 한글 0 — 화면에 나갈 수 있는 문자열 · HTML 본문 (주석 · 정규식 제외)'],
   ['v12.js','v0.12 B/L Draft 탭 — 保存の入口 B/L Draft (FRT MEMO · N版目 · 문지기) · 메일 下書き 3 · 엔진 고정 (ACL v0.12 · bl_bench v0.2) · 照合 화면 · CP 번호 · 試験 줄 관리자만 · バイヤー用 확인 · 쓰기 0'],

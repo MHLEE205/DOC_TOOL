@@ -6,7 +6,7 @@ const DOC=new Function('module',HTML.match(/<script id="doc-core">([\s\S]*?)<\/s
 let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.log('FAIL',m,info===undefined?'':JSON.stringify(info).slice(0,700));} };
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b}); const V=DOC.V36;
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3(?:6\.1|7)<\/title>/.test(HTML)&&(HTML.match(/version:'0\.3(?:6\.1|7)'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.36.1 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3(?:6\.1|7|8)<\/title>/.test(HTML)&&(HTML.match(/version:'0\.3(?:6\.1|7|8)'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.36.1 · 푸터');
 
 console.log('N70 Maersk 44B = 相違 만');
 { const B44={item:V.FD44B_ITEM,result:'DIFF',draft:'(空欄)',lc_quote:'SAMPLE PORT OR OTHER PORT, VIETNAM',si:'S/I SAMPLE PORT, VIETNAM',note:'44B 最終仕向地がない（Place of Delivery 空欄）'};
