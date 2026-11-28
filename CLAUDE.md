@@ -39,7 +39,7 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
 
 ## 4. 지켜야 할 규칙
 
-1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 · v0.31 · v0.32 = 2026-11-26 · v0.33 ~ v0.36.1 = 2026-11-27 · v0.37 · v0.38 = 2026-11-28)
+1. **버전** — `index.html` 의 `const CFG = { … version:'x.y' … }` **1곳** + `<title>` 을 같이 올린다. `tests/run_all.js` 의 check 버전도. (v0.3 = 2026-11-20 · v0.4 = 2026-11-21 · v0.5 ~ v0.9 = 2026-11-22 · v0.10 ~ v0.15 = 2026-11-23 · v0.16 · v0.16.1 · v0.17 · v0.18 · v0.19 · v0.20 = 2026-11-24 · v0.21 ~ v0.25 = 2026-11-25 · v0.26 · v0.27 · v0.28 · v0.29 · v0.30 · v0.31 · v0.32 = 2026-11-26 · v0.33 ~ v0.36.1 = 2026-11-27 · v0.37 · v0.38 · v0.39 = 2026-11-28)
 2. **푸터** 「✦ Powered by LEENAI Automation System」 유지.
 3. 고칠 때마다 **전체 문법 · 앞뒤 흐름을 다시 검토** (`node tests/check.js` + 해당 화면 흐름 시험).
 4. **기존 TOOL 은 건드리지 않는다** — D-01 · D-02 · D-03 · D-04 · C-01 · `CONTRACT_SEND` (acl_bench · a1_bench · compass_write_test) 는 새 창으로 여는 것만.
@@ -291,6 +291,11 @@ cd tests && npm install && node run_all.js     # 마지막 줄 ✅ ALL PASS 면 
   - N77 HS = 販売明細 GRADE → `master_hscode` (6 자리) · 모양 = L/C 45A/46A → 같은 GRADE 前回 S/I → 아무 前回 (`siHs38` · `hsFmt`) · L/C 분류 다름 / 마스터 공백 / GRADE 모름 = 不明 · 본문의 다른 분류 숫자 = GRADE 1 개면 고침 · 여럿이면 不明. 마스터를 못 읽으면 아무것도 안 함. U5 = 前回 S/I 에 없는 품목 → 3 개월 S/I 명세 (같은 바이어 → 다른 바이어 · `u5Items`).
   - 37-Q4 「L/C の文言で直す」 = `payDeadline37` 모양. 37-Q6 画像 L/C = `lcReadNow` 에서 a1 `transcribeImageLc` 2 회 → `_text` (비교 = 본문 `lcBodyKey`) · S/I 추천은 `_text` 를 읽어 `lcMtText` (MT `:45A:` → 통지서 모양) 로.
   - 학습 (N79) = `doc_tool/si_learn/{yyyymm}/{契約}_{UTC}[_post].json` (1 건 = 새 파일 · `si_learn/1`) — L1 「COMPASS に書き込む」 뒤 (`siExecute` 를 밖에서 감쌈 → 다시 읽어 등록된 칸만) · 등록 뒤 COMPASS 에서 고친 칸 = 今の S/I 를 읽을 때 (`learnPostCheck`) · L2 표기 차이 · L/C 원문 값을 L/C 에 없는 값으로 = 안 배움 (다음 不明) · L3 같은 바이어 · (L/C) 같은 은행 · 같은 칸 · 같은 방향 2 계약 = 규칙 (確定 「学習」) · L4 a1 입력 `r2Extra.learn` (5 개) · L5 ⚙ 「学習した規則」 切 / 削除 = `si_learn/_off/` 새 파일 · L6 관리자 월별 비율.
+
+- **v0.39 (지시서 `THOR_39_지시서_D00_書類ツールv0.39` · 묶음 v0.61 N85 ~ N88)** — 낱말 · 표 = doc-core `DOC.V39`. **지금 bl 엔진 판정 · 직원 화면 · 次にやること · 下書き · 訂正依頼 문 · 쓰기 경로 변화 0** (`tests/v39.js` 가 v0.38 `cd44605` 와 함수 단위로 비교).
+  - ★ B/L 「필수 문구 체크리스트」 (試験 · **관리자만**) — 만들기 `DOC.blkList` (C1 L/C 46A B/L 조항 · 47A 「ALL DOCUMENTS / B/L 에 …」 (L/C 번호 · 일자 · IMPORT LICENCE · HS · TAX ID) · S/I B/L 칸 (bl_text1 · 2) 의 L/C 에 있는 줄 / C2 COMPASS 본선 (항차 뺌) · BKG · POL · POD · 컨테이너 · 씰 · 포장 수 (합계 또는 컨테이너마다) · 중량 · 컨테이너 수 / C3 FREIGHT COLLECT · ON DECK (약관 제외) · 하자 문구 · 45ft / C4 Consignee · Notify 칸 / C5 원본 On Board 날짜 ≤ 44C · 통수 · 최종 Draft 와 달라진 곳) → 찾기 `DOC.blkRun` (느슨한 = 낱말 순서 · 사이 30 낱말까지 · 「**」 이어짐 · 붙은 낱말 / 엄격 = 영숫자만 · FL ≠ FLOOR / 칸 = `blkBox` (칸 제목 아래 + 같은 수의 「*」 로 시작하는 이어짐) 안에 L/C 글의 부분이 다 있나 (순서 무관)).
+  - 앱 `blCheckIv` (Invoice 폴더: Draft 판 · B/L 번호 이름의 PDF · `_SWB/_BL` · **TO BANK 안의 원본 B/L** (B/L 쪽만 · 글자 없으면 AI) · B/L 쪽 없는 PDF = 対象外) · `blChkAi` (✗ 필수 문구 · 스캔 → AI 2 회 · 인용을 기계로 확인 `blkAiCheck` · `blkQuoteOk`) · S/I 먼저 `blkRunSi` (N88 ② · ON BOARD · PREPAID 제외) · 화면 `blChkPanel` (B/L 탭 위 · `blChkAfter` = 열 때 자동) · 결과 `doc_tool/blcheck/{IV}_{UTC}.json` (`blChkSave` · 내용이 바뀔 때만).
+  - Part ⑤ (N88 ①) `siConsignee39` — S/I Consignee = 46A 글 (`lcConsignee46` · CONSIGNEE AND NOTIFY / MADE OUT TO ORDER OF / CONSIGNED TO) · 이미 들어 있음 (「**」 로 나눈 것도) = 確定 · 몇 낱말만 다름 = 그 낱말만 L/C 로 (`tokFix` · 줄 · 「**」 그대로) · 모양이 아주 다름 = 不明 + 후보 · 「TO ORDER OF APPLICANT」 · 「APPLICANT AS FOLLOWING FORMAT」 = 그대로. N76 Notify 비교도 영숫자 그대로 (FL ≠ FLOOR).
 
 ## 6. 시작 · 끝 순서 (어느 PC 든)
 

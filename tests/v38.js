@@ -9,7 +9,7 @@ const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 const V=DOC.V38;
 
 console.log('버전 · 푸터 · 엔진');
-ok(/<title>LEENAI D-00 書類ツール v0\.38<\/title>/.test(HTML)&&(HTML.match(/version:'0\.38'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.38 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[89]<\/title>/.test(HTML)&&(HTML.match(/version:'0\.3[89]'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.38 · 푸터');
 const m1=HTML.match(/const A1_ENGINE = \{commit:'([0-9a-f]{40})', sha256:'([0-9a-f]{64})', ver:'0\.14'\}/); ok(!!m1,'A1_ENGINE = a1 v0.14 · 40 자리 커밋 · sha256');
 let ENG=''; try{ ENG=cp.execFileSync('git',['-C',process.env.ACL_REPO||path.join(__dirname,'../../CONTRACT_SEND'),'show',m1[1]+':a1_bench.html'],{maxBuffer:1<<25}); }catch(e){}
 if(ENG.length){ ok(crypto.createHash('sha256').update(ENG).digest('hex')===m1[2],'a1 원문 sha256 = 도구에 적은 값'); const T=ENG.toString('utf8');
@@ -136,7 +136,7 @@ let old=''; try{ old=cp.execFileSync('git',['show','60b32ed:index.html'],{cwd:pa
 if(old){ const acorn=require('acorn'); const fns=h=>{ const o={}; [...h.matchAll(/<script(?: id="([^"]+)")?>([\s\S]*?)<\/script>/g)].forEach(m=>{ let ast; try{ ast=acorn.parse(m[2],{ecmaVersion:'latest',allowReturnOutsideFunction:true}); }catch(e){ return; }
     const walk=n=>{ if(!n||typeof n.type!=='string') return; if(n.type==='FunctionDeclaration'&&n.id) o[(m[1]||'x')+':'+n.id.name]=m[2].slice(n.start,n.end); for(const k in n){ const v=n[k]; if(Array.isArray(v)) v.forEach(walk); else if(v&&typeof v.type==='string') walk(v); } }; walk(ast); }); return o; };
   const a=fns(old), b=fns(HTML), changed=Object.keys(b).filter(k=>a[k]!==undefined&&a[k]!==b[k]), gone=Object.keys(a).filter(k=>b[k]===undefined);
-  const ALLOW=['doc-core:siLc37','doc-core:ttRecommend','doc-app:openSettings','doc-app:siTrialAppend','doc-app:loadA1Engine0','doc-app:siRecommend','doc-app:siRows','doc-app:siTtRecommend','doc-app:siTabHtml','doc-app:siPills','doc-app:siTabAfter','doc-app:lcReadNow','doc-app:lcPrevSi'];
+  const ALLOW=['doc-core:siLc37','doc-core:ttRecommend','doc-app:openSettings','doc-app:siTrialAppend','doc-app:loadA1Engine0','doc-app:siRecommend','doc-app:siRows','doc-app:siTtRecommend','doc-app:siTabHtml','doc-app:siPills','doc-app:siTabAfter','doc-app:lcReadNow','doc-app:lcPrevSi', /* v0.39: B/L タブに 試験 の欄 */ 'doc-app:ivTabHtml','doc-app:blTabAfter'];
   ok(changed.every(k=>ALLOW.indexOf(k)>=0)&&!gone.length,'바뀐 함수 = S/I 추천 · 화면 · 설정 · 37-Q4 · 37-Q6 · 엔진 꺼내기 만 ('+changed.length+')',{changed,gone});
   ['siWrite','siWrite0','dvWrite','siExecute','siEditField','siFixDeadline','siMeta','siReadNow','lcSaveDo','lcAfterSave','siDeadlineApply'].forEach(n=>ok(b['doc-app:'+n]&&b['doc-app:'+n]===a['doc-app:'+n],'같음 = '+n));
   ['siPlan','guardDv','guardOut','payDeadline37','lcPodCands37'].forEach(n=>ok(b['doc-core:'+n]&&b['doc-core:'+n]===a['doc-core:'+n],'같음 = '+n));

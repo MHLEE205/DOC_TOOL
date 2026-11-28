@@ -7,7 +7,7 @@ const DOC=new Function('module',HTML.match(/<script id="doc-core">([\s\S]*?)<\/s
 let pass=0,fail=0; const ok=(c,m,info)=>{ if(c){pass++;} else {fail++;console.log('FAIL',m,info===undefined?'':JSON.stringify(info).slice(0,700));} };
 const eq=(a,b,m)=>ok(JSON.stringify(a)===JSON.stringify(b),m,{got:a,want:b});
 console.log('버전 · 푸터');
-ok(/<title>LEENAI D-00 書類ツール v0\.3[78]<\/title>/.test(HTML)&&(HTML.match(/version:'0\.3[78]'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.37 · 푸터');
+ok(/<title>LEENAI D-00 書類ツール v0\.3[789]<\/title>/.test(HTML)&&(HTML.match(/version:'0\.3[789]'/g)||[]).length===1&&/✦ Powered by LEENAI Automation System/.test(HTML),'버전 0.37 · 푸터');
 
 /* 가짜 L/C (통지서 인쇄 모양) */
 const LC=o=>[' DOCUMENTARY CREDIT NUMBER     :20  TESTLC0001',' APPLICANT                     :50',' SAMPLE BUYER CO., LTD.',' 1 TEST ROAD, SAMPLE DISTRICT','  SAMPLE CITY, VIETNAM',' DRAFTS AT ...                 :42C',
