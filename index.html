@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LEENAI D-00 書類ツール v0.36.1</title>
+<title>LEENAI D-00 書類ツール v0.37</title>
 <link id="leenaiFavicon" rel="icon">
 <link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
 <script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
@@ -43,6 +43,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',system-ui
 .v34-plus{margin-left:6px;font-size:11px;font-weight:700;color:var(--text2);white-space:nowrap}.v34-auto{font-size:12px;white-space:nowrap}.v34-man{color:var(--text3)}.v34-fix{margin-left:4px;padding:0 6px;height:20px;font-size:10px;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text3);cursor:pointer}   /* v0.34 (N58) */
 .v33-fac{display:flex;flex-direction:column;gap:6px;margin-top:8px}   /* v0.33 (D1): 工場の候補ボタン */
 .v33-fac .dt-btn{height:auto;min-height:30px;padding:5px 10px;white-space:normal;text-align:left;line-height:1.35;font-size:12px;color:var(--text)}
+.si-picks{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.si-pick.on{outline:2px solid var(--accent,currentColor)}.si-pick-bkg b{font-weight:700;margin-left:4px}   /* v0.37 (N73): 港の候補 */
 .v30-plan{margin-left:4px;font-size:10px;color:var(--text3);font-weight:400;white-space:nowrap}   /* v0.30 (E3): ETD の下に 選ばなかった方の日付 (参考 · 灰色) */
 .dt-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dt-between{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
@@ -807,6 +808,58 @@ const DOC = (()=>{
     Object.keys(res.rec.sinos).forEach(sn=>{ const o=res.rec.sinos[sn]; Object.keys(o).forEach(col=>{ if(head.indexOf(col)<0) return; if(col==='crcf9_payment_deadline') return;   // 支払条件は siDeadlineFix (v0.22.1)
       if(col==='cr49f_lc_no'&&!o[col]) return; const e=lcExpect(col,o[col],ctx); if(e!=null&&e!==String(o[col]==null?'':o[col])){ fixes.push({sino:sn, col, from:String(o[col]==null?'':o[col]), to:e}); o[col]=e; } }); });
     if(fixes.length) res.lcFix=(res.lcFix||[]).concat(fixes); return fixes; }
+  /* ══════════ v0.37 (指示書 THOR_37 · 形님 N72 · N73 · R3 · R6 · R7 「LC -> SI 가 가장 중요하다」) — L/C 原文から決まる欄を コードで確かめる (AI の推薦の後) ══════════ */
+  const V37 = {
+    PICK:'要確認 · 港を選んでください（L/C {tag} の候補 {n}）', BKG:'BKG の POD', MIXED:'候補と同じでない港名は使わない（混ぜない）',
+    DL_SRC:['42C','42P','47A','46A'], DL_WHY:'支払期限 = 「{n} DAYS {after} {base}」（L/C {tag} の語のまま · N72）',
+    ADDR_WHY:'Notify 住所 = L/C :50 の住所（空にしない）', POD1_WHY:'港 = L/C {tag} の原文のまま', SPITC:/\bSP-?\s?ITC\b/i
+  };
+  /* L/C 原文の欄 — 通知書の印刷 「項目名 :45A」 + 次の行から内容 (a1_bench v0.13 lcSections と同じ切り方) */
+  const LC_SEC_RE = /^\s*([A-Z][A-Z0-9 \/&.,'()\-]*?)\s*:(\d{2}[A-Z]?)(?=\s|$)\s*(.*)$/;
+  function lcSections(raw){ const out=[]; let cur=null;
+    String(raw||'').replace(/\r\n/g,'\n').split('\n').forEach(line=>{ if(/^\s*-{2,}\s*Page\s+\d+\s*-{2,}\s*$/i.test(line)) return; const m=line.match(LC_SEC_RE);
+      if(m&&m[1].length>=3){ cur={tag:m[2], label:m[1].trim(), lines:m[3].trim()?[m[3].replace(/\s+$/,'')]:[]}; out.push(cur); return; } if(cur) cur.lines.push(line.trim()); });
+    out.forEach(s=>{ while(s.lines.length&&!s.lines[s.lines.length-1]) s.lines.pop(); s.text=s.lines.join('\n'); delete s.lines; }); return out; }
+  const lcSec = (raw, tag) => { const s=lcSections(raw).filter(x=>x.tag===tag); return s.length?s[s.length-1].text:''; };   // Amend があれば 後のもの
+  /* N72: 支払期限 = 「{AT }{n} DAYS {AFTER|FROM} {基準日の語}」 — 語は原文のまま (B/L ↔ BILL OF LADING を変えない · DATE を抜かない) · 抜く = 割合 · 通数 · WILL BE PAID · 呈示 · 前の 0 · DAYS DAYS */
+  function payDeadline37(text){ const s=String(text||'').toUpperCase().replace(/\s+/g,' ').trim(); if(!s) return '';
+    const m=s.match(/(\bAT\s+)?\b0*(\d{1,3})\s+DAYS(?:\s+DAYS)*\s+(AFTER|FROM)\s+(.+)$/); if(!m) return '';
+    let base=m[4].split(/\s+(?:FOR|IN\s+(?:DUPLICATE|TRIPLICATE)|WILL\s+BE|AGAINST|UPON|PROVIDED|COVERING)\b|[.;]/)[0].trim();
+    const d=base.match(/^(.*?\bDATE)\b/); if(d) base=d[1];
+    base=base.replace(/^THE\s+(?=B\/L|BILL|SHIPMENT|DATE)/,m=>m).replace(/[\s,]+$/,'');
+    if(!base) return ''; return (m[1]?'AT ':'')+(+m[2])+' DAYS '+m[3]+' '+base; }
+  function payDeadlineOf(raw){ for(const tag of V37.DL_SRC){ const s=lcSec(raw,tag); if(!s) continue;
+      const lines=tag==='42C'||tag==='42P'?[s]:s.split(/\n(?=\s*(?:\d+[.)/]|\+|-))/).filter(x=>/DAYS\s+(?:AFTER|FROM)/i.test(x)&&/PAY|DRAFT|TENOR|USANCE|MATURITY/i.test(x));
+      for(const x of lines){ const v=payDeadline37(x); if(v) return {value:v, tag}; } } return null; }
+  /* N73 · R3: 44B (なければ 44F) の候補 — 「A OR B OR C PORT IN VIETNAM」 → 1 港ずつ (後ろの共通の語 「PORT IN VIETNAM」 を各候補に) · 1 つ = 原文のまま */
+  function lcPodCands37(raw, only){ const tag=only?(lcSec(raw,only)?only:''):(lcSec(raw,'44B')?'44B':lcSec(raw,'44F')?'44F':''); if(!tag) return {tag:'', cands:[]};
+    const txt=lcSec(raw,tag).replace(/\s+/g,' ').trim().toUpperCase(), ps=txt.split(/\s+OR\s+/).map(x=>x.trim()).filter(Boolean);
+    if(ps.length<2) return {tag, cands:[txt], raw:txt};
+    const last=ps[ps.length-1], k=last.search(/\s(?:SEA\s*)?PORTS?\b|\sTERMINAL\b|,/), suf=k>=0?last.slice(k):'', ci=last.indexOf(','), ctail=ci>=0?last.slice(ci):'';
+    const C=[]; ps.forEach((x,i)=>{ let v=x; if(i<ps.length-1&&x.indexOf(',')<0){ if(!/\bPORTS?\b|\bTERMINAL\b/.test(x)) v=x+suf; else if(ctail) v=x+ctail; } if(C.indexOf(v)<0) C.push(v); });
+    const sp=C.filter(c=>V37.SPITC.test(c)), rest=C.filter(c=>!V37.SPITC.test(c));
+    return {tag, cands:rest.concat(sp), raw:txt}; }
+  const podKey = s => up(s).replace(/\b(?:PORTS?|IN|OF|THE|CITY|TERMINAL|SEA)\b/g,' ').replace(/[^A-Z0-9]/g,'');
+  /* 推薦の後: 支払期限 (N72) · 港 (N73 · R3 · R7) · Notify 住所 (R6) — ctx = {raw (L/C 原文), bkgPods:[…]} → 直したもの [{sino, col, from, to, why}] */
+  function siLc37(res, ctx){ const fixes=[]; if(!res||!res.rec||!res.rec.sinos) return fixes; const raw=String((ctx&&ctx.raw)||''); if(!raw.trim()) return fixes;
+    const B=res.rec.basis=res.rec.basis||{}, dl=payDeadlineOf(raw), pc=lcPodCands37(raw), bk=((ctx&&ctx.bkgPods)||[]).map(podKey).filter(k=>k.length>=4);
+    const a50=lcSec(raw,'50'), addr=a50?a50.split('\n').slice(1).map(x=>x.trim()).filter(Boolean).join('\n'):'';
+    const set=(sn,col,v,why,extra)=>{ const o=res.rec.sinos[sn], b0=String(o[col]==null?'':o[col]); const bs=(B[sn]=B[sn]||{}), bb=bs[col]=Object.assign({},bs[col]||{}, extra||{});
+      if(why){ bb.basis=why; bb.source=bb.source||'LC'; } if(v!==b0){ o[col]=v; fixes.push({sino:sn, col, from:b0, to:v, why}); } };
+    Object.keys(res.rec.sinos).forEach(sn=>{ const o=res.rec.sinos[sn]||{};
+      if(dl&&'crcf9_payment_deadline' in o){ const m=dl.value.match(/^(AT )?(\d+) DAYS (AFTER|FROM) (.+)$/); set(sn,'crcf9_payment_deadline',dl.value,V37.DL_WHY.replace('{n}',m[2]).replace('{after}',m[3]).replace('{base}',m[4]).replace('{tag}',dl.tag),{flag:undefined}); }
+      if(pc.cands.length>=2){ const cands=pc.cands.map(c=>({v:c, bkg:bk.some(k=>podKey(c).indexOf(k)===0)}));   /* 부킹 POD (港名だけ) が 候補の頭と同じ */
+        const f44=pc.tag==='44B'?lcPodCands37(raw,'44F').cands:[];
+        ['crcf9_place_of_delivery_1','crcf9_place_of_delivery_2','crcf9_place_of_delivery_3'].forEach(col=>{ if(!(col in o)) return; if(o[col]&&f44.length&&!podInCands(o[col],pc.cands)&&podInCands(o[col],f44)) return;
+          set(sn,col,'',null,{cands, pick:true, flag:V37.PICK.replace('{tag}',pc.tag).replace('{n}',cands.length), ok:undefined, basis:V37.PICK.replace('{tag}',pc.tag).replace('{n}',cands.length)}); });
+      }
+      { const pf=lcPodCands37(raw,'44F'), v=String(o.crcf9_port_of_discharge||''); if(v&&pf.cands.length&&!podInCands(v,pf.cands)){ const cf=pf.cands.map(c=>({v:c, bkg:bk.some(k=>podKey(c).indexOf(k)===0)})); set(sn,'crcf9_port_of_discharge','',null,{cands:cf, pick:true, flag:V37.MIXED, ok:undefined, basis:V37.MIXED}); } }
+      if(pc.cands.length===1&&'crcf9_place_of_delivery_1' in o){ const v=String(o.crcf9_place_of_delivery_1||''); if(!v||podKey(v)!==podKey(pc.cands[0])) set(sn,'crcf9_place_of_delivery_1',pc.cands[0],V37.POD1_WHY.replace('{tag}',pc.tag)); }
+      if(addr&&'crcf9_address' in o&&!String(o.crcf9_address||'').trim()) set(sn,'crcf9_address',addr,V37.ADDR_WHY); });
+    if(fixes.length) res.lc37=(res.lc37||[]).concat(fixes); return fixes; }
+  /* M2 (測定 · 形님 N72 · N73): 支払期限 = 패턴 (AT 有無 · 語は原文) で同じなら 一致 · 44B 候補の欄 = 職員の値が候補の中なら 一致 */
+  const dlSame = (a, b) => { const n=s=>{ const v=payDeadline37(s)||up(s).replace(/\s+/g,' ').trim(); return v.replace(/^AT /,''); }; return !!(a||b)&&n(a)===n(b); };
+  const podInCands = (v, cands) => { const k=podKey(v); if(!k) return false; return (cands||[]).some(c=>{ const ck=podKey(c); return ck===k||(ck.length>=4&&k.indexOf(ck)===0&&!(cands||[]).some(d=>d!==c&&podKey(d).length>ck.length&&k.indexOf(podKey(d))===0)); }); };
   function siDeadlineFix(res, tenor){ const t=String(tenor||'').trim(), out=[]; if(!t||!res||!res.rec||!res.rec.sinos) return out;
     if(res.fieldHead&&res.fieldHead.indexOf('crcf9_payment_deadline')<0) return out;
     Object.keys(res.rec.sinos).forEach(sn=>{ const r=res.rec.sinos[sn]||{}, b=String(r.crcf9_payment_deadline==null?'':r.crcf9_payment_deadline); if(b!==t){ r.crcf9_payment_deadline=t; out.push({sino:sn, before:b, after:t}); } res.rec.sinos[sn]=r; });
@@ -2667,7 +2720,7 @@ const DOC = (()=>{
     return {stage:12, gkey:'fd', zone:'do', what:V30.FD_IN, why:V30.FD_IN_WHY.replace('{src}',Sg.fdSrc||'FD').replace('{d}',md(Sg.fd)), due:null, dueText:'—', soon:true, group:null, action:null, nudge:null, fdIn:true}; }   // 下書き なし (「提案」 ボタンで入れる)
   function ctEtd(bks, today){ const L=(bks||[]).map(b=>String(b.etd||'').slice(0,10)).filter(Boolean).sort(), n=L.find(e=>e>=today); return n||L[L.length-1]||''; }
 
-  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, /* v0.30 */ etdPick, etdOther, shippedOut, V30, fdInputRow, blRcvLink, /* v0.31 */ V31, etdOtherLabel, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
+  return {ST, STEPS, CT_STEPS, OUT_ROOT, SRC, NAME, NA, REQ_SI, ACL_VERDICT, ACL_RULE, aclJudge, up, isoDay, etdOf, /* v0.30 */ etdPick, etdOther, shippedOut, V30, fdInputRow, blRcvLink, /* v0.31 */ V31, etdOtherLabel, /* v0.37 */ V37, lcSections, lcSec, payDeadline37, payDeadlineOf, lcPodCands37, podKey, siLc37, dlSame, podInCands, addDays, fmtMD, ivCode, ctCode, docStaffMap, meOf, visible, shortName,
     /* v0.29 */ V29, oblFlow, swbRow, v29Zone, reqRow, ctEtd,
     /* v0.28 */ V28, mark, staffColor, polStaffOrder, bandOf, reqSort, sort28, hay28, hit28, hashOf, hashParse, lgPersonNeed, lgHead28,
     /* v0.27 */ MAIL30, mailGreeting, mailSigCompany, mailCleanName, mailGuess, mailCompose, greetOk, mailHtml, mailInsert, htmlText, mailVerify, replyAllTo, ctRowOpt, ctIvsLabel,
@@ -4798,10 +4851,10 @@ async function cpTrialStatsModal(){
 }
 
 /* ══════════ P3 — S/I タブ (a1_bench v0.12 の R2 · マスター使用 を 契約 1 件に) ══════════
-   エンジン = CONTRACT_SEND/a1_bench.html @435799c の 4 つの script (a1-core · a1-d01 · a1-master · a1-app) をコミット固定 + sha256 で読み込み、
+   エンジン = CONTRACT_SEND/a1_bench.html @6e7e0f9 (v0.13 · v0.37 で更新) の 4 つの script (a1-core · a1-d01 · a1-master · a1-app) をコミット固定 + sha256 で読み込み、
    別の関数の中で動かす (a1_bench は変えない · コピーしない)。a1_bench の画面部分は呼ばない — 呼ぶのは 1 件分の準備 · R2 ① ② ③ だけ。
    COMPASS 書き込み = compass_write_test v0.3 の手順 (書く前に控え → 変わる欄を見せて確認 → 書く → 読み直して確かめる → 履歴) · 門番 DOC.guardDv */
-const A1_ENGINE = {commit:'435799c54de2718d069c6a9fe1090eb0148ae70f', sha256:'4afe49f70c9389e5ce0cbe13df276fe2ca9b1a300d82076b2b6b8e83e5887efd', ver:'0.12'};
+const A1_ENGINE = {commit:'6e7e0f901dfeff24010dd769f194a16020b52ac8', sha256:'48bef69a41bb76b04ab016ae1a856a065d0458e76726b64aeea4701fd7768ae3', ver:'0.13'};   // v0.37: a1 v0.13 (組立に L/C 原文の欄 · 写し方 R1 ~ R8 · 支払期限 N72)
 A1_ENGINE.url='https://raw.githubusercontent.com/MHLEE205/CONTRACT_SEND/'+A1_ENGINE.commit+'/a1_bench.html';
 let A1X = null;
 async function loadA1Engine(){
@@ -4856,17 +4909,20 @@ async function siRecommend(id, say, opt){
   say('AI: S/I を組み立てる (R2 ③) — 1〜2 分…');
   const rec=await A.runR2Assemble(t,{extract:[x1.json,x2.json],checks,recon,image:!!lcp.image},input,opts,1);
   const calls=[].concat(x1.calls||[],x2.calls||[],rec.calls||[]), usage=A.sumUsage(calls);
-  return {no, id, at:new Date().toISOString(), engine:'a1_bench v'+A1_ENGINE.ver+' @'+A1_ENGINE.commit.slice(0,7)+' (R2 · マスター)', model:opts.r2Model, usage, cost:A.costOf(opts.r2Model,usage), ms:calls.reduce((a,x)=>a+(x.ms||0),0),
+  const out={no, id, at:new Date().toISOString(), engine:'a1_bench v'+A1_ENGINE.ver+' @'+A1_ENGINE.commit.slice(0,7)+' (R2 · マスター)', model:opts.r2Model, usage, cost:A.costOf(opts.r2Model,usage), ms:calls.reduce((a,x)=>a+(x.ms||0),0),
     rec:{sinos:rec.sinos, basis:rec.basis, details:rec.details, notes:rec.aiNotes||'', rejected:rec.rejected||[], sourceIssues:rec.sourceIssues||[]},
     lcRead:await lcReadSlim(no).catch(()=>null), prevSi:lcPrevSi(X, input),   // v0.36 (L6)
     priors:input.priors, lc:{lcNo:lcp.lcNo||'', files:(lcp.files||[]).map(f=>f.name), amends:(lcp.amendFiles||[]).length, image:!!lcp.image},
     fieldHead:X.fieldCheck.head.filter(cname=>DOC.SI_HEAD_COLS.indexOf(cname)>=0), current:X.siByContract[no]||[],
     sale:await saleWithItems(await A.loadSaleDetails(c))};
+  /* v0.37 (N72 · N73 · R3 · R6 · R7): L/C 原文で決まる欄を コードで (支払期限 = 核心の形 · 44B 候補 = 職員が選ぶ · 1 港 = 原文 · Notify 住所 = :50) — 画像 L/C (文字なし) は何もしない */
+  out.lcSecRaw=lcp.image?'':A.r2RawForCheck(lcp); DOC.siLc37(out,{raw:out.lcSecRaw, bkgPods:((input.r2Extra||{}).podBookings||[])}); delete out.lcSecRaw;
+  return out;
 }
 /* 保存した推薦 (D-00/doc_tool/si_rec/{契約}_{UTC}.json) — 再読み込み · あとで でも残る */
 /* v0.22.1 (②-3): L/C の契約で L/C 保管所に 42C があれば 推薦の payment_deadline = その原文 (なければ 何もしない) */
 /* v0.24 (N12): 推薦 · 前回 · 仮 S/I · 保存した推薦 = L/C から来る欄を L/C 保管所の原文どおりに (支払条件 = siDeadlineFix · ほか = siLcFix) */
-async function siDeadlineApply(id, res){ try{ if(!isLcCt(id)) return; await loadAclEngine().catch(()=>null); const L=await readLcJson(id).catch(()=>null), t=DOC.lc42(L&&L.lc); if(t) DOC.siDeadlineFix(res, t); if(L&&L.lc){ const lcText=await lcTextOf(L.lc).catch(()=>''); DOC.siLcFix(res,{lc:L.lc, lcText, lc42:t}); } }catch(e){} }
+async function siDeadlineApply(id, res){ try{ if(!isLcCt(id)) return; await loadAclEngine().catch(()=>null); const L=await readLcJson(id).catch(()=>null), t0=DOC.lc42(L&&L.lc), t=DOC.payDeadline37(t0)||t0; if(t) DOC.siDeadlineFix(res, t);   /* v0.37 (N72): 核心の形 */ if(L&&L.lc){ const lcText=await lcTextOf(L.lc).catch(()=>''); DOC.siLcFix(res,{lc:L.lc, lcText, lc42:t}); } }catch(e){} }
 async function siLcCtx(id){ if(!isLcCt(id)) return null; try{ await loadAclEngine().catch(()=>null); const L=await readLcJson(id).catch(()=>null); if(!L||!L.lc) return null; return {lc:L.lc, lcText:await lcTextOf(L.lc).catch(()=>''), lc42:DOC.lc42(L.lc)}; }catch(e){ return null; } }
 /* v0.22.1 (②-2 · 形さん P1): CP-A04 相違 → 「L/C の文言で直す」 — 確認 (今の値 → L/C 42C 原文) → 控え (doc_tool/si_backup/) → その S/I の payment_deadline だけ (門番 guardDv) → 読み直し → 履歴 (doc_tool/log/) */
 /* v0.23 (N2 形さん 「이걸 여기서 수정하게 만들 수는 없는 거니?」): S/I の 1 欄を その場で直す — 入力 → 前 / 後 の確認 → COMPASS の その欄だけ (他の欄 · 他の sino 0)
@@ -5015,9 +5071,10 @@ function siTabHtml(r){
   const tr=x=>{ const multi=String(x.value||'').indexOf('\n')>=0||String(x.value||'').length>60, attrs=' data-sn="'+esc(x.sino)+'" data-col="'+esc(x.col)+'" aria-label="'+esc(DOC.SI_LABEL[x.col]||x.col)+'"', cls='dt-in'+(x.s==='match'?'':' warn')+(x.s==='todo'?' dash':'');
     const inp=multi?'<textarea'+attrs+' class="'+cls+'" rows="'+Math.min(8,String(x.value||'').split('\n').length+1)+'" style="padding:6px 10px;font-size:13px">'+esc(x.value)+'</textarea>'
       :'<input'+attrs+' class="'+cls+'" value="'+esc(x.value)+'" style="height:36px;font-size:14px">';
+    const picks=(x.basis&&x.basis.pick&&x.basis.cands||[]).map(c=>'<button type="button" class="dt-btn ghost sm si-pick'+(c.bkg?' si-pick-bkg':'')+'" data-pick-sn="'+esc(x.sino)+'" data-pick-col="'+esc(x.col)+'" data-pick="'+esc(c.v)+'" title="'+esc(c.bkg?DOC.V37.BKG:'L/C')+'">'+esc(c.v)+(c.bkg?' <b>'+esc(DOC.V37.BKG)+'</b>':'')+'</button>').join('');
     return '<tr'+(x.s==='match'?'':' class="hl"')+'><td style="padding:10px 14px;white-space:normal"'+(lcRed(x)?' class="dt-c-diff"':'')+'>'+(lcRed(x)?'<b>'+esc(DOC.SI_LABEL[x.col]||x.col)+'</b>':esc(DOC.SI_LABEL[x.col]||x.col))+'<div class="dt-note">'+esc(typeof x.sino==='number'?'sino '+x.sino:x.sino)+'</div></td>'+
       (hasCur?'<td style="padding:10px 14px;white-space:pre-wrap;word-break:break-word;font-size:13px">'+(x.hasCur?cellV(x.cur):'<span class="dt-empty-v">(なし)</span>')+'</td>':'')+
-      '<td style="padding:8px 14px;white-space:normal">'+inp+'</td><td style="padding:10px 14px;font-size:13px;color:var(--text3);white-space:normal">'+esc([x.basis.source,x.basis.basis&&x.basis.basis!==x.basis.source?x.basis.basis:''].filter(Boolean).join(' / ')||'—')+siFacBtns(x)+'</td><td style="padding:10px 14px" title="'+esc(x.why)+'">'+tag(x)+'</td></tr>'; };
+      '<td style="padding:8px 14px;white-space:normal">'+inp+(picks?'<div class="si-picks">'+picks+'</div>':'')+'</td><td style="padding:10px 14px;font-size:13px;color:var(--text3);white-space:normal">'+esc([x.basis.source,x.basis.basis&&x.basis.basis!==x.basis.source?x.basis.basis:''].filter(Boolean).join(' / ')||'—')+siFacBtns(x)+'</td><td style="padding:10px 14px" title="'+esc(x.why)+'">'+tag(x)+'</td></tr>'; };
   const t='<div class="dt-card dt-tablewrap"><table class="dt-t" style="min-width:'+(hasCur?900:720)+'px"><thead><tr><th style="width:150px">項目</th>'+(hasCur?'<th style="width:24%">今の値 (COMPASS)</th>':'')+'<th>推薦</th><th style="width:190px">根拠</th><th style="width:110px">状態</th></tr></thead><tbody>'+
     top.map(tr).join('')+'<tr><td colspan="'+nc+'" style="padding:10px 14px;font-size:13px;color:var(--text3)">ほか '+rest.length+' 項目一致 — <button class="dt-a" id="dtSiAll">'+(S.siShowAll?'閉じる':'すべて表示')+'</button></td></tr>'+(S.siShowAll?rest.map(tr).join(''):'')+'</tbody></table></div>';
   /* v0.17 (B1 · D10): エンジン名 (a1_bench) · モデル · 費用 · 秒 は 管理者だけ · 時刻 = 日本時間 */
@@ -5050,6 +5107,8 @@ async function siTabAfter(r){
   const all=$('dtSiAll'); if(all) all.onclick=()=>{ S.siShowAll=!S.siShowAll; renderCt(); };
   const later=$('dtSiLater'); if(later) later.onclick=()=>{ S.board='ct'; show('list'); };
   const wr=$('dtSiWrite'); if(wr) wr.onclick=()=>siWrite(id);
+  /* v0.37 (N73): 港の候補ボタン → その欄に L/C の港名をそのまま (混ぜない) */
+  document.querySelectorAll('#dtCtBody [data-pick]').forEach(b=>{ b.onclick=()=>{ const el=document.querySelector('#dtCtBody [data-sn="'+b.dataset.pickSn+'"][data-col="'+b.dataset.pickCol+'"]'); if(!el) return; el.value=b.dataset.pick; el.dispatchEvent(new Event('input',{bubbles:true})); b.parentNode.querySelectorAll('.si-pick').forEach(x=>x.classList.toggle('on',x===b)); }; });
   document.querySelectorAll('#dtCtBody [data-sifac]').forEach(b=>{ b.onclick=()=>{ const [sn,col,i]=b.dataset.sifac.split('|'), res=S.siRec[id], f=res&&(((res.rec.basis||{})[sn]||{})[col]||{}).fac, cand=f&&f.cands&&f.cands[+i]; if(!cand) return;
     const E=S.siEdit[id]=S.siEdit[id]||{sinos:{},details:[]}; (E.sinos[sn]=E.sinos[sn]||{})[col]=cand.val; f.chosen=+i; renderCt(); }; });   /* v0.33 (D1 · V2) */
   /* v0.32 (S1): T/T · D/P · S/I なし · 推薦なし = タブを開いたら 「前回の S/I から作る」 を自動で (AI なし · 書き込みは 「COMPASS に書き込む」 を押したときだけ) */
@@ -6026,7 +6085,7 @@ function cpBannerBind(box){
 }
 
 const CFG = {
-  sys:'D-00', name:'書類ツール', version:'0.36.1', date:'2026-11-27',
+  sys:'D-00', name:'書類ツール', version:'0.37', date:'2026-11-28',
   desc:'書類担当の今日の仕事と、ACL・B/L Draft・S/I の確認をまとめたツールです（試験運用中）',   // v0.17 (D1)
   graphScopes:['Sites.ReadWrite.All'],   // 書き込みは D-00/doc_tool/ の下 (履歴 · S/I 控え) · v0.11 D-00/checkpoint_reports/ (見落とし報告 · 確認済み — 新規だけ) — DOC.guardOut
   redirectUri:'https://mhlee205.github.io/DOC_TOOL/',
